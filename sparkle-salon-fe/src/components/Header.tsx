@@ -9,7 +9,7 @@ export default function Header() {
     const isActive = (path: string) => location.pathname === path ? "text-gray-400 font-bold" : "text-white";
 
     return (
-        <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-gray-800 text-white text-xl font-semibold shadow-md">
+        <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-gradient-to-r from-[#2b3252] to-[#856565] text-white text-xl font-semibold shadow-md">
             <div className="text-2xl font-bold"><Link to="/">Sparkle Salon</Link></div>
 
             <nav>
@@ -24,16 +24,17 @@ export default function Header() {
                 </nav>
 
             {/* Login và Register Buttons */}
-            <div>
+            <div className="flex flex-row items-center">
                 <button
                     onClick={() => setIsLoginOpen(true)}
-                    className="bg-gray-800 hover:text-gray-300 text-white px-4 py-2 text-lg"
+                    className=" hover:text-gray-300 text-white px-2 py-2 text-lg"
                 >
                     Login
                 </button>
+                <div className="border-r-2 h-[30px]"></div>
                 <button
                     onClick={() => setIsRegisterOpen(true)}
-                    className="bg-gray-800 hover:text-gray-300 text-white px-4 py-2 text-lg"
+                    className=" hover:text-gray-300 text-white px-2 py-2 text-lg"
                 >
                     Register
                 </button>

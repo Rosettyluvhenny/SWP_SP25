@@ -74,7 +74,7 @@ export default function Home() {
             </div>
 
             {/* Section 2 */}
-            <div className="flex flex-row items-center justify-center w-full bg-gradient-to-r bg-white py-12 border-b border-gray-300">
+            <div className="flex flex-row items-center justify-center w-full bg-gradient-to-r from-white to-pink-100 text-center py-12">
                 {/* Left Section */}
                 <div className="w-auto flex justify-end pr-40">
                     <img
@@ -93,12 +93,8 @@ export default function Home() {
                         <br />
                         Skin care beauty
                     </h2>
-                    <p className="mt-4 text-lg text-gray-500">
-                        Với hơn 10 năm kinh nghiệm về lĩnh vực điều trị các loại
-                        da
-                    </p>
-                    <p className="mt-4 text-lg text-gray-500">
-                        chúng tôi thấu hiểu khách hàng hơn bao giờ hết.
+                    <p className="w-full max-w-[400px] mt-4 text-lg text-gray-500">
+                        Với hơn 10 năm kinh nghiệm về lĩnh vực điều trị các loại da chúng tôi thấu hiểu khách hàng hơn bao giờ hết.
                     </p>
                     <div className="mt-6 flex items-center space-x-4">
                         <button className="bg-gray-900 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold text-lg shadow-md">
@@ -107,8 +103,9 @@ export default function Home() {
                     </div>
                 </div>
             </div>
+
             {/* Section 3 */}
-            <div className="py-16 bg-white text-center">
+            <div className="py-16 bg-gradient-to-r from-pink-100 to-white text-center">
                 <h2 className="text-5xl font-semibold leading-tight text-[#ee8874]">
                     Dịch Vụ Nổi Bật
                 </h2>
