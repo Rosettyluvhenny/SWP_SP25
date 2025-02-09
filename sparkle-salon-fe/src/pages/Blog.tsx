@@ -1,5 +1,10 @@
-import React from 'react'
+
+import Header from "../components/Header";
 
 export default function Blog() {
-  return <h1>Blog</h1>
+  return(
+      <div>
+        <Header />
+      </div>
+    )
 }

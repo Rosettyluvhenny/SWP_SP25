@@ -1,7 +1,10 @@
-import React from 'react'
+
+import Header from "../components/Header";
 
 export default function Product() {
-  return (
-    <div>Product</div>
-  )
+  return(
+      <div>
+        <Header />
+      </div>
+    )
 }
