@@ -27,13 +27,13 @@ export default function Header() {
             <div>
                 <button
                     onClick={() => setIsLoginOpen(true)}
-                    className="bg-gray-800 hover:bg-gray-900 hover:text-gray-300 text-white px-4 py-2 rounded-lg"
+                    className="bg-gray-800 hover:text-gray-300 text-white px-4 py-2 text-lg"
                 >
                     Login
                 </button>
                 <button
                     onClick={() => setIsRegisterOpen(true)}
-                    className="ml-4 bg-gray-800 hover:bg-gray-900  hover:text-gray-300 text-white px-4 py-2 rounded-lg"
+                    className="bg-gray-800 hover:text-gray-300 text-white px-4 py-2 text-lg"
                 >
                     Register
                 </button>
