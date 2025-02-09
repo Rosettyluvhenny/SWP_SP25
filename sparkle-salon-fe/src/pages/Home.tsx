@@ -74,7 +74,7 @@ export default function Home() {
             </div>
 
             {/* Section 2 */}
-            <div className="flex flex-row items-center justify-center w-full bg-gradient-to-r bg-white py-12">
+            <div className="flex flex-row items-center justify-center w-full bg-gradient-to-r bg-white py-12 border-b border-gray-300">
                 {/* Left Section */}
                 <div className="w-auto flex justify-end pr-40">
                     <img
@@ -104,6 +104,82 @@ export default function Home() {
                         <button className="bg-gray-900 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold text-lg shadow-md">
                             <Link to="/about">Tìm hiểu thêm →</Link>
                         </button>
+                    </div>
+                </div>
+            </div>
+            {/* Section 3 */}
+            <div className="py-16 bg-white text-center">
+                <h2 className="text-5xl font-semibold leading-tight text-[#ee8874]">
+                    Dịch Vụ Nổi Bật
+                </h2>
+                <div className="grid grid-cols-3 gap-8 w-3/4 mx-auto mt-12">
+                    {/* Service 1 */}
+                    <div className="flex flex-col items-center">
+                        <img
+                            src="/assets/skin-treatment1.jpg"
+                            alt="Skin Treatment 1"
+                            className="rounded-lg shadow-md w-full hover:shadow-2xl"
+                        />
+                        <h3 className="text-md font-semibold text-gray-900 mt-4">
+                            Điều trị mụn chuyên sâu
+                        </h3>
+                    </div>
+
+                    {/* Service 2 */}
+                    <div className="flex flex-col items-center">
+                        <img
+                            src="/assets/skin-treatment2.jpg"
+                            alt="Skin Treatment 2"
+                            className="rounded-lg shadow-md w-full hover:shadow-2xl"
+                        />
+                        <h3 className="text-md font-semibold text-gray-900 mt-4">
+                            Thải độc da thảo dược
+                        </h3>
+                    </div>
+
+                    {/* Service 3 */}
+                    <div className="flex flex-col items-center">
+                        <img
+                            src="/assets/skin-treatment3.jpg"
+                            alt="Skin Treatment 3"
+                            className="rounded-lg shadow-md w-full hover:shadow-2xl"
+                        />
+                        <h3 className="text-md font-semibold text-gray-900 mt-4">
+                            Điều trị nám, tàn nhang
+                        </h3>
+                    </div>
+                    {/* Service 4 */}
+                    <div className="flex flex-col items-center">
+                        <img
+                            src="/assets/skin-treatment4.jpg"
+                            alt="Skin Treatment 4"
+                            className="rounded-lg shadow-md w-full hover:shadow-2xl"
+                        />
+                        <h3 className="text-md font-semibold text-gray-900 mt-4">
+                            Điều trị sẹo rỗ
+                        </h3>
+                    </div>
+                    {/* Service 5 */}
+                    <div className="flex flex-col items-center">
+                        <img
+                            src="/assets/skin-treatment5.jpg"
+                            alt="Skin Treatment 5"
+                            className="rounded-lg shadow-md w-full hover:shadow-2xl"
+                        />
+                        <h3 className="text-md font-semibold text-gray-900 mt-4">
+                            Điều trị da nhờn
+                        </h3>
+                    </div>
+                    {/* Service 6 */}
+                    <div className="flex flex-col items-center">
+                        <img
+                            src="/assets/skin-treatment6.jpg"
+                            alt="Skin Treatment 6"
+                            className="rounded-lg shadow-md w-full hover:shadow-2xl"
+                        />
+                        <h3 className="text-md font-semibold text-gray-900 mt-4">
+                            Điều trị lão hoá da
+                        </h3>
                     </div>
                 </div>
             </div>
