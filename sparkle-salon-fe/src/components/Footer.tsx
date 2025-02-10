@@ -3,11 +3,11 @@ import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 
 export default function Footer() {
     return (
-        <footer className="bg-gradient-to-r from-[#2b3252] to-[#856565] text-white py-12">
-            <div className="text-center mb-8">
-                <p className="text-lg font-light">
-                    Da mặt dù có ra sao rồi cũng sẽ đẹp, hãy để chúng tôi giúp bạn. 
-                    <Link to="/contact" className="underline hover:text-[#f8a89c] ">Đặt lịch ngay nhé →</Link>
+        <footer className="bg-gradient-to-r from-[#2b3252] to-[#856565] text-white py-4">
+            <div className="text-center mb-8 border-b border-gray-100 pb-4">
+                <p className="text-2xl font-serif">
+                    Da mặt dù có ra sao cũng sẽ đẹp, hãy để chúng tôi giúp bạn. 
+                    <Link to="/contact" className="underline hover:text-[#f8a89c]">Đặt lịch ngay nhé →</Link>
                 </p>
             </div>          
             {/* Main Footer Content */}
@@ -48,7 +48,7 @@ export default function Footer() {
                 </div>
             </div>
 
-            <div className="text-white text-center py-8">
+            <div className="text-white text-center py-4">
                 © {new Date().getFullYear()} Sparkle Salon. Luôn sẵn sàng phục vụ quý khách.
             </div>
         </footer>

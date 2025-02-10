@@ -16,7 +16,7 @@ export default function Home() {
                         Mau đặt lịch để trải nghiệm dịch vụ tốt nhất
                     </p>
                     <button className="mt-6 bg-[#f8a89c] hover:bg-[#ee8874] text-black px-6 py-3 rounded-lg font-semibold text-lg">
-                        <Link to="/contact">Đặt lịch ngay →</Link>
+                        <Link to="/contact " className="hover:text-xl">Đặt lịch ngay →</Link>
                     </button>
                 </div>
             </div>
@@ -31,11 +31,11 @@ export default function Home() {
                             viên hàng đầu
                         </h3>
                         <p className="text-gray-500 mt-1">
-                            Được đào tạo kỹ càng
+                            Được đào tạo kỹ càng và chuyên nghiệp
                         </p>
                         <Link
                             to="/about"
-                            className="hover:underline hover:text-gray-600"
+                            className="hover:underline hover:text-gray-600 hover:text-sm"
                         >
                             xem thêm →
                         </Link>
@@ -49,11 +49,11 @@ export default function Home() {
                             chất lượng
                         </h3>
                         <p className="text-gray-500 mt-1">
-                            Nói không với hàng giả
+                            Nói không với hàng chất lượng kém
                         </p>
                         <Link
                             to="/product"
-                            className="hover:underline hover:text-gray-600"
+                            className="hover:underline hover:text-gray-600 hover:text-sm"
                         >
                             xem thêm →
                         </Link>
@@ -67,8 +67,14 @@ export default function Home() {
                             nghiệm về da
                         </h3>
                         <p className="text-gray-500 mt-1">
-                            Để chăm sóc da hiệu quả nhất
+                            Để hiểu rõ hơn về làn da của bạn
                         </p>
+                        <Link
+                            to="/quiz"
+                            className="hover:underline hover:text-gray-600 hover:text-sm"
+                        >
+                            xem thêm →
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -97,15 +103,15 @@ export default function Home() {
                         Với hơn 10 năm kinh nghiệm về lĩnh vực điều trị các loại da chúng tôi thấu hiểu khách hàng hơn bao giờ hết.
                     </p>
                     <div className="mt-6 flex items-center space-x-4">
-                        <button className="bg-gray-900 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold text-lg shadow-md">
-                            <Link to="/about">Tìm hiểu thêm →</Link>
+                        <button className="bg-gray-900 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold text-lg shadow-md">                           
+                            <Link to="/about" className="hover:text-xl">Tìm hiểu thêm →</Link>
                         </button>
                     </div>
                 </div>
             </div>
 
             {/* Section 3 */}
-            <div className="py-16 bg-gradient-to-r from-pink-100 to-white text-center">
+            <div className="py-16 bg-gradient-to-r from-pink-100 to-white text-center flex flex-col items-center">
                 <h2 className="text-5xl font-semibold leading-tight text-[#ee8874]">
                     Dịch Vụ Nổi Bật
                 </h2>
@@ -179,6 +185,9 @@ export default function Home() {
                         </h3>
                     </div>
                 </div>
+                <button className="mt-6 bg-[#f8a89c] hover:bg-[#ee8874] text-black px-6 py-3 rounded-3xl font-semibold text-lg">
+                        <Link to="/service" className="hover:text-white">Xem thêm →</Link>
+                    </button>
             </div>
         </div>
     );
