@@ -6,7 +6,7 @@ export default function Home() {
             {/* Section 1*/}
             <div className="min-h-screen flex flex-row items-center bg-[url('/assets/home-banner.jpg')] bg-cover bg-center bg-no-repeat">
                 <div className="text-start text-white max-w-xl ml-60">
-                    <h1 className="text-9xl font-semibold leading-tight">
+                    <h1 className="text-9xl font-serif leading-tight">
                         Sparkle Salon
                     </h1>
                     <p className="mt-2 text-lg text-gray-400">
@@ -15,8 +15,8 @@ export default function Home() {
                     <p className="mt-2 text-lg text-gray-400">
                         Mau đặt lịch để trải nghiệm dịch vụ tốt nhất
                     </p>
-                    <button className="mt-6 bg-[#f8a89c] hover:bg-[#ee8874] text-black px-6 py-3 rounded-lg font-semibold text-lg">
-                        <Link to="/contact " className="hover:text-xl">Đặt lịch ngay →</Link>
+                    <button className="mt-6 bg-[#f8a89c] hover:bg-[#ee8874] hover:text-xl hover:text-white text-black px-6 py-3 rounded-lg font-semibold text-lg">
+                        <Link to="/contact ">Đặt lịch ngay →</Link>
                     </button>
                 </div>
             </div>
@@ -103,8 +103,8 @@ export default function Home() {
                         Với hơn 10 năm kinh nghiệm về lĩnh vực điều trị các loại da chúng tôi thấu hiểu khách hàng hơn bao giờ hết.
                     </p>
                     <div className="mt-6 flex items-center space-x-4">
-                        <button className="bg-gray-900 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold text-lg shadow-md">                           
-                            <Link to="/about" className="hover:text-xl">Tìm hiểu thêm →</Link>
+                        <button className="bg-gray-900 hover:bg-gray-700 hover:text-xl text-white px-6 py-3 rounded-lg font-semibold text-lg shadow-md">                           
+                            <Link to="/about">Tìm hiểu thêm →</Link>
                         </button>
                     </div>
                 </div>
@@ -112,10 +112,11 @@ export default function Home() {
 
             {/* Section 3 */}
             <div className="py-16 bg-gradient-to-r from-pink-100 to-white text-center flex flex-col items-center">
-                <h2 className="text-5xl font-semibold leading-tight text-[#ee8874]">
+                <h2 className="text-5xl font-serif leading-tight text-[#ee8874]">
                     Dịch Vụ Nổi Bật
                 </h2>
                 <div className="grid grid-cols-3 gap-8 w-3/4 mx-auto mt-12">
+                {/* todo: link từng service vô /service/... */}
                     {/* Service 1 */}
                     <div className="flex flex-col items-center">
                         <img
@@ -185,8 +186,8 @@ export default function Home() {
                         </h3>
                     </div>
                 </div>
-                <button className="mt-6 bg-[#f8a89c] hover:bg-[#ee8874] text-black px-6 py-3 rounded-3xl font-semibold text-lg">
-                        <Link to="/service" className="hover:text-white">Xem thêm →</Link>
+                <button className="mt-6 bg-[#f8a89c] hover:bg-[#ee8874] hover:text-white hover:text-xl text-black px-6 py-3 rounded-3xl font-semibold text-lg">
+                        <Link to="/service">Xem thêm →</Link>
                     </button>
             </div>
         </div>

@@ -9,9 +9,9 @@ export default function Header() {
     const isActive = (path: string) => location.pathname === path ? "text-gray-400 font-bold" : "text-white";
 
     return (
-        <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-gradient-to-r from-[#2b3252] to-[#856565] text-white text-xl font-semibold shadow-md">
-            <div className="text-2xl font-bold"><Link to="/">Sparkle Salon</Link></div>
-
+        <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-gradient-to-r from-[#2b3252] to-[#856565] text-white text-xl font-serif shadow-md">
+            <div className="text-2xl font-serif"><Link to="/">Sparkle Salon</Link></div>
+ 
             <nav>
                     <ul className="flex space-x-10 text-lg">
                         <li><Link to="/" className={`${isActive("/")}`}>Home</Link></li>
