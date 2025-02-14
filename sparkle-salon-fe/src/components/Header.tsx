@@ -81,7 +81,7 @@ export default function Header() {
             {isLoginOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
                     <div className="bg-gradient-to-l from-white to-pink-200 p-6 rounded-lg shadow-lg w-full max-w-md">
-                        <h2 className="text-2xl font-serif text-center text-gray-800">
+                        <h2 className="text-2xl font-bold text-center text-gray-800">
                             Login
                         </h2>
                         <form className="mt-4">
@@ -103,18 +103,16 @@ export default function Header() {
                                     className="w-full px-4 py-2 border rounded-lg focus:outline-none text-gray-800 bg-white"
                                 />
                             </div>
-
-                            {/* Quên mật khẩu */}
+                            {/* Forgot Password */}
                             <p className="text-right mt-2">
                                 <Link
                                     to="/forgot-password"
-                                    className="text-blue-900 text-lg hover:underline"
-                                    onClick={() => setIsLoginOpen(false)} 
+                                    className="text-blue-800 hover:underline"
+                                    onClick={() => setIsLoginOpen(false)}
                                 >
                                     Quên mật khẩu?
                                 </Link>
                             </p>
-
                             <button
                                 type="submit"
                                 className="w-full mt-6 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg"
@@ -134,7 +132,7 @@ export default function Header() {
                             >
                                 <FaFacebook className="mr-2" /> Facebook
                             </a>
-                            <div className="border-r-2 border-gray-400"></div>
+                            <div className="border-r-2 border-gray-500"></div>
                             <a
                                 href="https://accounts.google.com/signin"
                                 className="flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"

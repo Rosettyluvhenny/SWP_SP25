@@ -16,7 +16,7 @@ export default function Home() {
                         Mau đặt lịch để trải nghiệm dịch vụ tốt nhất
                     </p>
                     <button className="mt-6 bg-[#f8a89c] hover:bg-[#ee8874] hover:text-xl hover:text-white text-black px-6 py-3 rounded-lg font-semibold text-lg">
-                        <Link to="/contact ">Đặt lịch ngay →</Link>
+                        <Link to="/contact" aria-label="Book an appointment">Đặt lịch ngay →</Link>
                     </button>
                 </div>
             </div>
@@ -86,6 +86,7 @@ export default function Home() {
                     <img
                         src="/assets/home-services.jpg"
                         alt="Featured Service"
+                        loading="lazy"
                         className="rounded-xl shadow-lg"
                     />
                 </div>
@@ -122,6 +123,7 @@ export default function Home() {
                         <img
                             src="/assets/skin-treatment1.jpg"
                             alt="Skin Treatment 1"
+                            loading="lazy"
                             className="rounded-lg shadow-md w-full hover:shadow-2xl"
                         />
                         <h3 className="text-md font-semibold text-gray-900 mt-4">
@@ -134,6 +136,7 @@ export default function Home() {
                         <img
                             src="/assets/skin-treatment2.jpg"
                             alt="Skin Treatment 2"
+                            loading="lazy"
                             className="rounded-lg shadow-md w-full hover:shadow-2xl"
                         />
                         <h3 className="text-md font-semibold text-gray-900 mt-4">
@@ -146,6 +149,7 @@ export default function Home() {
                         <img
                             src="/assets/skin-treatment3.jpg"
                             alt="Skin Treatment 3"
+                            loading="lazy"
                             className="rounded-lg shadow-md w-full hover:shadow-2xl"
                         />
                         <h3 className="text-md font-semibold text-gray-900 mt-4">
@@ -157,6 +161,7 @@ export default function Home() {
                         <img
                             src="/assets/skin-treatment4.jpg"
                             alt="Skin Treatment 4"
+                            loading="lazy"
                             className="rounded-lg shadow-md w-full hover:shadow-2xl"
                         />
                         <h3 className="text-md font-semibold text-gray-900 mt-4">
@@ -168,6 +173,7 @@ export default function Home() {
                         <img
                             src="/assets/skin-treatment5.jpg"
                             alt="Skin Treatment 5"
+                            loading="lazy"
                             className="rounded-lg shadow-md w-full hover:shadow-2xl"
                         />
                         <h3 className="text-md font-semibold text-gray-900 mt-4">
@@ -179,6 +185,7 @@ export default function Home() {
                         <img
                             src="/assets/skin-treatment6.jpg"
                             alt="Skin Treatment 6"
+                            loading="lazy"
                             className="rounded-lg shadow-md w-full hover:shadow-2xl"
                         />
                         <h3 className="text-md font-semibold text-gray-900 mt-4">
