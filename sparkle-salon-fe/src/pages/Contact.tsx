@@ -1,89 +1,79 @@
-import React, { useState, useEffect } from "react";
-import DateSelector from "../components/DateTimeSelector";
-import AppointmentForm from "../components/AppointmentForm";
-
-interface Slot {
-    date: string;
-    times: string[];
-}
-
-interface BookedSlot {
-    date: string;
-    time: string;
-}
+import React, { useState } from "react";
+import DateTimeSelector from "../components/DateTimeSelector";
 
 export default function Contact() {
-    const [formData, setFormData] = useState({ name: "", phone: "", date: "", time: "" });
-    const [availableSlots, setAvailableSlots] = useState<Slot[]>([]);
-    const [bookedSlots, setBookedSlots] = useState<BookedSlot[]>([]);
-    const [selectedDate, setSelectedDate] = useState("");
-    const [selectedTime, setSelectedTime] = useState("");
+    const [selectedTherapist, setSelectedTherapist] = useState<number | null>(
+        null
+    );
+    const [selectedService, setSelectedService] = useState<string>("");
+    const [selectedDate, setSelectedDate] = useState<number | null>(null);
+    const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
-    useEffect(() => {
-        const storedSlots = localStorage.getItem("availableSlots");
-        const storedBookedSlots = localStorage.getItem("bookedSlots");
+    const therapists = [
+        { id: 1, name: "Therapist A", img: "therapist1.jpg" },
+        { id: 2, name: "Therapist B", img: "therapist2.jpg" },
+        { id: 3, name: "Therapist C", img: "therapist3.jpg" },
+        { id: 4, name: "Therapist D", img: "therapist4.jpg" },
+        { id: 5, name: "Therapist E", img: "therapist5.jpg" },
+        { id: 6, name: "Therapist F", img: "therapist6.jpg" },
+        { id: 7, name: "Therapist G", img: "therapist7.jpg" },
+        { id: 8, name: "Therapist H", img: "therapist8.jpg" },
+        { id: 9, name: "Therapist I", img: "therapist9.jpg" },
+        { id: 10, name: "Therapist K", img: "therapist10.jpg" },
+    ];
 
-        if (storedSlots) {
-            setAvailableSlots(JSON.parse(storedSlots));
-        } else {
-            const initialSlots: Slot[] = Array.from({ length: 12 }, (_, i) => {
-                const date = new Date();
-                date.setDate(date.getDate() + i);
-                return {
-                    date: date.toISOString().split("T")[0],
-                    times: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
-                };
-            });
-            localStorage.setItem("availableSlots", JSON.stringify(initialSlots));
-            setAvailableSlots(initialSlots);
-        }
-        if (storedBookedSlots) {
-            setBookedSlots(JSON.parse(storedBookedSlots));
-        }
-    }, []);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleDateSelect = (date: string) => {
+    const handleDateTimeSelect = (date: number | null, time: string | null) => {
         setSelectedDate(date);
-        setFormData((prev) => ({ ...prev, date }));
-        setSelectedTime("");
-    };
-
-    const handleTimeSelect = (time: string) => {
         setSelectedTime(time);
-        setFormData((prev) => ({ ...prev, time }));
-    };
-
-    const isTimeBooked = (date: string, time: string) => bookedSlots.some(slot => slot.date === date && slot.time === time);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!formData.date || !formData.time) {
-            alert("Please select a date and time for your appointment.");
-            return;
-        }
-        const updatedBookedSlots = [...bookedSlots, { date: formData.date, time: formData.time }];
-        setBookedSlots(updatedBookedSlots);
-        localStorage.setItem("bookedSlots", JSON.stringify(updatedBookedSlots));
-        alert("Appointment booked successfully!");
     };
 
     return (
-        <div className="min-h-screen flex flex-row items-center bg-[url('/assets/home-banner.jpg')] bg-cover bg-center bg-no-repeat">
-            <div className="container mx-auto px-6 md:px-16 py-16 grid md:grid-cols-2 gap-20">
-                <DateSelector
-                    availableSlots={availableSlots}
-                    selectedDate={selectedDate}
-                    selectedTime={selectedTime}
-                    onSelectDate={handleDateSelect}
-                    onSelectTime={handleTimeSelect}
-                    isTimeBooked={isTimeBooked}
-                />
-                <AppointmentForm formData={formData} onChange={handleChange} onSubmit={handleSubmit} />
+        <div className="bg-gradient-to-tr from-[#f0bfbf] to-[#b47fce11] py-10 px-5 max-w-4xl mx-auto mt-4">
+            {/* Therapist Selection */}
+            <div className="bg-white p-5 rounded-lg shadow mb-5">
+                <h2 className="text-lg font-bold mb-3">Chọn Chuyên Viên</h2>
+                <div className="flex space-x-3 overflow-x-auto scrollbar-hide p-2">
+                    {therapists.map((therapist) => (
+                        <div
+                            key={therapist.id}
+                            className={`border p-2 rounded-lg cursor-pointer min-w-[120px] ${
+                                selectedTherapist === therapist.id
+                                    ? "border-pink-300"
+                                    : ""
+                            }`}
+                            onClick={() => setSelectedTherapist(therapist.id)}
+                        >
+                            <img
+                                src={therapist.img}
+                                alt={therapist.name}
+                                className="rounded-lg h-24 w-full object-cover"
+                            />
+                            <p className="text-sm mt-2 font-semibold text-center">
+                                {therapist.name}
+                            </p>
+                        </div>
+                    ))}
+                </div>
             </div>
+
+            {/* Service Selection */}
+            <div className="bg-white p-5 rounded-lg shadow mb-5">
+                <h2 className="text-lg font-bold mb-3">Dịch vụ bạn muốn làm</h2>
+                <input
+                    type="text"
+                    placeholder="Nhập dịch vụ bạn muốn làm"
+                    className="w-full p-2 border rounded-lg"
+                    value={selectedService}
+                    onChange={(e) => setSelectedService(e.target.value)}
+                />
+            </div>
+
+            {/* Date & Time Selection */}
+            <DateTimeSelector
+                selectedDate={selectedDate}
+                selectedTime={selectedTime}
+                onSelect={handleDateTimeSelect}
+            />
         </div>
     );
 }

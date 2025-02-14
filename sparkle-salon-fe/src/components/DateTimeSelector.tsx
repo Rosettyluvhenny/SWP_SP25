@@ -1,75 +1,76 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-interface DateSelectorProps {
-    availableSlots: { date: string; times: string[] }[];
-    selectedDate: string;
-    selectedTime: string;
-    onSelectDate: (date: string) => void;
-    onSelectTime: (time: string) => void;
-    isTimeBooked: (date: string, time: string) => boolean;
+interface DateTimeSelectorProps {
+  selectedDate: number | null;
+  selectedTime: string | null;
+  onSelect: (date: number | null, time: string | null) => void;
 }
 
-export default function DateSelector({
-    availableSlots,
-    selectedDate,
-    selectedTime,
-    onSelectDate,
-    onSelectTime,
-    isTimeBooked,
-}: DateSelectorProps) {
-    return (
-        <div>
-            <h2 className="text-xl font-serif text-white">CHỌN NGÀY GIỜ</h2>
-            <div className="grid grid-cols-7 gap-2 mt-4">
-                {availableSlots.length > 0 ? (
-                    availableSlots.map(({ date }) => (
-                        <button
-                            key={date}
-                            onClick={() => {
-                                console.log("Date selected:", date);
-                                onSelectDate(date);
-                            }}
-                            className={`rounded-lg ${
-                                selectedDate === date
-                                    ? "bg-gray-500"
-                                    : "bg-gray-300"
-                            }`}
-                        >
-                            {date}
-                        </button>
-                    ))
-                ) : (
-                    <p className="text-white">Loading available dates...</p>
-                )}
-            </div>
-            {selectedDate && (
-                <div className="grid grid-cols-4 gap-2 mt-4">
-                    {availableSlots
-                        .find((s) => s.date === selectedDate)
-                        ?.times.map((time) => {
-                            const isBooked = isTimeBooked(selectedDate, time);
-                            return (
-                                <button
-                                    key={time}
-                                    onClick={() => {
-                                        console.log("Time selected:", time);
-                                        onSelectTime(time);
-                                    }}
-                                    disabled={isBooked}
-                                    className={`p-2 rounded-lg ${
-                                        selectedTime === time
-                                            ? "bg-green-400"
-                                            : isBooked
-                                            ? "bg-gray-500 cursor-not-allowed"
-                                            : "bg-gray-300"
-                                    }`}
-                                >
-                                    {time}
-                                </button>
-                            );
-                        })}
-                </div>
-            )}
-        </div>
-    );
-}
+const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ selectedDate, selectedTime, onSelect }) => {
+  const dates = [
+    { id: 1, day: "Thứ 6", date: "14/02" },
+    { id: 2, day: "Thứ 7", date: "15/02" },
+    { id: 3, day: "Chủ nhật", date: "16/02" },
+    { id: 4, day: "Thứ 2", date: "17/02" },
+    { id: 5, day: "Thứ 3", date: "18/02" },
+  ];
+
+  const timeSlots = ["09:00", "09:30", "10:00", "10:30", "11:00", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
+
+  const handleDateSelection = (dateId: number) => {
+    // Reset selected time when a new date is selected
+    onSelect(dateId, null);
+  };
+
+  return (
+    <div className="bg-white p-5 rounded-lg shadow">
+      <h2 className="text-lg font-bold mb-3">Chọn Ngày Giờ *</h2>
+
+      {/* Date Selection */}
+      <div className="flex space-x-2 mb-3 overflow-x-auto">
+        {dates.map((date) => (
+          <button
+            key={date.id}
+            className={`p-3 min-w-[90px] text-center rounded-lg text-sm ${
+              selectedDate === date.id ? "bg-pink-200 text-black" : "bg-gray-200"
+            }`}
+            onClick={() => handleDateSelection(date.id)}
+          >
+            <p className="font-bold">{date.day}</p>
+            <p>{date.date}</p>
+          </button>
+        ))}
+      </div>
+
+      {/* Time Selection */}
+      <div className="grid grid-cols-4 gap-2 mb-3">
+        {timeSlots.map((time, index) => (
+          <button
+            key={index}
+            className={`p-2 rounded-lg text-sm ${selectedTime === time ? "bg-green-500 text-white" : "bg-gray-200"}`}
+            onClick={() => onSelect(selectedDate, time)}
+            disabled={!selectedDate}
+          >
+            {time}
+          </button>
+        ))}
+      </div>
+      
+      <div className="flex justify-between">
+        <Link to="/service">
+          <button className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded-lg">Quay lại</button>
+        </Link>
+        <button
+          className="bg-pink-300 text-white hover:bg-pink-400 px-4 py-2 rounded-lg"
+          onClick={() => onSelect(selectedDate, selectedTime)}
+          disabled={!selectedDate || !selectedTime}
+        >
+          Đặt hẹn
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default DateTimeSelector;
