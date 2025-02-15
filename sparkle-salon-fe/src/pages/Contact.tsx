@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import DateTimeSelector from "../components/DateTimeSelector";
+import { useLocation } from "react-router-dom";
 
 export default function Contact() {
     const [selectedTherapist, setSelectedTherapist] = useState<number | null>(
         null
     );
-    const [selectedService, setSelectedService] = useState<string>("");
     const [selectedDate, setSelectedDate] = useState<number | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
@@ -27,10 +27,17 @@ export default function Contact() {
         setSelectedTime(time);
     };
 
+    const location = useLocation();
+    const [selectedService, setSelectedService] = useState<string>(
+        location.state?.selectedService || ""
+    );
+
     return (
         <div className="bg-gradient-to-b from-white to-pink-200">
             <div className="h-[200px] flex flex-row justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat">
-                <h1 className="text-white text-7xl mt-12 font-serif ">Contact</h1>
+                <h1 className="text-white text-7xl mt-12 font-serif ">
+                    Contact
+                </h1>
             </div>
             <div className="bg-gradient-to-tr from-[#f0bfbf] to-[#ffa8f396] py-5 px-5 max-w-6xl mx-auto">
                 {/* Therapist Selection */}

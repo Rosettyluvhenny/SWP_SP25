@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaFacebook, FaGoogle } from "react-icons/fa";
+import { FaFacebook } from "react-icons/fa";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function Header() {
     const location = useLocation();
@@ -11,7 +12,7 @@ export default function Header() {
         location.pathname === path ? "text-gray-400 font-bold" : "text-white";
 
     return (
-        <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-gradient-to-r from-[#2b3252] to-[#856565] text-white text-xl font-serif shadow-md">
+        <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat text-white text-xl font-serif shadow-md">
             <div className="text-2xl font-serif">
                 <Link to="/">Sparkle Salon</Link>
             </div>
@@ -120,7 +121,7 @@ export default function Header() {
                                 Đăng nhập
                             </button>
                         </form>
-        
+
                         {/* Login bằng gg hoặc fb */}
                         <div className="mt-4 text-center text-gray-600">
                             Hoặc đăng nhập với
@@ -133,12 +134,14 @@ export default function Header() {
                                 <FaFacebook className="mr-2" /> Facebook
                             </a>
                             <div className="border-r-2 border-gray-500"></div>
-                            <a
-                                href="https://accounts.google.com/signin"
-                                className="flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
-                            >
-                                <FaGoogle className="mr-2" /> Google
-                            </a>
+                            <GoogleLogin
+                                onSuccess={(credentialResponse) => {
+                                    console.log(credentialResponse);
+                                }}
+                                onError={() => {
+                                    console.log("Login Failed");
+                                }}
+                            />
                         </div>
 
                         {/* Switch to Register */}
