@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
     FiUsers,
     FiShoppingCart,
     FiDollarSign,
     FiBarChart2,
-    FiSettings,
     FiMenu,
 } from "react-icons/fi";
 
@@ -13,7 +13,7 @@ const Sidebar = () => {
 
     return (
         <aside
-            className={`bg-gray-900 text-white p-5 flex flex-col space-y-4 shadow-lg transition-all duration-300 h-screen ${
+            className={`bg-gray-900 text-white p-5 flex flex-col space-y-4 shadow-lg transition-all duration-300 h-100% ${
                 isOpen ? "w-64" : "w-20"
             }`}
         >
@@ -34,36 +34,49 @@ const Sidebar = () => {
             </h2>
             <nav>
                 <ul className="space-y-3">
-                    <li className="flex items-center gap-2 p-2 hover:bg-gray-700">
-                        <FiUsers />{" "}
-                        <span className={`${isOpen ? "block" : "hidden"}`}>
+                    {/* User Management */}
+                    <Link
+                        to="/manager/user"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                            <FiUsers />
                             Quản Lý Người Dùng
-                        </span>
-                    </li>
-                    <li className="flex items-center gap-2 p-2 hover:bg-gray-700">
-                        <FiShoppingCart />{" "}
-                        <span className={`${isOpen ? "block" : "hidden"}`}>
+                        </li>
+                    </Link>
+
+                    {/* Service Management */}
+                    <Link
+                        to="/manager/service"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                            <FiShoppingCart />
                             Quản Lý Dịch Vụ
-                        </span>
-                    </li>
-                    <li className="flex items-center gap-2 p-2 hover:bg-gray-700">
-                        <FiDollarSign />{" "}
-                        <span className={`${isOpen ? "block" : "hidden"}`}>
+                        </li>
+                    </Link>
+
+                    {/* Orders Management */}
+                    <Link
+                        to="/manager/order"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                            <FiDollarSign />
                             Quản Lý Đơn Đặt
-                        </span>
-                    </li>
-                    <li className="flex items-center gap-2 p-2 hover:bg-gray-700">
-                        <FiBarChart2 />{" "}
-                        <span className={`${isOpen ? "block" : "hidden"}`}>
+                        </li>
+                    </Link>
+
+                    {/* Reports */}
+                    <Link
+                        to="/manager/report"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                            <FiBarChart2 />
                             Báo Cáo
-                        </span>
-                    </li>
-                    <li className="flex items-center gap-2 p-2 hover:bg-gray-700">
-                        <FiSettings />{" "}
-                        <span className={`${isOpen ? "block" : "hidden"}`}>
-                            Cài Đặt
-                        </span>
-                    </li>
+                        </li>
+                    </Link>
                 </ul>
             </nav>
         </aside>

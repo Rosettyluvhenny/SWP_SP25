@@ -37,38 +37,38 @@ export default function Reports() {
     ];
 
     return (
-        <div className="flex h-screen bg-white">
+        <div className="flex min-h-screen bg-gray-100">
             {/* Sidebar */}
             <Sidebar />
 
             {/* Main Content */}
             <main className="flex-1 p-6">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">
+                <h1 className="text-3xl font-bold text-gray-800 mb-6">
                     Báo Cáo & Thống Kê
                 </h1>
 
-                {/* Dashboard Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                    <div className="bg-gradient-to-r from-pink-200 to-pink-300 p-6 rounded-lg shadow text-center">
+                {/* Dashboard Statistics Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                    <div className="bg-gradient-to-r from-pink-200 to-pink-300 p-6 rounded-lg shadow-md text-center">
                         <h2 className="text-lg font-semibold">Doanh Thu</h2>
                         <p className="text-2xl font-bold">12,540,000 VND</p>
                     </div>
-                    <div className="bg-gradient-to-r from-blue-200 to-blue-300 p-6 rounded-lg shadow text-center">
+                    <div className="bg-gradient-to-r from-blue-200 to-blue-300 p-6 rounded-lg shadow-md text-center">
                         <h2 className="text-lg font-semibold">Đơn Đặt</h2>
                         <p className="text-2xl font-bold">350</p>
                     </div>
-                    <div className="bg-gradient-to-r from-green-200 to-green-300 p-6 rounded-lg shadow text-center">
+                    <div className="bg-gradient-to-r from-green-200 to-green-300 p-6 rounded-lg shadow-md text-center">
                         <h2 className="text-lg font-semibold">Khách Hàng</h2>
                         <p className="text-2xl font-bold">1,200</p>
                     </div>
-                    <div className="bg-gradient-to-r from-yellow-200 to-yellow-300 p-6 rounded-lg shadow text-center">
+                    <div className="bg-gradient-to-r from-yellow-200 to-yellow-300 p-6 rounded-lg shadow-md text-center">
                         <h2 className="text-lg font-semibold">Dịch Vụ</h2>
                         <p className="text-2xl font-bold">25</p>
                     </div>
                 </div>
 
                 {/* Revenue Line Chart */}
-                <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
                     <h2 className="text-xl font-semibold mb-4">
                         Biểu Đồ Doanh Thu
                     </h2>
@@ -90,7 +90,7 @@ export default function Reports() {
                 </div>
 
                 {/* Order Trends Bar Chart */}
-                <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+                <div className="bg-white shadow-md rounded-lg p-6">
                     <h2 className="text-xl font-semibold mb-4">
                         Xu Hướng Đơn Hàng
                     </h2>

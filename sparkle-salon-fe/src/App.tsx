@@ -27,10 +27,10 @@ function App() {
         <Route path="/product" element={<MainLayout><Product /></MainLayout>} />
         <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
         <Route path="/manager" element={<Manager />} />
-        <Route path="/manager-user" element={<UserManagement />} />
-        <Route path="/manager-service" element={<ServiceManagement />} />
-        <Route path="/manager-order" element={<OrderManagement />} />
-        <Route path="/manager-report" element={<Report />} />
+        <Route path="/manager/user" element={<UserManagement />} />
+        <Route path="/manager/service" element={<ServiceManagement />} />
+        <Route path="/manager/order" element={<OrderManagement />} />
+        <Route path="/manager/report" element={<Report />} />
       </Routes>
     </>
   );
