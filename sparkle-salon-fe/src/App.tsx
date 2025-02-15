@@ -7,22 +7,24 @@ import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import Product from "./pages/Product";
 import ForgotPassword from "./pages/ForgotPassword";
+import Manager from "./pages/Manager";
 import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
-    <MainLayout>
+    <>
       <ScrollToTop />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/service" element={<Service />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/product" element={<Product />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/" element={<MainLayout><Home /></MainLayout>} />
+        <Route path="/about" element={<MainLayout><About /></MainLayout>} />
+        <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
+        <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
+        <Route path="/blog" element={<MainLayout><Blog /></MainLayout>} />
+        <Route path="/product" element={<MainLayout><Product /></MainLayout>} />
+        <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
+        <Route path="/manager" element={<Manager />} />
       </Routes>
-    </MainLayout>
+    </>
   );
 }
 

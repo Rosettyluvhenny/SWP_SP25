@@ -16,7 +16,7 @@ interface ServiceCardProps {
 const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelect }) => {
     return (
         <div className="bg-pink-100 p-4 rounded-lg shadow-xl">
-            <h4 className="text-gray-400 text-sm mb-2">Thẩm mỹ không xâm lấn</h4>
+            <h4 className="text-gray-500 text-sm mb-2">Thẩm mỹ không xâm lấn</h4>
             <img
                 src={service.img || "/placeholder.jpg"}
                 alt={service.name}
