@@ -7,10 +7,12 @@ import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import Product from "./pages/Product";
 import ForgotPassword from "./pages/ForgotPassword";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <MainLayout>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />

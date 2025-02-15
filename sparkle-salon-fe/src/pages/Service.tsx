@@ -17,7 +17,7 @@ const services = [
     },
     {
         id: 2,
-        name: "Ủ Trắng Vùng Nách",
+        name: "Thải Độc Da Thảo Dược",
         img: "",
         price: 200000,
         duration: "30 phút",
@@ -25,7 +25,7 @@ const services = [
     },
     {
         id: 3,
-        name: "Triệt Lông Nguyên Chân",
+        name: "Điều Trị Nám Da",
         img: "",
         price: 550000,
         duration: "1 Lần",
@@ -33,7 +33,7 @@ const services = [
     },
     {
         id: 4,
-        name: "Massage Thư Giãn",
+        name: "Điều Trị Tàn Nhang",
         img: "",
         price: 300000,
         duration: "45 phút",
@@ -41,7 +41,7 @@ const services = [
     },
     {
         id: 5,
-        name: "Chăm Sóc Da Mặt",
+        name: "Điều Trị Sẹo Rỗ",
         img: "",
         price: 250000,
         duration: "1 Giờ",
@@ -49,7 +49,7 @@ const services = [
     },
     {
         id: 6,
-        name: "Chăm Sóc Toàn Thân",
+        name: "Điều Trị Da Nhờn",
         img: "",
         price: 600000,
         duration: "90 phút",
@@ -57,7 +57,7 @@ const services = [
     },
     {
         id: 7,
-        name: "Làm Móng Tay",
+        name: "Điều Trị Lão Hóa Da",
         img: "",
         price: 100000,
         duration: "40 phút",
