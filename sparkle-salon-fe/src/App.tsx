@@ -9,6 +9,8 @@ import Product from "./pages/Product";
 import ForgotPassword from "./pages/ForgotPassword";
 import Manager from "./pages/Manager";
 import ScrollToTop from "./components/ScrollToTop";
+import UserManagement from "./pages/UserManagement";
+import ServiceManagement from "./pages/ServiceManagement";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
         <Route path="/product" element={<MainLayout><Product /></MainLayout>} />
         <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
         <Route path="/manager" element={<Manager />} />
+        <Route path="/manager-user" element={<UserManagement />} />
+        <Route path="/manager-service" element={<ServiceManagement />} />
       </Routes>
     </>
   );
