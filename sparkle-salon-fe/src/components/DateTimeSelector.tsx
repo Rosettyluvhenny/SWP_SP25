@@ -25,7 +25,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ selectedDate, selec
 
   return (
     <div className="bg-white p-5 rounded-lg shadow">
-      <h2 className="text-lg font-bold mb-3">Chọn Ngày Giờ *</h2>
+      <h2 className="text-lg font-bold mb-3">Chọn Ngày Giờ</h2>
 
       {/* Date Selection */}
       <div className="flex space-x-2 mb-3 overflow-x-auto">
@@ -62,7 +62,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ selectedDate, selec
           <button className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded-lg">Quay lại</button>
         </Link>
         <button
-          className="bg-pink-300 text-white hover:bg-pink-400 px-4 py-2 rounded-lg"
+          className="bg-pink-400 text-white hover:bg-pink-500 px-4 py-2 rounded-lg"
           onClick={() => onSelect(selectedDate, selectedTime)}
           disabled={!selectedDate || !selectedTime}
         >

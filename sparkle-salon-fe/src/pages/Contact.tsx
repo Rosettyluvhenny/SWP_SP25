@@ -28,52 +28,61 @@ export default function Contact() {
     };
 
     return (
-        <div className="bg-gradient-to-tr from-[#f0bfbf] to-[#b47fce11] py-10 px-5 max-w-4xl mx-auto mt-4">
-            {/* Therapist Selection */}
-            <div className="bg-white p-5 rounded-lg shadow mb-5">
-                <h2 className="text-lg font-bold mb-3">Chọn Chuyên Viên</h2>
-                <div className="flex space-x-3 overflow-x-auto scrollbar-hide p-2">
-                    {therapists.map((therapist) => (
-                        <div
-                            key={therapist.id}
-                            className={`border p-2 rounded-lg cursor-pointer min-w-[120px] ${
-                                selectedTherapist === therapist.id
-                                    ? "border-pink-300"
-                                    : ""
-                            }`}
-                            onClick={() => setSelectedTherapist(therapist.id)}
-                        >
-                            <img
-                                src={therapist.img}
-                                alt={therapist.name}
-                                className="rounded-lg h-24 w-full object-cover"
-                            />
-                            <p className="text-sm mt-2 font-semibold text-center">
-                                {therapist.name}
-                            </p>
-                        </div>
-                    ))}
-                </div>
+        <div className="bg-gradient-to-b from-white to-pink-200">
+            <div className="h-[200px] flex flex-row justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat">
+                <h1 className="text-white text-7xl mt-12 font-serif ">Contact</h1>
             </div>
+            <div className="bg-gradient-to-tr from-[#f0bfbf] to-[#ffa8f396] py-5 px-5 max-w-6xl mx-auto">
+                {/* Therapist Selection */}
+                <div className="bg-white p-5 rounded-lg shadow mb-5">
+                    <h2 className="text-lg font-bold mb-3">Chọn Chuyên Viên</h2>
+                    <div className="flex space-x-3 overflow-x-auto scrollbar-hide p-2">
+                        {therapists.map((therapist) => (
+                            <div
+                                key={therapist.id}
+                                className={`border p-2 rounded-lg cursor-pointer min-w-[120px] ${
+                                    selectedTherapist === therapist.id
+                                        ? "border-pink-300"
+                                        : ""
+                                }`}
+                                onClick={() =>
+                                    setSelectedTherapist(therapist.id)
+                                }
+                            >
+                                <img
+                                    src={therapist.img}
+                                    alt={therapist.name}
+                                    className="rounded-lg h-24 w-full object-cover"
+                                />
+                                <p className="text-sm mt-2 font-semibold text-center">
+                                    {therapist.name}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
-            {/* Service Selection */}
-            <div className="bg-white p-5 rounded-lg shadow mb-5">
-                <h2 className="text-lg font-bold mb-3">Dịch vụ bạn muốn làm</h2>
-                <input
-                    type="text"
-                    placeholder="Nhập dịch vụ bạn muốn làm"
-                    className="w-full p-2 border rounded-lg"
-                    value={selectedService}
-                    onChange={(e) => setSelectedService(e.target.value)}
+                {/* Service Selection */}
+                <div className="bg-white p-5 rounded-lg shadow mb-5">
+                    <h2 className="text-lg font-bold mb-3">
+                        Dịch vụ bạn muốn làm
+                    </h2>
+                    <input
+                        type="text"
+                        placeholder="Nhập dịch vụ bạn muốn làm"
+                        className="w-full p-2 border rounded-lg"
+                        value={selectedService}
+                        onChange={(e) => setSelectedService(e.target.value)}
+                    />
+                </div>
+
+                {/* Date & Time Selection */}
+                <DateTimeSelector
+                    selectedDate={selectedDate}
+                    selectedTime={selectedTime}
+                    onSelect={handleDateTimeSelect}
                 />
             </div>
-
-            {/* Date & Time Selection */}
-            <DateTimeSelector
-                selectedDate={selectedDate}
-                selectedTime={selectedTime}
-                onSelect={handleDateTimeSelect}
-            />
         </div>
     );
 }
