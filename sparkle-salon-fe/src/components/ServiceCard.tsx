@@ -15,7 +15,8 @@ interface ServiceCardProps {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelect }) => {
     return (
-        <div className="bg-white p-4 rounded-lg shadow-lg">
+        <div className="bg-pink-100 p-4 rounded-lg shadow-xl">
+            <h4 className="text-gray-400 text-sm mb-2">Thẩm mỹ không xâm lấn</h4>
             <img
                 src={service.img || "/placeholder.jpg"}
                 alt={service.name}
@@ -31,7 +32,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelect }) => {
                 {service.price.toLocaleString()} ₫
             </p>
             <button
-                className="mt-3 w-full bg-pink-400 hover:bg-pink-300 text-black py-2 rounded-lg"
+                className="mt-3 w-full bg-pink-300 hover:bg-pink-400 text-black py-2 rounded-lg"
                 onClick={() => onSelect(service.name)}
             >
                 Đặt Hẹn

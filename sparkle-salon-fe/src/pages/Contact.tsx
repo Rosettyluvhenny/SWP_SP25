@@ -41,13 +41,13 @@ export default function Contact() {
             </div>
             <div className="bg-gradient-to-tr from-[#f0bfbf] to-[#ffa8f396] py-5 px-5 max-w-6xl mx-auto">
                 {/* Therapist Selection */}
-                <div className="bg-white p-5 rounded-lg shadow mb-5">
+                <div className="bg-pink-100 p-5 rounded-lg shadow mb-5">
                     <h2 className="text-lg font-bold mb-3">Chọn Chuyên Viên</h2>
                     <div className="flex space-x-3 overflow-x-auto scrollbar-hide p-2">
                         {therapists.map((therapist) => (
                             <div
                                 key={therapist.id}
-                                className={`border p-2 rounded-lg cursor-pointer min-w-[120px] ${
+                                className={`border p-2 rounded-lg cursor-pointer min-w-[120px] bg-white ${
                                     selectedTherapist === therapist.id
                                         ? "border-pink-300"
                                         : ""
@@ -70,7 +70,7 @@ export default function Contact() {
                 </div>
 
                 {/* Service Selection */}
-                <div className="bg-white p-5 rounded-lg shadow mb-5">
+                <div className="bg-pink-100 p-5 rounded-lg shadow mb-5">
                     <h2 className="text-lg font-bold mb-3">
                         Dịch vụ bạn muốn làm
                     </h2>

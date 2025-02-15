@@ -24,7 +24,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ selectedDate, selec
   };
 
   return (
-    <div className="bg-white p-5 rounded-lg shadow">
+    <div className="bg-pink-100 p-5 rounded-lg shadow">
       <h2 className="text-lg font-bold mb-3">Chọn Ngày Giờ</h2>
 
       {/* Date Selection */}
@@ -33,7 +33,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ selectedDate, selec
           <button
             key={date.id}
             className={`p-3 min-w-[90px] text-center rounded-lg text-sm ${
-              selectedDate === date.id ? "bg-pink-200 text-black" : "bg-gray-200"
+              selectedDate === date.id ? "bg-pink-200 text-black" : "bg-white"
             }`}
             onClick={() => handleDateSelection(date.id)}
           >
@@ -48,7 +48,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ selectedDate, selec
         {timeSlots.map((time, index) => (
           <button
             key={index}
-            className={`p-2 rounded-lg text-sm ${selectedTime === time ? "bg-green-500 text-white" : "bg-gray-200"}`}
+            className={`p-2 rounded-lg text-sm ${selectedTime === time ? "bg-green-500 text-white" : "bg-white"}`}
             onClick={() => onSelect(selectedDate, time)}
             disabled={!selectedDate}
           >
@@ -59,7 +59,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ selectedDate, selec
       
       <div className="flex justify-between">
         <Link to="/service">
-          <button className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded-lg">Quay lại</button>
+          <button className="bg-pink-400 text-white hover:bg-pink-500 px-4 py-2 rounded-lg">Quay lại</button>
         </Link>
         <button
           className="bg-pink-400 text-white hover:bg-pink-500 px-4 py-2 rounded-lg"
