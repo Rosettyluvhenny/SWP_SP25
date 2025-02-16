@@ -5,7 +5,6 @@ import About from "./pages/About";
 import Service from "./pages/Service";
 import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
-import Product from "./pages/Product";
 import ForgotPassword from "./pages/ForgotPassword";
 import Manager from "./pages/Manager";
 import ScrollToTop from "./components/ScrollToTop";
@@ -24,7 +23,6 @@ function App() {
         <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
         <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
         <Route path="/blog" element={<MainLayout><Blog /></MainLayout>} />
-        <Route path="/product" element={<MainLayout><Product /></MainLayout>} />
         <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
         <Route path="/manager" element={<Manager />} />
         <Route path="/manager/user" element={<UserManagement />} />

@@ -45,14 +45,14 @@ export default function Home() {
                     <div className="text-center px-6 border-r border-gray-300 last:border-r-0">
                         <h3 className="text-xl font-semibold text-gray-900">
                             <span className="text-gray-600">02</span>{" "}
-                            <span className="text-[#ee8874]">—</span> Sản phẩm
+                            <span className="text-[#ee8874]">—</span> Dịch vụ
                             chất lượng
                         </h3>
                         <p className="text-gray-500 mt-1">
                             Nói không với hàng chất lượng kém
                         </p>
                         <Link
-                            to="/product"
+                            to="/service"
                             className="hover:underline hover:text-gray-600 hover:text-sm"
                         >
                             xem thêm →

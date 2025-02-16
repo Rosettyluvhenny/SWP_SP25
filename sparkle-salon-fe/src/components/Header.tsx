@@ -38,14 +38,6 @@ export default function Header() {
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            to="/product"
-                            className={`${isActive("/product")}`}
-                        >
-                            Product
-                        </Link>
-                    </li>
-                    <li>
                         <Link to="/blog" className={`${isActive("/blog")}`}>
                             Blog
                         </Link>
