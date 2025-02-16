@@ -3,6 +3,7 @@ import DateTimeSelector from "../components/DateTimeSelector";
 import { useLocation } from "react-router-dom";
 import { services } from "../data/servicesData";
 import { FaMoneyBill } from "react-icons/fa";
+import { therapists } from "../data/therapistData";
 
 export default function Contact() {
     const [selectedTherapist, setSelectedTherapist] = useState<number | null>(null);
@@ -14,26 +15,12 @@ export default function Contact() {
         location.state?.selectedService || ""
     );
 
-    // Find the selected service object to get the price
     const selectedServiceData = services.find((service) => service.name === selectedService);
 
     const handleDateTimeSelect = (date: number | null, time: string | null) => {
         setSelectedDate(date);
         setSelectedTime(time);
     };
-
-    const therapists = [
-        { id: 1, name: "Therapist A", img: "therapist1.jpg" },
-        { id: 2, name: "Therapist B", img: "therapist2.jpg" },
-        { id: 3, name: "Therapist C", img: "therapist3.jpg" },
-        { id: 4, name: "Therapist D", img: "therapist4.jpg" },
-        { id: 5, name: "Therapist E", img: "therapist5.jpg" },
-        { id: 6, name: "Therapist F", img: "therapist6.jpg" },
-        { id: 7, name: "Therapist G", img: "therapist7.jpg" },
-        { id: 8, name: "Therapist H", img: "therapist8.jpg" },
-        { id: 9, name: "Therapist I", img: "therapist9.jpg" },
-        { id: 10, name: "Therapist K", img: "therapist10.jpg" },
-    ];
 
     return (
         <div className="bg-gradient-to-b from-white to-pink-200">
@@ -82,7 +69,7 @@ export default function Contact() {
                         ))}
                     </select>
 
-                    {/* Show the price when a service is selected */}
+                    {/* Hiện giá */}
                     {selectedServiceData && (
                         <p className="mt-3 text-lg font-semibold text-pink-600 flex flex-row items-center">
                             Giá: <FaMoneyBill className="mr-1 ml-2" /> {selectedServiceData.price.toLocaleString()} VNĐ
