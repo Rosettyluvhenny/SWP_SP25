@@ -1,6 +1,7 @@
 import React from "react";
 import { FaMoneyBill } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
+import { Link } from "react-router-dom";
 
 interface ServiceCardProps {
     service: {
@@ -31,12 +32,19 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelect }) => {
                 <FaMoneyBill className="mr-1" />
                 {service.price.toLocaleString()} vnđ
             </p>
-            <button
-                className="mt-3 w-full bg-pink-300 hover:bg-pink-400 text-black py-2 rounded-lg"
-                onClick={() => onSelect(service.name)}
-            >
-                Đặt Hẹn
-            </button>
+            <div className="flex flex-row justify-between">
+                <button
+                    className="mt-3 w-[40%] bg-pink-300 hover:bg-pink-400 text-black py-2 rounded-lg"
+                    onClick={() => onSelect(service.name)}
+                >
+                    Đặt Hẹn
+                </button>
+                <button
+                    className="mt-3 w-[40%] bg-pink-300 hover:bg-pink-400 text-black py-2 rounded-lg"
+                >
+                    <Link to="/blog">Xem Chi Tiết</Link>
+                </button>
+            </div>
         </div>
     );
 };
