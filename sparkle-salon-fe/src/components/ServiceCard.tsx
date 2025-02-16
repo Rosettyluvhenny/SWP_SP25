@@ -20,16 +20,16 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelect }) => {
             <img
                 src={service.img || "/placeholder.jpg"}
                 alt={service.name}
-                className="rounded-lg h-40 w-full object-cover"
+                className="rounded-lg h-60 w-full object-cover"
             />
-            <h2 className="text-lg font-bold mt-3">{service.name}</h2>
+            <h2 className="text-lg font-semibold mt-3">{service.name}</h2>
             <p className="text-gray-600 text-sm flex items-center">
                 <IoMdTime className="mr-1" />
                 {service.duration}
             </p>
             <p className="text-black font-sans mt-2 flex items-center">
                 <FaMoneyBill className="mr-1" />
-                {service.price.toLocaleString()} ₫
+                {service.price.toLocaleString()} vnđ
             </p>
             <button
                 className="mt-3 w-full bg-pink-300 hover:bg-pink-400 text-black py-2 rounded-lg"
