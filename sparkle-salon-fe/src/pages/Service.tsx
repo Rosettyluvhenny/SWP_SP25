@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { services } from "../data/servicesData";
+import type { Service } from "../data/servicesData"; 
+import servicesData from "../data/servicesData"; 
 import SearchBar from "../components/SearchBar";
 import SortButtons from "../components/SortButton";
 import Pagination from "../components/Pagination";
@@ -8,15 +9,15 @@ import ServiceList from "../components/ServiceList";
 const ITEMS_PER_PAGE = 9;
 
 export default function Service() {
-    const [searchTerm, setSearchTerm] = useState("");
-    const [sortBy, setSortBy] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [sortBy, setSortBy] = useState<string>("");
+    const [currentPage, setCurrentPage] = useState<number>(1);
 
-    const filteredServices = services
-        .filter((service) =>
+    const filteredServices = servicesData
+        .filter((service: Service) =>
             service.name.toLowerCase().includes(searchTerm.toLowerCase())
         )
-        .sort((a, b) => {
+        .sort((a: Service, b: Service) => {
             if (sortBy === "newest") return b.id - a.id;
             if (sortBy === "low-high") return a.price - b.price;
             if (sortBy === "high-low") return b.price - a.price;
@@ -41,8 +42,8 @@ export default function Service() {
                 <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
                 <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             </div>
-       
-            {/* Services List*/}
+
+            {/* Services List */}
             <div className="max-w-6xl mx-auto">
                 <ServiceList services={paginatedServices} />
                 <Pagination

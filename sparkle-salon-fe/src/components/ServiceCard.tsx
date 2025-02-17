@@ -17,7 +17,9 @@ interface ServiceCardProps {
 const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelect }) => {
     return (
         <div className="bg-pink-100 p-4 rounded-lg shadow-xl">
-            <h4 className="text-gray-500 text-sm mb-2">Thẩm mỹ không xâm lấn</h4>
+            <h4 className="text-gray-500 text-sm mb-2">
+                Thẩm mỹ không xâm lấn
+            </h4>
             <img
                 src={service.img || "/placeholder.jpg"}
                 alt={service.name}
@@ -39,10 +41,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelect }) => {
                 >
                     Đặt Hẹn
                 </button>
-                <button
-                    className="mt-3 w-[40%] bg-pink-300 hover:bg-pink-400 text-black py-2 rounded-lg"
-                >
-                    <Link to="/blog">Xem Chi Tiết</Link>
+                <button className="mt-3 w-[40%] bg-pink-300 hover:bg-pink-400 text-black py-2 rounded-lg">
+                    <Link to={`/service/${service.id}`}>
+                        Xem chi tiết
+                    </Link>
                 </button>
             </div>
         </div>

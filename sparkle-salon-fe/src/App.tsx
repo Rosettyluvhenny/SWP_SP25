@@ -12,6 +12,7 @@ import UserManagement from "./pages/UserManagement";
 import ServiceManagement from "./pages/ServiceManagement";
 import OrderManagement from "./pages/OrderManagement";
 import Report from "./pages/Report";
+import ServiceDetail from "./pages/ServiceDetail";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/" element={<MainLayout><Home /></MainLayout>} />
         <Route path="/about" element={<MainLayout><About /></MainLayout>} />
         <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
+        <Route path="/service/:id" element={<MainLayout><ServiceDetail /></MainLayout>} />
         <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
         <Route path="/blog" element={<MainLayout><Blog /></MainLayout>} />
         <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />

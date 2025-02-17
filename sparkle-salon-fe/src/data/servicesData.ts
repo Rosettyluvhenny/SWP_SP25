@@ -1,11 +1,22 @@
-const services = [
+export interface Service {
+    id: number;
+    name: string;
+    img: string;
+    price: number;
+    duration: string;
+    popularity: number;
+    description: string;
+}
+
+const servicesData: Service[] = [
     {
         id: 1,
         name: "Điều Trị Mụn Chuyên Sâu 12 bước",
         img: "/assets/skin-treatment1.jpg",
         price: 150000,
-        duration: "7 phút",
+        duration: "90 phút",
         popularity: 765826,
+        description: "",
     },
     {
         id: 2,
@@ -14,6 +25,7 @@ const services = [
         price: 200000,
         duration: "30 phút",
         popularity: 13373,
+        description: ""
     },
     {
         id: 3,
@@ -22,6 +34,7 @@ const services = [
         price: 550000,
         duration: "45 phút",
         popularity: 97050,
+        description: ""
     },
     {
         id: 4,
@@ -30,6 +43,7 @@ const services = [
         price: 300000,
         duration: "45 phút",
         popularity: 50000,
+        description: ""
     },
     {
         id: 5,
@@ -38,6 +52,7 @@ const services = [
         price: 250000,
         duration: "60 phút",
         popularity: 89000,
+        description: ""
     },
     {
         id: 6,
@@ -46,6 +61,7 @@ const services = [
         price: 600000,
         duration: "90 phút",
         popularity: 65000,
+        description: ""
     },
     {
         id: 7,
@@ -54,6 +70,7 @@ const services = [
         price: 100000,
         duration: "40 phút",
         popularity: 43000,
+        description: ""
     },
     {
         id: 8,
@@ -62,6 +79,7 @@ const services = [
         price: 350000,
         duration: "1 Giờ",
         popularity: 52000,
+        description: ""
     },
     {
         id: 9,
@@ -70,6 +88,7 @@ const services = [
         price: 450000,
         duration: "50 phút",
         popularity: 61000,
+        description: ""
     },
     {
         id: 10,
@@ -78,6 +97,7 @@ const services = [
         price: 700000,
         duration: "75 phút",
         popularity: 72000,
+        description: ""
     },
     {
         id: 11,
@@ -86,6 +106,7 @@ const services = [
         price: 800000,
         duration: "90 phút",
         popularity: 91000,
+        description: ""
     },
     {
         id: 12,
@@ -94,6 +115,7 @@ const services = [
         price: 180000,
         duration: "30 phút",
         popularity: 56000,
+        description: ""
     },
     {
         id: 13,
@@ -102,6 +124,7 @@ const services = [
         price: 550000,
         duration: "1 Giờ",
         popularity: 74000,
+        description: ""
     },
     {
         id: 14,
@@ -110,6 +133,7 @@ const services = [
         price: 400000,
         duration: "45 phút",
         popularity: 49000,
+        description: ""
     },
     {
         id: 15,
@@ -118,6 +142,7 @@ const services = [
         price: 320000,
         duration: "50 phút",
         popularity: 67000,
+        description: ""
     },
     {
         id: 16,
@@ -126,6 +151,7 @@ const services = [
         price: 280000,
         duration: "40 phút",
         popularity: 57000,
+        description: ""
     },
     {
         id: 17,
@@ -134,6 +160,7 @@ const services = [
         price: 650000,
         duration: "80 phút",
         popularity: 88000,
+        description: ""
     },
     {
         id: 18,
@@ -142,6 +169,7 @@ const services = [
         price: 750000,
         duration: "85 phút",
         popularity: 94000,
+        description: ""
     },
     {
         id: 19,
@@ -150,6 +178,7 @@ const services = [
         price: 900000,
         duration: "95 phút",
         popularity: 102000,
+        description: "",
     },
     {
         id: 20,
@@ -158,6 +187,7 @@ const services = [
         price: 500000,
         duration: "60 phút",
         popularity: 81000,
+        description: ""
     },
     {
         id: 21,
@@ -166,6 +196,7 @@ const services = [
         price: 350000,
         duration: "55 phút",
         popularity: 53000,
+        description: ""
     },
     {
         id: 22,
@@ -174,6 +205,7 @@ const services = [
         price: 650000,
         duration: "80 phút",
         popularity: 79000,
+        description: ""
     },
     {
         id: 23,
@@ -182,6 +214,7 @@ const services = [
         price: 400000,
         duration: "45 phút",
         popularity: 69000,
+        description: ""
     },
     {
         id: 24,
@@ -190,6 +223,7 @@ const services = [
         price: 1200000,
         duration: "120 phút",
         popularity: 112000,
+        description: "",
     },
     {
         id: 25,
@@ -198,6 +232,7 @@ const services = [
         price: 950000,
         duration: "110 phút",
         popularity: 97000,
+        description: ""
     },
     {
         id: 26,
@@ -206,6 +241,7 @@ const services = [
         price: 180000,
         duration: "30 phút",
         popularity: 65000,
+        description: ""
     },
     {
         id: 27,
@@ -214,7 +250,8 @@ const services = [
         price: 350000,
         duration: "70 phút",
         popularity: 72000,
+        description: ""
     },
 ];
 
-export { services };
+export default servicesData; 

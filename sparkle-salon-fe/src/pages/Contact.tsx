@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DateTimeSelector from "../components/DateTimeSelector";
 import { useLocation } from "react-router-dom";
-import { services } from "../data/servicesData";
+import servicesData, { Service } from "../data/servicesData"; 
 import { FaMoneyBill } from "react-icons/fa";
 import { therapists } from "../data/therapistData";
 
@@ -15,7 +15,10 @@ export default function Contact() {
         location.state?.selectedService || ""
     );
 
-    const selectedServiceData = services.find((service) => service.name === selectedService);
+    // Find the service data based on the selected service name
+    const selectedServiceData = servicesData.find(
+        (service: Service) => service.name === selectedService
+    );
 
     const handleDateTimeSelect = (date: number | null, time: string | null) => {
         setSelectedDate(date);
@@ -35,9 +38,7 @@ export default function Contact() {
                         {therapists.map((therapist) => (
                             <div
                                 key={therapist.id}
-                                className={`border p-2 rounded-lg cursor-pointer min-w-[120px] bg-white ${
-                                    selectedTherapist === therapist.id ? "border-pink-300" : ""
-                                }`}
+                                className={`border p-2 rounded-lg cursor-pointer min-w-[120px] bg-white ${selectedTherapist === therapist.id ? "border-pink-300" : ""}`}
                                 onClick={() => setSelectedTherapist(therapist.id)}
                             >
                                 <img
@@ -62,7 +63,7 @@ export default function Contact() {
                         onChange={(e) => setSelectedService(e.target.value)}
                     >
                         <option value="">Chọn dịch vụ</option>
-                        {services.map((service) => (
+                        {servicesData.map((service: Service) => (
                             <option key={service.id} value={service.name}>
                                 {service.name}
                             </option>

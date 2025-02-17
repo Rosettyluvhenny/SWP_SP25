@@ -16,7 +16,7 @@ export default function Home() {
                         Mau đặt lịch để trải nghiệm dịch vụ tốt nhất
                     </p>
                     <button className="mt-6 bg-[#f8a89c] hover:bg-[#ee8874] hover:text-xl hover:text-white text-black px-6 py-3 rounded-lg font-semibold text-lg">
-                        <Link to="/contact" aria-label="Book an appointment">Đặt lịch ngay →</Link>
+                        <Link to="/service" aria-label="Book an appointment">Đặt lịch ngay →</Link>
                     </button>
                 </div>
             </div>
