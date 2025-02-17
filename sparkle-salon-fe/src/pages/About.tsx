@@ -42,7 +42,7 @@ export default function About() {
         </div>
         {/* Left Section */}
         <div className="relative w-1/2 flex justify-start px-16">
-          <img src="/assets/skin-about1.png" alt="" className="rounded-xl" />
+          <img src="/assets/skin-about1.jpg" alt="" className="rounded-xl" />
           <figcaption className="absolute bottom-[60%] left-10 animate-[bounce_15s_infinite]">
             <img
               src="/assets/skin-story2.jpg"
