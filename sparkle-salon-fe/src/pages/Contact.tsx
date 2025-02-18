@@ -1,88 +1,89 @@
-import React, { useState, useEffect } from "react";
-import DateSelector from "../components/DateTimeSelector";
-import AppointmentForm from "../components/AppointmentForm";
-
-interface Slot {
-    date: string;
-    times: string[];
-}
-
-interface BookedSlot {
-    date: string;
-    time: string;
-}
+import React, { useState } from "react";
+import DateTimeSelector from "../components/DateTimeSelector";
+import { useLocation } from "react-router-dom";
+import servicesData, { Service } from "../data/servicesData"; 
+import { FaMoneyBill } from "react-icons/fa";
+import { therapists } from "../data/therapistData";
 
 export default function Contact() {
-    const [formData, setFormData] = useState({ name: "", phone: "", date: "", time: "" });
-    const [availableSlots, setAvailableSlots] = useState<Slot[]>([]);
-    const [bookedSlots, setBookedSlots] = useState<BookedSlot[]>([]);
-    const [selectedDate, setSelectedDate] = useState("");
-    const [selectedTime, setSelectedTime] = useState("");
+    const [selectedTherapist, setSelectedTherapist] = useState<number | null>(null);
+    const [selectedDate, setSelectedDate] = useState<number | null>(null);
+    const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
-    useEffect(() => {
-        const storedSlots = localStorage.getItem("availableSlots");
-        const storedBookedSlots = localStorage.getItem("bookedSlots");
+    const location = useLocation();
+    const [selectedService, setSelectedService] = useState<string>(
+        location.state?.selectedService || ""
+    );
 
-        if (storedSlots) {
-            setAvailableSlots(JSON.parse(storedSlots));
-        } else {
-            const initialSlots: Slot[] = Array.from({ length: 12 }, (_, i) => {
-                const date = new Date();
-                date.setDate(date.getDate() + i);
-                return {
-                    date: date.toISOString().split("T")[0],
-                    times: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
-                };
-            });
-            localStorage.setItem("availableSlots", JSON.stringify(initialSlots));
-            setAvailableSlots(initialSlots);
-        }
-        if (storedBookedSlots) {
-            setBookedSlots(JSON.parse(storedBookedSlots));
-        }
-    }, []);
+    // Find the service data based on the selected service name
+    const selectedServiceData = servicesData.find(
+        (service: Service) => service.name === selectedService
+    );
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleDateSelect = (date: string) => {
+    const handleDateTimeSelect = (date: number | null, time: string | null) => {
         setSelectedDate(date);
-        setFormData((prev) => ({ ...prev, date }));
-        setSelectedTime("");
-    };
-
-    const handleTimeSelect = (time: string) => {
         setSelectedTime(time);
-        setFormData((prev) => ({ ...prev, time }));
-    };
-
-    const isTimeBooked = (date: string, time: string) => bookedSlots.some(slot => slot.date === date && slot.time === time);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!formData.date || !formData.time) {
-            alert("Please select a date and time for your appointment.");
-            return;
-        }
-        const updatedBookedSlots = [...bookedSlots, { date: formData.date, time: formData.time }];
-        setBookedSlots(updatedBookedSlots);
-        localStorage.setItem("bookedSlots", JSON.stringify(updatedBookedSlots));
-        alert("Appointment booked successfully!");
     };
 
     return (
-        <div className="min-h-screen flex flex-row items-center bg-[url('/assets/home-banner.jpg')] bg-cover bg-center bg-no-repeat">
-            <div className="container mx-auto px-6 md:px-16 py-16 grid md:grid-cols-2 gap-20">
-                <DateSelector
-                    availableSlots={availableSlots}
+        <div className="bg-gradient-to-b from-white to-pink-200">
+            <div className="h-[200px] flex flex-row justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat">
+                <h1 className="text-white text-7xl mt-12 font-serif ">Contact</h1>
+            </div>
+            <div className="bg-gradient-to-tr from-[#f0bfbf] to-[#ffa8f396] py-5 px-5 max-w-6xl mx-auto">
+                {/* Therapist Selection */}
+                <div className="bg-pink-100 p-5 rounded-lg shadow mb-5">
+                    <h2 className="text-lg font-bold mb-3">Chọn Chuyên Viên</h2>
+                    <div className="flex space-x-3 overflow-x-auto scrollbar-hide p-2">
+                        {therapists.map((therapist) => (
+                            <div
+                                key={therapist.id}
+                                className={`border p-2 rounded-lg cursor-pointer min-w-[120px] bg-white ${selectedTherapist === therapist.id ? "border-pink-300" : ""}`}
+                                onClick={() => setSelectedTherapist(therapist.id)}
+                            >
+                                <img
+                                    src={therapist.img}
+                                    alt={therapist.name}
+                                    className="rounded-lg h-24 w-full object-cover"
+                                />
+                                <p className="text-sm mt-2 font-semibold text-center">
+                                    {therapist.name}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Service Selection */}
+                <div className="bg-pink-100 p-5 rounded-lg shadow mb-5">
+                    <h2 className="text-lg font-bold mb-3">Dịch vụ bạn muốn làm</h2>
+                    <select
+                        className="w-full p-2 border rounded-lg bg-white"
+                        value={selectedService}
+                        onChange={(e) => setSelectedService(e.target.value)}
+                    >
+                        <option value="">Chọn dịch vụ</option>
+                        {servicesData.map((service: Service) => (
+                            <option key={service.id} value={service.name}>
+                                {service.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    {/* Hiện giá */}
+                    {selectedServiceData && (
+                        <p className="mt-3 text-lg font-semibold text-pink-600 flex flex-row items-center">
+                            Giá: <FaMoneyBill className="mr-1 ml-2" /> {selectedServiceData.price.toLocaleString()} VNĐ
+                        </p>
+                    )}
+                </div>
+
+                {/* Date & Time Selection */}
+                <DateTimeSelector
                     selectedDate={selectedDate}
                     selectedTime={selectedTime}
-                    onSelectDate={handleDateSelect}
-                    onSelectTime={handleTimeSelect}
-                    isTimeBooked={isTimeBooked}
+                    onSelect={handleDateTimeSelect}
                 />
-                <AppointmentForm formData={formData} onChange={handleChange} onSubmit={handleSubmit} />
             </div>
         </div>
     );

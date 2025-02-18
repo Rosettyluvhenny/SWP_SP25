@@ -5,20 +5,38 @@ import About from "./pages/About";
 import Service from "./pages/Service";
 import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
-import Product from "./pages/Product";
+import ForgotPassword from "./pages/ForgotPassword";
+import Manager from "./pages/Manager";
+import ScrollToTop from "./components/ScrollToTop";
+import UserManagement from "./pages/UserManagement";
+import ServiceManagement from "./pages/ServiceManagement";
+import OrderManagement from "./pages/OrderManagement";
+import Report from "./pages/Report";
+import ServiceDetail from "./pages/ServiceDetail";
+import ManagerStaff from "./pages/managerstaff";
+
 
 function App() {
   return (
-    <MainLayout>
+    <>
+      <ScrollToTop />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/service" element={<Service />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/product" element={<Product />} />
+        <Route path="/" element={<MainLayout><Home /></MainLayout>} />
+        <Route path="/about" element={<MainLayout><About /></MainLayout>} />
+        <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
+        <Route path="/service/:id" element={<MainLayout><ServiceDetail /></MainLayout>} />
+        <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
+        <Route path="/blog" element={<MainLayout><Blog /></MainLayout>} />
+        <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
+        <Route path="/manager" element={<Manager />} />
+        <Route path="/manager/user" element={<UserManagement />} />
+        <Route path="/manager/service" element={<ServiceManagement />} />
+        <Route path="/manager/order" element={<OrderManagement />} />
+        <Route path="/manager/report" element={<Report />} />
+        <Route path="/managerstaff" element={<ManagerStaff />} />
+
       </Routes>
-    </MainLayout>
+    </>
   );
 }
 

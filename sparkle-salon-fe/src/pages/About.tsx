@@ -44,11 +44,7 @@ export default function About() {
         <div className="relative w-1/2 flex justify-start px-16">
           <img src="/assets/skin-about1.jpg" alt="" className="rounded-xl" />
           <figcaption className="absolute bottom-[60%] left-10 animate-[bounce_15s_infinite]">
-            <img
-              src="/assets/skin-story2.jpg"
-              alt=""
-              className="w-full"
-            />
+            <img src="/assets/skin-story2.jpg" alt="" className="w-full" />
           </figcaption>
         </div>
       </div>
@@ -77,24 +73,24 @@ export default function About() {
               { name: "Đỗ Hạ Vy", img: "/assets/skin-cv/cv12.jpg" },
               { name: "Vũ Thùy Dung", img: "/assets/skin-cv/cv13.jpg" },
               { name: "Bùi Thanh Trúc", img: "/assets/skin-cv/cv14.jpg" },
-              
             ].map((person, index) => (
               <div
-                key={index}
-                className="flex flex-col items-center min-w-[200px] snap-center"
-              >
-                <img
-                  src={person.img}
-                  alt={person.name}
-                  className="rounded-lg shadow-md w-[200px] h-[250px] object-cover hover:shadow-2xl"
-                />
-                <h3 className="text-md font-semibold text-gray-900 mt-4">
-                  {person.name}
-                </h3>
-              </div>
-            ))}
-          </div>
+              key={index}
+              className="flex flex-col items-center min-w-[200px] snap-center"
+            >
+              
+              <img
+                src={person.img}
+                alt={person.name}
+                className="rounded-lg shadow-md w-[200px] h-[250px] object-cover hover:shadow-2xl"
+              />
+              <h3 className="text-md font-semibold text-gray-900 mt-4">
+                {person.name}
+              </h3>
+            </div>
+          ))}
         </div>
+      </div>
 
         <button className="mt-6  bg-[#f8a89c] hover:bg-[#ee8874] hover:text-white hover:text-xl text-black px-6 py-3 rounded-3xl font-semibold text-lg">
           <Link to="/service">Xem thêm →</Link>
