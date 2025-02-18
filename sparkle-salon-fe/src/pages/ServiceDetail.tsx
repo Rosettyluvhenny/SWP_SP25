@@ -7,6 +7,11 @@ export default function ServiceDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [service, setService] = useState<Service | null>(null);
+    const [feedbacks, setFeedbacks] = useState([
+        { name: "Lan Pham", rating: 5, comment: "Dịch vụ tuyệt vời!", date: "12/02/2025" },
+        { name: "Minh Nguyen", rating: 4, comment: "Rất hài lòng với chất lượng!", date: "10/02/2025" },
+    ]);
+    const [newFeedback, setNewFeedback] = useState({ name: "", rating: 5, comment: "" });
 
     useEffect(() => {
         const foundService = servicesData.find((s) => s.id === Number(id));
@@ -23,6 +28,13 @@ export default function ServiceDetail() {
 
     const handleBooking = () => {
         navigate("/contact", { state: { selectedService: service.name } });
+    };
+
+    const handleFeedbackSubmit = () => {
+        if (newFeedback.name && newFeedback.comment) {
+            setFeedbacks([...feedbacks, { ...newFeedback, date: new Date().toLocaleDateString() }]);
+            setNewFeedback({ name: "", rating: 5, comment: "" });
+        }
     };
 
     return (
@@ -60,7 +72,7 @@ export default function ServiceDetail() {
                         </div>
                     </div>
 
-                    {/* Thong tin dich vu Section */}
+                    {/* Desciption Section */}
                     <div className="bg-white shadow-md p-6 rounded-lg">
                         <h2 className="text-xl font-semibold border-b pb-2">
                             Thông tin dịch vụ
@@ -69,17 +81,64 @@ export default function ServiceDetail() {
                             {service.description}
                         </p>
                     </div>
+
+                    {/* Feedback Section */}
+                    <div className="bg-white shadow-md p-6 rounded-lg">
+                        <h2 className="text-3xl font-semibold border-b pb-2 text-pink-500">Đánh giá</h2>
+                        <div className="mt-3 space-y-4">
+                            {feedbacks.map((fb, index) => (
+                                <div key={index} className="border-b pb-2">
+                                    <p className="font-semibold">{fb.name} - {fb.date}</p>
+                                    <p className="text-yellow-500">{"⭐".repeat(fb.rating)}</p>
+                                    <p className="text-gray-700">{fb.comment}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Feedback Form */}
+                        <div className="mt-6">
+                            <h3 className="text-lg font-semibold">Gửi đánh giá của bạn</h3>
+                            <input
+                                type="text"
+                                placeholder="Tên của bạn"
+                                value={newFeedback.name}
+                                onChange={(e) => setNewFeedback({ ...newFeedback, name: e.target.value })}
+                                className="border p-2 w-full mt-2 rounded bg-gray-100"
+                            />
+                            <select
+                                value={newFeedback.rating}
+                                onChange={(e) => setNewFeedback({ ...newFeedback, rating: Number(e.target.value) })}
+                                className="border p-2 w-full mt-2 rounded bg-gray-100"
+                            >
+                                {[5, 4, 3, 2, 1].map((star) => (
+                                    <option key={star} value={star}>{"⭐".repeat(star)}</option>
+                                ))}
+                            </select>
+                            <textarea
+                                placeholder="Nhận xét của bạn"
+                                value={newFeedback.comment}
+                                onChange={(e) => setNewFeedback({ ...newFeedback, comment: e.target.value })}
+                                className="border p-2 w-full mt-2 rounded h-24 bg-gray-100"
+                            ></textarea>
+                            <button
+                                onClick={handleFeedbackSubmit}
+                                className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded mt-3"
+                            >
+                                Gửi đánh giá
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/*Sidebar Section */}
                 <aside className="space-y-6">
                     <div className="bg-white shadow-md p-4 rounded-lg">
                         <h3 className="text-lg font-bold border-b pb-2">
-                            Dịch vụ xem cùng
+                            Dịch vụ khác
                         </h3>
                         {servicesData
                             .filter((related) => related.id !== service.id)
-                            .slice(0, 5)
+                            .slice(0, 13)
                             .map((related) => (
                                 <Link
                                     to={`/service/${related.id}`}
@@ -97,8 +156,7 @@ export default function ServiceDetail() {
                                                 {related.name}
                                             </p>
                                             <p className="text-pink-500 font-medium">
-                                                {related.price.toLocaleString()}{" "}
-                                                đ
+                                                {related.price.toLocaleString()} đ
                                             </p>
                                         </div>
                                     </div>
