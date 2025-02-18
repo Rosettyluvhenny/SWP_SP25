@@ -31,7 +31,6 @@ public class AnswerService {
 
         answer.setQuestion(question);
         answer.setAnswerText(answerCreateRequest.getAnswerText());
-        answer.setCreatedAt(answerCreateRequest.getCreatedAt());
         answer.setPoint(answerCreateRequest.getPoint());
         answerRepository.save(answer);
     }

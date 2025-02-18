@@ -7,8 +7,6 @@ public class QuestionCreateRequest {
     private String questionText;
     private String questionType;
     private String option;
-    private Date createdAt;
-    private Date updatedAt;
 
     public int getQuizId() {
         return quizId;
@@ -40,21 +38,5 @@ public class QuestionCreateRequest {
 
     public void setOption(String option) {
         this.option = option;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }

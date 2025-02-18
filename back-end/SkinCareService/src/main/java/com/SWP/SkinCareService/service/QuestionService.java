@@ -31,8 +31,6 @@ public class QuestionService {
         question.setQuestionText(request.getQuestionText());
         question.setQuestionType(request.getQuestionType());
         question.setOptions(request.getOption());
-        question.setCreatedAt(request.getCreatedAt());
-        question.setUpdatedAt(request.getUpdatedAt());
         questionRepository.save(question);
     }
 
@@ -58,7 +56,6 @@ public class QuestionService {
         question.setQuestionText(request.getQuestionText());
         question.setQuestionType(request.getQuestionType());
         question.setOptions(request.getOption());
-        question.setUpdatedAt(request.getUpdatedAt());
         questionRepository.save(question);
     }
 
