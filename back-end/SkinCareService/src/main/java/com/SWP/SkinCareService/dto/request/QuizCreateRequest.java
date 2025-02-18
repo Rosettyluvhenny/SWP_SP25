@@ -1,13 +1,12 @@
 package com.SWP.SkinCareService.dto.request;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class QuizCreateRequest {
     private int serviceCategoryId;
+    private String quizName;
 
-    public int getServiceCategoryId() {
-        return serviceCategoryId;
-    }
-
-    public void setServiceCategoryId(int serviceCategoryId) {
-        this.serviceCategoryId = serviceCategoryId;
-    }
 }

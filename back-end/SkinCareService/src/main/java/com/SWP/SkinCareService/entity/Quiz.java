@@ -13,6 +13,7 @@ public class Quiz {
     private int quizId;
     //@ManyToMany
     private int serviceCategoryId;
+    private String quizName;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -44,5 +45,13 @@ public class Quiz {
 
     public void setServiceCategoryId(int serviceCategoryId) {
         this.serviceCategoryId = serviceCategoryId;
+    }
+
+    public String getQuizName() {
+        return quizName;
+    }
+
+    public void setQuizName(String quizName) {
+        this.quizName = quizName;
     }
 }

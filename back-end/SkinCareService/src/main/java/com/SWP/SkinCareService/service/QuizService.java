@@ -23,6 +23,7 @@ public class QuizService {
     public ResponseEntity<ApiResponse> createQuiz(QuizCreateRequest request) {
         Quiz quiz = new Quiz();
         quiz.setServiceCategoryId(request.getServiceCategoryId());
+        quiz.setQuizName(request.getQuizName());
         quizRepositories.save(quiz);
         //Response to client
         ApiResponse apiResponse = new ApiResponse();
@@ -46,6 +47,7 @@ public class QuizService {
         Quiz quiz = quizRepositories.findById(Integer.toString(id)).orElseThrow(()
                 -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
         quiz.setServiceCategoryId(request.getServiceCategoryId());
+        quiz.setQuizName(request.getQuizName());
         quizRepositories.save(quiz);
         //Response to client
         ApiResponse apiResponse = new ApiResponse();
