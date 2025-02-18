@@ -1,7 +1,5 @@
 package com.SWP.SkinCareService.dto.request;
 
-import java.util.Date;
-
 public class QuestionCreateRequest {
     private int quizId;
     private String questionText;
