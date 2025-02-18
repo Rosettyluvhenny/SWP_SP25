@@ -22,7 +22,10 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1006,"User not found",HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1007, "Unauthenticated",HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1008, "You do not have permission", HttpStatus.FORBIDDEN),
-    INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST)
+    INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+    QUIZ_NOT_EXISTED(1010, "Quiz not found", HttpStatus.NOT_FOUND),
+    QUESTION_NOT_EXISTED(1011, "Question not found", HttpStatus.NOT_FOUND),
+    ANSWER_NOT_EXISTED(1012, "Answer not found", HttpStatus.NOT_FOUND),
     ;
     int code;
     String message;

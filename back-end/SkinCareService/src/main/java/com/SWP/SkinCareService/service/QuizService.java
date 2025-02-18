@@ -1,5 +1,7 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.exception.AppException;
+import com.SWP.SkinCareService.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,12 +28,14 @@ public class QuizService {
     }
 
     public Quiz getQuizById(int id) {
-        return quizRepositories.findById(Integer.toString(id)).orElseThrow(() -> new RuntimeException("Quiz not found"));
+        return quizRepositories.findById(Integer.toString(id)).orElseThrow(()
+                -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
     }
 
     @Transactional
     public void updateQuiz(int id, QuizUpdateRequest request) {
-        Quiz quiz = getQuizById(id);
+        Quiz quiz = quizRepositories.findById(Integer.toString(id)).orElseThrow(()
+                -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
         quiz.setServiceCategoryId(request.getServiceCategoryId());
         quizRepositories.save(quiz);
     }
