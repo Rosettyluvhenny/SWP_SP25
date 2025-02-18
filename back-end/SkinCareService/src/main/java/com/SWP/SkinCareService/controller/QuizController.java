@@ -2,9 +2,11 @@ package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.QuizCreateRequest;
 import com.SWP.SkinCareService.dto.request.QuizUpdateRequest;
+import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,8 +18,8 @@ public class QuizController {
     private QuizService quizService;
 
     @PostMapping()
-    public void createQuiz(@RequestBody QuizCreateRequest quizCreateRequest) {
-        quizService.createQuiz(quizCreateRequest);
+    public ResponseEntity<ApiResponse> createQuiz(@RequestBody QuizCreateRequest quizCreateRequest) {
+        return quizService.createQuiz(quizCreateRequest);
     }
 
     @GetMapping()
@@ -31,13 +33,13 @@ public class QuizController {
     }
 
     @PutMapping("/{quizId}")
-    public void updateQuiz(@PathVariable int quizId, @RequestBody QuizUpdateRequest quizUpdateRequest) {
-        quizService.updateQuiz(quizId, quizUpdateRequest);
+    public ResponseEntity<ApiResponse> updateQuiz(@PathVariable int quizId, @RequestBody QuizUpdateRequest quizUpdateRequest) {
+        return quizService.updateQuiz(quizId, quizUpdateRequest);
     }
 
     @DeleteMapping("/{quizId}")
-    public void deleteQuiz(@PathVariable int quizId) {
-        quizService.deleteQuiz(quizId);
+    public ResponseEntity<ApiResponse> deleteQuiz(@PathVariable int quizId) {
+        return quizService.deleteQuiz(quizId);
     }
 
 }

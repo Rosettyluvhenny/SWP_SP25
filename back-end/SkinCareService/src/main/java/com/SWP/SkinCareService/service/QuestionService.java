@@ -1,10 +1,13 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.repository.QuizRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.SWP.SkinCareService.entity.Question;
@@ -21,7 +24,7 @@ public class QuestionService {
     @Autowired
     private QuestionRepository questionRepository;
 
-    public void createQuestion(QuestionCreateRequest request) {
+    public ResponseEntity<ApiResponse> createQuestion(QuestionCreateRequest request) {
         Question question = new Question();
 
         int quizId = request.getQuizId();
@@ -32,6 +35,12 @@ public class QuestionService {
         question.setQuestionType(request.getQuestionType());
         question.setOptions(request.getOption());
         questionRepository.save(question);
+        //Response to client
+        ApiResponse apiResponse = new ApiResponse();
+        int status = HttpStatus.CREATED.value();
+        apiResponse.setCode(status);
+        apiResponse.setMessage("Question created successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
     public List<Question> getAllQuestions() {
@@ -44,7 +53,7 @@ public class QuestionService {
     }
 
     @Transactional
-    public void updateQuestion(int id, QuestionUpdateRequest request) {
+    public ResponseEntity<ApiResponse> updateQuestion(int id, QuestionUpdateRequest request) {
         Question question = questionRepository.findById(Integer.toString(id)).orElseThrow(()
                 -> new AppException(ErrorCode.QUESTION_NOT_EXISTED));
 
@@ -57,9 +66,21 @@ public class QuestionService {
         question.setQuestionType(request.getQuestionType());
         question.setOptions(request.getOption());
         questionRepository.save(question);
+        //Response to client
+        ApiResponse apiResponse = new ApiResponse();
+        int status = HttpStatus.OK.value();
+        apiResponse.setCode(status);
+        apiResponse.setMessage("Question updated successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 
-    public void deleteQuestionById(int id) {
+    public ResponseEntity<ApiResponse> deleteQuestionById(int id) {
         questionRepository.deleteById(Integer.toString(id));
+        //Response
+        ApiResponse apiResponse = new ApiResponse();
+        int status = HttpStatus.OK.value();
+        apiResponse.setCode(status);
+        apiResponse.setMessage("Question deleted successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 }

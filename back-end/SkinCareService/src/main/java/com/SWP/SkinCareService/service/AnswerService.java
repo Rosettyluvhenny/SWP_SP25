@@ -1,10 +1,13 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.entity.Question;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.SWP.SkinCareService.entity.Answer;
@@ -22,7 +25,7 @@ public class AnswerService {
     @Autowired
     private AnswerRepository answerRepository;
 
-    public void createAnswer(AnswerCreateRequest answerCreateRequest) {
+    public ResponseEntity<ApiResponse> createAnswer(AnswerCreateRequest answerCreateRequest) {
         Answer answer = new Answer();
 
         int questionId = answerCreateRequest.getQuestionId();
@@ -33,6 +36,12 @@ public class AnswerService {
         answer.setAnswerText(answerCreateRequest.getAnswerText());
         answer.setPoint(answerCreateRequest.getPoint());
         answerRepository.save(answer);
+        //Response to client
+        ApiResponse apiResponse = new ApiResponse();
+        int status = HttpStatus.CREATED.value();
+        apiResponse.setCode(status);
+        apiResponse.setMessage("Answer created successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
     public List<Answer> getAllAnswers() {
@@ -45,7 +54,7 @@ public class AnswerService {
     }
 
     @Transactional
-    public void updateAnswer(int answerId, AnswerUpdateRequest answerUpdateRequest) {
+    public ResponseEntity<ApiResponse> updateAnswer(int answerId, AnswerUpdateRequest answerUpdateRequest) {
         Answer answer = answerRepository.findById(Integer.toString(answerId)).orElseThrow(()
                 -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
 
@@ -57,10 +66,21 @@ public class AnswerService {
         answer.setAnswerText(answerUpdateRequest.getAnswerText());
         answer.setPoint(answerUpdateRequest.getPoint());
         answerRepository.save(answer);
-
+        //Response to client
+        ApiResponse apiResponse = new ApiResponse();
+        int status = HttpStatus.OK.value();
+        apiResponse.setCode(status);
+        apiResponse.setMessage("Answer updated successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 
-    public void deleteAnswer(int answerId) {
+    public ResponseEntity<ApiResponse> deleteAnswer(int answerId) {
         answerRepository.deleteById(Integer.toString(answerId));
+        //Response to cient
+        ApiResponse apiResponse = new ApiResponse();
+        int status = HttpStatus.OK.value();
+        apiResponse.setCode(status);
+        apiResponse.setMessage("Answer deleted successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 }

@@ -2,9 +2,11 @@ package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.AnswerCreateRequest;
 import com.SWP.SkinCareService.dto.request.AnswerUpdateRequest;
+import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.entity.Answer;
 import com.SWP.SkinCareService.service.AnswerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,8 +18,8 @@ public class AnswerController {
     private AnswerService answerService;
 
     @PostMapping()
-    public void createAnswer(@RequestBody AnswerCreateRequest answerCreateRequest) {
-        answerService.createAnswer(answerCreateRequest);
+    public ResponseEntity<ApiResponse> createAnswer(@RequestBody AnswerCreateRequest answerCreateRequest) {
+        return answerService.createAnswer(answerCreateRequest);
     }
 
     @GetMapping()
@@ -31,13 +33,13 @@ public class AnswerController {
     }
 
     @PutMapping("/{answerId}")
-    public void updateAnswer(@PathVariable int answerId, @RequestBody AnswerUpdateRequest  answerUpdateRequest) {
-        answerService.updateAnswer(answerId, answerUpdateRequest);
+    public ResponseEntity<ApiResponse> updateAnswer(@PathVariable int answerId, @RequestBody AnswerUpdateRequest  answerUpdateRequest) {
+        return answerService.updateAnswer(answerId, answerUpdateRequest);
     }
 
     @DeleteMapping("/{answerId}")
-    public void deleteAnswer(@PathVariable int answerId) {
-        answerService.deleteAnswer(answerId);
+    public ResponseEntity<ApiResponse> deleteAnswer(@PathVariable int answerId) {
+        return answerService.deleteAnswer(answerId);
     }
 
 
