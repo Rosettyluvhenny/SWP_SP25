@@ -38,7 +38,7 @@ export default function ServiceDetail() {
     };
 
     return (
-        <div className="bg-pink-50 mt-16">
+        <div className="bg-pink-50 mt-24">
             <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-4 gap-8 bg-pink-100">
                 <div className="lg:col-span-3 space-y-6">
                     {/* Top Section */}
@@ -138,7 +138,7 @@ export default function ServiceDetail() {
                         </h3>
                         {servicesData
                             .filter((related) => related.id !== service.id)
-                            .slice(0, 13)
+                            .slice(0, 10)
                             .map((related) => (
                                 <Link
                                     to={`/service/${related.id}`}

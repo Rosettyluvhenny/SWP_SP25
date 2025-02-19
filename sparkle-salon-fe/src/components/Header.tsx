@@ -13,8 +13,8 @@ export default function Header() {
 
     return (
         <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat text-white text-xl font-serif shadow-md">
-            <div className="text-2xl font-serif">
-                <Link to="/">Sparkle Salon</Link>
+            <div className="text-2xl font-serif text-[#f398d0] flex flex-row items-center">
+                <Link to="/"><img src="/assets/logo1.jpg" alt="logo" className="w-[70px] h-[70px] ml-10"/></Link>
             </div>
 
             <nav>

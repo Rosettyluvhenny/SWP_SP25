@@ -15,7 +15,6 @@ export default function Contact() {
         location.state?.selectedService || ""
     );
 
-    // Find the service data based on the selected service name
     const selectedServiceData = servicesData.find(
         (service: Service) => service.name === selectedService
     );
@@ -27,7 +26,7 @@ export default function Contact() {
 
     return (
         <div className="bg-gradient-to-b from-white to-pink-200">
-            <div className="h-[200px] flex flex-row justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat">
+            <div className="w-full h-[170px] flex flex-row justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-10">
                 <h1 className="text-white text-7xl mt-12 font-serif ">Contact</h1>
             </div>
             <div className="bg-gradient-to-tr from-[#f0bfbf] to-[#ffa8f396] py-5 px-5 max-w-6xl mx-auto">

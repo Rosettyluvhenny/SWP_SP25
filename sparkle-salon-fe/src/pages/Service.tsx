@@ -33,7 +33,7 @@ export default function Service() {
     return (
         <div className="bg-gradient-to-t from-white to-pink-200">
             {/* Page Banner Section */}
-            <div className="w-full h-[200px] flex flex-row justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat">
+            <div className="w-full h-[170px] flex flex-row justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-10">
                 <h1 className="text-white text-7xl mt-12 font-serif">Services</h1>
             </div>
 
