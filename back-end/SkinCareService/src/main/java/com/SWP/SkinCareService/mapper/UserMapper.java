@@ -1,8 +1,8 @@
 package com.SWP.SkinCareService.mapper;
 
 
-import com.SWP.SkinCareService.dto.request.UserRequestDto;
-import com.SWP.SkinCareService.dto.request.UserUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Identity.UserRequestDto;
+import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.response.UserResponse;
 import com.SWP.SkinCareService.entity.User;
 import org.mapstruct.Mapper;

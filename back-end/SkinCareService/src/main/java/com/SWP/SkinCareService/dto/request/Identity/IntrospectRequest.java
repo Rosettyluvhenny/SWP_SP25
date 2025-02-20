@@ -1,4 +1,4 @@
-package com.SWP.SkinCareService.dto.request;
+package com.SWP.SkinCareService.dto.request.Identity;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

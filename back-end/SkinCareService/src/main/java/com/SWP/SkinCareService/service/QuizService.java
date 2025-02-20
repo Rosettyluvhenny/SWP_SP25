@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.repository.QuizRepository;
-import com.SWP.SkinCareService.dto.request.QuizCreateRequest;
-import com.SWP.SkinCareService.dto.request.QuizUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.QuizCreateRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.QuizUpdateRequest;
 
 import java.util.List;
 

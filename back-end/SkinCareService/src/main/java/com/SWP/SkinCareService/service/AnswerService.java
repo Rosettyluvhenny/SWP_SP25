@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.SWP.SkinCareService.entity.Answer;
 
 import com.SWP.SkinCareService.repository.AnswerRepository;
-import com.SWP.SkinCareService.dto.request.AnswerCreateRequest;
-import com.SWP.SkinCareService.dto.request.AnswerUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.AnswerCreateRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.AnswerUpdateRequest;
 
 import java.util.List;
 

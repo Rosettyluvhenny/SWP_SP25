@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.SWP.SkinCareService.entity.Question;
 import com.SWP.SkinCareService.repository.QuestionRepository;
-import com.SWP.SkinCareService.dto.request.QuestionCreateRequest;
-import com.SWP.SkinCareService.dto.request.QuestionUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.QuestionCreateRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.QuestionUpdateRequest;
 
 import java.util.List;
 

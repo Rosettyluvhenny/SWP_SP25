@@ -1,9 +1,9 @@
 package com.SWP.SkinCareService.service;
 
-import com.SWP.SkinCareService.dto.request.AuthenticationRequest;
-import com.SWP.SkinCareService.dto.request.IntrospectRequest;
-import com.SWP.SkinCareService.dto.request.LogoutRequest;
-import com.SWP.SkinCareService.dto.request.RefreshRequest;
+import com.SWP.SkinCareService.dto.request.Identity.AuthenticationRequest;
+import com.SWP.SkinCareService.dto.request.Identity.IntrospectRequest;
+import com.SWP.SkinCareService.dto.request.Identity.LogoutRequest;
+import com.SWP.SkinCareService.dto.request.Identity.RefreshRequest;
 import com.SWP.SkinCareService.dto.response.AuthenticationResponse;
 import com.SWP.SkinCareService.dto.response.IntrospectResponse;
 import com.SWP.SkinCareService.entity.InvalidatedToken;
@@ -94,7 +94,7 @@ public class AuthenticationService {
             // Create JWT Claims
             JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                     .subject(user.getUsername())
-                    .issuer("devteria.com")
+                    .issuer("swpsp25.com")
                     .issueTime(Date.from(Instant.now()))
                     .expirationTime(new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
                     .jwtID(UUID.randomUUID().toString())

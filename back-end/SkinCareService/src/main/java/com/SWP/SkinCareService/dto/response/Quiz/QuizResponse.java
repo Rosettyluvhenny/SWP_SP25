@@ -1,18 +1,14 @@
-package com.SWP.SkinCareService.dto.request;
+package com.SWP.SkinCareService.dto.response.Quiz;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Set;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RoleRequest {
+@Builder
+public class QuizResponse {
+    int serviceCategoryId;
     String name;
-    String description;
-
-    Set<String> permissions;
 }

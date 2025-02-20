@@ -1,6 +1,6 @@
 package com.SWP.SkinCareService.config;
 
-import com.SWP.SkinCareService.dto.request.IntrospectRequest;
+import com.SWP.SkinCareService.dto.request.Identity.IntrospectRequest;
 import com.SWP.SkinCareService.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import org.springframework.beans.factory.annotation.Autowired;

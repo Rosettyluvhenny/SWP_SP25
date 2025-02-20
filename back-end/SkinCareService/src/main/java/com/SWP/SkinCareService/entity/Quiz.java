@@ -2,15 +2,23 @@ package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Entity
 @Table(name = "quiz")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Quiz {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int quizId;
+    private int id;
     //@ManyToMany
     private int serviceCategoryId;
 
@@ -18,31 +26,5 @@ public class Quiz {
     @JsonManagedReference
     private List<Question> questions;
 
-    public List<Question> getQuestions() {
-        return questions;
-    }
 
-    public void setQuestions(List<Question> questions) {
-        this.questions = questions;
-    }
-
-    public Quiz() {
-        super();
-    }
-
-    public int getQuizId() {
-        return quizId;
-    }
-
-    public void setQuizId(int quizId) {
-        this.quizId = quizId;
-    }
-
-    public int getServiceCategoryId() {
-        return serviceCategoryId;
-    }
-
-    public void setServiceCategoryId(int serviceCategoryId) {
-        this.serviceCategoryId = serviceCategoryId;
-    }
 }

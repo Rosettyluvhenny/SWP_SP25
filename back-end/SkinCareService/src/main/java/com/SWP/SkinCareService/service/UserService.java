@@ -1,7 +1,7 @@
 package com.SWP.SkinCareService.service;
 
-import com.SWP.SkinCareService.dto.request.UserRequestDto;
-import com.SWP.SkinCareService.dto.request.UserUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Identity.UserRequestDto;
+import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.response.UserResponse;
 import com.SWP.SkinCareService.entity.Role;
 import com.SWP.SkinCareService.entity.User;
@@ -66,7 +66,7 @@ public class UserService {
     public User getUser(String id) {
         return userRepository.findById(id).orElseThrow(()-> new RuntimeException("user can not be found"));
     }
-//    @PostAuthorize("returnObject.id == authentication.id")
+
     public User getUserByUsername(String userName){
         return userRepository.findByUsername(userName).orElseThrow(()-> new RuntimeException("user can not be found"));
     }

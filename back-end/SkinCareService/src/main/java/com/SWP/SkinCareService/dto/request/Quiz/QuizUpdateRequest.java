@@ -1,4 +1,4 @@
-package com.SWP.SkinCareService.dto.request;
+package com.SWP.SkinCareService.dto.request.Quiz;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -6,8 +6,9 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RefreshRequest {
-    String token;
+@Builder
+public class QuizUpdateRequest {
+    private int serviceCategoryId;
+    private String name;
 }
