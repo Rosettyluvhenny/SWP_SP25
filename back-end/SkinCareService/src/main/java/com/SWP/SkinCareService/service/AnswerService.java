@@ -13,8 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.SWP.SkinCareService.entity.Answer;
 
 import com.SWP.SkinCareService.repository.AnswerRepository;
-import com.SWP.SkinCareService.dto.request.AnswerCreateRequest;
-import com.SWP.SkinCareService.dto.request.AnswerUpdateRequest;
+import com.SWP.SkinCareService.dto.request.AnswerRequest;
 
 import java.util.List;
 
@@ -25,16 +24,16 @@ public class AnswerService {
     @Autowired
     private AnswerRepository answerRepository;
 
-    public ResponseEntity<ApiResponse> createAnswer(AnswerCreateRequest answerCreateRequest) {
+    public ResponseEntity<ApiResponse> createAnswer(AnswerRequest answerRequest) {
         Answer answer = new Answer();
-
-        int questionId = answerCreateRequest.getQuestionId();
+        //Check question existed or not
+        int questionId = answerRequest.getQuestionId();
         Question question = questionRepository.findById(Integer.toString(questionId)).orElseThrow(()
                 -> new AppException(ErrorCode.QUESTION_NOT_EXISTED));
-
+        //Create
         answer.setQuestion(question);
-        answer.setAnswerText(answerCreateRequest.getAnswerText());
-        answer.setPoint(answerCreateRequest.getPoint());
+        answer.setAnswerText(answerRequest.getAnswerText());
+        answer.setPoint(answerRequest.getPoint());
         answerRepository.save(answer);
         //Response to client
         ApiResponse apiResponse = new ApiResponse();
@@ -54,17 +53,18 @@ public class AnswerService {
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse> updateAnswer(int answerId, AnswerUpdateRequest answerUpdateRequest) {
+    public ResponseEntity<ApiResponse> updateAnswer(int answerId, AnswerRequest answerRequest) {
+        //Check answer existed or not
         Answer answer = answerRepository.findById(Integer.toString(answerId)).orElseThrow(()
                 -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
-
-        int questionId = answerUpdateRequest.getQuestionId();
+        //Check question existed or not
+        int questionId = answerRequest.getQuestionId();
         Question question = questionRepository.findById(Integer.toString(questionId)).orElseThrow(()
                 -> new AppException(ErrorCode.QUESTION_NOT_EXISTED));
-
+        //Update
         answer.setQuestion(question);
-        answer.setAnswerText(answerUpdateRequest.getAnswerText());
-        answer.setPoint(answerUpdateRequest.getPoint());
+        answer.setAnswerText(answerRequest.getAnswerText());
+        answer.setPoint(answerRequest.getPoint());
         answerRepository.save(answer);
         //Response to client
         ApiResponse apiResponse = new ApiResponse();
@@ -75,8 +75,11 @@ public class AnswerService {
     }
 
     public ResponseEntity<ApiResponse> deleteAnswer(int answerId) {
+        //Check answer existed or not
+        Answer answer = answerRepository.findById(Integer.toString(answerId)).orElseThrow(()
+                -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
         answerRepository.deleteById(Integer.toString(answerId));
-        //Response to cient
+        //Response to client
         ApiResponse apiResponse = new ApiResponse();
         int status = HttpStatus.OK.value();
         apiResponse.setCode(status);

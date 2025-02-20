@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -11,8 +12,12 @@ public class Quiz {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int quizId;
-    //@ManyToMany
-    private int serviceCategoryId;
+
+    @ManyToOne
+    @JoinColumn(name = "serviceCategoryId")
+    @JsonBackReference
+    private ServiceCategory serviceCategory;
+
     private String quizName;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -39,19 +44,19 @@ public class Quiz {
         this.quizId = quizId;
     }
 
-    public int getServiceCategoryId() {
-        return serviceCategoryId;
-    }
-
-    public void setServiceCategoryId(int serviceCategoryId) {
-        this.serviceCategoryId = serviceCategoryId;
-    }
-
     public String getQuizName() {
         return quizName;
     }
 
     public void setQuizName(String quizName) {
         this.quizName = quizName;
+    }
+
+    public ServiceCategory getServiceCategory() {
+        return serviceCategory;
+    }
+
+    public void setServiceCategory(ServiceCategory serviceCategory) {
+        this.serviceCategory = serviceCategory;
     }
 }

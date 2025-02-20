@@ -12,8 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.SWP.SkinCareService.entity.Question;
 import com.SWP.SkinCareService.repository.QuestionRepository;
-import com.SWP.SkinCareService.dto.request.QuestionCreateRequest;
-import com.SWP.SkinCareService.dto.request.QuestionUpdateRequest;
+import com.SWP.SkinCareService.dto.request.QuestionRequest;
 
 import java.util.List;
 
@@ -24,12 +23,13 @@ public class QuestionService {
     @Autowired
     private QuestionRepository questionRepository;
 
-    public ResponseEntity<ApiResponse> createQuestion(QuestionCreateRequest request) {
+    public ResponseEntity<ApiResponse> createQuestion(QuestionRequest request) {
         Question question = new Question();
-
+        //Check quiz existed or not
         int quizId = request.getQuizId();
         Quiz quiz = quizRepository.findById(Integer.toString(quizId)).orElseThrow(()
                 -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
+        //Create
         question.setQuiz(quiz);
         question.setQuestionText(request.getQuestionText());
         question.setQuestionType(request.getQuestionType());
@@ -53,14 +53,15 @@ public class QuestionService {
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse> updateQuestion(int id, QuestionUpdateRequest request) {
+    public ResponseEntity<ApiResponse> updateQuestion(int id, QuestionRequest request) {
+        //Check question existed or not
         Question question = questionRepository.findById(Integer.toString(id)).orElseThrow(()
                 -> new AppException(ErrorCode.QUESTION_NOT_EXISTED));
-
+        //Check quiz existed or not
         int quizId = request.getQuizId();
         Quiz quiz = quizRepository.findById(Integer.toString(quizId)).orElseThrow(()
                 -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
-
+        //Update
         question.setQuiz(quiz);
         question.setQuestionText(request.getQuestionText());
         question.setQuestionType(request.getQuestionType());
@@ -75,6 +76,10 @@ public class QuestionService {
     }
 
     public ResponseEntity<ApiResponse> deleteQuestionById(int id) {
+        //Check question existed or not
+        Question question = questionRepository.findById(Integer.toString(id)).orElseThrow(()
+                -> new AppException(ErrorCode.QUESTION_NOT_EXISTED));
+        //Delete
         questionRepository.deleteById(Integer.toString(id));
         //Response
         ApiResponse apiResponse = new ApiResponse();

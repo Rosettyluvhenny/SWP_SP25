@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class QuizCreateRequest {
-    private int serviceCategoryId;
-    private String quizName;
-
+public class ServiceCategoryRequest {
+    private String categoryName;
+    private String description;
 }

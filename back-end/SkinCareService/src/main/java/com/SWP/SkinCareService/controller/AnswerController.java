@@ -1,7 +1,6 @@
 package com.SWP.SkinCareService.controller;
 
-import com.SWP.SkinCareService.dto.request.AnswerCreateRequest;
-import com.SWP.SkinCareService.dto.request.AnswerUpdateRequest;
+import com.SWP.SkinCareService.dto.request.AnswerRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.entity.Answer;
 import com.SWP.SkinCareService.service.AnswerService;
@@ -18,8 +17,8 @@ public class AnswerController {
     private AnswerService answerService;
 
     @PostMapping()
-    public ResponseEntity<ApiResponse> createAnswer(@RequestBody AnswerCreateRequest answerCreateRequest) {
-        return answerService.createAnswer(answerCreateRequest);
+    public ResponseEntity<ApiResponse> createAnswer(@RequestBody AnswerRequest answerRequest) {
+        return answerService.createAnswer(answerRequest);
     }
 
     @GetMapping()
@@ -33,8 +32,8 @@ public class AnswerController {
     }
 
     @PutMapping("/{answerId}")
-    public ResponseEntity<ApiResponse> updateAnswer(@PathVariable int answerId, @RequestBody AnswerUpdateRequest  answerUpdateRequest) {
-        return answerService.updateAnswer(answerId, answerUpdateRequest);
+    public ResponseEntity<ApiResponse> updateAnswer(@PathVariable int answerId, @RequestBody AnswerRequest  answerRequest) {
+        return answerService.updateAnswer(answerId, answerRequest);
     }
 
     @DeleteMapping("/{answerId}")

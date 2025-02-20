@@ -23,9 +23,11 @@ public enum ErrorCode {
     UNAUTHENTICATED(1007, "Unauthenticated",HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1008, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
-    QUIZ_NOT_EXISTED(1010, "Quiz not found", HttpStatus.NOT_FOUND),
-    QUESTION_NOT_EXISTED(1011, "Question not found", HttpStatus.NOT_FOUND),
-    ANSWER_NOT_EXISTED(1012, "Answer not found", HttpStatus.NOT_FOUND),
+    SERVICE_NOT_EXISTED(1010, "Service Not Existed",HttpStatus.NOT_FOUND),
+    QUIZ_NOT_EXISTED(1011, "Quiz not found", HttpStatus.NOT_FOUND),
+    QUESTION_NOT_EXISTED(1012, "Question not found", HttpStatus.NOT_FOUND),
+    ANSWER_NOT_EXISTED(1013, "Answer not found", HttpStatus.NOT_FOUND),
+    RESULT_NOT_EXISTED(1014, "Result not found", HttpStatus.NOT_FOUND),
     ;
     int code;
     String message;
