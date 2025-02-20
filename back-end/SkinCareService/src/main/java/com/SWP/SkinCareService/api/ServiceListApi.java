@@ -20,7 +20,7 @@ public class ServiceListApi {
         return ResponseEntity.ok(serviceListService.getAllServices());
     }
 
-    @GetMapping()
+    @GetMapping("/get")
     public ResponseEntity<ServiceList> getServiceById(@RequestParam Long id) {
         ServiceList service = serviceListService.getServiceById(id);
         return (service != null) ? ResponseEntity.ok(service)

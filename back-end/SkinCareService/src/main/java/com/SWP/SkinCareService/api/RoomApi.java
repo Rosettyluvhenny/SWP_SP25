@@ -20,7 +20,7 @@ public class RoomApi {
         return ResponseEntity.ok(roomService.getAllRooms());
     }
 
-    @GetMapping()
+    @GetMapping("/get")
     public ResponseEntity<Room> getRoomById(@RequestParam Long id) {
         Room room = roomService.getRoomById(id);
         return (room != null) ? ResponseEntity.ok(room)

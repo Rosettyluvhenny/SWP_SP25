@@ -31,9 +31,9 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINTS).permitAll()
-                                .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
-                                .anyRequest().authenticated())
+                        request.anyRequest().permitAll())
+
+
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
