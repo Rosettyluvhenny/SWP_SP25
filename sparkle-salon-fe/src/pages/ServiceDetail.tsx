@@ -1,17 +1,23 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import servicesData, { Service } from "../data/servicesData";
+import { feedbacksData } from "../data/feedbacksData";
 import { FaClock, FaStar, FaMoneyBill } from "react-icons/fa";
+import FeedbackForm from "../components/FeedbackForm";
+import FeedbackList from "../components/FeedbackList";
+
+interface Feedback {
+    name: string;
+    rating: number;
+    comment: string;
+    date: string;
+}
 
 export default function ServiceDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [service, setService] = useState<Service | null>(null);
-    const [feedbacks, setFeedbacks] = useState([
-        { name: "Lan Pham", rating: 5, comment: "Dịch vụ tuyệt vời!", date: "12/02/2025" },
-        { name: "Minh Nguyen", rating: 4, comment: "Rất hài lòng với chất lượng!", date: "10/02/2025" },
-    ]);
-    const [newFeedback, setNewFeedback] = useState({ name: "", rating: 5, comment: "" });
+    const [feedbacks, setFeedbacks] = useState<Feedback[]>(feedbacksData);
 
     useEffect(() => {
         const foundService = servicesData.find((s) => s.id === Number(id));
@@ -30,11 +36,8 @@ export default function ServiceDetail() {
         navigate("/contact", { state: { selectedService: service.name } });
     };
 
-    const handleFeedbackSubmit = () => {
-        if (newFeedback.name && newFeedback.comment) {
-            setFeedbacks([...feedbacks, { ...newFeedback, date: new Date().toLocaleDateString() }]);
-            setNewFeedback({ name: "", rating: 5, comment: "" });
-        }
+    const handleFeedbackSubmit = (newFeedback: Feedback) => {
+        setFeedbacks((prev) => [newFeedback, ...prev]);
     };
 
     return (
@@ -54,7 +57,8 @@ export default function ServiceDetail() {
                             </h1>
                             <p className="text-pink-500 text-lg font-semibold mt-1">
                                 <FaMoneyBill className="inline-block" />{" "}
-                                {service.price.toLocaleString()} vnđ (Đã bao gồm VAT)
+                                {service.price.toLocaleString()} vnđ (Đã bao gồm
+                                VAT)
                             </p>
                             <p className="flex items-center text-gray-600 mt-2">
                                 <FaClock className="mr-2 text-black" />{" "}
@@ -72,7 +76,7 @@ export default function ServiceDetail() {
                         </div>
                     </div>
 
-                    {/* Desciption Section */}
+                    {/* Description Section */}
                     <div className="bg-white shadow-md p-6 rounded-lg">
                         <h2 className="text-xl font-semibold border-b pb-2">
                             Thông tin dịch vụ
@@ -83,50 +87,12 @@ export default function ServiceDetail() {
                     </div>
 
                     {/* Feedback Section */}
-                    <div className="bg-white shadow-md p-6 rounded-lg">
-                        <h2 className="text-3xl font-semibold border-b pb-2 text-pink-500">Đánh giá</h2>
-                        <div className="mt-3 space-y-4">
-                            {feedbacks.map((fb, index) => (
-                                <div key={index} className="border-b pb-2">
-                                    <p className="font-semibold">{fb.name} - {fb.date}</p>
-                                    <p className="text-yellow-500">{"⭐".repeat(fb.rating)}</p>
-                                    <p className="text-gray-700">{fb.comment}</p>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Feedback Form */}
-                        <div className="mt-6">
-                            <h3 className="text-lg font-semibold">Gửi đánh giá của bạn</h3>
-                            <input
-                                type="text"
-                                placeholder="Tên của bạn"
-                                value={newFeedback.name}
-                                onChange={(e) => setNewFeedback({ ...newFeedback, name: e.target.value })}
-                                className="border p-2 w-full mt-2 rounded bg-gray-100"
-                            />
-                            <select
-                                value={newFeedback.rating}
-                                onChange={(e) => setNewFeedback({ ...newFeedback, rating: Number(e.target.value) })}
-                                className="border p-2 w-full mt-2 rounded bg-gray-100"
-                            >
-                                {[5, 4, 3, 2, 1].map((star) => (
-                                    <option key={star} value={star}>{"⭐".repeat(star)}</option>
-                                ))}
-                            </select>
-                            <textarea
-                                placeholder="Nhận xét của bạn"
-                                value={newFeedback.comment}
-                                onChange={(e) => setNewFeedback({ ...newFeedback, comment: e.target.value })}
-                                className="border p-2 w-full mt-2 rounded h-24 bg-gray-100"
-                            ></textarea>
-                            <button
-                                onClick={handleFeedbackSubmit}
-                                className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded mt-3"
-                            >
-                                Gửi đánh giá
-                            </button>
-                        </div>
+                    <div className="mt-8">
+                        <h2 className="text-xl font-semibold">
+                            Đánh Giá Khách Hàng
+                        </h2>
+                        <FeedbackList feedbacks={feedbacks} />
+                        <FeedbackForm onSubmit={handleFeedbackSubmit} />
                     </div>
                 </div>
 
@@ -143,7 +109,7 @@ export default function ServiceDetail() {
                                 <Link
                                     to={`/service/${related.id}`}
                                     key={related.id}
-                                    className="block mt-4 hover:bg-gray-100 p-2 rounded-md transition"
+                                    className="block mt-4 hover:bg-pink-100 p-2 rounded-md transition"
                                 >
                                     <div className="flex gap-4">
                                         <img
@@ -156,7 +122,8 @@ export default function ServiceDetail() {
                                                 {related.name}
                                             </p>
                                             <p className="text-pink-500 font-medium">
-                                                {related.price.toLocaleString()} đ
+                                                {related.price.toLocaleString()}{" "}
+                                                đ
                                             </p>
                                         </div>
                                     </div>

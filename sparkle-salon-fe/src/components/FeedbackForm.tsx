@@ -35,12 +35,12 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ onSubmit }) => {
                 placeholder="Tên của bạn"
                 value={newFeedback.name}
                 onChange={(e) => setNewFeedback({ ...newFeedback, name: e.target.value })}
-                className="border p-2 w-full mt-2 rounded bg-gray-100"
+                className="border p-2 w-full mt-2 rounded bg-white"
             />
             <select
                 value={newFeedback.rating}
                 onChange={(e) => setNewFeedback({ ...newFeedback, rating: Number(e.target.value) })}
-                className="border p-2 w-full mt-2 rounded bg-gray-100"
+                className="border p-2 w-full mt-2 rounded bg-white"
             >
                 {[5, 4, 3, 2, 1].map((star) => (
                     <option key={star} value={star}>{"⭐".repeat(star)}</option>
@@ -50,7 +50,7 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ onSubmit }) => {
                 placeholder="Nhận xét của bạn"
                 value={newFeedback.comment}
                 onChange={(e) => setNewFeedback({ ...newFeedback, comment: e.target.value })}
-                className="border p-2 w-full mt-2 rounded h-24 bg-gray-100"
+                className="border p-2 w-full mt-2 rounded h-24 bg-white"
             ></textarea>
             <button
                 onClick={handleSubmit}
