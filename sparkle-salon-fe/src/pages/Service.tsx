@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import type { Service } from "../data/servicesData"; 
-import servicesData from "../data/servicesData"; 
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import type { Service } from "../data/servicesData";
+import servicesData from "../data/servicesData";
 import SearchBar from "../components/SearchBar";
 import SortButtons from "../components/SortButton";
 import Pagination from "../components/Pagination";
@@ -9,9 +10,19 @@ import ServiceList from "../components/ServiceList";
 const ITEMS_PER_PAGE = 9;
 
 export default function Service() {
-    const [searchTerm, setSearchTerm] = useState<string>("");
-    const [sortBy, setSortBy] = useState<string>("");
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const searchTermParam = searchParams.get("search") || "";
+    const sortByParam = searchParams.get("sort") || "";
+    const pageParam = Number(searchParams.get("page")) || 1;
+
+    const [searchTerm, setSearchTerm] = useState<string>(searchTermParam);
+    const [sortBy, setSortBy] = useState<string>(sortByParam);
+    const [currentPage, setCurrentPage] = useState<number>(pageParam);
+
+    useEffect(() => {
+        setSearchParams({ search: searchTerm, sort: sortBy, page: currentPage.toString() });
+    }, [searchTerm, sortBy, currentPage, setSearchParams]);
 
     const filteredServices = servicesData
         .filter((service: Service) =>
@@ -24,6 +35,7 @@ export default function Service() {
             return 0;
         });
 
+    // Pagination Section   
     const totalPages = Math.ceil(filteredServices.length / ITEMS_PER_PAGE);
     const paginatedServices = filteredServices.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,

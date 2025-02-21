@@ -28,7 +28,7 @@ export default function Header() {
                         <Link to="/about" className={`${isActive("/about")}`}>
                             About Us
                         </Link>
-                    </li>
+                    </li> 
                     <li>
                         <Link
                             to="/service"

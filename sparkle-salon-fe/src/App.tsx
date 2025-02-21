@@ -22,7 +22,7 @@ function App() {
         <Route path="/" element={<MainLayout><Home /></MainLayout>} />
         <Route path="/about" element={<MainLayout><About /></MainLayout>} />
         <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
-        <Route path="/service/:id" element={<MainLayout><ServiceDetail /></MainLayout>} />
+        <Route path="/service/:name.html" element={<MainLayout><ServiceDetail /></MainLayout>} />
         <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
         <Route path="/blog" element={<MainLayout><Blog /></MainLayout>} />
         <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
