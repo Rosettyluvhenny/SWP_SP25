@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -25,31 +26,39 @@ import java.util.Set;
 public class RoleService {
     RoleRepository roleRepository;
     RoleMapper roleMapper;
+    @PreAuthorize("hasRole('ADMIN')")
 
-    public RoleResponse create(RoleRequest request){
+    public RoleResponse create(RoleRequest request) {
         var role = roleMapper.toRole(request);
 
         role = roleRepository.save(role);
 
         return roleMapper.toRoleResponse(role);
     }
+    @PreAuthorize("hasRole('ADMIN')")
 
-    public List<RoleResponse> getAll(){
+    public List<RoleResponse> getAll() {
         return roleRepository.findAll()
                 .stream()
                 .map(roleMapper::toRoleResponse)
                 .toList();
     }
+    @PreAuthorize("hasRole('ADMIN')")
 
-    public void delete(String role){
-        roleRepository.deleteById(role);
+    public void delete(String rolename) {
+        Role role = roleRepository.findById(rolename).orElseThrow(()-> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+
+        roleRepository.deleteById(rolename);
     }
+    @PreAuthorize("hasRole('ADMIN')")
 
-    public RoleResponse updatePermission(String rolename, UpdateRoleRequest request){
-        Role role = roleRepository.findById(rolename).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+    public RoleResponse update(String rolename, UpdateRoleRequest request) {
+        Role role = roleRepository.findById(rolename).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
+        role.setDescription(request.getDescription());
         roleRepository.save(role);
 
         return roleMapper.toRoleResponse(role);
     }
+
 }

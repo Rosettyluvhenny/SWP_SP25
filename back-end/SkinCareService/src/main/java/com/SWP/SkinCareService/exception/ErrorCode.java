@@ -22,7 +22,9 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1006,"User not found",HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1007, "Unauthenticated",HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1008, "You do not have permission", HttpStatus.FORBIDDEN),
-    INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST)
+    INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+    ROLE_NOT_EXISTED(1010, "Role doesn't exist", HttpStatus.BAD_REQUEST),
+    PHONE_NO_INVALID(1011, "Phone no must contain 10 digit of number",HttpStatus.BAD_REQUEST)
     ;
     int code;
     String message;

@@ -5,14 +5,16 @@ import com.SWP.SkinCareService.dto.request.UserRequestDto;
 import com.SWP.SkinCareService.dto.request.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.response.UserResponse;
 import com.SWP.SkinCareService.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     User toUser(UserRequestDto request);
+
     UserResponse toUserResponse(User user);
+
     @Mapping(target ="roles", ignore = true)
-    User updateUser(@MappingTarget User user, UserUpdateRequest request);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    User updateUser(UserUpdateRequest request, @MappingTarget User user);
 }

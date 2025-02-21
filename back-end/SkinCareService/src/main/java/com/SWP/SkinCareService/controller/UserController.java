@@ -47,12 +47,13 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/{userName}")
-    ApiResponse<User> getUser(@PathVariable String userName){
+    @GetMapping("/{userId}")
+    ApiResponse<User> getUser(@PathVariable String userId){
         return ApiResponse.<User>builder()
-                .result(userService.getUser(userName))
+                .result(userService.getUser(userId))
                 .build();
     }
+
 
     @GetMapping("/getMyInfo")
     ApiResponse<UserResponse> getMyInfo(){
@@ -74,4 +75,13 @@ public class UserController {
         return ApiResponse.<Void>builder()
                 .build();
     }
+
+    @PutMapping("/{userId}/disable")
+    ApiResponse<Void>  disable(@PathVariable String userId){
+        userService.disable(userId);
+        return ApiResponse.<Void>builder()
+                .build();
+    }
+
+
 }

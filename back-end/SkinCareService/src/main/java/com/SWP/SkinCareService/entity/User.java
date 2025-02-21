@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
@@ -40,11 +41,14 @@ public class User {
     private String thirdPartyId;
 
     @Column(name = "phone_number", length = 10)
-    private String phoneNumber;
+    private String phone;
 
     @Column(name = "is_active")
     private boolean isActive = true;
 
+//   Skin type
+    @OneToMany
+    LocalDate dob;
     @ManyToMany
     Set<Role> roles;
 }

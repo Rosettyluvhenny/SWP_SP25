@@ -42,7 +42,8 @@ public class RoleController {
     @PutMapping("/{rolename}")
     ApiResponse<RoleResponse> update(@PathVariable String rolename, @RequestBody UpdateRoleRequest request){
         return ApiResponse.<RoleResponse>builder()
-                .result(roleService.updatePermission(rolename, request))
+                .result(roleService.update(rolename, request))
                 .build();
     }
+
 }

@@ -15,17 +15,16 @@ import java.util.Set;
 @Builder
 
 public class UserResponse {
-    String id;
 
     String username;
 
-    String lastName;
-
-    String firstName;
+    String fullName;
 
     LocalDate dob;
 
     String email;
+
+    String phone;
 
     Set<Role> roles;
 }

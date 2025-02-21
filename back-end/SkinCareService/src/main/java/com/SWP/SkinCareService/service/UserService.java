@@ -13,6 +13,7 @@ import com.SWP.SkinCareService.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,6 +46,7 @@ public class UserService {
         Set<Role> roles = new HashSet<>();
         roles.add(roleUser);
         user.setRoles(roles);
+        user.setActive(true);
         return userRepository.save(user);
     }
 
@@ -55,6 +57,7 @@ public class UserService {
                 .map(userMapper::toUserResponse).toList();
     }
 
+    @PostAuthorize("returnObject.id == authentication.id")
     public UserResponse getMyInfo(){
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
@@ -66,26 +69,33 @@ public class UserService {
     public User getUser(String id) {
         return userRepository.findById(id).orElseThrow(()-> new RuntimeException("user can not be found"));
     }
-//    @PostAuthorize("returnObject.id == authentication.id")
     public User getUserByUsername(String userName){
         return userRepository.findByUsername(userName).orElseThrow(()-> new RuntimeException("user can not be found"));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse updateUser(String userId, UserUpdateRequest request){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        userMapper.updateUser(user,request);
+        userMapper.updateUser(request,user);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        var roles = roleRepository.findAllById(request.getRoles());
-        user.setRoles(new HashSet<>(roles));
-
         return userMapper.toUserResponse(userRepository.save(user));
     }
+    @PreAuthorize("hasRole('ADMIN')")
 
     public void delete(String userId){
         userRepository.delete(userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED)));
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+
+    public UserResponse disable(String userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        user.setActive(false);
+
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 }
