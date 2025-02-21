@@ -13,6 +13,7 @@ import ServiceManagement from "./pages/ServiceManagement";
 import OrderManagement from "./pages/OrderManagement";
 import Report from "./pages/Report";
 import ServiceDetail from "./pages/ServiceDetail";
+import Payment from "./pages/Payment";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/manager/service" element={<ServiceManagement />} />
         <Route path="/manager/order" element={<OrderManagement />} />
         <Route path="/manager/report" element={<Report />} />
+        <Route path="/payment" element={<Payment />} />
       </Routes>
     </>
   );

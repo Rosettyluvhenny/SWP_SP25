@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
     return (
-        <footer className="bg-gradient-to-r from-[#2b3252] to-[#856565] text-white py-4">
+        <footer className="bg-gradient-to-r from-[#2b3252] to-[#856565] text-white py-2">
             <div className="text-center mb-8 border-b-2 border-gray-500 pb-4">
                 <p className="text-2xl font-serif">
                     Da mặt dù có ra sao cũng sẽ đẹp, hãy để chúng tôi giúp bạn. 
@@ -40,7 +40,7 @@ export default function Footer() {
                 </div>
             </div>
 
-            <div className="text-white text-center py-2">
+            <div className="text-white text-center mt-1">
                 © {new Date().getFullYear()} Sparkle Salon. Luôn sẵn sàng phục vụ quý khách.
             </div>
         </footer>
