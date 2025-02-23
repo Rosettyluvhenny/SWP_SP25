@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaFacebook } from "react-icons/fa";
 import { GoogleLogin } from "@react-oauth/google";
 
 export default function Header() {
@@ -119,13 +118,6 @@ export default function Header() {
                             Hoặc đăng nhập với
                         </div>
                         <div className="flex justify-center space-x-4 mt-2">
-                            <a
-                                href="https://www.facebook.com/login"
-                                className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-                            >
-                                <FaFacebook className="mr-2" /> Facebook
-                            </a>
-                            <div className="border-r-2 border-gray-500"></div>
                             <GoogleLogin
                                 onSuccess={(credentialResponse) => {
                                     console.log(credentialResponse);

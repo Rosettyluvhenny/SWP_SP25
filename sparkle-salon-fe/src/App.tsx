@@ -14,6 +14,7 @@ import OrderManagement from "./pages/OrderManagement";
 import Report from "./pages/Report";
 import ServiceDetail from "./pages/ServiceDetail";
 import Payment from "./pages/Payment";
+import RoomManagement from "./pages/RoomManagement";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/manager/service" element={<ServiceManagement />} />
         <Route path="/manager/order" element={<OrderManagement />} />
         <Route path="/manager/report" element={<Report />} />
+        <Route path="/manager/room" element={<RoomManagement />} />
         <Route path="/payment" element={<Payment />} />
       </Routes>
     </>
