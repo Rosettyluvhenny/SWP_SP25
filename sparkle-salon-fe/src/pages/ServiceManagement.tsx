@@ -52,12 +52,8 @@ export default function ServiceManagement() {
 
     return (
         <div className="flex h-screen bg-white">
-            {/* Sidebar */}
             <Sidebar />
-
-            {/* Main Content */}
             <main className="flex-1 p-6">
-                {/* Page Header */}
                 <div className="mb-6 flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-gray-800">Quản Lý Dịch Vụ</h1>
                     <button onClick={() => openModal(null)} className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600">

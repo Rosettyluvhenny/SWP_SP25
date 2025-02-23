@@ -53,10 +53,7 @@ export default function UserManagement() {
 
     return (
         <div className="flex h-screen bg-white">
-            {/* Sidebar */}
             <Sidebar />
-
-            {/* Main Content */}
             <main className="flex-1 p-6">
                 <div className="mb-6 flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-gray-800">Quản Lý Người Dùng</h1>
