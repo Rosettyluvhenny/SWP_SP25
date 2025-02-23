@@ -1,7 +1,6 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Identity.UserRequest;
-import com.SWP.SkinCareService.dto.request.Identity.UserRequestDto;
 import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.response.UserResponse;
 import com.SWP.SkinCareService.entity.Role;

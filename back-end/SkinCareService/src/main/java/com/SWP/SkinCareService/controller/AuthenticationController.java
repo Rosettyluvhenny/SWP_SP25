@@ -1,6 +1,10 @@
 package com.SWP.SkinCareService.controller;
 
-import com.SWP.SkinCareService.dto.request.*;
+
+import com.SWP.SkinCareService.dto.request.Identity.AuthenticationRequest;
+import com.SWP.SkinCareService.dto.request.Identity.IntrospectRequest;
+import com.SWP.SkinCareService.dto.request.Identity.LogoutRequest;
+import com.SWP.SkinCareService.dto.request.Identity.RefreshRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.AuthenticationResponse;
 import com.SWP.SkinCareService.dto.response.IntrospectResponse;
@@ -9,8 +13,6 @@ import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
