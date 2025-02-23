@@ -26,7 +26,7 @@ public enum ErrorCode {
     QUIZ_NOT_EXISTED(1010, "Quiz not found", HttpStatus.NOT_FOUND),
     QUESTION_NOT_EXISTED(1011, "Question not found", HttpStatus.NOT_FOUND),
     ANSWER_NOT_EXISTED(1012, "Answer not found", HttpStatus.NOT_FOUND),
-    NOTNULL (1013, "This field")
+    NOT_EMPTY (1013, "This field can not be empty",HttpStatus.BAD_REQUEST)
     ;
     int code;
     String message;

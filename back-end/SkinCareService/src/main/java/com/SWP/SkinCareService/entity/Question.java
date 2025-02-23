@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -19,32 +17,33 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    int id;
 
     @ManyToOne
     @JoinColumn(name = "quiz_id", nullable = false)
     @JsonBackReference
-    private Quiz quiz;
+    Quiz quiz;
 
-    private String text;
+    String text;
 
-    private String type;
+    String type;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+     Date createdAt;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
+     Date updatedAt;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Answer> answers;
+    List<Answer> answers;
 
 
 }

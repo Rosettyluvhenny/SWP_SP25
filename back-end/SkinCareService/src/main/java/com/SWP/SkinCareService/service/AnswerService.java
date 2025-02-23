@@ -1,11 +1,16 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.request.Quiz.AnswerRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
+import com.SWP.SkinCareService.dto.response.Quiz.AnswerResponse;
 import com.SWP.SkinCareService.entity.Question;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
+import com.SWP.SkinCareService.mapper.AnswerMapper;
 import com.SWP.SkinCareService.repository.QuestionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,74 +18,62 @@ import org.springframework.transaction.annotation.Transactional;
 import com.SWP.SkinCareService.entity.Answer;
 
 import com.SWP.SkinCareService.repository.AnswerRepository;
-import com.SWP.SkinCareService.dto.request.Quiz.AnswerCreateRequest;
-import com.SWP.SkinCareService.dto.request.Quiz.AnswerUpdateRequest;
 
 import java.util.List;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class AnswerService {
-    @Autowired
-    private QuestionRepository questionRepository;
-    @Autowired
-    private AnswerRepository answerRepository;
-
-    public ResponseEntity<ApiResponse> createAnswer(AnswerCreateRequest answerCreateRequest) {
-        Answer answer = new Answer();
-
-        int questionId = answerCreateRequest.getQuestionId();
-        Question question = questionRepository.findById(Integer.toString(questionId)).orElseThrow(()
-                -> new AppException(ErrorCode.QUESTION_NOT_EXISTED));
-
-        answer.setQuestion(question);
-        answer.setAnswerText(answerCreateRequest.getAnswerText());
-        answer.setPoint(answerCreateRequest.getPoint());
-        answerRepository.save(answer);
-        //Response to client
-        ApiResponse apiResponse = new ApiResponse();
-        int status = HttpStatus.CREATED.value();
-        apiResponse.setCode(status);
-        apiResponse.setMessage("Answer created successfully");
-        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
-    }
-
-    public List<Answer> getAllAnswers() {
-        return answerRepository.findAll();
-    }
-
-    public Answer getAnswerById(int answerId) {
-        return answerRepository.findById(Integer.toString(answerId)).orElseThrow(()
-                -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
-    }
+    QuestionRepository questionRepository;
+    AnswerRepository answerRepository;
+    AnswerMapper answerMapper;
 
     @Transactional
-    public ResponseEntity<ApiResponse> updateAnswer(int answerId, AnswerUpdateRequest answerUpdateRequest) {
-        Answer answer = answerRepository.findById(Integer.toString(answerId)).orElseThrow(()
-                -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
+    public AnswerResponse create(AnswerRequest request) {
+        Question question = questionCheck(request.getQuestionId());
 
-        int questionId = answerUpdateRequest.getQuestionId();
-        Question question = questionRepository.findById(Integer.toString(questionId)).orElseThrow(()
-                -> new AppException(ErrorCode.QUESTION_NOT_EXISTED));
-
+        Answer answer = answerMapper.ToAnswer(request);
         answer.setQuestion(question);
-        answer.setAnswerText(answerUpdateRequest.getAnswerText());
-        answer.setPoint(answerUpdateRequest.getPoint());
-        answerRepository.save(answer);
-        //Response to client
-        ApiResponse apiResponse = new ApiResponse();
-        int status = HttpStatus.OK.value();
-        apiResponse.setCode(status);
-        apiResponse.setMessage("Answer updated successfully");
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+        return answerMapper.ToAnswerResponse(answerRepository.save(answer));
     }
 
-    public ResponseEntity<ApiResponse> deleteAnswer(int answerId) {
-        answerRepository.deleteById(Integer.toString(answerId));
-        //Response to cient
-        ApiResponse apiResponse = new ApiResponse();
-        int status = HttpStatus.OK.value();
-        apiResponse.setCode(status);
-        apiResponse.setMessage("Answer deleted successfully");
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+    public List<AnswerResponse> getAll() {
+        return answerRepository.findAll().stream().map(answerMapper::ToAnswerResponse).toList();
+    }
+
+
+    public AnswerResponse getById(int id) {
+        return answerMapper.ToAnswerResponse(answerCheck(id));
+    }
+
+    public List<AnswerResponse> getAllByQuestionId(int id){
+        Question question = questionCheck(id);
+
+        return answerRepository.findAllByQuestion(question).stream().map(answerMapper::ToAnswerResponse).toList();
+    }
+    @Transactional
+    public AnswerResponse update(int answerId, AnswerRequest request) {
+        Answer answer = answerRepository.findById(answerId).orElseThrow(()
+                -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
+        Question question = questionCheck(request.getQuestionId());
+        answerMapper.updateAnswer(request,answer);
+        answer.setQuestion(question);
+        return answerMapper.ToAnswerResponse(answerRepository.save(answer));
+    }
+    @Transactional
+    public void delete(int id) {
+        Answer answer = answerCheck(id);
+        answerRepository.deleteById(id);
+    }
+
+    private Question questionCheck(int id){
+        return questionRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
+    }
+
+    private Answer answerCheck(int id){
+        return answerRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
     }
 }

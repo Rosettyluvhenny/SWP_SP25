@@ -8,7 +8,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class QuizUpdateRequest {
-    private int serviceCategoryId;
-    private String name;
+public class QuestionRequest {
+    int quizId;
+    String text;
+    String type;
 }

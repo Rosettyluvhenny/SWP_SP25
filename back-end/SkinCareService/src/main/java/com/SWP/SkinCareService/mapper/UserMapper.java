@@ -8,9 +8,9 @@ import com.SWP.SkinCareService.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)public interface UserMapper {
     User toUser(UserRequestDto request);
     UserResponse toUserResponse(User user);
     @Mapping(target ="roles", ignore = true)

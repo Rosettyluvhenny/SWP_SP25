@@ -1,11 +1,11 @@
 package com.SWP.SkinCareService.controller;
 
-import com.SWP.SkinCareService.dto.request.Quiz.QuizCreateRequest;
-import com.SWP.SkinCareService.dto.request.Quiz.QuizUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.QuizRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
-import com.SWP.SkinCareService.entity.Quiz;
+import com.SWP.SkinCareService.dto.response.Quiz.QuizResponse;
 import com.SWP.SkinCareService.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,29 +17,54 @@ public class QuizController {
     @Autowired
     private QuizService quizService;
 
-    @PostMapping()
-    public ResponseEntity<ApiResponse> createQuiz(@RequestBody QuizCreateRequest quizCreateRequest) {
-        return quizService.createQuiz(quizCreateRequest);
+    @PostMapping
+    public ResponseEntity<ApiResponse<QuizResponse>> createQuiz(@RequestBody QuizRequest request) {
+        var result = quizService.createQuiz(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.<QuizResponse>builder()
+                        .result(result)
+                        .build()
+                );
     }
 
-    @GetMapping()
-    public List<Quiz> getAllQuiz() {
-        return quizService.getAllQuiz();
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<QuizResponse>>> getAllQuiz() {
+        var result = quizService.getAllQuiz();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<List<QuizResponse>>builder()
+                        .result(result)
+                        .build()
+        );
     }
 
     @GetMapping("/{quizId}")
-    public Quiz getQuizById(@PathVariable int quizId) {
-        return quizService.getQuizById(quizId);
+    public ResponseEntity<ApiResponse<QuizResponse>> getQuizById(@PathVariable int quizId) {
+        var result = quizService.getQuizById(quizId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+            ApiResponse.<QuizResponse>builder()
+                    .result(result)
+                    .build()
+        );
     }
 
     @PutMapping("/{quizId}")
-    public ResponseEntity<ApiResponse> updateQuiz(@PathVariable int quizId, @RequestBody QuizUpdateRequest quizUpdateRequest) {
-        return quizService.updateQuiz(quizId, quizUpdateRequest);
+    public ResponseEntity<ApiResponse<QuizResponse>> updateQuiz(@PathVariable int quizId, @RequestBody QuizRequest request) {
+        var result = quizService.updateQuiz(quizId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<QuizResponse>builder()
+                        .result(result)
+                        .build()
+        );
     }
 
     @DeleteMapping("/{quizId}")
     public ResponseEntity<ApiResponse> deleteQuiz(@PathVariable int quizId) {
-        return quizService.deleteQuiz(quizId);
+        quizService.deleteQuiz(quizId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.builder()
+                        .message("Delete Successfully")
+                        .build()
+        );
     }
 
 }

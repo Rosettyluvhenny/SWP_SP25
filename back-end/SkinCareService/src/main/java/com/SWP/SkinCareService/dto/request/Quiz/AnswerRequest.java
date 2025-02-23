@@ -10,14 +10,14 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class AnswerCreateRequest {
-    @NotNull
+public class AnswerRequest {
+    @NotNull(message = "NOT_EMPTY")
     private int questionId;
 
-    @NotBlank
-    private String answerText;
+    @NotBlank(message ="NOT_EMPTY")
+    private String text;
 
-    @NotNull
+    @NotNull(message = "NOT_EMPTY")
     private int point;
 
 }

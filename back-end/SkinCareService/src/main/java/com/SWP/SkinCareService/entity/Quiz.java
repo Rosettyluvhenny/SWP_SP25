@@ -2,10 +2,8 @@ package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
@@ -15,16 +13,18 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Quiz {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+     int id;
     //@ManyToMany
-    private int serviceCategoryId;
+     int serviceCategoryId;
+
+    String name;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Question> questions;
-
+    List<Question> questions;
 
 }
