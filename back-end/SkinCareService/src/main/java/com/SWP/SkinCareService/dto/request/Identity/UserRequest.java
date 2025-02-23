@@ -1,4 +1,4 @@
-package com.SWP.SkinCareService.dto.request;
+package com.SWP.SkinCareService.dto.request.Identity;
 
 import com.SWP.SkinCareService.validator.DobConstraint;
 import jakarta.validation.constraints.Email;
@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserRequestDto {
+public class UserRequest {
 
     @Size(min=5, message = "USERNAME_INVALID")
     String username;

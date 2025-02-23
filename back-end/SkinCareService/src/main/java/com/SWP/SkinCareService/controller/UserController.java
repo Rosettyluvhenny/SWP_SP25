@@ -1,7 +1,7 @@
 package com.SWP.SkinCareService.controller;
 
-import com.SWP.SkinCareService.dto.request.UserRequestDto;
-import com.SWP.SkinCareService.dto.request.UserUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Identity.UserRequest;
+import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.UserResponse;
 import com.SWP.SkinCareService.entity.User;
@@ -30,7 +30,7 @@ public class UserController {
     UserService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody @Valid UserRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody @Valid UserRequest requestDto) {
         var user = userService.createUser(requestDto);
         return ResponseEntity.status(201).body(
                 ApiResponse.<User>builder()

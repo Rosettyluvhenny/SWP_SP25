@@ -24,7 +24,11 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED(1010, "Role not found", HttpStatus.NOT_FOUND),
-    PHONE_NO_INVALID(1011, "Phone no must contain 10 digit",HttpStatus.BAD_REQUEST)
+    PHONE_NO_INVALID(1011, "Phone no must contain 10 digit",HttpStatus.BAD_REQUEST),
+    QUIZ_NOT_EXISTED(1012, "Quiz not found", HttpStatus.NOT_FOUND),
+    QUESTION_NOT_EXISTED(1013, "Question not found", HttpStatus.NOT_FOUND),
+    ANSWER_NOT_EXISTED(1014, "Answer not found", HttpStatus.NOT_FOUND),
+    NOT_EMPTY (1015, "This field can not be empty",HttpStatus.BAD_REQUEST)
     ;
     int code;
     String message;

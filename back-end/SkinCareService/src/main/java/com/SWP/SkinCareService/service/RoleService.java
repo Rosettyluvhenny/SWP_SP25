@@ -1,7 +1,7 @@
 package com.SWP.SkinCareService.service;
 
-import com.SWP.SkinCareService.dto.request.RoleRequest;
-import com.SWP.SkinCareService.dto.request.UpdateRoleRequest;
+import com.SWP.SkinCareService.dto.request.Identity.RoleRequest;
+import com.SWP.SkinCareService.dto.request.Identity.UpdateRoleRequest;
 import com.SWP.SkinCareService.dto.response.RoleResponse;
 import com.SWP.SkinCareService.entity.Role;
 import com.SWP.SkinCareService.exception.AppException;
@@ -16,9 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor

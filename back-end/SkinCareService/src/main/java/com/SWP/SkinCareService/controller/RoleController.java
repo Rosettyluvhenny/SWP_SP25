@@ -1,7 +1,7 @@
 package com.SWP.SkinCareService.controller;
 
-import com.SWP.SkinCareService.dto.request.RoleRequest;
-import com.SWP.SkinCareService.dto.request.UpdateRoleRequest;
+import com.SWP.SkinCareService.dto.request.Identity.RoleRequest;
+import com.SWP.SkinCareService.dto.request.Identity.UpdateRoleRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.RoleResponse;
 import com.SWP.SkinCareService.service.RoleService;
