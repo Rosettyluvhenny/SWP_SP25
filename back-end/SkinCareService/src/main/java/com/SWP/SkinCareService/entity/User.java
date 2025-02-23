@@ -46,8 +46,7 @@ public class User {
     @Column(name = "is_active")
     private boolean isActive = true;
 
-//   Skin type
-    @OneToMany
+
     LocalDate dob;
     @ManyToMany
     Set<Role> roles;

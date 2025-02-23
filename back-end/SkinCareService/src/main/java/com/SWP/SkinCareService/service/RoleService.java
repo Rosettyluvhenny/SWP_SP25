@@ -14,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +28,7 @@ public class RoleService {
     RoleRepository roleRepository;
     RoleMapper roleMapper;
     @PreAuthorize("hasRole('ADMIN')")
-
+    @Transactional
     public RoleResponse create(RoleRequest request) {
         var role = roleMapper.toRole(request);
 
@@ -44,14 +45,14 @@ public class RoleService {
                 .toList();
     }
     @PreAuthorize("hasRole('ADMIN')")
-
+    @Transactional
     public void delete(String rolename) {
         Role role = roleRepository.findById(rolename).orElseThrow(()-> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
         roleRepository.deleteById(rolename);
     }
     @PreAuthorize("hasRole('ADMIN')")
-
+    @Transactional
     public RoleResponse update(String rolename, UpdateRoleRequest request) {
         Role role = roleRepository.findById(rolename).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 

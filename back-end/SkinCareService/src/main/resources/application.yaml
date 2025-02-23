@@ -16,4 +16,15 @@ jwt:
   signerKey: "1Ln55lu2teW6wbb2nd3sLkHUQgql0e/avY0TCtXgEkERCDXm6tB6m64jXVXf43jn"
   valid-duration: 3600  #second
   refreshable-duration: 36000 #second
+openapi:
+  title: API document
+  version: v1.0.0
+  description: API service
+  serverUrl: http://localhost:8080/swp
+  serverName: Test Server
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
 

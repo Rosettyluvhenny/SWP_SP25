@@ -3,13 +3,17 @@ package com.SWP.SkinCareService.exception;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
+import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 @Slf4j
@@ -25,32 +29,64 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+//    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+//    ResponseEntity<ApiResponse> handlingValidationException (MethodArgumentNotValidException exception){
+//        String enumKey = exception.getFieldError().getDefaultMessage();
+//        ErrorCode errorCode = ErrorCode.INVALID_KEY;
+//
+//        Map<String, Object> attributes = null;
+//        try{
+//           errorCode = ErrorCode.valueOf(enumKey);
+//            var constraintViolation = exception.getBindingResult()
+//                    .getAllErrors().getFirst().unwrap(ConstraintViolation.class);
+//            attributes = constraintViolation.getConstraintDescriptor().getAttributes();
+//
+//        }catch(IllegalArgumentException e){
+//
+//        }
+//        ApiResponse apiResponse = new ApiResponse();
+//
+//        apiResponse.setCode(errorCode.getCode());
+//        apiResponse.setMessage(Objects.nonNull(attributes)?
+//                mapAttrubute(errorCode.getMessage(),attributes)
+//                :errorCode.getMessage());
+//
+//        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(apiResponse);
+//    }
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse> handlingValidationException (MethodArgumentNotValidException exception){
-        String enumKey = exception.getFieldError().getDefaultMessage();
-//        log.info("enumKey: "+ enumKey);
-        ErrorCode errorCode = ErrorCode.INVALID_KEY;
+    ResponseEntity<Map<String, List<ApiResponse>>> handlingValidationException(MethodArgumentNotValidException exception) {
+        List<ApiResponse> errors = exception.getBindingResult().getFieldErrors().stream().map(fieldError -> {
+            String enumKey = fieldError.getDefaultMessage();
+            ErrorCode errorCode = ErrorCode.INVALID_KEY;
+            Map<String, Object> attributes = null;
 
-        Map<String, Object> attributes = null;
-        try{
-           errorCode = ErrorCode.valueOf(enumKey);
-            var constraintViolation = exception.getBindingResult()
-                    .getAllErrors().getFirst().unwrap(ConstraintViolation.class);
-            attributes = constraintViolation.getConstraintDescriptor().getAttributes();
+            try {
+                errorCode = Arrays.stream(ErrorCode.values())
+                        .filter(code -> code.name().equals(enumKey))
+                        .findFirst()
+                        .orElse(ErrorCode.INVALID_KEY);
 
-        }catch(IllegalArgumentException e){
+                var constraintViolation = fieldError.unwrap(ConstraintViolation.class);
+                attributes = constraintViolation.getConstraintDescriptor().getAttributes();
+            } catch (Exception e) {
+            }
 
-        }
-        ApiResponse apiResponse = new ApiResponse();
+            return  ApiResponse.builder()
+                    .code(errorCode.getCode())
+                    .result(Objects.nonNull(attributes) ? formatMessage(errorCode.getMessage(), attributes) : errorCode.getMessage())
+                    .build();
+        }).collect(Collectors.toList());
 
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(Objects.nonNull(attributes)?
-                mapAttrubute(errorCode.getMessage(),attributes)
-                :errorCode.getMessage());
-
-        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(apiResponse);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("errors", errors));
     }
 
+    private String formatMessage(String message, Map<String, Object> attributes) {
+        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+            message = message.replace("{" + entry.getKey() + "}", entry.getValue().toString());
+        }
+        return message;
+    }
     private String mapAttrubute(String message, Map<String, Object> attribute){
         String minVal = String.valueOf(attribute.get(MIN_ATTRIBUTE));
 

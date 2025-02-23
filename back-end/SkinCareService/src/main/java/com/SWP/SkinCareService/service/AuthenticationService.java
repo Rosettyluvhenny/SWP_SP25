@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
@@ -126,6 +127,7 @@ public class AuthenticationService {
 
         return stringJoiner.toString();
     }
+    @Transactional
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
         try {
             var signToken = verifyToken(request.getToken(), false);
@@ -164,6 +166,7 @@ public class AuthenticationService {
          return signedJWT;
     }
 
+    @Transactional
     public AuthenticationResponse refreshToken(RefreshRequest request)
             throws ParseException, JOSEException {
         var signJWT = verifyToken(request.getToken(), true);

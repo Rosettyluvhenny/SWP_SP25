@@ -11,6 +11,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,59 +30,64 @@ public class UserController {
     UserService userService;
 
     @PostMapping
-    ApiResponse<User> createUser(@RequestBody  @Valid UserRequestDto requestDto){
-        ApiResponse<User> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(userService.createUser(requestDto));
-
-        return apiResponse;
+    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody @Valid UserRequestDto requestDto) {
+        var user = userService.createUser(requestDto);
+        return ResponseEntity.status(201).body(
+                ApiResponse.<User>builder()
+                        .result(user)
+                        .build()
+        );
     }
 
     @GetMapping
-    ApiResponse<List<UserResponse>> getUsers(){
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsers() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        log.info("Username :{}", authentication.getName());
-//        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getUsers())
-                .build();
+        return ResponseEntity.ok(
+                ApiResponse.<List<UserResponse>>builder()
+                        .result(userService.getUsers())
+                        .build()
+        );
     }
 
     @GetMapping("/{userId}")
-    ApiResponse<User> getUser(@PathVariable String userId){
-        return ApiResponse.<User>builder()
-                .result(userService.getUser(userId))
-                .build();
+    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable String userId) {
+        return ResponseEntity.ok(
+                ApiResponse.<User>builder()
+                        .result(userService.getUser(userId))
+                        .build()
+        );
     }
 
-
     @GetMapping("/getMyInfo")
-    ApiResponse<UserResponse> getMyInfo(){
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.getMyInfo())
-                .build();
+    public ResponseEntity<ApiResponse<UserResponse>> getMyInfo() {
+        return ResponseEntity.ok(
+                ApiResponse.<UserResponse>builder()
+                        .result(userService.getMyInfo())
+                        .build()
+        );
     }
 
     @PutMapping("/{userId}")
-    ApiResponse<UserResponse> update(@PathVariable String userId, @RequestBody UserUpdateRequest request){
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.updateUser(userId, request))
-                .build();
+    public ResponseEntity<ApiResponse<UserResponse>> update(
+            @PathVariable String userId,
+            @RequestBody UserUpdateRequest request) {
+        return ResponseEntity.ok(
+                ApiResponse.<UserResponse>builder()
+                        .result(userService.updateUser(userId, request))
+                        .build()
+        );
     }
 
     @DeleteMapping("/{userId}")
-    ApiResponse<Void> delete(@PathVariable String userId){
+    public ResponseEntity<Void> delete(@PathVariable String userId) {
         userService.delete(userId);
-        return ApiResponse.<Void>builder()
-                .build();
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{userId}/disable")
-    ApiResponse<Void>  disable(@PathVariable String userId){
+    public ResponseEntity<Void> disable(@PathVariable String userId) {
         userService.disable(userId);
-        return ApiResponse.<Void>builder()
-                .build();
+        return ResponseEntity.noContent().build();
     }
-
 
 }

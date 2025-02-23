@@ -8,6 +8,7 @@ import com.SWP.SkinCareService.service.RoleService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,30 +21,40 @@ public class RoleController {
     RoleService roleService;
 
     @PostMapping
-    ApiResponse<RoleResponse> create(@RequestBody RoleRequest request){
-        return ApiResponse.<RoleResponse>builder()
-                .result(roleService.create(request))
-                .build();
+    public ResponseEntity<ApiResponse<RoleResponse>> create(@RequestBody RoleRequest request) {
+        return ResponseEntity.status(201).body(
+                ApiResponse.<RoleResponse>builder()
+                        .code(201)
+                        .result(roleService.create(request))
+                        .build()
+        );
     }
 
     @GetMapping
-    ApiResponse<List<RoleResponse>> getAll(){
-        return ApiResponse.<List<RoleResponse>>builder()
-                .result(roleService.getAll())
-                .build();
+    public ResponseEntity<ApiResponse<List<RoleResponse>>> getAll() {
+        return ResponseEntity.ok(
+                ApiResponse.<List<RoleResponse>>builder()
+                        .code(200)
+                        .result(roleService.getAll())
+                        .build()
+        );
     }
 
     @DeleteMapping("/{role}")
-    ApiResponse<Void> delete(@PathVariable String role){
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String role) {
         roleService.delete(role);
-        return ApiResponse.<Void>builder().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{rolename}")
-    ApiResponse<RoleResponse> update(@PathVariable String rolename, @RequestBody UpdateRoleRequest request){
-        return ApiResponse.<RoleResponse>builder()
-                .result(roleService.update(rolename, request))
-                .build();
+    public ResponseEntity<ApiResponse<RoleResponse>> update(@PathVariable String rolename, @RequestBody UpdateRoleRequest request) {
+        return ResponseEntity.ok(
+                ApiResponse.<RoleResponse>builder()
+                        .code(200)
+                        .result(roleService.update(rolename, request))
+                        .build()
+        );
     }
-
 }
+
+

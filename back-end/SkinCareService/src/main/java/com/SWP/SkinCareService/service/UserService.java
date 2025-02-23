@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +33,7 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
 
-
+    @Transactional
     public User createUser(UserRequestDto userRequest){
 
         if(userRepository.existsByUsername(userRequest.getUsername())||userRepository.existsByEmail(userRequest.getEmail())){
@@ -73,7 +74,8 @@ public class UserService {
         return userRepository.findByUsername(userName).orElseThrow(()-> new RuntimeException("user can not be found"));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("returnObject.id == authentication.id")
+    @Transactional
     public UserResponse updateUser(String userId, UserUpdateRequest request){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -85,12 +87,12 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
     @PreAuthorize("hasRole('ADMIN')")
-
+    @Transactional
     public void delete(String userId){
         userRepository.delete(userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
     @PreAuthorize("hasRole('ADMIN')")
-
+    @Transactional
     public UserResponse disable(String userId){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));

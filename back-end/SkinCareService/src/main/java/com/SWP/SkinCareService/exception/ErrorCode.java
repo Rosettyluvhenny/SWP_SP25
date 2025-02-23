@@ -15,16 +15,16 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(1000, "Uncategorized Error",HttpStatus.INTERNAL_SERVER_ERROR),
     USER_EXISTED(1001, "User Existed",HttpStatus.BAD_REQUEST),
-    USERNAME_INVALID(1003, "Username must be at least 5 characters ",HttpStatus.BAD_REQUEST),
-    PASSWORD_INVALID(1004, "Password must be at least 8 characters ",HttpStatus.BAD_REQUEST),
+    USERNAME_INVALID(1003, "Username must be at least {min} characters ",HttpStatus.BAD_REQUEST),
+    PASSWORD_INVALID(1004, "Password must be at least {min} characters ",HttpStatus.BAD_REQUEST),
     EMAIL_INVALID(1005,"Email must be in the right format", HttpStatus.BAD_REQUEST),
     INVALID_KEY(1005, "Invalid message key",HttpStatus.BAD_REQUEST),
     USER_NOT_EXISTED(1006,"User not found",HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1007, "Unauthenticated",HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1008, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
-    ROLE_NOT_EXISTED(1010, "Role doesn't exist", HttpStatus.BAD_REQUEST),
-    PHONE_NO_INVALID(1011, "Phone no must contain 10 digit of number",HttpStatus.BAD_REQUEST)
+    ROLE_NOT_EXISTED(1010, "Role not found", HttpStatus.NOT_FOUND),
+    PHONE_NO_INVALID(1011, "Phone no must contain 10 digit",HttpStatus.BAD_REQUEST)
     ;
     int code;
     String message;

@@ -24,7 +24,7 @@ public class UserRequestDto {
     @NotBlank
     String fullName;
     @NotBlank
-    @Email
+    @Email(message = "EMAIL_INVALID")
     String email;
 
     @Pattern(regexp = "^\\d{10}$",message = "PHONE_NO_INVALID")
