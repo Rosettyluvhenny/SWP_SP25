@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public class QuizResult {
     private int rangePoint;
 
     @OneToMany(mappedBy = "quizResult",cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<User> users;
 
     public QuizResult() {

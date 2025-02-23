@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.controller;
 
+import com.SWP.SkinCareService.dto.request.AssignSkinRequest;
 import com.SWP.SkinCareService.dto.request.UserRequestDto;
 import com.SWP.SkinCareService.dto.request.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
@@ -11,6 +12,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,6 +68,11 @@ public class UserController {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUser(userId, request))
                 .build();
+    }
+
+    @PutMapping("/skin/{userId}")
+    ResponseEntity<ApiResponse> updateSkin(@PathVariable String userId, @RequestBody AssignSkinRequest request){
+        return userService.updateSkin(userId, request);
     }
 
     @DeleteMapping("/{userId}")

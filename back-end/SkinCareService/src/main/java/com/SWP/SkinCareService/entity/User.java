@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -47,6 +48,7 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "skin_type", referencedColumnName = "resultId")
+    @JsonBackReference
     private QuizResult quizResult;
 
     public QuizResult getQuizResult() {

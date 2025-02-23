@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.dto.response;
 
 
+import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.entity.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -28,4 +29,6 @@ public class UserResponse {
     String email;
 
     Set<Role> roles;
+
+    QuizResult quizResult;
 }
