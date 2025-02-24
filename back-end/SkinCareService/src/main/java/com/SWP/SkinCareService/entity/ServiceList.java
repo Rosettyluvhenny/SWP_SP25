@@ -1,53 +1,70 @@
 package com.SWP.SkinCareService.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 @Entity
-@Table(name = "services") // Đổi tên bảng nếu cần
-@Getter
-@Setter
+@Table(name = "services")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServiceList {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "ServiceID")
+    Long serviceId;
 
-    private String serviceName;
-    private String subTitle;
 
-    @Lob
-    @Column(columnDefinition = "LONGTEXT")
-    private String description;
-    private int price;
-    private int durationMinutes;
-    private int sesions;
-    private String status;
+    @Column(name = "ServiceName", nullable = false)
+    String serviceName;
+
+
+    @Column(name = "CategoryId", nullable = false)
+    Integer categoryId;
+
+    @Column(name = "SubTitle", columnDefinition = "TEXT")
+    String subTitle;
+
+
+    @Column(name = "Description", columnDefinition = "TEXT", nullable = false)
+    String description;
+
+
+    @Column(name = "Price", nullable = false, precision = 10, scale = 2)
+    BigDecimal price;
+
+
+    @Column(name = "DurationMinutes", nullable = false)
+    Integer durationMinutes;
+
+    @Column(name = "Session")
+    Integer session;
+
+    //@Column(name = "Img")
+    //String img;
+
+
+    @Column(name = "Status")
+    String status;
 
     @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    LocalDateTime createdAt = LocalDateTime.now();
 
-    @ManyToOne()
-    @JoinColumn(name = "serviceCategoryId")
-    @JsonBackReference
-    private ServiceCategory serviceCategory;
+    @Column(name = "UpdatedAt")
+    LocalDateTime updatedAt = LocalDateTime.now();
 
-    //Many to Many
-    @OneToMany(mappedBy = "service")
-    @JsonManagedReference
-    private List<ServiceQuizResult> serviceQuizResults;
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
