@@ -1,9 +1,10 @@
 package com.SWP.SkinCareService.controller;
 
-import com.SWP.SkinCareService.entity.Room;
+import com.SWP.SkinCareService.dto.request.RoomRequest;
+import com.SWP.SkinCareService.dto.response.ApiResponse;
+import com.SWP.SkinCareService.dto.response.RoomResponse;
 import com.SWP.SkinCareService.service.RoomService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,38 +12,46 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/rooms")
+@RequiredArgsConstructor
 public class RoomApi {
-    @Autowired
-    private RoomService roomService;
+    private final RoomService roomService;
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Room>> getAllRooms() {
-        return ResponseEntity.ok(roomService.getAllRooms());
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<RoomResponse>>> getAllRooms() {
+        List<RoomResponse> rooms = roomService.getAllRooms();
+        return ResponseEntity.ok(new ApiResponse<>(200, "Success", rooms));
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<Room> getRoomById(@RequestParam Long id) {
-        Room room = roomService.getRoomById(id);
-        return (room != null) ? ResponseEntity.ok(room)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<RoomResponse>> getRoomById(@PathVariable Long id) {
+        RoomResponse room = roomService.getRoomById(id);
+        if (room != null) {
+            return ResponseEntity.ok(new ApiResponse<>(200, "Success", room));
+        }
+        return ResponseEntity.status(404).body(new ApiResponse<>(404, "Room not found", null));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Room> createRoom(@RequestBody Room room) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(roomService.createRoom(room));
+    @PostMapping
+    public ResponseEntity<ApiResponse<RoomResponse>> createRoom(@RequestBody RoomRequest request) {
+        RoomResponse createdRoom = roomService.createRoom(request);
+        return ResponseEntity.status(201).body(new ApiResponse<>(201, "Room created successfully", createdRoom));
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<Room> updateRoom(@RequestParam Long id, @RequestBody Room updatedRoom) {
-        Room room = roomService.updateRoomById(id, updatedRoom);
-        return (room != null) ? ResponseEntity.ok(room)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<RoomResponse>> updateRoom(@PathVariable Long id, @RequestBody RoomRequest request) {
+        RoomResponse updatedRoom = roomService.updateRoomById(id, request);
+        if (updatedRoom != null) {
+            return ResponseEntity.ok(new ApiResponse<>(200, "Room updated successfully", updatedRoom));
+        }
+        return ResponseEntity.status(404).body(new ApiResponse<>(404, "Room not found", null));
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteRoom(@RequestParam Long id) {
-        boolean isDeleted = roomService.deleteRoomById(id);
-        return isDeleted ? ResponseEntity.ok("Room deleted successfully.")
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Room not found.");
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteRoom(@PathVariable Long id) {
+        boolean deleted = roomService.deleteRoomById(id);
+        if (deleted) {
+            return ResponseEntity.ok(new ApiResponse<>(200, "Room deleted successfully", null));
+        }
+        return ResponseEntity.status(404).body(new ApiResponse<>(404, "Room not found", null));
     }
 }
