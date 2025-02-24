@@ -1,4 +1,4 @@
-package com.SWP.SkinCareService.api;
+package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.service.SupabaseStorageService;
 import org.springframework.http.HttpStatus;

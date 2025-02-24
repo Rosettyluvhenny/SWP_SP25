@@ -31,7 +31,7 @@ public class ServiceListService {
             service.setDescription(updatedService.getDescription());
             service.setPrice(updatedService.getPrice());
             service.setDurationMinutes(updatedService.getDurationMinutes());
-            service.setSesions(updatedService.getSesions());
+            service.setSession(updatedService.getSession());
             service.setStatus(updatedService.getStatus());
             return serviceRepository.save(service);
         }).orElse(null);

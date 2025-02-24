@@ -1,4 +1,4 @@
-package com.SWP.SkinCareService.api;
+package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.entity.Room;
 import com.SWP.SkinCareService.service.RoomService;
