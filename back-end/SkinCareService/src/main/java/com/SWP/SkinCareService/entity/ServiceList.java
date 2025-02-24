@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -28,14 +29,17 @@ public class ServiceList {
     String serviceName;
 
 
-    @Column(name = "CategoryId", nullable = false)
-    Integer categoryId;
+
+    @ManyToOne()
+    @JoinColumn(name = "serviceCategoryId")
+    @JsonBackReference
+    private ServiceCategory serviceCategory;
 
     @Column(name = "SubTitle", columnDefinition = "TEXT")
     String subTitle;
 
 
-    @Column(name = "Description", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "Description", columnDefinition = "LONGTEXT", nullable = false)
     String description;
 
 

@@ -21,7 +21,7 @@ public class Quiz {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "serviceCategoryId")
+    @JoinColumn(name = "service_category_id")
     @JsonBackReference
     private ServiceCategory serviceCategory;
 
