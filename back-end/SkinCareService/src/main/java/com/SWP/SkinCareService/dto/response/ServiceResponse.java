@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.dto.response;
 
+import com.SWP.SkinCareService.entity.ServiceCategory;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 public class ServiceResponse {
     Long serviceId;
     String serviceName;
-    Integer categoryId;
+    ServiceCategory serviceCategory;
     String subTitle;
     String description;
     BigDecimal price;

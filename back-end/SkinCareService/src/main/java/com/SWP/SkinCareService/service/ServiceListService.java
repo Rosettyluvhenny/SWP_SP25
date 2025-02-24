@@ -2,9 +2,14 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.ServiceRequest;
 import com.SWP.SkinCareService.dto.response.ServiceResponse;
+import com.SWP.SkinCareService.entity.ServiceCategory;
 import com.SWP.SkinCareService.entity.ServiceList;
+import com.SWP.SkinCareService.exception.AppException;
+import com.SWP.SkinCareService.exception.ErrorCode;
+import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
 import com.SWP.SkinCareService.repository.ServiceListRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +19,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ServiceListService {
     private final ServiceListRepository serviceRepository;
+    @Autowired
+    private ServiceCategoryRepository serviceCategoryRepository;
 
     public List<ServiceResponse> getAllServices() {
         return serviceRepository.findAll().stream()
@@ -33,6 +40,8 @@ public class ServiceListService {
     }
 
     public ServiceResponse updateServiceById(Long id, ServiceRequest request) {
+        ServiceCategory serviceCategory = serviceCategoryRepository.findById(request.getCategoryId()).orElseThrow(()
+                -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
         return serviceRepository.findById(id)
                 .map(existingService -> {
                     existingService.setServiceName(request.getServiceName());
@@ -42,6 +51,11 @@ public class ServiceListService {
                     existingService.setDurationMinutes(request.getDurationMinutes());
                     existingService.setSession(request.getSession());
                     existingService.setStatus(request.getStatus());
+
+
+                    existingService.setServiceCategory(serviceCategory);
+
+
                     return convertToResponse(serviceRepository.save(existingService));
                 })
                 .orElse(null);
@@ -57,6 +71,7 @@ public class ServiceListService {
 
     // Chuyển đổi từ entity -> response DTO
     private ServiceResponse convertToResponse(ServiceList service) {
+
         return ServiceResponse.builder()
                 .serviceId(service.getServiceId())
                 .serviceName(service.getServiceName())
@@ -66,11 +81,14 @@ public class ServiceListService {
                 .durationMinutes(service.getDurationMinutes())
                 .session(service.getSession())
                 .status(service.getStatus())
+                .serviceCategory(service.getServiceCategory())
                 .build();
     }
 
     // Chuyển đổi từ request DTO -> entity
     private ServiceList convertToEntity(ServiceRequest request) {
+        ServiceCategory serviceCategory = serviceCategoryRepository.findById(request.getCategoryId()).orElseThrow(()
+                -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
         return ServiceList.builder()
                 .serviceName(request.getServiceName())
                 .subTitle(request.getSubTitle())
@@ -79,6 +97,7 @@ public class ServiceListService {
                 .durationMinutes(request.getDurationMinutes())
                 .session(request.getSession())
                 .status(request.getStatus())
+                .serviceCategory(serviceCategory)
                 .build();
     }
 }

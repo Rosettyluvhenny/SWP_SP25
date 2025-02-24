@@ -27,4 +27,5 @@ public class ServiceQuizResult {
     @JsonBackReference
     private QuizResult quizResult;
 
+
 }
