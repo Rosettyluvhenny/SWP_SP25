@@ -47,17 +47,9 @@ public class User {
     private boolean isActive = true;
 
     @ManyToOne
-    @JoinColumn(name = "skin_type", referencedColumnName = "resultId")
+    @JoinColumn(name = "skin_type", referencedColumnName = "id")
     @JsonBackReference
     private QuizResult quizResult;
-
-    public QuizResult getQuizResult() {
-        return quizResult;
-    }
-
-    public void setQuizResult(QuizResult quizResult) {
-        this.quizResult = quizResult;
-    }
 
     @ManyToMany
     Set<Role> roles;

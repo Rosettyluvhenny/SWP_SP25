@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.controller;
 
+import com.SWP.SkinCareService.dto.request.QuizResultRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.service.QuizResultService;
@@ -16,7 +17,7 @@ public class QuizResultController {
     private QuizResultService quizResultService;
 
     @PostMapping()
-    public ResponseEntity<ApiResponse> addQuizResult(@RequestBody QuizResult request) {
+    public ResponseEntity<ApiResponse> addQuizResult(@RequestBody QuizResultRequest request) {
         return quizResultService.createQuizResult(request);
     }
 
@@ -31,7 +32,7 @@ public class QuizResultController {
     }
 
     @PutMapping("/{quizResultId}")
-    public ResponseEntity<ApiResponse> updateQuizResult(@PathVariable int quizResultId, @RequestBody QuizResult request) {
+    public ResponseEntity<ApiResponse> updateQuizResult(@PathVariable int quizResultId, @RequestBody QuizResultRequest request) {
         return quizResultService.updateQuizResult(quizResultId, request);
     }
 

@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.request.QuizResultRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.exception.AppException;
@@ -17,7 +18,7 @@ public class QuizResultService {
     @Autowired
     private QuizResultRepository quizResultRepository;
 
-    public ResponseEntity<ApiResponse> createQuizResult(QuizResult request) {
+    public ResponseEntity<ApiResponse> createQuizResult(QuizResultRequest request) {
         QuizResult quizResult = new QuizResult();
         quizResult.setResultText(request.getResultText());
         quizResult.setRangePoint(request.getRangePoint());
@@ -38,7 +39,7 @@ public class QuizResultService {
                 -> new AppException(ErrorCode.RESULT_NOT_EXISTED));
     }
 
-    public ResponseEntity<ApiResponse> updateQuizResult(int id, QuizResult request) {
+    public ResponseEntity<ApiResponse> updateQuizResult(int id, QuizResultRequest request) {
         //Check result existed or not
         QuizResult quizResult = quizResultRepository.findById(Integer.toString(id)).orElseThrow(()
                 -> new AppException(ErrorCode.RESULT_NOT_EXISTED));
