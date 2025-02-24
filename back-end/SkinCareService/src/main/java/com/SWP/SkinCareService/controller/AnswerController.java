@@ -2,9 +2,11 @@ package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.quiz.AnswerRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
+import com.SWP.SkinCareService.dto.response.quiz.AnswerResponse;
 import com.SWP.SkinCareService.entity.Answer;
 import com.SWP.SkinCareService.service.AnswerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,29 +19,42 @@ public class AnswerController {
     private AnswerService answerService;
 
     @PostMapping()
-    public ResponseEntity<ApiResponse> createAnswer(@RequestBody AnswerRequest answerRequest) {
-        return answerService.createAnswer(answerRequest);
+    ResponseEntity<ApiResponse<AnswerResponse>> createAnswer(@RequestBody AnswerRequest answerRequest) {
+        var result = answerService.createAnswer(answerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.<AnswerResponse>builder().result(result).build()
+        );
     }
 
     @GetMapping()
-    public List<Answer> getAllAnswers() {
-        return answerService.getAllAnswers();
+    ResponseEntity<ApiResponse<List<AnswerResponse>>> getAllAnswers() {
+        var result = answerService.getAllAnswers();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<List<AnswerResponse>>builder().result(result).build()
+        );
     }
 
     @GetMapping("/{answerId}")
-    public Answer getAnswerById(@PathVariable int answerId) {
-        return answerService.getAnswerById(answerId);
+    ResponseEntity<ApiResponse<AnswerResponse>> getAnswerById(@PathVariable int answerId) {
+        var result = answerService.getAnswerById(answerId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<AnswerResponse>builder().result(result).build()
+        );
     }
 
     @PutMapping("/{answerId}")
-    public ResponseEntity<ApiResponse> updateAnswer(@PathVariable int answerId, @RequestBody AnswerRequest  answerRequest) {
-        return answerService.updateAnswer(answerId, answerRequest);
+    ResponseEntity<ApiResponse<AnswerResponse>> updateAnswer(@PathVariable int answerId, @RequestBody AnswerRequest  answerRequest) {
+        var result = answerService.updateAnswer(answerId, answerRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<AnswerResponse>builder().result(result).build()
+        );
     }
 
     @DeleteMapping("/{answerId}")
-    public ResponseEntity<ApiResponse> deleteAnswer(@PathVariable int answerId) {
-        return answerService.deleteAnswer(answerId);
+    ResponseEntity<ApiResponse> deleteAnswer(@PathVariable int answerId) {
+        answerService.deleteAnswer(answerId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.builder().message("Answer deleted").build()
+        );
     }
-
-
 }

@@ -60,6 +60,7 @@ public class QuizService {
         //Update
         quizMapper.updateQuiz(quiz, request);
         quiz.setServiceCategory(serviceCategory);
+        quizRepositories.save(quiz);
 
         return quizMapper.toQuizResponse(quiz);
     }
@@ -68,7 +69,6 @@ public class QuizService {
         //Check quiz existed or not
         Quiz quiz = checkQuiz(id);
         quizRepositories.delete(quiz);
-
     }
 
     private ServiceCategory getServiceCategoryById(int id) {
