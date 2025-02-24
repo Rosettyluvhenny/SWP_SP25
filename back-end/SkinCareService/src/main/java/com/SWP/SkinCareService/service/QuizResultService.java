@@ -1,6 +1,6 @@
 package com.SWP.SkinCareService.service;
 
-import com.SWP.SkinCareService.dto.request.QuizResultRequest;
+import com.SWP.SkinCareService.dto.request.quiz.QuizResultRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.exception.AppException;
@@ -35,13 +35,13 @@ public class QuizResultService {
     }
 
     public QuizResult getQuizResultById(int id) {
-        return quizResultRepository.findById(Integer.toString(id)).orElseThrow(()
+        return quizResultRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.RESULT_NOT_EXISTED));
     }
 
     public ResponseEntity<ApiResponse> updateQuizResult(int id, QuizResultRequest request) {
         //Check result existed or not
-        QuizResult quizResult = quizResultRepository.findById(Integer.toString(id)).orElseThrow(()
+        QuizResult quizResult = quizResultRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.RESULT_NOT_EXISTED));
         //Update
         quizResult.setResultText(request.getResultText());
@@ -57,9 +57,9 @@ public class QuizResultService {
 
     public ResponseEntity<ApiResponse> deleteQuizResult(int id) {
         //Check result existed or not
-        QuizResult quizResult = quizResultRepository.findById(Integer.toString(id)).orElseThrow(()
+        QuizResult quizResult = quizResultRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.RESULT_NOT_EXISTED));
-        quizResultRepository.deleteById(Integer.toString(id));
+        quizResultRepository.deleteById(id);
         //Response to client
         ApiResponse apiResponse = new ApiResponse();
         int status = HttpStatus.OK.value();

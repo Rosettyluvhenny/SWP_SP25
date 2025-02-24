@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import com.SWP.SkinCareService.entity.Question;
 
 @Repository
-public interface QuestionRepository extends JpaRepository<Question,String> {
+public interface QuestionRepository extends JpaRepository<Question,Integer> {
 }

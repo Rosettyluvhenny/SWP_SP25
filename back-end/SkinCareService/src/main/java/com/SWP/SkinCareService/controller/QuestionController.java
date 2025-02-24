@@ -1,6 +1,6 @@
 package com.SWP.SkinCareService.controller;
 
-import com.SWP.SkinCareService.dto.request.QuestionRequest;
+import com.SWP.SkinCareService.dto.request.quiz.QuestionRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.entity.Question;
 import com.SWP.SkinCareService.service.QuestionService;

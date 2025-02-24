@@ -101,7 +101,7 @@ public class UserService {
     public ResponseEntity<ApiResponse> updateSkin(String userId, AssignSkinRequest skinId){
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new RuntimeException("user can not be found"));
-        QuizResult quizResult = quizResultRepository.findById(Integer.toString(skinId.getSkinId())).orElseThrow(()
+        QuizResult quizResult = quizResultRepository.findById(skinId.getSkinId()).orElseThrow(()
                 -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
         user.setQuizResult(quizResult);
         userRepository.save(user);
