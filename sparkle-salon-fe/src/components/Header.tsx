@@ -6,6 +6,11 @@ export default function Header() {
     const location = useLocation();
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+    const isLoggedIn = false; 
+    const user = {
+        name: "Kiet Nguyen",
+        avatar: "/assets/avatar.png",
+    };
 
     const isActive = (path: string) =>
         location.pathname === path ? "text-gray-400 font-bold" : "text-white";
@@ -13,7 +18,13 @@ export default function Header() {
     return (
         <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat text-white text-xl font-serif shadow-md">
             <div className="text-2xl font-serif text-[#f398d0] flex flex-row items-center">
-                <Link to="/"><img src="/assets/logo1.jpg" alt="logo" className="w-[70px] h-[70px] ml-10"/></Link>
+                <Link to="/">
+                    <img
+                        src="/assets/logo1.jpg"
+                        alt="logo"
+                        className="w-[70px] h-[70px] ml-10"
+                    />
+                </Link>
             </div>
 
             <nav>
@@ -27,7 +38,7 @@ export default function Header() {
                         <Link to="/about" className={`${isActive("/about")}`}>
                             About Us
                         </Link>
-                    </li> 
+                    </li>
                     <li>
                         <Link
                             to="/service"
@@ -54,12 +65,26 @@ export default function Header() {
 
             {/* Login và Register Buttons */}
             <div className="flex flex-row items-center">
-                <button
-                    onClick={() => setIsLoginOpen(true)}
-                    className=" hover:text-gray-300 text-white px-2 py-2 text-lg"
-                >
-                    Login
-                </button>
+                {isLoggedIn ? (
+                    <Link to="/profile" className="flex items-center space-x-2">
+                        <img
+                            src={user.avatar}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full border-2 border-white"
+                        />
+                        <span className="text-white hover:text-gray-300">
+                            {user.name}
+                        </span>
+                    </Link>
+                ) : (
+                    <button
+                        onClick={() => setIsLoginOpen(true)}
+                        className="hover:text-gray-300 text-white px-2 py-2 text-lg"
+                    >
+                        Login
+                    </button>
+                )}
+
                 <div className="border-r-2 h-[30px]"></div>
                 <button
                     onClick={() => setIsRegisterOpen(true)}

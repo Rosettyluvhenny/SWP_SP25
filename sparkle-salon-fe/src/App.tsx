@@ -16,6 +16,7 @@ import ServiceDetail from "./pages/ServiceDetail";
 import Payment from "./pages/Payment";
 import RoomManagement from "./pages/RoomManagement";
 import PaymentManagement from "./pages/PaymentManagement";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
         <Route path="/manager/room" element={<RoomManagement />} />
         <Route path="/manager/payment" element={<PaymentManagement />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </>
   );
