@@ -1,6 +1,5 @@
-package com.SWP.SkinCareService.dto.request.quiz;
+package com.SWP.SkinCareService.dto.request.service;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,11 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class QuizRequest {
+public class AssignSkinRequest {
     @NotNull(message = "NOT_EMPTY")
-    private int serviceCategoryId;
-
-    @NotBlank(message ="NOT_EMPTY")
-    private String quizName;
-
+    private int skinId;
 }

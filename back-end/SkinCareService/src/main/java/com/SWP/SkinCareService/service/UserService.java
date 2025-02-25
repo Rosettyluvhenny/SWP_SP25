@@ -1,6 +1,6 @@
 package com.SWP.SkinCareService.service;
 
-import com.SWP.SkinCareService.dto.request.AssignSkinRequest;
+import com.SWP.SkinCareService.dto.request.service.AssignSkinRequest;
 import com.SWP.SkinCareService.dto.request.UserRequestDto;
 import com.SWP.SkinCareService.dto.request.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
@@ -98,18 +98,13 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse> updateSkin(String userId, AssignSkinRequest skinId){
+    public UserResponse updateSkin(String userId, AssignSkinRequest skinId){
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new RuntimeException("user can not be found"));
         QuizResult quizResult = quizResultRepository.findById(skinId.getSkinId()).orElseThrow(()
                 -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
         user.setQuizResult(quizResult);
         userRepository.save(user);
-        //Response
-        ApiResponse apiResponse = new ApiResponse();
-        int status = HttpStatus.OK.value();
-        apiResponse.setCode(status);
-        apiResponse.setMessage("Update success");
-        return ResponseEntity.status(status).body(apiResponse);
+        return userMapper.toUserResponse(user);
     }
 }
