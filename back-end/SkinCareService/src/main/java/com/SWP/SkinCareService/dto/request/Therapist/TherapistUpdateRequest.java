@@ -1,0 +1,23 @@
+package com.SWP.SkinCareService.dto.request.Therapist;
+
+import com.SWP.SkinCareService.validator.DobConstraint;
+import jakarta.validation.constraints.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDate;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class TherapistUpdateRequest {
+
+    @Pattern(regexp = "^\\d{10}$",message = "PHONE_NO_INVALID")
+    String phone;
+
+    int  experienceYears;
+
+    String bio;
+}

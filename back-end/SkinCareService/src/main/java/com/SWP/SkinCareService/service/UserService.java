@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Identity.UserRequest;
 import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.response.UserResponse;
 import com.SWP.SkinCareService.entity.Role;
 import com.SWP.SkinCareService.entity.User;
@@ -43,7 +44,7 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Role roleUser = roleRepository.findById("USER").orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Role roleUser = roleRepository.findById("USER").orElseThrow(()-> new AppException(ErrorCode.ROLE_NOT_EXISTED));
         Set<Role> roles = new HashSet<>();
         roles.add(roleUser);
         user.setRoles(roles);
@@ -102,4 +103,6 @@ public class UserService {
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
+
+
 }

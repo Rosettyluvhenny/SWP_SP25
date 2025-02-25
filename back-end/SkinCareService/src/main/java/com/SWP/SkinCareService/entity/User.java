@@ -50,4 +50,7 @@ public class User {
     LocalDate dob;
     @ManyToMany
     Set<Role> roles;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Therapist therapist;
 }

@@ -35,7 +35,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
                                 .requestMatchers("/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/swagger-ui.html").permitAll()
+                                "/swagger-ui.html","/therapist","/therapist/**").permitAll()
                                 .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)

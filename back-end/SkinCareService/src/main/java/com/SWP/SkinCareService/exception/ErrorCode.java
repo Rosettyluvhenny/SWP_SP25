@@ -28,7 +28,9 @@ public enum ErrorCode {
     QUIZ_NOT_EXISTED(1012, "Quiz not found", HttpStatus.NOT_FOUND),
     QUESTION_NOT_EXISTED(1013, "Question not found", HttpStatus.NOT_FOUND),
     ANSWER_NOT_EXISTED(1014, "Answer not found", HttpStatus.NOT_FOUND),
-    NOT_EMPTY (1015, "This field can not be empty",HttpStatus.BAD_REQUEST)
+    NOT_EMPTY (1015, "This field can not be empty",HttpStatus.BAD_REQUEST),
+    THERAPIST_NOT_EXISTED(1016, "Therapist not found", HttpStatus.NOT_FOUND),
+    STILL_ACTIVE(1017,"The active entity can not be deleted", HttpStatus.BAD_REQUEST)
     ;
     int code;
     String message;

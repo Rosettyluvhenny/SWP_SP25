@@ -30,6 +30,7 @@ public class ApplicationInitCofig {
             if (userRepository.findByUsername("admin").isEmpty()){
                 Role userRole = roleRepository.save(Role.builder().name("USER").description("User role").build());
                 Role adminRole   = roleRepository.save(Role.builder().name("ADMIN").description("Admin role").build());
+                Role therapistRole   = roleRepository.save(Role.builder().name("THERAPIST").description("Therapist role").build());
                 Set<Role> roles = new HashSet<>();
                 roles.add(adminRole);
                 User user = User.builder()
