@@ -1,7 +1,6 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.service.ServiceCategoryRequest;
-import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.service.ServiceCategoryResponse;
 import com.SWP.SkinCareService.entity.ServiceCategory;
 import com.SWP.SkinCareService.exception.AppException;
@@ -12,8 +11,6 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,7 +39,7 @@ public class ServiceCategoryService {
 
     public ServiceCategoryResponse getServiceCategoryById(int id) {
         return serviceCategoryMapper.toServiceCategoryResponse(serviceCategoryRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.SERVICE_NOT_EXISTED))) ;
+                -> new AppException(ErrorCode.SERVICE_CATEGORY_NOT_EXISTED))) ;
     }
 
     @Transactional
@@ -65,6 +62,6 @@ public class ServiceCategoryService {
 
     private ServiceCategory checkServiceCategory(int id) {
         return serviceCategoryRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
+                -> new AppException(ErrorCode.SERVICE_CATEGORY_NOT_EXISTED));
     }
 }

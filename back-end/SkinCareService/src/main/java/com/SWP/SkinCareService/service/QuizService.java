@@ -73,7 +73,7 @@ public class QuizService {
 
     private ServiceCategory getServiceCategoryById(int id) {
         return serviceCategoryRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
+                -> new AppException(ErrorCode.SERVICE_CATEGORY_NOT_EXISTED));
     }
 
     private Quiz checkQuiz(int id) {

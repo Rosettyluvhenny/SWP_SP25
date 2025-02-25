@@ -12,4 +12,5 @@ import lombok.experimental.FieldDefaults;
 public class QuizResultRequest {
     private String resultText;
     private int rangePoint;
+    int serviceId;
 }

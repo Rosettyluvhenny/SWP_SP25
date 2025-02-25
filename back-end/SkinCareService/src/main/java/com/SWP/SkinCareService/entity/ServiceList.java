@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -9,6 +10,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "services")
@@ -35,6 +38,15 @@ public class ServiceList {
     @JsonBackReference
     private ServiceCategory serviceCategory;
 
+    @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "ServiceQuizResult",
+            joinColumns = @JoinColumn(name = "serviceId"),
+            inverseJoinColumns = @JoinColumn(name = "quizResultId")
+    )
+    @JsonManagedReference
+    private List<QuizResult> quizResults = new ArrayList<>();
+
     @Column(name = "SubTitle", columnDefinition = "TEXT")
     String subTitle;
 
@@ -53,8 +65,6 @@ public class ServiceList {
     @Column(name = "Session")
     Integer session;
 
-    //@Column(name = "Img")
-    //String img;
 
 
     @Column(name = "Status")

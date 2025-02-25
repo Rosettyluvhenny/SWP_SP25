@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public class ServiceListService {
 
     public ServiceResponse updateServiceById(Long id, ServiceRequest request) {
         ServiceCategory serviceCategory = serviceCategoryRepository.findById(request.getCategoryId()).orElseThrow(()
-                -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
+                -> new AppException(ErrorCode.SERVICE_CATEGORY_NOT_EXISTED));
         return serviceRepository.findById(id)
                 .map(existingService -> {
                     existingService.setServiceName(request.getServiceName());
@@ -88,7 +87,7 @@ public class ServiceListService {
     // Chuyển đổi từ request DTO -> entity
     private ServiceList convertToEntity(ServiceRequest request) {
         ServiceCategory serviceCategory = serviceCategoryRepository.findById(request.getCategoryId()).orElseThrow(()
-                -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
+                -> new AppException(ErrorCode.SERVICE_CATEGORY_NOT_EXISTED));
         return ServiceList.builder()
                 .serviceName(request.getServiceName())
                 .subTitle(request.getSubTitle())

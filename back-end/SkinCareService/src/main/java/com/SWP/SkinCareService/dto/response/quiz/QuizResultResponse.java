@@ -1,6 +1,6 @@
 package com.SWP.SkinCareService.dto.response.quiz;
 
-import com.SWP.SkinCareService.entity.ServiceQuizResult;
+import com.SWP.SkinCareService.entity.ServiceList;
 import com.SWP.SkinCareService.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -17,5 +17,5 @@ public class QuizResultResponse {
     String resultText;
     int rangePoint;
     List<User> users;
-    List<ServiceQuizResult> serviceQuizResults;
+    List<ServiceList> services;
 }
