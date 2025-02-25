@@ -38,7 +38,7 @@ function App() {
         <Route path="/manager/room" element={<RoomManagement />} />
         <Route path="/manager/payment" element={<PaymentManagement />} />
         <Route path="/payment" element={<Payment />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
       </Routes>
     </>
   );
