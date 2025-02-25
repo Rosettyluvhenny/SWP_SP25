@@ -9,7 +9,7 @@ export default function ManagerStaff() {
     
     
     const staffMembers = ["Chuyên viên A", "Chuyên viên B", "Chuyên viên C"];
-    
+    const room =["001", "002", "003", "004", "005", "006", "007", "008", "009", "010"];
     const getCurrentTime = () => {
         const now = new Date();
         return now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
@@ -33,11 +33,13 @@ export default function ManagerStaff() {
         setSelectedStaff((prev) => ({ ...prev, [orderId]: staff }));
     };
 
+
+
     const orders = [
-        { id: "#001", customer: "Nguyễn Văn A", date: "2025-02-16", total: "250.000" },
-        { id: "#002", customer: "Nguyễn Văn B", date: "2025-02-15", total: "120.000" },
-        { id: "#003", customer: "Nguyễn Văn C", date: "2025-02-14", total: "75.000" },
-        { id: "#004", customer: "Nguyễn Thị D", date: "2025-02-13", total: "300.000" },
+        { id: "1", customer: "Nguyễn Văn A", date: "2025-02-16", total: "250.000" },
+        { id: "2", customer: "Nguyễn Văn B", date: "2025-02-15", total: "120.000" },
+        { id: "3", customer: "Nguyễn Văn C", date: "2025-02-14", total: "75.000" },
+        { id: "4", customer: "Nguyễn Thị D", date: "2025-02-13", total: "300.000" },
     ];
 
     return (
@@ -73,6 +75,7 @@ export default function ManagerStaff() {
                                 <th className="p-3 text-left">Giờ Check-in</th>
                                 <th className="p-3 text-left">Giờ Check-out</th>
                                 <th className="p-3 text-left">Chuyên Viên</th>
+                                <th className="p-3 text-left">Room</th>
                                 <th className="p-3 text-left">Hành Động</th>
                             </tr>
                         </thead>
@@ -89,6 +92,14 @@ export default function ManagerStaff() {
                                         <select onChange={(e) => handleSelectStaff(order.id, e.target.value)} value={selectedStaff[order.id] || ""} className="border p-2 rounded">
                                             <option value="">Chọn chuyên viên</option>
                                             {staffMembers.map((staff) => (
+                                                <option key={staff} value={staff}>{staff}</option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                    <td className="p-3">
+                                        <select onChange={(e) => handleSelectStaff(order.id, e.target.value)} value={selectedStaff[order.id] || ""} className="border p-2 rounded">
+                                            <option value="">Chọn room</option>
+                                            {room.map((staff) => (
                                                 <option key={staff} value={staff}>{staff}</option>
                                             ))}
                                         </select>
