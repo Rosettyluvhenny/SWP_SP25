@@ -3,7 +3,6 @@ package com.SWP.SkinCareService.controller;
 import com.SWP.SkinCareService.dto.request.quiz.QuizResultRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.quiz.QuizResultResponse;
-import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.service.QuizResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -53,4 +54,8 @@ public class User {
 
     @ManyToMany
     Set<Role> roles;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private Set<BookingService> bookingService;
 }
