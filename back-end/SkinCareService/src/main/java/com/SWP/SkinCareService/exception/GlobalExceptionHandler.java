@@ -59,6 +59,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<Map<String, List<ApiResponse>>> handlingValidationException(MethodArgumentNotValidException exception) {
         List<ApiResponse> errors = exception.getBindingResult().getFieldErrors().stream().map(fieldError -> {
             String enumKey = fieldError.getDefaultMessage();
+            String fieldName = fieldError.getField();
             ErrorCode errorCode = ErrorCode.INVALID_KEY;
             Map<String, Object> attributes = null;
 
@@ -72,10 +73,12 @@ public class GlobalExceptionHandler {
                 attributes = constraintViolation.getConstraintDescriptor().getAttributes();
             } catch (Exception e) {
             }
+            String errorMessage = Objects.nonNull(attributes) ? formatMessage(errorCode.getMessage(), attributes) : errorCode.getMessage();
 
+            errorMessage = fieldName + ": " + errorMessage;
             return  ApiResponse.builder()
                     .code(errorCode.getCode())
-                    .result(Objects.nonNull(attributes) ? formatMessage(errorCode.getMessage(), attributes) : errorCode.getMessage())
+                    .result(errorMessage)
                     .build();
         }).collect(Collectors.toList());
 
