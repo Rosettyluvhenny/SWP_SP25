@@ -3,7 +3,7 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.dto.request.ServiceRequest;
 import com.SWP.SkinCareService.dto.response.ServiceResponse;
 import com.SWP.SkinCareService.entity.ServiceCategory;
-import com.SWP.SkinCareService.entity.ServiceList;
+import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ServiceListService {
+public class ServicesService {
     private final ServiceListRepository serviceRepository;
     @Autowired
     private ServiceCategoryRepository serviceCategoryRepository;
@@ -34,7 +34,7 @@ public class ServiceListService {
     }
 
     public ServiceResponse createService(ServiceRequest request) {
-        ServiceList service = convertToEntity(request);
+        Services service = convertToEntity(request);
         return convertToResponse(serviceRepository.save(service));
     }
 
@@ -69,7 +69,7 @@ public class ServiceListService {
     }
 
     // Chuyển đổi từ entity -> response DTO
-    private ServiceResponse convertToResponse(ServiceList service) {
+    private ServiceResponse convertToResponse(Services service) {
 
         return ServiceResponse.builder()
                 .serviceId(service.getServiceId())
@@ -85,10 +85,10 @@ public class ServiceListService {
     }
 
     // Chuyển đổi từ request DTO -> entity
-    private ServiceList convertToEntity(ServiceRequest request) {
+    private Services convertToEntity(ServiceRequest request) {
         ServiceCategory serviceCategory = serviceCategoryRepository.findById(request.getCategoryId()).orElseThrow(()
                 -> new AppException(ErrorCode.SERVICE_CATEGORY_NOT_EXISTED));
-        return ServiceList.builder()
+        return Services.builder()
                 .serviceName(request.getServiceName())
                 .subTitle(request.getSubTitle())
                 .description(request.getDescription())

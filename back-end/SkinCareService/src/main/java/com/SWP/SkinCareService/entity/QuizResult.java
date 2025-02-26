@@ -31,6 +31,6 @@ public class QuizResult {
     //Many To Many
     @ManyToMany(mappedBy = "quizResults",cascade = CascadeType.ALL)
     @JsonBackReference
-    private List<ServiceList> services =  new ArrayList<>();
+    private List<Services> services =  new ArrayList<>();
 
 }
