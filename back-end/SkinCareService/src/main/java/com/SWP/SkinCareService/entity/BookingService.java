@@ -23,7 +23,7 @@ public class BookingService {
     int id;
     //Many to One - User
     @ManyToOne()
-    @JoinColumn(name = "userid", nullable = false)
+    @JoinColumn(name = "userid", referencedColumnName = "id", nullable = false)
     @JsonBackReference
     private User user;
     //Many To One - service
@@ -47,6 +47,11 @@ public class BookingService {
 
     int sessionRemain;
     //Many To One - staff
+    @ManyToOne()
+    @JoinColumn(name = "staffid", referencedColumnName = "id")
+    @JsonBackReference
+    private User staff;
+
     int price;
 
 }
