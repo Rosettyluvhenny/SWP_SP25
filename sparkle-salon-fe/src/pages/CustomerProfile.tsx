@@ -3,33 +3,33 @@ import { motion } from "framer-motion";
 
 export default function Profile() {
     const [user, setUser] = useState({
-        name: "Jane Doe",
-        email: "jane.doe@example.com",
+        name: "Kiet Nguyen",
+        email: "kietnguyen@gmail.com",
         phone: "123-456-7890",
-        avatar: "/assets/default-avatar.png",
+        avatar: "/assets/avatar.png",
     });
 
     const [bookings, setBookings] = useState([
         {
             id: 1,
-            service: "Haircut & Styling",
-            date: "2025-03-10",
-            status: "Confirmed",
+            service: "Điều Trị Mụn Chuyên Sâu 12 bước",
+            date: "2025-02-25",
+            status: "Đã Đặt",
         },
         {
             id: 2,
-            service: "Manicure & Pedicure",
-            date: "2025-03-15",
-            status: "Pending",
+            service: "Thải Độc Da Thảo Dược",
+            date: "2025-02-25",
+            status: "Đã Đặt",
         },
     ]);
 
-    const [activeTab, setActiveTab] = useState("Profile");
+    const [activeTab, setActiveTab] = useState("Hồ Sơ");
 
     const handleCancelBooking = (id: number) => {
-        if (window.confirm("Are you sure you want to cancel this booking?")) {
+        if (window.confirm("Bạn có chắc chắn muốn huỷ lịch này?")) {
             setBookings(bookings.filter((booking) => booking.id !== id));
-            alert("Booking canceled successfully!");
+            alert("Huỷ lịch thành công!");
         }
     };
 
@@ -43,18 +43,18 @@ export default function Profile() {
 
     return (
         <div className="flex w-full min-h-screen bg-gradient-to-br from-pink-200 to-pink-400 mt-24 px-4">
-            {/* Sidebar */}
+            {/* Sidebar Section */}
             <motion.aside
                 initial={{ x: -100, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ duration: 0.4 }}
-                className="w-1/4 bg-white bg-opacity-90 p-6 rounded-lg shadow-xl h-fit"
+                className="w-1/4 bg-pink-100 bg-opacity-90 p-6 rounded-lg shadow-xl h-fit"
             >
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                    👤 Profile Menu
+                     Trang Cá Nhân
                 </h2>
                 <div className="flex flex-col space-y-4">
-                    {["Profile", "Booking History", "Security Settings"].map(
+                    {["Hồ Sơ", "Lịch Sử Đặt Lịch", "Cài Đặt & Bảo mật"].map(
                         (item) => (
                             <button
                                 key={item}
@@ -81,7 +81,7 @@ export default function Profile() {
                         alert("Logged out!")
                     }
                 >
-                    🔒 Logout
+                     Đăng Xuất
                 </motion.button>
             </motion.aside>
 
@@ -90,9 +90,9 @@ export default function Profile() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className="flex-1 bg-white bg-opacity-90 border-l-2 p-10 rounded-lg shadow-xl ml-6"
+                className="flex-1 bg-pink-100 bg-opacity-90 border-l-2 p-10 rounded-lg shadow-xl ml-6"
             >
-                {activeTab === "Profile" && (
+                {activeTab === "Hồ Sơ" && (
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -103,11 +103,11 @@ export default function Profile() {
                             <div className="relative">
                                 <img
                                     src={user.avatar}
-                                    alt="Profile"
+                                    alt=""
                                     className="w-32 h-32 rounded-full border-4 border-gray-300 shadow-lg object-cover bg-white"
                                 />
                                 {/* Upload Avatar */}
-                                <label className="absolute bottom-2 right-2 bg-pink-500 text-white p-2 rounded-full cursor-pointer hover:bg-pink-600 transition">
+                                <label className="absolute bottom-0 right-0 bg-pink-400 text-white p-2 rounded-full cursor-pointer hover:bg-pink-600 transition border-2 border-gray-200">
                                     📷
                                     <input
                                         type="file"
@@ -129,13 +129,13 @@ export default function Profile() {
                         <div className="mt-8 space-y-6">
                             <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg shadow-md hover:bg-gray-100 transition">
                                 <span className="text-blue-500 text-xl">
-                                    📧
+                                    Email:
                                 </span>
                                 <span className="text-lg">{user.email}</span>
                             </div>
                             <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg shadow-md hover:bg-gray-100 transition">
                                 <span className="text-green-500 text-xl">
-                                    📞
+                                    Sđt:
                                 </span>
                                 <span className="text-lg">{user.phone}</span>
                             </div>
@@ -143,14 +143,14 @@ export default function Profile() {
                     </motion.div>
                 )}
 
-                {activeTab === "Booking History" && (
+                {activeTab === "Lịch Sử Đặt Lịch" && (
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.3 }}
                     >
                         <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                            📅 Booking History
+                            📅 Lịch Sử Đặt Lịch
                         </h2>
                         {bookings.length > 0 ? (
                             <ul className="space-y-3">
@@ -170,18 +170,18 @@ export default function Profile() {
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
-                                            className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition"
+                                            className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition"
                                             onClick={() =>
                                                 handleCancelBooking(booking.id)
                                             }
                                         >
-                                            ❌ Cancel
+                                            Huỷ
                                         </motion.button>
                                     </li>
                                 ))}
                             </ul>
                         ) : (
-                            <p className="text-gray-500">No bookings found.</p>
+                            <p className="text-gray-500">Chưa có lịch được đặt!</p>
                         )}
                     </motion.div>
                 )}

@@ -16,7 +16,7 @@ export default function Header() {
         location.pathname === path ? "text-gray-400 font-bold" : "text-white";
 
     return (
-        <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat text-white text-xl font-serif shadow-md">
+        <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat text-white text-xl font-serif shadow-md z-50">
             <div className="text-2xl font-serif text-[#f398d0] flex flex-row items-center">
                 <Link to="/">
                     <img
