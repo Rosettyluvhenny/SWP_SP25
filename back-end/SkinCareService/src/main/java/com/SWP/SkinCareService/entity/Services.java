@@ -32,20 +32,6 @@ public class Services {
 
 
 
-    @ManyToOne()
-    @JoinColumn(name = "serviceCategoryId")
-    @JsonBackReference
-    private ServiceCategory serviceCategory;
-
-    @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "ServiceQuizResult",
-            joinColumns = @JoinColumn(name = "serviceId"),
-            inverseJoinColumns = @JoinColumn(name = "quizResultId")
-    )
-    @JsonManagedReference
-    private List<QuizResult> quizResults = new ArrayList<>();
-
     @Column(name = "SubTitle", columnDefinition = "TEXT")
     String subTitle;
 
@@ -65,7 +51,6 @@ public class Services {
     Integer session;
 
 
-
     @Column(name = "Status")
     String status;
 
@@ -80,4 +65,38 @@ public class Services {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+
+    //Many to one with Service category
+    @ManyToOne()
+    @JoinColumn(name = "serviceCategoryId")
+    @JsonBackReference
+    private ServiceCategory serviceCategory;
+
+    //Many to many with Quiz result
+    @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "ServiceQuizResult",
+            joinColumns = @JoinColumn(name = "serviceId"),
+            inverseJoinColumns = @JoinColumn(name = "quizResultId")
+    )
+    @JsonManagedReference
+    private List<QuizResult> quizResults = new ArrayList<>();
+
+    //Many to Many with Room
+    @ManyToMany(mappedBy = "services")
+    @JsonBackReference
+    private List<Room> rooms = new ArrayList<>();
+
+    //One to many with Service info
+    @OneToMany(mappedBy = "services", cascade = CascadeType.REMOVE)
+    @JsonManagedReference
+    List<ServiceInfo> serviceInfos = new ArrayList<>();
+
+    //One to many with Booking service
+    @OneToMany(mappedBy = "service", cascade = CascadeType.REMOVE)
+    @JsonManagedReference
+    List<BookingService> bookingServices = new ArrayList<>();
+
+
 }

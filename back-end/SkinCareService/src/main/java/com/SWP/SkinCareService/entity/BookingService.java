@@ -21,12 +21,17 @@ public class BookingService {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     int id;
-
+    //Many to One - User
     @ManyToOne()
     @JoinColumn(name = "userid", nullable = false)
     @JsonBackReference
     private User user;
     //Many To One - service
+    @ManyToOne()
+    @JoinColumn(name = "serviceId", nullable = false)
+    @JsonBackReference
+    private Services service;
+
     String status;
     String paymentStatus;
     //Many To One - Payment
