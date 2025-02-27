@@ -4,10 +4,10 @@ info:
   description: API service
   license:
     name: Api License
-    url: http://localhost:8080/swp
+    url: http://localhost:8081/swp
   version: v1.0.0
 servers:
-  - url: http://localhost:8080/swp
+  - url: http://localhost:8081/swp
     description: Test Server
 security:
   - bearerAuth: []
