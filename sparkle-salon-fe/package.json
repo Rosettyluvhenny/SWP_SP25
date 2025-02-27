@@ -15,6 +15,7 @@
     "chart.js": "^4.4.7",
     "flowbite-react": "^0.10.2",
     "framer-motion": "^12.4.7",
+    "openapi-typescript-codegen": "^0.29.0",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
