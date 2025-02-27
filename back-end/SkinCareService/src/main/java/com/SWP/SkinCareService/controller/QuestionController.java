@@ -4,6 +4,7 @@ import com.SWP.SkinCareService.dto.request.Quiz.QuestionRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Quiz.QuestionResponse;
 import com.SWP.SkinCareService.service.QuestionService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class QuestionController {
     private QuestionService questionService;
 
     @PostMapping()
-    public ResponseEntity<ApiResponse<QuestionResponse>> createQuestion(@RequestBody QuestionRequest questionCreateRequest) {
+    public ResponseEntity<ApiResponse<QuestionResponse>> createQuestion(@RequestBody @Valid QuestionRequest questionCreateRequest) {
         var result = questionService.create(questionCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 ApiResponse.<QuestionResponse>builder()
@@ -58,7 +59,7 @@ public class QuestionController {
     }
 
     @PutMapping("/{questionId}")
-    public ResponseEntity<ApiResponse<QuestionResponse>> updateQuestion(@PathVariable int questionId, @RequestBody QuestionRequest request) {
+    public ResponseEntity<ApiResponse<QuestionResponse>> updateQuestion(@PathVariable int questionId, @RequestBody @Valid QuestionRequest request) {
         var result = questionService.update(questionId, request);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<QuestionResponse>builder()

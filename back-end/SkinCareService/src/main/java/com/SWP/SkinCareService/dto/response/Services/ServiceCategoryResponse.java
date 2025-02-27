@@ -1,43 +1,34 @@
-package com.SWP.SkinCareService.entity;
+package com.SWP.SkinCareService.dto.response.Services;
 
+import com.SWP.SkinCareService.entity.Services;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.List;
 
-@Entity
-@Table(name = "therapist")
+@Data
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Data
-public class Therapist {
+public class ServiceCategoryResponse {
+    int id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
-
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    User user;
-
-    int experienceYears;
-
-    float rating = 0.0f;
-
-    String bio;
+    String name;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime createdAt;
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt;
 
-
+    List<Services> services;
 }

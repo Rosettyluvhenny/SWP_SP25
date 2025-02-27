@@ -2,6 +2,8 @@ package com.SWP.SkinCareService.dto.response.Quiz;
 
 import com.SWP.SkinCareService.entity.Question;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
@@ -11,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -19,10 +22,17 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class AnswerResponse {
-    private int id;
-    private Question question;
-    private String text;
-    private Date createdAt;
-    private Date updatedAt;
-    private int point;
+    int id;
+
+    Question question;
+
+    String text;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime updatedAt;
+
+    int point;
 }

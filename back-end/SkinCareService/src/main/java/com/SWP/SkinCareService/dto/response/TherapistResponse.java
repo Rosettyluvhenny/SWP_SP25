@@ -1,10 +1,12 @@
 package com.SWP.SkinCareService.dto.response;
 
 import com.SWP.SkinCareService.entity.Role;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
@@ -22,5 +24,10 @@ public class TherapistResponse {
     LocalDate dob;
     String phone;
     Set<Role> roles;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime updatedAt;
 
 }

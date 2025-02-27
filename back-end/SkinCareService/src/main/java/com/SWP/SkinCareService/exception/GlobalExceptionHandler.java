@@ -9,10 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -28,32 +29,6 @@ public class GlobalExceptionHandler {
         apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
         return ResponseEntity.badRequest().body(apiResponse);
     }
-
-//    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-//    ResponseEntity<ApiResponse> handlingValidationException (MethodArgumentNotValidException exception){
-//        String enumKey = exception.getFieldError().getDefaultMessage();
-//        log.info("enumKey: "+ enumKey);
-//        ErrorCode errorCode = ErrorCode.INVALID_KEY;
-//
-//        Map<String, Object> attributes = null;
-//        try{
-//           errorCode = ErrorCode.valueOf(enumKey);
-//            var constraintViolation = exception.getBindingResult()
-//                    .getAllErrors().getFirst().unwrap(ConstraintViolation.class);
-//            attributes = constraintViolation.getConstraintDescriptor().getAttributes();
-//
-//        }catch(IllegalArgumentException e){
-//
-//        }
-//        ApiResponse apiResponse = new ApiResponse();
-//
-//        apiResponse.setCode(errorCode.getCode());
-//        apiResponse.setMessage(Objects.nonNull(attributes)?
-//                mapAttrubute(errorCode.getMessage(),attributes)
-//                :errorCode.getMessage());
-//
-//        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(apiResponse);
-//    }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<Map<String, List<ApiResponse>>> handlingValidationException(MethodArgumentNotValidException exception) {
@@ -85,16 +60,43 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("errors", errors));
     }
 
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ApiResponse> handleIOException(IOException exception){
+        ApiResponse response = ApiResponse.builder()
+                .result(ErrorCode.IO_EXCEPTION)
+                .build();
+        try{
+            response.setResult(exception.getMessage());
+        }
+        catch(Exception e){}
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                response
+        );
+    }
+    @ExceptionHandler(MultipleParameterValidationException.class)
+    public ResponseEntity<Map<String, List<ApiResponse>>> handleMultipleParameterValidation(
+            MultipleParameterValidationException exception) {
+
+        List<ApiResponse> errors = exception.getMissingParameters().stream()
+                .map(paramName -> {
+                    ErrorCode errorCode = ErrorCode.NOT_EMPTY; // Your error code
+                    String errorMessage = paramName + ": " + errorCode.getMessage();
+
+                    return ApiResponse.builder()
+                            .code(errorCode.getCode())
+                            .result(errorMessage)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("errors", errors));
+    }
     private String formatMessage(String message, Map<String, Object> attributes) {
         for (Map.Entry<String, Object> entry : attributes.entrySet()) {
             message = message.replace("{" + entry.getKey() + "}", entry.getValue().toString());
         }
         return message;
-    }
-    private String mapAttrubute(String message, Map<String, Object> attribute){
-        String minVal = String.valueOf(attribute.get(MIN_ATTRIBUTE));
-
-        return message.replace("{"+MIN_ATTRIBUTE+"}", minVal);
     }
 
     @ExceptionHandler(value = AppException.class)

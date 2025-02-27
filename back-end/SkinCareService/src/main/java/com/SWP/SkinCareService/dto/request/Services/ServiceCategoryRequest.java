@@ -1,20 +1,17 @@
-package com.SWP.SkinCareService.dto.request.Identity;
+package com.SWP.SkinCareService.dto.request.Services;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RoleRequest {
+public class ServiceCategoryRequest {
     @NotBlank(message = "NOT_EMPTY")
     String name;
-    @NotBlank(message = "NOT_EMPTY")
-    String description;
-
 }

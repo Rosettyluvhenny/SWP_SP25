@@ -52,7 +52,7 @@ class TherapistController {
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<TherapistResponse>> update(@PathVariable String id, @RequestBody TherapistUpdateRequest request){
+    ResponseEntity<ApiResponse<TherapistResponse>> update(@PathVariable String id, @RequestBody @Valid TherapistUpdateRequest request){
         var result = therapistService.update(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<TherapistResponse>builder()

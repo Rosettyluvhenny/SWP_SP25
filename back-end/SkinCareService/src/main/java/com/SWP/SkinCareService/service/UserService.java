@@ -83,11 +83,6 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.updateUser(request,user);
-
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        var roles = roleRepository.findAllById(request.getRoles());
-        user.setRoles(new HashSet<>(roles));
-
         return userMapper.toUserResponse(userRepository.save(user));
     }
 

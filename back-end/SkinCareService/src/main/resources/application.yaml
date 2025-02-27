@@ -27,4 +27,7 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
-
+supabase:
+  url: "https://qtlwqfhffuffjcgkgity.supabase.co"
+  key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0bHdxZmhmZnVmZmpjZ2tnaXR5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDAyNjI5NCwiZXhwIjoyMDU1NjAyMjk0fQ.sRVChWMFDxUiHZcsAbaORZ84gLP3eJ47GTDdrQFYGN4"
+  bucket: "ImageBucket"

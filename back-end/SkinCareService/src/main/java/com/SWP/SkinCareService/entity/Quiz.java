@@ -16,7 +16,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Quiz {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
      int id;
     //@ManyToMany
      int serviceCategoryId;

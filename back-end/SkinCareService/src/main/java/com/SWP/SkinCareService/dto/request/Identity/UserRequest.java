@@ -21,9 +21,9 @@ public class UserRequest {
     String username;
     @Size(min=8, message = "PASSWORD_INVALID")
     String password;
-    @NotBlank
+    @NotBlank(message = "NOT_EMPTY")
     String fullName;
-    @NotBlank
+    @NotBlank(message = "NOT_EMPTY")
     @Email(message = "EMAIL_INVALID")
     String email;
 

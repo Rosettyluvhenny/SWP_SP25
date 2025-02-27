@@ -1,48 +1,42 @@
 package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.Date;
 
 @Entity
-@Table(name = "quizQuestion")
+@Table(name="serviceCategory")
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class Question {
+public class ServiceCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
-    @ManyToOne
-    @JoinColumn(name = "quiz_id", nullable = false)
-    @JsonBackReference
-    Quiz quiz;
-
-    String text;
-
-    String type;
+    @Column(nullable = false, unique = true)
+    String name;
 
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    List<Answer> answers;
-
-
+    @OneToMany(mappedBy = "serviceCategory", cascade = CascadeType.PERSIST, orphanRemoval = false)
+    @JsonBackReference
+    List<Services> services;
 }

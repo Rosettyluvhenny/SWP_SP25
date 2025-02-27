@@ -23,7 +23,9 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 @EnableWebSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/introspect", "/auth/authenticate", "/auth/logout", "/auth/refresh"};
-
+    private final String[] UNCATEGORIZED_ENDPOINTS= {"/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html","/therapist","/therapist/**","/category/**","/services/**","/supabase/**","/serviceInfo/**"};
     @Autowired
     private CustomJwtDecoder jwtDecoder;
     @Bean
@@ -33,9 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINTS).permitAll()
                                 .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
-                                .requestMatchers("/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html","/therapist","/therapist/**").permitAll()
+                                .requestMatchers(UNCATEGORIZED_ENDPOINTS).permitAll()
                                 .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)

@@ -1,5 +1,9 @@
 package com.SWP.SkinCareService.dto.request.Identity;
 
+import com.SWP.SkinCareService.validator.DobConstraint;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,10 +17,16 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateRequest {
-    String password;
+
+    @NotBlank(message = "NOT_EMPTY")
     String fullName;
-    LocalDate dob;
-    String phone;
+    @NotBlank(message = "NOT_EMPTY")
+    @Email(message = "EMAIL_INVALID")
     String email;
-    Set<String> roles;
+
+    @Pattern(regexp = "^\\d{10}$",message = "PHONE_NO_INVALID")
+    String phone;
+
+    @DobConstraint(min = 16, message ="INVALID_DOB")
+    LocalDate dob;
 }
