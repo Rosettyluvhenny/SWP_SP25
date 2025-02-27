@@ -1,15 +1,80 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
+import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 
 export default function Header() {
-    const location = useLocation();
+    const [loginData, setLoginData] = useState({ username: "", password: "" });
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-    const isLoggedIn = false; 
-    const user = {
-        name: "Kiet Nguyen",
-        avatar: "/assets/avatar.png",
+    const [registerData, setRegisterData] = useState({
+        name: "",
+        email: "",
+        password: "",
+    });
+    const [error, setError] = useState<string | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState<{ name: string; avatar: string } | null>(
+        null
+    );
+
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        setUser(null);
+    };
+
+    const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLoginData({ ...loginData, [e.target.name]: e.target.value });
+    };
+
+    const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setRegisterData({ ...registerData, [e.target.name]: e.target.value });
+    };
+
+    // Login API
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+
+        try {
+            const response = await axios.post(
+                "http://localhost:8081/swp/auth/authenticate",
+                loginData
+            );
+            setUser(response.data.user);
+            setIsLoggedIn(true);
+            setIsLoginOpen(false);
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                setError(
+                    error.response?.data?.message || "Đăng nhập không thành công!"
+                );
+            } else {
+                setError("Có lỗi xảy ra!");
+            }
+        }
+    };
+
+    // Register API
+    const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+
+        try {
+            const response = await axios.post(
+                "http://localhost:5000/api/auth/register",
+                registerData
+            );
+            setUser(response.data.user);
+            setIsLoggedIn(true);
+            setIsRegisterOpen(false);
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                setError(error.response?.data?.message || "Đăng ký không thành công!");
+            } else {
+                setError("Có lỗi xảy ra!");
+            }
+        }
     };
 
     const isActive = (path: string) =>
@@ -26,7 +91,6 @@ export default function Header() {
                     />
                 </Link>
             </div>
-
             <nav>
                 <ul className="flex space-x-10 text-lg">
                     <li>
@@ -62,18 +126,17 @@ export default function Header() {
                     </li>
                 </ul>
             </nav>
-
             {/* Login và Register Buttons */}
             <div className="flex flex-row items-center">
                 {isLoggedIn ? (
                     <Link to="/profile" className="flex items-center space-x-2">
                         <img
-                            src={user.avatar}
+                            src={user?.avatar}
                             alt="Profile"
                             className="w-10 h-10 rounded-full border-2 border-white"
                         />
                         <span className="text-white hover:text-gray-300">
-                            {user.name}
+                            {user?.name}
                         </span>
                     </Link>
                 ) : (
@@ -101,23 +164,36 @@ export default function Header() {
                         <h2 className="text-2xl font-bold text-center text-gray-800">
                             Login
                         </h2>
-                        <form className="mt-4">
+                        <form className="mt-4" onSubmit={handleLogin}>
+                            {error && (
+                                <p className="text-red-500 text-center">
+                                    {error}
+                                </p>
+                            )}
                             <div>
-                                <label className="block text-gray-700">
-                                    Email
+                                <label className="block text-black">
+                                    UserName
                                 </label>
                                 <input
-                                    type="email"
-                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none text-gray-800 bg-white"
+                                    type="text"
+                                    name="username"
+                                    placeholder="Họ và Tên"
+                                    value={loginData.username}
+                                    onChange={handleLoginChange}
+                                    className="w-full px-4 py-2 bg-white border border-gray-300 text-black rounded-md"
                                 />
                             </div>
                             <div className="mt-4">
-                                <label className="block text-gray-700">
+                                <label className="block text-black">
                                     Mật khẩu
                                 </label>
                                 <input
                                     type="password"
-                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none text-gray-800 bg-white"
+                                    name="password"
+                                    placeholder="........"
+                                    value={loginData.password}
+                                    onChange={handleLoginChange}
+                                    className="w-full px-4 py-2 bg-white border border-gray-300 text-black rounded-md"
                                 />
                             </div>
                             {/* Forgot Password */}
@@ -138,7 +214,7 @@ export default function Header() {
                             </button>
                         </form>
 
-                        {/* Login bằng gg hoặc fb */}
+                        {/* Login bằng gg */}
                         <div className="mt-4 text-center text-gray-600">
                             Hoặc đăng nhập với
                         </div>
@@ -176,7 +252,6 @@ export default function Header() {
                     </div>
                 </div>
             )}
-
             {/* Register Modal */}
             {isRegisterOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
@@ -184,14 +259,22 @@ export default function Header() {
                         <h2 className="text-2xl font-bold text-center text-gray-800">
                             Đăng Ký
                         </h2>
-                        <form className="mt-4">
+                        <form className="mt-4" onSubmit={handleRegister}>
+                            {error && (
+                                <p className="text-red-500 text-center">
+                                    {error}
+                                </p>
+                            )}
                             <div>
                                 <label className="block text-gray-700">
                                     Họ và Tên
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none text-gray-800 bg-white"
+                                    name="name"
+                                    value={registerData.name}
+                                    onChange={handleRegisterChange}
+                                    className="w-full px-4 py-2 bg-white border border-gray-300 text-black rounded-md"
                                 />
                             </div>
                             <div className="mt-4">
@@ -200,7 +283,10 @@ export default function Header() {
                                 </label>
                                 <input
                                     type="email"
-                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none text-gray-800 bg-white"
+                                    name="email"
+                                    value={registerData.email}
+                                    onChange={handleRegisterChange}
+                                    className="w-full px-4 py-2 bg-white border border-gray-300 text-black rounded-md"
                                 />
                             </div>
                             <div className="mt-4">
@@ -209,7 +295,10 @@ export default function Header() {
                                 </label>
                                 <input
                                     type="password"
-                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none text-gray-800 bg-white"
+                                    name="password"
+                                    value={registerData.password}
+                                    onChange={handleRegisterChange}
+                                    className="w-full px-4 py-2 bg-white border border-gray-300 text-black rounded-md"
                                 />
                             </div>
                             <button
@@ -243,6 +332,11 @@ export default function Header() {
                     </div>
                 </div>
             )}
+
+            {isLoggedIn && (
+                <button onClick={handleLogout}>Logout</button>
+            )}
+
         </header>
     );
 }
