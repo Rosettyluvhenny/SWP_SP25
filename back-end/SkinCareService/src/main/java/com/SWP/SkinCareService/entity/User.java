@@ -57,9 +57,13 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private Set<BookingService> bookingService;
+    private Set<Booking> booking;
 
     @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private Set<BookingService> bookingServicesStaff;
+    private Set<Booking> bookingServicesStaff;
+
+    @OneToMany(mappedBy = "cancelBy", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<BookingSession> bookingSessions;
 }

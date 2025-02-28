@@ -3,8 +3,11 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.dto.request.RoomRequest;
 import com.SWP.SkinCareService.dto.response.RoomResponse;
 import com.SWP.SkinCareService.entity.Room;
+import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.repository.RoomRepository;
+import com.SWP.SkinCareService.repository.ServicesRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +16,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoomService {
     private final RoomRepository roomRepository;
+    @Autowired
+    private ServicesRepository servicesRepository;
 
     public List<RoomResponse> getAllRooms() {
         return roomRepository.findAll().stream()
@@ -20,7 +25,7 @@ public class RoomService {
                 .toList();
     }
 
-    public RoomResponse getRoomById(Long id) {
+    public RoomResponse getRoomById(int id) {
         return roomRepository.findById(id)
                 .map(this::convertToResponse)
                 .orElse(null);
@@ -31,7 +36,7 @@ public class RoomService {
         return convertToResponse(roomRepository.save(room));
     }
 
-    public RoomResponse updateRoomById(Long id, RoomRequest request) {
+    public RoomResponse updateRoomById(int id, RoomRequest request) {
         return roomRepository.findById(id)
                 .map(existingRoom -> {
                     existingRoom.setRoomName(request.getRoomName());
@@ -42,7 +47,7 @@ public class RoomService {
                 .orElse(null);
     }
 
-    public boolean deleteRoomById(Long id) {
+    public boolean deleteRoomById(int id) {
         if (roomRepository.existsById(id)) {
             roomRepository.deleteById(id);
             return true;
@@ -52,11 +57,13 @@ public class RoomService {
 
     // Chuyển đổi từ entity -> response DTO
     private RoomResponse convertToResponse(Room room) {
+        List<Services> services = room.getServices();
         return RoomResponse.builder()
                 .roomId(room.getRoomId())
                 .roomName(room.getRoomName())
                 .capacity(room.getCapacity())
                 .inUse(room.getInUse())
+                .services(services)
                 .build();
     }
 

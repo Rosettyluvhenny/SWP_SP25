@@ -1,7 +1,10 @@
 package com.SWP.SkinCareService.dto.response;
 
+import com.SWP.SkinCareService.entity.Services;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -13,4 +16,5 @@ public class RoomResponse {
     String roomName;
     Integer capacity;
     Integer inUse;
+    List<Services> services;
 }

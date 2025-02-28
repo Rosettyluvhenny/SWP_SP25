@@ -37,4 +37,6 @@ public class ServiceRequest {
 
     @NotBlank(message = "Trạng thái không được để trống!")
     String status;
+
+    int roomId;
 }

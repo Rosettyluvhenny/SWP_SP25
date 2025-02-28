@@ -38,4 +38,8 @@ public class Room {
     @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JsonManagedReference
     List<Services> services;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonManagedReference
+    List<BookingSession> bookingSessions;
 }

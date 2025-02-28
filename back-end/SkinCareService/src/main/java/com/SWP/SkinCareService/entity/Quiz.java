@@ -31,5 +31,9 @@ public class Quiz {
     @JsonManagedReference
     private List<Question> questions;
 
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<QuizResult> quizResults;
+
 
 }

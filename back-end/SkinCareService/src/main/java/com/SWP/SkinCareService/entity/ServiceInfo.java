@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
 
 @Entity
 @Table
@@ -16,9 +15,9 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServiceInfo {
     @Id
-    @ManyToOne()
-    @JsonBackReference
-    private Services services;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    int id;
+
 
     String description;
     String url;
@@ -26,5 +25,8 @@ public class ServiceInfo {
     String commitment;
     String commitmentUrl;
 
+    @ManyToOne()
+    @JsonBackReference
+    private Services services;
 
 }

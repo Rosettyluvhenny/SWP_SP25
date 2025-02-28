@@ -14,7 +14,7 @@ public interface ServiceCategoryMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "quiz", ignore = true)
-    @Mapping(target = "serviceList", ignore = true)
+    @Mapping(target = "service", ignore = true)
     void updateServiceCategory(@MappingTarget ServiceCategory serviceCategory, ServiceCategoryRequest request);
 
     ServiceCategoryResponse toServiceCategoryResponse(ServiceCategory serviceCategory);

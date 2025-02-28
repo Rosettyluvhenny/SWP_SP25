@@ -33,7 +33,7 @@ public class Notification {
     /*
     @ManyToOne()
     @JoinColumn
-    private BookingService bookingService;
+    private Booking booking;
      */
     //Many to one - Booking Session
 }

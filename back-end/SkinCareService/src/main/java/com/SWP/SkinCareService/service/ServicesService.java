@@ -2,24 +2,30 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.ServiceRequest;
 import com.SWP.SkinCareService.dto.response.ServiceResponse;
+import com.SWP.SkinCareService.entity.QuizResult;
+import com.SWP.SkinCareService.entity.Room;
 import com.SWP.SkinCareService.entity.ServiceCategory;
 import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
+import com.SWP.SkinCareService.repository.RoomRepository;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
-import com.SWP.SkinCareService.repository.ServiceListRepository;
+import com.SWP.SkinCareService.repository.ServicesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ServicesService {
-    private final ServiceListRepository serviceRepository;
+    private final ServicesRepository serviceRepository;
     @Autowired
     private ServiceCategoryRepository serviceCategoryRepository;
+    @Autowired
+    private RoomRepository roomRepository;
 
     public List<ServiceResponse> getAllServices() {
         return serviceRepository.findAll().stream()
@@ -41,6 +47,9 @@ public class ServicesService {
     public ServiceResponse updateServiceById(Long id, ServiceRequest request) {
         ServiceCategory serviceCategory = serviceCategoryRepository.findById(request.getCategoryId()).orElseThrow(()
                 -> new AppException(ErrorCode.SERVICE_CATEGORY_NOT_EXISTED));
+        Room newRoom = roomRepository.findById(request.getRoomId()).orElseThrow(()
+                -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
+
         return serviceRepository.findById(id)
                 .map(existingService -> {
                     existingService.setServiceName(request.getServiceName());
@@ -51,8 +60,17 @@ public class ServicesService {
                     existingService.setSession(request.getSession());
                     existingService.setStatus(request.getStatus());
 
-
                     existingService.setServiceCategory(serviceCategory);
+
+                    for (Room room : existingService.getRooms()) {
+                        room.getServices().remove(existingService);
+                        roomRepository.save(room);
+                    }
+                    newRoom.getServices().add(existingService);
+                    roomRepository.save(newRoom);
+
+                    existingService.getRooms().clear();
+                    existingService.getRooms().add(newRoom);
 
 
                     return convertToResponse(serviceRepository.save(existingService));
@@ -71,6 +89,9 @@ public class ServicesService {
     // Chuyển đổi từ entity -> response DTO
     private ServiceResponse convertToResponse(Services service) {
 
+        List<Room> rooms = service.getRooms();
+        List<QuizResult> quizResults = service.getQuizResults();
+
         return ServiceResponse.builder()
                 .serviceId(service.getServiceId())
                 .serviceName(service.getServiceName())
@@ -81,6 +102,8 @@ public class ServicesService {
                 .session(service.getSession())
                 .status(service.getStatus())
                 .serviceCategory(service.getServiceCategory())
+                .rooms(rooms)
+                .quizResult(quizResults)
                 .build();
     }
 
@@ -88,7 +111,13 @@ public class ServicesService {
     private Services convertToEntity(ServiceRequest request) {
         ServiceCategory serviceCategory = serviceCategoryRepository.findById(request.getCategoryId()).orElseThrow(()
                 -> new AppException(ErrorCode.SERVICE_CATEGORY_NOT_EXISTED));
-        return Services.builder()
+
+        List<Room> roomList = new ArrayList<>();
+        Room room = roomRepository.findById(request.getRoomId()).orElseThrow(()
+                -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
+        roomList.add(room);
+
+        Services service = Services.builder()
                 .serviceName(request.getServiceName())
                 .subTitle(request.getSubTitle())
                 .description(request.getDescription())
@@ -97,6 +126,14 @@ public class ServicesService {
                 .session(request.getSession())
                 .status(request.getStatus())
                 .serviceCategory(serviceCategory)
+                .rooms(roomList)
                 .build();
+        serviceRepository.save(service);
+
+        room.getServices().add(service);
+
+        roomRepository.save(room);
+
+        return service;
     }
 }

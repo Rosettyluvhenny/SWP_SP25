@@ -33,4 +33,8 @@ public class QuizResult {
     @JsonBackReference
     private List<Services> services =  new ArrayList<>();
 
+    @ManyToOne()
+    @JoinColumn(name = "quizId")
+    @JsonBackReference
+    private Quiz quiz;
 }

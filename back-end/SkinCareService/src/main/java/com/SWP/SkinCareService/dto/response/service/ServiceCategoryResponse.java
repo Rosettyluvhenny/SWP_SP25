@@ -17,5 +17,5 @@ public class ServiceCategoryResponse {
     private String categoryName;
     private String description;
     private List<Quiz> quiz;
-    private List<Services> serviceList;
+    private List<Services> service;
 }

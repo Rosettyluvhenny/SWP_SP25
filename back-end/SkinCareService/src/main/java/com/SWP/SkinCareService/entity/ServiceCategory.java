@@ -38,7 +38,7 @@ public class ServiceCategory {
 
     @OneToMany(mappedBy = "serviceCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Services> serviceList;
+    private List<Services> service;
 
 
 }

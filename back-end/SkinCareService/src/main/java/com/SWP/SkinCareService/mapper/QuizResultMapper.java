@@ -15,6 +15,7 @@ public interface QuizResultMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "users", ignore = true)
     @Mapping(target = "services", ignore = true)
+    @Mapping(target = "quiz", ignore = true)
     void updateQuizResult(@MappingTarget QuizResult quizResult, QuizResultRequest quizResultRequest);
 
     QuizResultResponse toQuizResultResponse(QuizResult quizResult);

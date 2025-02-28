@@ -1,9 +1,9 @@
 package com.SWP.SkinCareService.repository;
 
-import com.SWP.SkinCareService.entity.Room;
+import com.SWP.SkinCareService.entity.BookingSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RoomRepository extends JpaRepository<Room, Integer> {
+public interface BookingSessionRepository extends JpaRepository<BookingSession, Integer> {
 }

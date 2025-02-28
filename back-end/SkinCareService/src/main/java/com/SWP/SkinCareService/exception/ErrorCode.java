@@ -29,6 +29,11 @@ public enum ErrorCode {
     ANSWER_NOT_EXISTED(1013, "Answer not found", HttpStatus.NOT_FOUND),
     RESULT_NOT_EXISTED(1014, "Result not found", HttpStatus.NOT_FOUND),
     SERVICE_NOT_EXISTED(1015, "Service not found", HttpStatus.NOT_FOUND),
+    ROOM_NOT_EXISTED(1016, "Room not found", HttpStatus.NOT_FOUND),
+    STAFF_NOT_EXISTED(1017, "Staff not found", HttpStatus.NOT_FOUND),
+    PAYMENT_METHOD_NOT_EXISTED(1018, "Payment method not found", HttpStatus.NOT_FOUND),
+    BOOKING_NOT_EXISTED(1019, "Booking not found", HttpStatus.NOT_FOUND),
+    SESSION_NOT_EXISTED(1020, "Session not found", HttpStatus.NOT_FOUND),
     ;
     int code;
     String message;

@@ -2,13 +2,15 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.quiz.QuizResultRequest;
 import com.SWP.SkinCareService.dto.response.quiz.QuizResultResponse;
+import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.QuizResultMapper;
+import com.SWP.SkinCareService.repository.QuizRepository;
 import com.SWP.SkinCareService.repository.QuizResultRepository;
-import com.SWP.SkinCareService.repository.ServiceListRepository;
+import com.SWP.SkinCareService.repository.ServicesRepository;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,7 +27,9 @@ public class QuizResultService {
 
     private QuizResultRepository quizResultRepository;
 
-    private ServiceListRepository serviceListRepository;
+    private ServicesRepository servicesRepository;
+
+    private QuizRepository quizRepository;
 
     private QuizResultMapper quizResultMapper;
 
@@ -34,16 +38,20 @@ public class QuizResultService {
         QuizResult quizResult = quizResultMapper.toQuizResult(request);
         quizResult = quizResultRepository.save(quizResult);
 
-        Services serviceList = getServiceListById(request.getServiceId());
+        Services service = getServiceById(request.getServiceId());
+        Quiz quiz = getQuizById(request.getQuizId());
 
-        serviceList.getQuizResults().add(quizResult);
+        service.getQuizResults().add(quizResult);
 
         if (quizResult.getServices() == null) {
             quizResult.setServices(new ArrayList<>());
         }
-        quizResult.getServices().add(serviceList);
 
-        serviceListRepository.save(serviceList);
+        quizResult.setQuiz(quiz);
+
+        quizResult.getServices().add(service);
+
+        servicesRepository.save(service);
         quizResultRepository.save(quizResult);
         return quizResultMapper.toQuizResultResponse(quizResult);
     }
@@ -61,11 +69,13 @@ public class QuizResultService {
     public QuizResultResponse updateQuizResult(int id, QuizResultRequest request) {
         //Check result existed or not
         QuizResult quizResult = checkQuizResult(id);
-        Services newService = getServiceListById(request.getServiceId());
+        Services newService = getServiceById(request.getServiceId());
+
+        Quiz newQuiz = getQuizById(request.getQuizId());
 
         for (Services oldService : quizResult.getServices()) {
             oldService.getQuizResults().remove(quizResult);
-            serviceListRepository.save(oldService);
+            servicesRepository.save(oldService);
         }
 
         newService.getQuizResults().add(quizResult);
@@ -73,7 +83,9 @@ public class QuizResultService {
         quizResult.getServices().add(newService);
 
         quizResultMapper.updateQuizResult(quizResult, request);
-        serviceListRepository.save(newService);
+        quizResult.setQuiz(newQuiz);
+
+        servicesRepository.save(newService);
         quizResultRepository.save(quizResult);
         return quizResultMapper.toQuizResultResponse(quizResult);
     }
@@ -89,8 +101,31 @@ public class QuizResultService {
                 -> new AppException(ErrorCode.RESULT_NOT_EXISTED));
     }
 
-    private Services getServiceListById(int id) {
-        return serviceListRepository.findById((long) id).orElseThrow(()
+    private Services getServiceById(int id) {
+        return servicesRepository.findById((long) id).orElseThrow(()
                 -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
     }
+
+    private Quiz getQuizById(int id) {
+        return quizRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
+    }
+    /*
+
+    public String getQuizResult(Long quizId, int score) {
+
+        List<QuizResult> results = quizResultRepository.findByQuizIdOrdered(quizId);
+
+        int lowerBound = 0;
+        for (QuizResult result : results) {
+            if (score >= lowerBound && score <= result.getUpperRange()) {
+                return result.getResultText();
+            }
+
+            lowerBound = result.getRangePoint() + 1;
+        }
+    }
+
+     */
+
 }

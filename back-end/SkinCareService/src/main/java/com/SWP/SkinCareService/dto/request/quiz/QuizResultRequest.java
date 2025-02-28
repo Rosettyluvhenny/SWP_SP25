@@ -20,4 +20,6 @@ public class QuizResultRequest {
 
     @NotNull(message = "NOT_EMPTY")
     int serviceId;
+
+    int quizId;
 }

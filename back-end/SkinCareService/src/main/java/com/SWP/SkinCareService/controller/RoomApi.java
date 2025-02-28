@@ -23,7 +23,7 @@ public class RoomApi {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RoomResponse>> getRoomById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<RoomResponse>> getRoomById(@PathVariable int id) {
         RoomResponse room = roomService.getRoomById(id);
         if (room != null) {
             return ResponseEntity.ok(new ApiResponse<>(200, "Success", room));
@@ -38,7 +38,7 @@ public class RoomApi {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<RoomResponse>> updateRoom(@PathVariable Long id, @RequestBody RoomRequest request) {
+    public ResponseEntity<ApiResponse<RoomResponse>> updateRoom(@PathVariable int id, @RequestBody RoomRequest request) {
         RoomResponse updatedRoom = roomService.updateRoomById(id, request);
         if (updatedRoom != null) {
             return ResponseEntity.ok(new ApiResponse<>(200, "Room updated successfully", updatedRoom));
@@ -47,7 +47,7 @@ public class RoomApi {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteRoom(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteRoom(@PathVariable int id) {
         boolean deleted = roomService.deleteRoomById(id);
         if (deleted) {
             return ResponseEntity.ok(new ApiResponse<>(200, "Room deleted successfully", null));

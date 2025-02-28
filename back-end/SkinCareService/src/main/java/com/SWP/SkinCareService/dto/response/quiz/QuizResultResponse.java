@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.dto.response.quiz;
 
+import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.entity.User;
 import lombok.*;
@@ -16,6 +17,7 @@ public class QuizResultResponse {
     int id;
     String resultText;
     int rangePoint;
+    Quiz quiz;
     List<User> users;
     List<Services> services;
 }

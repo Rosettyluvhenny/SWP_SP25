@@ -1,12 +1,11 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "payments")
@@ -25,6 +24,10 @@ public class Payment {
 
     @Column(name = "PaymentName", nullable = false, unique = true)
     String paymentName;
+
+    @OneToMany(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    List<Booking> bookings;
 
 
 }

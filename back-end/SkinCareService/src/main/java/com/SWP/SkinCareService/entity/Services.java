@@ -96,7 +96,7 @@ public class Services {
     //One to many with Booking service
     @OneToMany(mappedBy = "service", cascade = CascadeType.REMOVE)
     @JsonManagedReference
-    List<BookingService> bookingServices = new ArrayList<>();
+    List<Booking> bookings = new ArrayList<>();
 
 
 }
