@@ -61,13 +61,15 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ selectedDate, selec
         <Link to="/service">
           <button className="bg-pink-400 text-white hover:bg-pink-500 px-4 py-2 rounded-lg">Quay lại</button>
         </Link>
-        <button
-          className="bg-pink-400 text-white hover:bg-pink-500 px-4 py-2 rounded-lg"
-          onClick={() => onSelect(selectedDate, selectedTime)}
-          disabled={!selectedDate || !selectedTime}
-        >
-          Đặt hẹn
+        <Link to="/payment">
+          <button
+            className="bg-pink-400 text-white hover:bg-pink-500 px-4 py-2 rounded-lg"
+            onClick={() => onSelect(selectedDate, selectedTime)}
+            disabled={!selectedDate || !selectedTime}
+          >
+            Đặt hẹn
         </button>
+        </Link>
       </div>
     </div>
   );

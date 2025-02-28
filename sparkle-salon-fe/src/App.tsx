@@ -13,8 +13,13 @@ import ServiceManagement from "./pages/ServiceManagement";
 import OrderManagement from "./pages/OrderManagement";
 import Report from "./pages/Report";
 import ServiceDetail from "./pages/ServiceDetail";
-import ManagerStaff from "./pages/managerstaff";
-
+import Payment from "./pages/Payment";
+import RoomManagement from "./pages/RoomManagement";
+import PaymentManagement from "./pages/PaymentManagement";
+import CustomerProfile from "./pages/CustomerProfile";
+import ManagerStaff from "./pages/ManagerStaff";
+import SkinTest from "./pages/SkinTest";
+import CreaterQuiz from "./pages/CreaterQuiz";
 
 function App() {
   return (
@@ -33,7 +38,14 @@ function App() {
         <Route path="/manager/service" element={<ServiceManagement />} />
         <Route path="/manager/order" element={<OrderManagement />} />
         <Route path="/manager/report" element={<Report />} />
+        <Route path="/manager/room" element={<RoomManagement />} />
+        <Route path="/manager/payment" element={<PaymentManagement />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/profile" element={<MainLayout><CustomerProfile /></MainLayout>} />
         <Route path="/managerstaff" element={<ManagerStaff />} />
+        <Route path="/SkinTest" element={<MainLayout><SkinTest /></MainLayout>} />
+        <Route path="/CreaterQuiz" element={<MainLayout><CreaterQuiz /></MainLayout>} />
+
 
       </Routes>
     </>

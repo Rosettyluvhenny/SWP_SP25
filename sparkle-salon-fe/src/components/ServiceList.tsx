@@ -30,7 +30,7 @@ const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
                     <ServiceCard
                         key={service.id}
                         service={service}
-                        onSelect={handleSelectService}
+                        onSelectService={handleSelectService}
                     />
                 ))
             ) : (

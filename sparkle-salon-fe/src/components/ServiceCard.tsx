@@ -1,7 +1,7 @@
 import React from "react";
 import { FaMoneyBill } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface ServiceCardProps {
     service: {
@@ -11,10 +11,15 @@ interface ServiceCardProps {
         price: number;
         duration: string;
     };
-    onSelect: (serviceName: string) => void;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelect }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
+    const navigate = useNavigate();
+
+    const handleBooking = () => {
+        navigate("/contact", { state: service }); 
+    };
+
     return (
         <div className="bg-pink-100 p-4 rounded-lg shadow-xl">
             <h4 className="text-gray-500 text-sm mb-2">
@@ -37,7 +42,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelect }) => {
             <div className="flex flex-row justify-between">
                 <button
                     className="mt-3 w-[40%] bg-pink-300 hover:bg-pink-400 text-black py-2 rounded-lg"
-                    onClick={() => onSelect(service.name)}
+                    onClick={handleBooking} // 
                 >
                     Đặt Hẹn
                 </button>

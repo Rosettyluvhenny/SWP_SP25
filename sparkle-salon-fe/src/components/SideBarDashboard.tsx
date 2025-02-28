@@ -7,6 +7,7 @@ import {
     FiBarChart2,
     FiMenu,
 } from "react-icons/fi";
+import { MdMeetingRoom, MdOutlinePayments } from "react-icons/md";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
@@ -64,6 +65,28 @@ const Sidebar = () => {
                         <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
                             <FiDollarSign />
                             Quản Lý Đơn Đặt
+                        </li>
+                    </Link>
+
+                    {/* Room Management */}
+                    <Link
+                        to="/manager/room"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                            <MdMeetingRoom />
+                            Quản Lý Phòng Khám
+                        </li>
+                    </Link>
+
+                    {/* Payment Management */}
+                    <Link
+                        to="/manager/payment"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                            <MdOutlinePayments />
+                            Quản Lý Thanh Toán
                         </li>
                     </Link>
 

@@ -3,7 +3,24 @@ import { Link } from "react-router-dom";
 export default function Home() {
     return (
         <div className="pt-16 flex flex-col">
-        
+            {/* Section 1*/}
+            <div className="min-h-screen flex flex-row items-center bg-[url('/assets/home-banner.jpg')] bg-cover bg-center bg-no-repeat">
+                <div className="text-start text-white max-w-xl ml-60">
+                    <h1 className="text-9xl font-serif leading-tight">
+                        Sparkle Salon
+                    </h1>
+                    <p className="mt-2 text-lg text-gray-400">
+                        Salon hàng đầu về trị liệu da
+                    </p>
+                    <p className="mt-2 text-lg text-gray-400">
+                        Mau đặt lịch để trải nghiệm dịch vụ tốt nhất
+                    </p>
+                    <button className="mt-6 bg-[#f8a89c] hover:bg-[#ee8874] hover:text-xl hover:text-white text-black px-6 py-3 rounded-lg font-semibold text-lg">
+                        <Link to="/service" aria-label="Book an appointment">Đặt lịch ngay →</Link>
+                    </button>
+                </div>
+            </div>
+            {/* Small Section */}
             <div className="flex justify-center items-center py-12 bg-white border-b border-gray-300">
                 <div className="flex justify-between w-3/4">
                     {/* Item 1 */}

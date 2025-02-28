@@ -41,11 +41,12 @@ export default function About() {
           </div>
         </div>
         {/* Left Section */}
-        <div className="relative w-1/2 flex justify-start px-16">
+        <div className=" w-1/2 flex justify-start px-16">
           <img src="/assets/skin-about1.jpg" alt="" className="rounded-xl" />
-          <figcaption className="absolute bottom-[60%] left-10 animate-[bounce_15s_infinite]">
-            <img src="/assets/skin-story2.jpg" alt="" className="w-full" />
-          </figcaption>
+          <figcaption className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-[bounce_15s_infinite]">
+  <img src="/assets/skin-story2.jpg" alt="" className="w-full" />
+</figcaption>
+
         </div>
       </div>
       {/* Small Section */}
