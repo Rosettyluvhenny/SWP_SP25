@@ -40,15 +40,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINTS).permitAll()
-                                .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
-                                .requestMatchers(UNCATEGORIZED_ENDPOINTS).permitAll()
-                                .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-                                .accessDeniedHandler(accessDeniedHandler())
+                                request.requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINTS).permitAll()
+                                        .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
+                                        .requestMatchers(UNCATEGORIZED_ENDPOINTS).permitAll()
+                                        .anyRequest().permitAll()
+//                .oauth2ResourceServer(oauth2 ->
+//                        oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)
+//                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+//                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+//                                .accessDeniedHandler(accessDeniedHandler())
                 );
 
         return httpSecurity.build();

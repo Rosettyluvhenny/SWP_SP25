@@ -39,7 +39,8 @@ public enum ErrorCode {
     ACTIVATED(1023, "Is activate already",HttpStatus.BAD_REQUEST),
     DEACTIVATED(1023, "Is deactivated already",HttpStatus.BAD_REQUEST),
     SERVICE_INFO_NOT_FOUND(1024, "Service Infomation not found", HttpStatus.BAD_REQUEST),
-    IO_EXCEPTION(1025, "Failed to upload image", HttpStatus.BAD_REQUEST)
+    IO_EXCEPTION(1025, "Failed to upload image", HttpStatus.BAD_REQUEST),
+    BLOGPOST_NOT_EXISTED(1026,"BlogPost not found", HttpStatus.NOT_FOUND)
     ;
     int code;
     String message;
