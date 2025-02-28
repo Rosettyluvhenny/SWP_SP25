@@ -110,7 +110,6 @@ public class QuizResultService {
         return quizRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
     }
-    /*
 
     public String getQuizResult(Long quizId, int score) {
 
@@ -118,14 +117,13 @@ public class QuizResultService {
 
         int lowerBound = 0;
         for (QuizResult result : results) {
-            if (score >= lowerBound && score <= result.getUpperRange()) {
+            if (score >= lowerBound && score <= result.getRangePoint()) {
                 return result.getResultText();
             }
 
             lowerBound = result.getRangePoint() + 1;
         }
+        return results.getLast().getResultText();
     }
-
-     */
 
 }
