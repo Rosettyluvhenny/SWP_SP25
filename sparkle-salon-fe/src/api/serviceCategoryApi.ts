@@ -1,52 +1,32 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8081/swp"; 
+const API_BASE_URL = "http://localhost:8081/swp"; // Adjust based on your backend
 
-export const getAllCategories = async () => {
-  try {
-    const response = await axios.get(`${BASE_URL}/category`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    throw error;
-  }
+// Fetch all categories
+export const fetchCategories = async () => {
+  const response = await axios.get(`${API_BASE_URL}/category`);
+  return response.data;
 };
 
-export const getCategoryById = async (id: number) => {
-  try {
-    const response = await axios.get(`${BASE_URL}/category/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching category with id ${id}:`, error);
-    throw error;
-  }
+// Fetch single category by ID
+export const fetchCategoryById = async (id: string) => {
+  const response = await axios.get(`${API_BASE_URL}/category/${id}`);
+  return response.data;
 };
 
-export const createCategory = async (categoryData: { name: string; description: string }) => {
-  try {
-    const response = await axios.post(`${BASE_URL}/category`, categoryData);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating category:", error);
-    throw error;
-  }
+// Create new category
+export const createCategory = async (data: { name: string }) => {
+  const response = await axios.post(`${API_BASE_URL}/category`, data);
+  return response.data;
 };
 
-export const updateCategory = async (id: number, updatedData: { name: string; description: string }) => {
-  try {
-    const response = await axios.put(`${BASE_URL}/category/${id}`, updatedData);
-    return response.data;
-  } catch (error) {
-    console.error(`Error updating category with id ${id}:`, error);
-    throw error;
-  }
+// Update category
+export const updateCategory = async (id: string, data: { name: string }) => {
+  const response = await axios.put(`${API_BASE_URL}/category/${id}`, data);
+  return response.data;
 };
 
-export const deleteCategory = async (id: number) => {
-  try {
-    await axios.delete(`${BASE_URL}/category/${id}`);
-  } catch (error) {
-    console.error(`Error deleting category with id ${id}:`, error);
-    throw error;
-  }
+// Delete category
+export const deleteCategory = async (id: string) => {
+  await axios.delete(`${API_BASE_URL}/category/${id}`);
 };
