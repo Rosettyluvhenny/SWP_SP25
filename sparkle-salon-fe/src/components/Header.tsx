@@ -126,6 +126,7 @@ export default function Header() {
                     </li>
                 </ul>
             </nav>
+            
             {/* Login và Register Buttons */}
             <div className="flex flex-row items-center">
                 {isLoggedIn ? (
