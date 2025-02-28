@@ -14,6 +14,8 @@ public interface ServicesMapper {
     @Mapping(target = "serviceCategory", ignore = true)
     Services toServices(ServicesRequest request);
 
+    @Mapping(target ="description", source ="serviceInfo.description")
+    @Mapping(target ="img",source = "serviceInfo.serviceImgUrl")
     ServicesResponse toResponse(Services service);
 
     @Mapping(target = "serviceCategory", ignore = true)
