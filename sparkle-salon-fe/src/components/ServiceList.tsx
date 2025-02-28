@@ -1,7 +1,6 @@
 import React from "react";
 import ServiceCard from "./ServiceCard";
 import { AiFillFrown } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
 
 interface Service {
     id: number;
@@ -17,12 +16,6 @@ interface ServiceListProps {
 }
 
 const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
-    const navigate = useNavigate();
-
-    const handleSelectService = (serviceName: string) => {
-        navigate("/contact", { state: { selectedService: serviceName } });
-    };
-
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {services.length > 0 ? (
@@ -30,7 +23,6 @@ const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
                     <ServiceCard
                         key={service.id}
                         service={service}
-                        onSelectService={handleSelectService}
                     />
                 ))
             ) : (
