@@ -1,0 +1,194 @@
+/* Custom Quill Content Styling */
+.quill-content {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Headings */
+.quill-content .prose h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #d53f8c;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.quill-content .prose h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #d53f8c;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+}
+
+.quill-content .prose h3 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #d53f8c;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Paragraphs */
+.quill-content .prose p {
+    margin-bottom: 1rem;
+    font-size: 1.05rem;
+}
+
+/* Lists */
+.quill-content .prose ul,
+.quill-content .prose ol {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.quill-content .prose li {
+    margin-bottom: 0.5rem;
+}
+
+.quill-content .prose ul li {
+    list-style-type: disc;
+}
+
+.quill-content .prose ol li {
+    list-style-type: decimal;
+}
+
+/* Strong and Emphasis */
+.quill-content .prose strong {
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.quill-content .prose em {
+    font-style: italic;
+    color: #4a5568;
+}
+
+/* Links */
+.quill-content .prose a {
+    color: #d53f8c;
+    text-decoration: none;
+    border-bottom: 1px dotted #d53f8c;
+    transition: all 0.2s ease;
+}
+
+.quill-content .prose a:hover {
+    color: #b83280;
+    border-bottom: 1px solid #b83280;
+}
+
+/* Blockquotes */
+.quill-content .prose blockquote {
+    border-left: 4px solid #f8b4d9;
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+    font-style: italic;
+    color: #718096;
+    background-color: #fdf2f8;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.quill-content .prose blockquote p {
+    margin-bottom: 0;
+}
+
+/* Images */
+.quill-content .prose img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Code blocks and syntax highlighting */
+.quill-content .prose pre {
+    background-color: #f7fafc;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e2e8f0;
+}
+
+.quill-content .prose code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    background-color: #f7fafc;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    color: #d53f8c;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .quill-content .prose h1 {
+        font-size: 1.75rem;
+    }
+    
+    .quill-content .prose h2 {
+        font-size: 1.5rem;
+    }
+    
+    .quill-content .prose h3 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Service description specific styles */
+.quill-content .prose .service-steps li {
+    margin-bottom: 0.75rem;
+    padding-left: 0.5rem;
+}
+
+.quill-content .prose .highlight-box {
+    background-color: #fdf2f8;
+    border-left: 4px solid #d53f8c;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    border-radius: 0.5rem;
+}
+
+/* Table styling */
+.quill-content .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.quill-content .prose table th {
+    background-color: #f8b4d9;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.75rem;
+    text-align: left;
+    border: 1px solid #e2e8f0;
+}
+
+.quill-content .prose table td {
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+}
+
+.quill-content .prose table tr:nth-child(even) {
+    background-color: #fdf2f8;
+}
+
+.quill-content .prose table tr:hover {
+    background-color: #f8b4d9;
+    color: #fff;
+    transition: all 0.2s ease;
+} 

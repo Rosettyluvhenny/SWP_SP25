@@ -18,7 +18,88 @@ const servicesData: Service[] = [
         price: 150000,
         duration: "90 phút",
         popularity: 765826,
-        description: "Dịch vụ Điều Trị Mụn Chuyên Sâu 12 Bước tại Sparkle Salon được thiết kế dành riêng cho làn da gặp vấn đề về mụn như mụn viêm, mụn đầu đen, mụn ẩn và da dễ kích ứng.Quy trình 12 bước khoa học giúp làm sạch da tận sâu, loại bỏ tác nhân gây mụn, giảm viêm và hỗ trợ tái tạo làn da khỏe mạnh hơn.**Quy Trình 12 Bước Chăm Sóc Da:**- Làm Sạch Da- Rửa Mặt Chuyên Sâu- Tẩy Tế Bào Chết- Xông Hơi Nóng & Hút Bã Nhờn- Nặn Mụn- Sát Khuẩn Da- Cân Bằng Da Với Toner- Đắp Mặt Nạ- Điện Di Tinh Chất Đặc Trị- Massage Thư Giãn- Dưỡng Ẩm & Phục Hồi Da- Chống Nắng",
+        description: `
+            <h1>Điều Trị Mụn Chuyên Sâu 12 Bước</h1>
+            <p>Dịch vụ <strong>Điều Trị Mụn Chuyên Sâu 12 Bước</strong> tại Sparkle Salon được thiết kế dành riêng cho làn da gặp vấn đề về mụn như mụn viêm, mụn đầu đen, mụn ẩn và da dễ kích ứng.</p>
+            
+            <p>Quy trình 12 bước khoa học giúp làm sạch da tận sâu, loại bỏ tác nhân gây mụn, giảm viêm và hỗ trợ tái tạo làn da khỏe mạnh hơn.</p>
+            
+            <div class="highlight-box">
+                <p>Phù hợp với mọi loại da, đặc biệt là da dầu, da mụn và da hỗn hợp. Liệu trình điều trị được điều chỉnh tùy theo tình trạng da của từng khách hàng.</p>
+            </div>
+            
+            <h2>Quy Trình 12 Bước Chăm Sóc Da</h2>
+            
+            <ul class="service-steps">
+                <li><strong>Làm Sạch Da</strong> - Sử dụng sữa rửa mặt chuyên biệt cho da mụn, loại bỏ bụi bẩn và dầu thừa.</li>
+                <li><strong>Rửa Mặt Chuyên Sâu</strong> - Làm sạch sâu với các sản phẩm đặc trị.</li>
+                <li><strong>Tẩy Tế Bào Chết</strong> - Loại bỏ tế bào chết, thông thoáng lỗ chân lông.</li>
+                <li><strong>Xông Hơi Nóng & Hút Bã Nhờn</strong> - Mở lỗ chân lông và hút sạch bã nhờn.</li>
+                <li><strong>Nặn Mụn</strong> - Loại bỏ mụn đầu đen, mụn đầu trắng bằng kỹ thuật chuyên nghiệp.</li>
+                <li><strong>Sát Khuẩn Da</strong> - Làm sạch và diệt khuẩn, ngăn ngừa viêm nhiễm.</li>
+                <li><strong>Cân Bằng Da Với Toner</strong> - Phục hồi độ pH tự nhiên của da.</li>
+                <li><strong>Đắp Mặt Nạ</strong> - Mặt nạ đặc trị giúp làm dịu và phục hồi da.</li>
+                <li><strong>Điện Di Tinh Chất Đặc Trị</strong> - Đưa dưỡng chất sâu vào da.</li>
+                <li><strong>Massage Thư Giãn</strong> - Kích thích tuần hoàn máu và thư giãn.</li>
+                <li><strong>Dưỡng Ẩm & Phục Hồi Da</strong> - Cung cấp độ ẩm và dưỡng chất.</li>
+                <li><strong>Chống Nắng</strong> - Bảo vệ da khỏi tác hại của tia UV.</li>
+            </ul>
+            
+            <h2>Lợi Ích Của Liệu Trình</h2>
+            
+            <ul>
+                <li>Giảm đáng kể tình trạng mụn viêm, mụn đầu đen</li>
+                <li>Làm sạch sâu lỗ chân lông</li>
+                <li>Kiểm soát dầu nhờn hiệu quả</li>
+                <li>Làm dịu da, giảm sưng đỏ</li>
+                <li>Ngăn ngừa sẹo thâm sau mụn</li>
+                <li>Cải thiện kết cấu và tông màu da</li>
+            </ul>
+            
+            <h2>Bảng Giá Dịch Vụ</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gói Dịch Vụ</th>
+                        <th>Thời Gian</th>
+                        <th>Giá (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Điều trị cơ bản (1 lần)</td>
+                        <td>90 phút</td>
+                        <td>150.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 5 lần</td>
+                        <td>90 phút/lần</td>
+                        <td>700.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 10 lần</td>
+                        <td>90 phút/lần</td>
+                        <td>1.300.000</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Lưu Ý Sau Khi Điều Trị</h3>
+            <p>Để đạt hiệu quả tối ưu, khách hàng nên:</p>
+            <ol>
+                <li>Tránh chạm tay lên mặt</li>
+                <li>Sử dụng kem chống nắng hàng ngày</li>
+                <li>Uống đủ nước</li>
+                <li>Hạn chế trang điểm trong 24h sau điều trị</li>
+                <li>Tránh các thực phẩm cay nóng, nhiều dầu mỡ</li>
+            </ol>
+            
+            <blockquote>
+                "Liệu trình điều trị mụn chuyên sâu đã giúp tôi cải thiện đáng kể tình trạng da. Sau 5 lần điều trị, mụn giảm hẳn và da sáng mịn hơn rất nhiều." - Khách hàng Minh Anh
+            </blockquote>
+        `,
+        category: "Điều Trị Da",
     },
     {
         id: 2,
@@ -27,7 +108,85 @@ const servicesData: Service[] = [
         price: 200000,
         duration: "30 phút",
         popularity: 13373,
-        description: "Dịch vụ Thải Độc Da Thảo Dược giúp loại bỏ độc tố, giảm sưng viêm và cân bằng độ ẩm, mang lại làn da tươi sáng và khỏe mạnh. \n\n**Quy trình thải độc da:**\n- Làm sạch da\n- Tẩy tế bào chết\n- Xông hơi thảo dược\n- Massage thải độc\n- Đắp mặt nạ dưỡng chất\n- Cân bằng và bảo vệ da"
+        description: `
+            <h1>Thải Độc Da Thảo Dược</h1>
+            
+            <p>Dịch vụ <strong>Thải Độc Da Thảo Dược</strong> tại Sparkle Salon là phương pháp làm đẹp kết hợp giữa khoa học hiện đại và tinh hoa từ thảo dược thiên nhiên, giúp loại bỏ độc tố, giảm sưng viêm và cân bằng độ ẩm, mang lại làn da tươi sáng và khỏe mạnh.</p>
+            
+            <div class="highlight-box">
+                <p>Liệu trình sử dụng 100% thảo dược tự nhiên, an toàn cho mọi loại da, kể cả da nhạy cảm.</p>
+            </div>
+            
+            <h2>Quy Trình Thải Độc Da</h2>
+            
+            <ul class="service-steps">
+                <li><strong>Làm Sạch Da</strong> - Loại bỏ bụi bẩn, trang điểm và dầu thừa với sản phẩm làm sạch từ thảo mộc.</li>
+                <li><strong>Tẩy Tế Bào Chết</strong> - Sử dụng hỗn hợp thảo dược nghiền mịn để loại bỏ tế bào chết nhẹ nhàng.</li>
+                <li><strong>Xông Hơi Thảo Dược</strong> - Mở lỗ chân lông với hơi nước thảo dược, giúp thải độc tố.</li>
+                <li><strong>Massage Thải Độc</strong> - Kỹ thuật massage đặc biệt kết hợp với tinh dầu thảo mộc giúp kích thích tuần hoàn và đào thải độc tố.</li>
+                <li><strong>Đắp Mặt Nạ Dưỡng Chất</strong> - Mặt nạ thảo dược đặc biệt giúp hút độc tố và cung cấp dưỡng chất.</li>
+                <li><strong>Cân Bằng và Bảo Vệ Da</strong> - Hoàn thiện với toner thảo mộc, serum và kem dưỡng ẩm.</li>
+            </ul>
+            
+            <h2>Lợi Ích Của Liệu Trình</h2>
+            
+            <ul>
+                <li>Loại bỏ độc tố tích tụ trong da</li>
+                <li>Giảm mẩn đỏ và kích ứng</li>
+                <li>Cải thiện tuần hoàn máu</li>
+                <li>Làm sáng và đều màu da</li>
+                <li>Tăng cường sức đề kháng cho da</li>
+                <li>Ngăn ngừa lão hóa sớm</li>
+                <li>Cung cấp độ ẩm sâu</li>
+            </ul>
+            
+            <h3>Các Loại Thảo Dược Sử Dụng</h3>
+            
+            <p>Liệu trình của chúng tôi sử dụng các loại thảo dược quý như:</p>
+            
+            <ul>
+                <li><em>Nghệ vàng</em> - Chống viêm, làm sáng da</li>
+                <li><em>Trà xanh</em> - Chống oxy hóa mạnh mẽ</li>
+                <li><em>Lô hội</em> - Làm dịu và cấp ẩm</li>
+                <li><em>Hoa cúc</em> - Giảm kích ứng và làm dịu da</li>
+                <li><em>Hoa hồng</em> - Cân bằng độ pH và se khít lỗ chân lông</li>
+                <li><em>Sả</em> - Kháng khuẩn tự nhiên</li>
+            </ul>
+            
+            <h2>Bảng Giá Dịch Vụ</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gói Dịch Vụ</th>
+                        <th>Thời Gian</th>
+                        <th>Giá (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Thải độc cơ bản (1 lần)</td>
+                        <td>30 phút</td>
+                        <td>200.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 5 lần</td>
+                        <td>30 phút/lần</td>
+                        <td>900.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình cao cấp (bao gồm mặt nạ đặc biệt)</td>
+                        <td>45 phút</td>
+                        <td>350.000</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <blockquote>
+                "Sau khi thử liệu trình thải độc da thảo dược, làn da của tôi trở nên tươi sáng và khỏe mạnh hơn hẳn. Đặc biệt là cảm giác thư giãn trong quá trình điều trị thật tuyệt vời!" - Khách hàng Thanh Hà
+            </blockquote>
+        `,
+        category: "Điều Trị Da",
     },
     {
         id: 3,

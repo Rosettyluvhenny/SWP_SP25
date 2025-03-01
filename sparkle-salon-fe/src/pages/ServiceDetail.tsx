@@ -2,9 +2,12 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import servicesData, { Service } from "../data/servicesData";
 import { feedbacksData } from "../data/feedbacksData";
-import { FaClock, FaStar, FaMoneyBill } from "react-icons/fa";
+import { FaClock, FaStar, FaMoneyBill, FaShare, FaHeart, FaRegHeart } from "react-icons/fa";
 import FeedbackForm from "../components/FeedbackForm";
 import FeedbackList from "../components/FeedbackList";
+import { motion } from "framer-motion";
+import 'react-quill/dist/quill.snow.css';
+import '../styles/quill-custom.css'; // We'll create this file for custom Quill styling
 
 interface Feedback {
     name: string;
@@ -20,19 +23,19 @@ export default function ServiceDetail() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [feedbacks, setFeedbacks] = useState<Feedback[]>(feedbacksData);
+    const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
         const fetchService = async () => {
             try {
                 setIsLoading(true);
-                // Handle case where id might be undefined
                 if (!id) {
                     setError("Service ID is missing");
                     return;
                 }
                 
                 // Find the service by ID
-                const foundService = servicesData.find((s) => s.id === Number(id));
+                const foundService = servicesData.find((s) => s.id.toString() === id);
                 
                 if (!foundService) {
                     setError("Service not found");
@@ -44,7 +47,7 @@ export default function ServiceDetail() {
                 console.error("Error fetching service:", err);
                 setError("Failed to load service details");
             } finally {
-                setIsLoading(false);
+                setTimeout(() => setIsLoading(false), 500); 
             }
         };
 
@@ -76,10 +79,30 @@ export default function ServiceDetail() {
         setFeedbacks((prev) => [newFeedback, ...prev]);
     };
 
+    const toggleFavorite = () => {
+        setIsFavorite(!isFavorite);
+    };
+
+    const handleShare = () => {
+        if (navigator.share) {
+            navigator.share({
+                title: service?.name || 'Sparkle Salon Service',
+                text: `Check out this service: ${service?.name}`,
+                url: window.location.href,
+            })
+            .catch((error) => console.log('Error sharing', error));
+        } else {
+            // Fallback for browsers that don't support the Web Share API
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => alert('Link copied to clipboard!'))
+                .catch((err) => console.error('Could not copy text: ', err));
+        }
+    };
+
     // Loading state
     if (isLoading) {
         return (
-            <div className="bg-pink-50 mt-24 min-h-screen">
+            <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
                 <div className="max-w-7xl mx-auto p-6">
                     <div className="animate-pulse">
                         <div className="h-64 bg-gray-200 rounded-lg mb-4"></div>
@@ -95,17 +118,25 @@ export default function ServiceDetail() {
     // Error state
     if (error || !service) {
         return (
-            <div className="bg-pink-50 mt-24 min-h-screen">
+            <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
                 <div className="max-w-7xl mx-auto p-6 text-center">
-                    <p className="text-2xl text-red-500 font-semibold mb-4">
-                        {error || "Dịch vụ không tồn tại..."}
-                    </p>
-                    <button 
-                        onClick={() => navigate("/service")}
-                        className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg"
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
                     >
-                        Quay lại danh sách dịch vụ
-                    </button>
+                        <p className="text-2xl text-red-500 font-semibold mb-4">
+                            {error || "Dịch vụ không tồn tại..."}
+                        </p>
+                        <motion.button 
+                            onClick={() => navigate("/service")}
+                            className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            Quay lại danh sách dịch vụ
+                        </motion.button>
+                    </motion.div>
                 </div>
             </div>
         );
@@ -122,112 +153,189 @@ export default function ServiceDetail() {
         : "/placeholder.jpg";
 
     return (
-        <div className="bg-pink-50 mt-24 min-h-screen">
-            <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <div className="lg:col-span-3 space-y-6">
-                    {/* Top Section */}
-                    <div className="bg-white shadow-md p-6 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <img
-                            src={imageUrl}
-                            alt={displayName}
-                            className="w-full h-70 object-cover rounded-lg border border-pink-200"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/placeholder.jpg";
-                            }}
-                        />
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">
-                                {displayName}
-                            </h1>
-                            <p className="text-pink-500 text-lg font-semibold mt-1">
-                                <FaMoneyBill className="inline-block mr-2" />
-                                {service.price.toLocaleString()} vnđ (Đã bao gồm VAT)
-                            </p>
-                            <p className="flex items-center text-gray-600 mt-2">
-                                <FaClock className="mr-2 text-black" />
-                                {service.duration}
-                                <span className="mx-4">|</span>
-                                <FaStar className="mr-1 text-yellow-500" />
-                                {service.popularity}
-                            </p>
-                            <button
-                                className="bg-gradient-to-r from-pink-500 to-pink-400 hover:from-pink-600 hover:to-pink-500 text-white py-3 px-6 rounded-lg mt-8 text-lg font-semibold shadow-md transition transform hover:-translate-y-1"
-                                onClick={handleBooking}
-                            >
-                                Đặt hẹn ngay
-                            </button>
-                        </div>
-                    </div>
+        <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
+            <div className="max-w-7xl mx-auto p-6">
+                {/* Breadcrumb Navigation */}
+                <motion.div 
+                    className="mb-6 text-sm text-gray-600"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    <Link to="/" className="hover:text-pink-500 transition-colors">Trang chủ</Link> {" / "}
+                    <Link to="/service" className="hover:text-pink-500 transition-colors">Dịch vụ</Link> {" / "}
+                    <span className="text-pink-500">{displayName}</span>
+                </motion.div>
 
-                    {/* Description Section */}
-                    <div className="bg-white shadow-md p-6 rounded-lg">
-                        <h2 className="text-xl font-semibold border-b pb-2">
-                            Thông tin dịch vụ
-                        </h2>
-                        <p className="mt-3 text-gray-700 leading-relaxed">
-                            {service.description || "Chưa có thông tin chi tiết về dịch vụ này."}
-                        </p>
-                    </div>
-
-                    {/* Feedback Section */}
-                    <div className="bg-white shadow-md p-6 rounded-lg">
-                        <h2 className="text-xl font-semibold border-b pb-2">
-                            Đánh Giá Khách Hàng
-                        </h2>
-                        <FeedbackList feedbacks={feedbacks} />
-                        <FeedbackForm onSubmit={handleFeedbackSubmit} />
-                    </div>
-                </div>
-
-                {/*Sidebar Section */}
-                <aside className="space-y-6">
-                    <div className="bg-white shadow-md p-4 rounded-lg">
-                        <h3 className="text-lg font-bold border-b pb-2">
-                            Dịch vụ khác
-                        </h3>
-                        {servicesData
-                            .filter((related) => related.id !== service.id)
-                            .slice(0, 5)
-                            .map((related) => {
-                                // Fix for URL in name field
-                                const relatedDisplayName = related.name.startsWith("http") 
-                                    ? "Trẻ Hóa Da Công Nghệ Cao" 
-                                    : related.name;
-                                
-                                // Fix for potentially broken image URLs
-                                const relatedImageUrl = related.img && related.img.startsWith("http") 
-                                    ? related.img 
-                                    : "/placeholder.jpg";
-                                    
-                                return (
-                                    <Link
-                                        to={`/service/${related.id}`}
-                                        key={related.id}
-                                        className="block mt-4 hover:bg-pink-100 p-2 rounded-md transition"
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <motion.div 
+                        className="lg:col-span-3 space-y-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        {/* Top Section */}
+                        <div className="bg-white shadow-lg p-6 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="relative overflow-hidden rounded-xl">
+                                <img
+                                    src={imageUrl}
+                                    alt={displayName}
+                                    className="w-full h-80 object-cover rounded-xl border border-pink-200 transition-transform duration-500 hover:scale-105"
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).src = "/placeholder.jpg";
+                                    }}
+                                />
+                                <div className="absolute top-4 right-4 flex space-x-2">
+                                    <motion.button 
+                                        onClick={toggleFavorite}
+                                        className="bg-white p-2 rounded-full shadow-md hover:bg-pink-50 transition-colors"
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
                                     >
-                                        <div className="flex gap-4">
-                                            <img
-                                                src={relatedImageUrl}
-                                                alt={relatedDisplayName}
-                                                className="w-16 h-16 rounded object-cover"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).src = "/placeholder.jpg";
-                                                }}
-                                            />
-                                            <div>
-                                                <p className="font-semibold text-gray-900 line-clamp-1">
-                                                    {relatedDisplayName}
-                                                </p>
-                                                <p className="text-pink-500 font-medium">
-                                                    {related.price.toLocaleString()} đ
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                );
-                            })}
-                    </div>
-                </aside>
+                                        {isFavorite ? 
+                                            <FaHeart className="text-pink-500 text-xl" /> : 
+                                            <FaRegHeart className="text-gray-400 text-xl" />
+                                        }
+                                    </motion.button>
+                                    <motion.button 
+                                        onClick={handleShare}
+                                        className="bg-white p-2 rounded-full shadow-md hover:bg-pink-50 transition-colors"
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                    >
+                                        <FaShare className="text-gray-500 text-xl" />
+                                    </motion.button>
+                                </div>
+                            </div>
+                            <div>
+                                <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                                    {displayName}
+                                </h1>
+                                <div className="bg-pink-50 p-3 rounded-lg mb-4">
+                                    <p className="text-pink-600 text-xl font-semibold flex items-center">
+                                        <FaMoneyBill className="inline-block mr-2" />
+                                        {service.price.toLocaleString()} vnđ
+                                        <span className="text-sm ml-2 text-gray-500">(Đã bao gồm VAT)</span>
+                                    </p>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-4 mb-6">
+                                    <p className="flex items-center text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+                                        <FaClock className="mr-2 text-pink-500" />
+                                        {service.duration}
+                                    </p>
+                                    <p className="flex items-center text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+                                        <FaStar className="mr-1 text-yellow-500" />
+                                        {service.popularity} đánh giá
+                                    </p>
+                                    {service.category && (
+                                        <p className="bg-pink-100 text-pink-700 px-3 py-1 rounded-full">
+                                            {service.category}
+                                        </p>
+                                    )}
+                                </div>
+                                <motion.button
+                                    className="bg-gradient-to-r from-pink-500 to-pink-400 hover:from-pink-600 hover:to-pink-500 text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md w-full"
+                                    onClick={handleBooking}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    Đặt hẹn ngay
+                                </motion.button>
+                            </div>
+                        </div>
+
+                        {/* Description Section */}
+                        <div className="bg-white shadow-lg p-6 rounded-xl">
+                            <div className="border-b pb-2 mb-4">
+                                <h2 className="text-xl font-semibold">
+                                    Thông tin dịch vụ
+                                </h2>
+                            </div>
+                            
+                            <div className="mt-3 quill-content">
+                                <div 
+                                    className="prose prose-pink max-w-none prose-headings:text-pink-700 prose-a:text-pink-600 prose-strong:text-gray-800 prose-img:rounded-lg prose-img:shadow-md"
+                                    dangerouslySetInnerHTML={{ 
+                                        __html: service.description || "Chưa có thông tin chi tiết về dịch vụ này."
+                                    }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Feedback Section */}
+                        <div className="bg-white shadow-lg p-6 rounded-xl">
+                            <h2 className="text-xl font-semibold border-b pb-2 mb-4">
+                                Đánh Giá Khách Hàng
+                            </h2>
+                            <FeedbackList feedbacks={feedbacks} />
+                            <FeedbackForm onSubmit={handleFeedbackSubmit} />
+                        </div>
+                    </motion.div>
+
+                    {/*Sidebar Section */}
+                    <motion.aside 
+                        className="space-y-6"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                    >
+                        <div className="bg-white shadow-lg p-5 rounded-xl sticky top-24">
+                            <h3 className="text-lg font-bold border-b pb-2 mb-4">
+                                Dịch vụ khác
+                            </h3>
+                            {servicesData
+                                .filter((related) => related.id !== service.id)
+                                .slice(0, 5)
+                                .map((related, index) => {
+                                    // Fix for URL in name field
+                                    const relatedDisplayName = related.name.startsWith("http") 
+                                        ? "Trẻ Hóa Da Công Nghệ Cao" 
+                                        : related.name;
+                                    
+                                    // Fix for potentially broken image URLs
+                                    const relatedImageUrl = related.img && related.img.startsWith("http") 
+                                        ? related.img 
+                                        : "/placeholder.jpg";
+                                        
+                                    return (
+                                        <motion.div
+                                            key={related.id}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.1 * index, duration: 0.3 }}
+                                        >
+                                            <Link
+                                                to={`/service/${related.id}`}
+                                                className="block mt-4 hover:bg-pink-50 p-3 rounded-lg transition-colors duration-300"
+                                            >
+                                                <div className="flex gap-4">
+                                                    <img
+                                                        src={relatedImageUrl}
+                                                        alt={relatedDisplayName}
+                                                        className="w-20 h-20 rounded-lg object-cover"
+                                                        onError={(e) => {
+                                                            (e.target as HTMLImageElement).src = "/placeholder.jpg";
+                                                        }}
+                                                    />
+                                                    <div>
+                                                        <p className="font-semibold text-gray-900 line-clamp-2">
+                                                            {relatedDisplayName}
+                                                        </p>
+                                                        <p className="text-pink-500 font-medium mt-1">
+                                                            {related.price.toLocaleString()} đ
+                                                        </p>
+                                                        <p className="text-gray-500 text-sm mt-1">
+                                                            {related.duration}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        </motion.div>
+                                    );
+                                })}
+                        </div>
+                    </motion.aside>
+                </div>
             </div>
         </div>
     );
