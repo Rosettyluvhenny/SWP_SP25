@@ -1,72 +1,63 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import servicesData, { Service } from "../data/servicesData";
-import { feedbacksData } from "../data/feedbacksData";
-import { FaClock, FaStar, FaMoneyBill, FaShare, FaHeart, FaRegHeart } from "react-icons/fa";
-import FeedbackForm from "../components/FeedbackForm";
-import FeedbackList from "../components/FeedbackList";
-import { motion } from "framer-motion";
-import 'react-quill/dist/quill.snow.css';
-import '../styles/quill-custom.css'; // We'll create this file for custom Quill styling
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { FaMoneyBill, FaArrowLeft } from "react-icons/fa";
+import { IoMdTime } from "react-icons/io";
+import { servicesApi, serviceInfoApi } from "../api";
+import { adaptServiceToFrontend } from "../utils/serviceAdapter";
+import { toast } from "react-toastify";
+import { Service } from "../types/service";
+import { ServiceInfo } from "../api/types";
+import EncodedText from "../components/EncodedText";
 
-interface Feedback {
-    name: string;
-    rating: number;
-    comment: string;
-    date: string;
-}
-
-export default function ServiceDetail() {
-    const { id } = useParams();
+const ServiceDetail = () => {
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [service, setService] = useState<Service | null>(null);
+    const [serviceInfo, setServiceInfo] = useState<ServiceInfo | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [feedbacks, setFeedbacks] = useState<Feedback[]>(feedbacksData);
-    const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
-        const fetchService = async () => {
+        const fetchServiceDetails = async () => {
+            if (!id) return;
+            
             try {
                 setIsLoading(true);
-                if (!id) {
-                    setError("Service ID is missing");
-                    return;
+                
+                // Fetch service details
+                const serviceData = await servicesApi.getById(parseInt(id));
+                const adaptedService = adaptServiceToFrontend(serviceData);
+                setService(adaptedService);
+                
+                // Fetch service info
+                try {
+                    const serviceInfoData = await serviceInfoApi.getByServiceId(parseInt(id));
+                    setServiceInfo(serviceInfoData);
+                } catch (infoErr) {
+                    console.warn("No service info found:", infoErr);
+                    setServiceInfo(null);
                 }
                 
-                // Find the service by ID
-                const foundService = servicesData.find((s) => s.id.toString() === id);
-                
-                if (!foundService) {
-                    setError("Service not found");
-                } else {
-                    setService(foundService);
-                    setError(null);
-                }
+                setError(null);
             } catch (err) {
-                console.error("Error fetching service:", err);
-                setError("Failed to load service details");
+                console.error("Error fetching service details:", err);
+                setError("Không thể tải thông tin dịch vụ. Vui lòng thử lại sau.");
+                toast.error("Không thể tải thông tin dịch vụ");
             } finally {
-                setTimeout(() => setIsLoading(false), 500); 
+                setIsLoading(false);
             }
         };
 
-        fetchService();
+        fetchServiceDetails();
     }, [id]);
 
     const handleBooking = () => {
         if (service) {
-            // Fix for URL in name field
-            const displayName = service.name.startsWith("http") 
-                ? "Trẻ Hóa Da Công Nghệ Cao" 
-                : service.name;
-                
             navigate("/contact", { 
                 state: { 
-                    selectedService: displayName,
                     service: {
                         id: service.id,
-                        name: displayName,
+                        name: service.name,
                         price: service.price,
                         duration: service.duration
                     }
@@ -75,268 +66,170 @@ export default function ServiceDetail() {
         }
     };
 
-    const handleFeedbackSubmit = (newFeedback: Feedback) => {
-        setFeedbacks((prev) => [newFeedback, ...prev]);
-    };
-
-    const toggleFavorite = () => {
-        setIsFavorite(!isFavorite);
-    };
-
-    const handleShare = () => {
-        if (navigator.share) {
-            navigator.share({
-                title: service?.name || 'Sparkle Salon Service',
-                text: `Check out this service: ${service?.name}`,
-                url: window.location.href,
-            })
-            .catch((error) => console.log('Error sharing', error));
-        } else {
-            // Fallback for browsers that don't support the Web Share API
-            navigator.clipboard.writeText(window.location.href)
-                .then(() => alert('Link copied to clipboard!'))
-                .catch((err) => console.error('Could not copy text: ', err));
-        }
-    };
-
-    // Loading state
     if (isLoading) {
         return (
-            <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
-                <div className="max-w-7xl mx-auto p-6">
+            <div className="min-h-screen bg-gradient-to-t from-white to-pink-200 pt-20">
+                <div className="max-w-6xl mx-auto px-4 py-8">
                     <div className="animate-pulse">
-                        <div className="h-64 bg-gray-200 rounded-lg mb-4"></div>
-                        <div className="h-8 bg-gray-200 rounded w-1/2 mb-4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-                        <div className="h-32 bg-gray-200 rounded mb-4"></div>
+                        <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
+                        <div className="flex flex-col md:flex-row gap-8">
+                            <div className="md:w-1/2">
+                                <div className="bg-gray-200 h-96 rounded-xl mb-4"></div>
+                            </div>
+                            <div className="md:w-1/2">
+                                <div className="h-10 bg-gray-200 rounded w-3/4 mb-6"></div>
+                                <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+                                <div className="h-6 bg-gray-200 rounded w-1/3 mb-8"></div>
+                                <div className="h-32 bg-gray-200 rounded mb-8"></div>
+                                <div className="flex gap-4">
+                                    <div className="h-12 bg-gray-200 rounded w-1/2"></div>
+                                    <div className="h-12 bg-gray-200 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         );
     }
 
-    // Error state
     if (error || !service) {
         return (
-            <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
-                <div className="max-w-7xl mx-auto p-6 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <p className="text-2xl text-red-500 font-semibold mb-4">
-                            {error || "Dịch vụ không tồn tại..."}
-                        </p>
-                        <motion.button 
-                            onClick={() => navigate("/service")}
-                            className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+            <div className="min-h-screen bg-gradient-to-t from-white to-pink-200 pt-20">
+                <div className="max-w-6xl mx-auto px-4 py-8">
+                    <div className="bg-red-100 p-6 rounded-lg text-red-700">
+                        <h2 className="text-xl font-semibold mb-2">Lỗi</h2>
+                        <p>{error || "Không tìm thấy dịch vụ"}</p>
+                        <button 
+                            onClick={() => navigate(-1)}
+                            className="mt-4 flex items-center text-pink-600 hover:text-pink-800"
                         >
-                            Quay lại danh sách dịch vụ
-                        </motion.button>
-                    </motion.div>
+                            <FaArrowLeft className="mr-2" /> Quay lại
+                        </button>
+                    </div>
                 </div>
             </div>
         );
     }
 
-    // Fix for URL in name field
-    const displayName = service.name.startsWith("http") 
-        ? "Trẻ Hóa Da Công Nghệ Cao" 
-        : service.name;
-
-    // Fix for potentially broken image URLs
-    const imageUrl = service.img && service.img.startsWith("http") 
-        ? service.img 
-        : "/placeholder.jpg";
-
     return (
-        <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
-            <div className="max-w-7xl mx-auto p-6">
-                {/* Breadcrumb Navigation */}
-                <motion.div 
-                    className="mb-6 text-sm text-gray-600"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
+        <div className="min-h-screen bg-gradient-to-t from-white to-pink-200 pt-20">
+            <div className="max-w-6xl mx-auto px-4 py-8">
+                {/* Back button */}
+                <button 
+                    onClick={() => navigate(-1)}
+                    className="flex items-center text-pink-600 hover:text-pink-800 mb-8"
                 >
-                    <Link to="/" className="hover:text-pink-500 transition-colors">Trang chủ</Link> {" / "}
-                    <Link to="/service" className="hover:text-pink-500 transition-colors">Dịch vụ</Link> {" / "}
-                    <span className="text-pink-500">{displayName}</span>
-                </motion.div>
+                    <FaArrowLeft className="mr-2" /> Quay lại danh sách dịch vụ
+                </button>
 
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    <motion.div 
-                        className="lg:col-span-3 space-y-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        {/* Top Section */}
-                        <div className="bg-white shadow-lg p-6 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="relative overflow-hidden rounded-xl">
-                                <img
-                                    src={imageUrl}
-                                    alt={displayName}
-                                    className="w-full h-80 object-cover rounded-xl border border-pink-200 transition-transform duration-500 hover:scale-105"
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).src = "/placeholder.jpg";
-                                    }}
-                                />
-                                <div className="absolute top-4 right-4 flex space-x-2">
-                                    <motion.button 
-                                        onClick={toggleFavorite}
-                                        className="bg-white p-2 rounded-full shadow-md hover:bg-pink-50 transition-colors"
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                    >
-                                        {isFavorite ? 
-                                            <FaHeart className="text-pink-500 text-xl" /> : 
-                                            <FaRegHeart className="text-gray-400 text-xl" />
-                                        }
-                                    </motion.button>
-                                    <motion.button 
-                                        onClick={handleShare}
-                                        className="bg-white p-2 rounded-full shadow-md hover:bg-pink-50 transition-colors"
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                    >
-                                        <FaShare className="text-gray-500 text-xl" />
-                                    </motion.button>
-                                </div>
-                            </div>
-                            <div>
-                                <h1 className="text-3xl font-bold text-gray-900 mb-3">
-                                    {displayName}
-                                </h1>
-                                <div className="bg-pink-50 p-3 rounded-lg mb-4">
-                                    <p className="text-pink-600 text-xl font-semibold flex items-center">
-                                        <FaMoneyBill className="inline-block mr-2" />
-                                        {service.price.toLocaleString()} vnđ
-                                        <span className="text-sm ml-2 text-gray-500">(Đã bao gồm VAT)</span>
-                                    </p>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-4 mb-6">
-                                    <p className="flex items-center text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
-                                        <FaClock className="mr-2 text-pink-500" />
-                                        {service.duration}
-                                    </p>
-                                    <p className="flex items-center text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
-                                        <FaStar className="mr-1 text-yellow-500" />
-                                        {service.popularity} đánh giá
-                                    </p>
-                                    {service.category && (
-                                        <p className="bg-pink-100 text-pink-700 px-3 py-1 rounded-full">
-                                            {service.category}
-                                        </p>
-                                    )}
-                                </div>
-                                <motion.button
-                                    className="bg-gradient-to-r from-pink-500 to-pink-400 hover:from-pink-600 hover:to-pink-500 text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md w-full"
-                                    onClick={handleBooking}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                >
-                                    Đặt hẹn ngay
-                                </motion.button>
-                            </div>
-                        </div>
+                <div className="flex flex-col md:flex-row gap-8">
+                    {/* Service Image */}
+                    <div className="md:w-1/2">
+                        <img 
+                            src={serviceInfo?.serviceImgUrl || service.img || "/placeholder.jpg"} 
+                            alt={service.name} 
+                            className="w-full h-auto rounded-xl shadow-lg object-cover"
+                        />
+                    </div>
 
-                        {/* Description Section */}
-                        <div className="bg-white shadow-lg p-6 rounded-xl">
-                            <div className="border-b pb-2 mb-4">
-                                <h2 className="text-xl font-semibold">
-                                    Thông tin dịch vụ
-                                </h2>
+                    {/* Service Details */}
+                    <div className="md:w-1/2">
+                        <div className="bg-white p-6 rounded-xl shadow-lg">
+                            <div className="inline-block bg-gradient-to-r from-pink-500 to-pink-400 text-white px-3 py-1 rounded-full text-sm mb-4">
+                                <EncodedText text={service.category || "Thẩm mỹ không xâm lấn"} />
+                            </div>
+                            <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                                <EncodedText text={service.name} />
+                            </h1>
+                            
+                            <div className="flex flex-wrap gap-4 mb-6">
+                                <div className="flex items-center text-pink-600 font-semibold text-xl">
+                                    <FaMoneyBill className="mr-2" />
+                                    {service.price.toLocaleString()} vnđ
+                                </div>
+                                <div className="flex items-center text-gray-600">
+                                    <IoMdTime className="mr-2 text-pink-500" />
+                                    {service.duration}
+                                </div>
                             </div>
                             
-                            <div className="mt-3 quill-content">
-                                <div 
-                                    className="prose prose-pink max-w-none prose-headings:text-pink-700 prose-a:text-pink-600 prose-strong:text-gray-800 prose-img:rounded-lg prose-img:shadow-md"
-                                    dangerouslySetInnerHTML={{ 
-                                        __html: service.description || "Chưa có thông tin chi tiết về dịch vụ này."
-                                    }}
-                                />
+                            <div className="mb-8">
+                                <h2 className="text-xl font-semibold mb-2 text-gray-800">Mô tả</h2>
+                                <div className="text-gray-600">
+                                    <EncodedText text={service.description || "Không có mô tả chi tiết cho dịch vụ này."} />
+                                </div>
+                            </div>
+                            
+                            {/* Action buttons */}
+                            <div className="flex flex-row gap-4">
+                                <button
+                                    className="flex-1 bg-gradient-to-r from-pink-500 to-pink-400 hover:from-pink-600 hover:to-pink-500 text-white py-3 px-4 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-1"
+                                    onClick={handleBooking}
+                                >
+                                    Đặt Hẹn Ngay
+                                </button>
                             </div>
                         </div>
-
-                        {/* Feedback Section */}
-                        <div className="bg-white shadow-lg p-6 rounded-xl">
-                            <h2 className="text-xl font-semibold border-b pb-2 mb-4">
-                                Đánh Giá Khách Hàng
-                            </h2>
-                            <FeedbackList feedbacks={feedbacks} />
-                            <FeedbackForm onSubmit={handleFeedbackSubmit} />
-                        </div>
-                    </motion.div>
-
-                    {/*Sidebar Section */}
-                    <motion.aside 
-                        className="space-y-6"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                    >
-                        <div className="bg-white shadow-lg p-5 rounded-xl sticky top-24">
-                            <h3 className="text-lg font-bold border-b pb-2 mb-4">
-                                Dịch vụ khác
-                            </h3>
-                            {servicesData
-                                .filter((related) => related.id !== service.id)
-                                .slice(0, 5)
-                                .map((related, index) => {
-                                    // Fix for URL in name field
-                                    const relatedDisplayName = related.name.startsWith("http") 
-                                        ? "Trẻ Hóa Da Công Nghệ Cao" 
-                                        : related.name;
-                                    
-                                    // Fix for potentially broken image URLs
-                                    const relatedImageUrl = related.img && related.img.startsWith("http") 
-                                        ? related.img 
-                                        : "/placeholder.jpg";
-                                        
-                                    return (
-                                        <motion.div
-                                            key={related.id}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 * index, duration: 0.3 }}
-                                        >
-                                            <Link
-                                                to={`/service/${related.id}`}
-                                                className="block mt-4 hover:bg-pink-50 p-3 rounded-lg transition-colors duration-300"
-                                            >
-                                                <div className="flex gap-4">
-                                                    <img
-                                                        src={relatedImageUrl}
-                                                        alt={relatedDisplayName}
-                                                        className="w-20 h-20 rounded-lg object-cover"
-                                                        onError={(e) => {
-                                                            (e.target as HTMLImageElement).src = "/placeholder.jpg";
-                                                        }}
-                                                    />
-                                                    <div>
-                                                        <p className="font-semibold text-gray-900 line-clamp-2">
-                                                            {relatedDisplayName}
-                                                        </p>
-                                                        <p className="text-pink-500 font-medium mt-1">
-                                                            {related.price.toLocaleString()} đ
-                                                        </p>
-                                                        <p className="text-gray-500 text-sm mt-1">
-                                                            {related.duration}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </motion.div>
-                                    );
-                                })}
-                        </div>
-                    </motion.aside>
+                    </div>
                 </div>
+
+                {/* Service Info Section */}
+                {serviceInfo && (
+                    <div className="mt-12">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6">Thông tin chi tiết</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {serviceInfo.description && (
+                                <div className="bg-white p-6 rounded-xl shadow-lg">
+                                    <h3 className="text-xl font-semibold mb-4 text-gray-800">Mô tả chi tiết</h3>
+                                    <div className="text-gray-600 mb-4">
+                                        <EncodedText text={serviceInfo.description} />
+                                    </div>
+                                    {serviceInfo.desImgUrl && (
+                                        <img 
+                                            src={serviceInfo.desImgUrl} 
+                                            alt="Mô tả chi tiết" 
+                                            className="w-full h-auto rounded-lg mt-4"
+                                        />
+                                    )}
+                                </div>
+                            )}
+                            {serviceInfo.tech && (
+                                <div className="bg-white p-6 rounded-xl shadow-lg">
+                                    <h3 className="text-xl font-semibold mb-4 text-gray-800">Công nghệ</h3>
+                                    <div className="text-gray-600 mb-4">
+                                        <EncodedText text={serviceInfo.tech} />
+                                    </div>
+                                    {serviceInfo.techImgUrl && (
+                                        <img 
+                                            src={serviceInfo.techImgUrl} 
+                                            alt="Công nghệ" 
+                                            className="w-full h-auto rounded-lg mt-4"
+                                        />
+                                    )}
+                                </div>
+                            )}
+                            {serviceInfo.mechanism && (
+                                <div className="bg-white p-6 rounded-xl shadow-lg">
+                                    <h3 className="text-xl font-semibold mb-4 text-gray-800">Cơ chế</h3>
+                                    <div className="text-gray-600 mb-4">
+                                        <EncodedText text={serviceInfo.mechanism} />
+                                    </div>
+                                    {serviceInfo.mechaImgUrl && (
+                                        <img 
+                                            src={serviceInfo.mechaImgUrl} 
+                                            alt="Cơ chế" 
+                                            className="w-full h-auto rounded-lg mt-4"
+                                        />
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
-}
+};
+
+export default ServiceDetail;

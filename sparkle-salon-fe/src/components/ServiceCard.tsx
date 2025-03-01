@@ -3,17 +3,11 @@ import { FaMoneyBill } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Service } from "../types/service";
+import EncodedText from "./EncodedText";
 
 interface ServiceCardProps {
-    service: {
-        id: number;
-        name: string;
-        img: string;
-        price: number;
-        duration: string;
-        category?: string;
-        description?: string;
-    };
+    service: Service;
     onSelectService?: (serviceName: string) => void;
 }
 
@@ -48,7 +42,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelectService }) =
         >
             <div className="relative overflow-hidden">
                 <div className="absolute top-3 left-3 bg-gradient-to-r from-pink-500 to-pink-400 text-white px-3 py-1 rounded-full text-sm z-10 shadow-md">
-                    {service.category || "Thẩm mỹ không xâm lấn"}
+                    <EncodedText text={service.category || "Thẩm mỹ không xâm lấn"} />
                 </div>
                 
                 {/* Service image */}
@@ -65,7 +59,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelectService }) =
             <div className="p-6 flex flex-col flex-grow">
                 {/* Service title */}
                 <h2 className="text-xl font-semibold text-gray-800 h-14 line-clamp-2 group-hover:text-pink-600 transition-colors duration-300">
-                    {displayName}
+                    <EncodedText text={displayName} />
                 </h2>
                 
                 {/* Service details */}

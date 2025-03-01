@@ -13,6 +13,16 @@ const serviceInfoApi = {
   },
 
   /**
+   * Get service info by service ID
+   * @param serviceId - The service ID
+   * @returns Promise with the service info
+   */
+  getByServiceId: async (serviceId: number): Promise<ServiceInfo> => {
+    const response = await axiosClient.get<ApiResponse<ServiceInfoResponse>>(`/serviceInfo/service/${serviceId}`);
+    return response.data.result;
+  },
+
+  /**
    * Create a new service info
    * @param data - The service info data
    * @param files - Optional files to upload

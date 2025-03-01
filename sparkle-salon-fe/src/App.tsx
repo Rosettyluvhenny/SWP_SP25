@@ -44,6 +44,7 @@ function App() {
         <Route path="/payment" element={<Payment />} />
         <Route path="/profile" element={<MainLayout><CustomerProfile /></MainLayout>} />
       </Routes>
+      
     </>
   );
 }
