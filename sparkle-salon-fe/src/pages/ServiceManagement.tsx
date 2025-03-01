@@ -1,67 +1,82 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
 import { motion } from "framer-motion";
-import { FaEdit, FaTrash, FaSearch, FaPlus } from "react-icons/fa";
+import { FaEdit, FaSearch, FaPlus } from "react-icons/fa";
+import { serviceCategoryApi, servicesApi } from "../api";
+import { ServiceCategory, ServicesRequest, Service } from "../api/types";
+import { toast } from "react-toastify";
 
-type Service = {
-    id: number;
+type ServiceFormData = {
+    id?: number;
     name: string;
     price: string;
-    status: string;
-    category: string;
+    duration: string;
+    session: string;
+    active: boolean;
+    serviceCategoryId: number;
 };
 
 export default function ServiceManagement() {
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("Tất Cả");
-    const [services, setServices] = useState<Service[]>([
-        {
-            id: 1,
-            name: "Nặn Mụn Chuyên Sâu",
-            price: "150.000",
-            status: "Hoạt Động",
-            category: "Chăm Sóc Da",
-        },
-        {
-            id: 2,
-            name: "Trị da dầu",
-            price: "250.000",
-            status: "Không Hoạt Động",
-            category: "Trị Liệu",
-        },
-        {
-            id: 3,
-            name: "Trị da sẹo rỗ",
-            price: "300.000",
-            status: "Hoạt Động",
-            category: "Trị Liệu",
-        },
-        {
-            id: 4,
-            name: "Thải Độc Da",
-            price: "180.000",
-            status: "Hoạt Động",
-            category: "Chăm Sóc Da",
-        },
-    ]);
-
-    const categories = ["Tất Cả", "Chăm Sóc Da", "Trị Liệu", "Dịch Vụ Khác"];
-
+    const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+    const [services, setServices] = useState<Service[]>([]);
+    const [categories, setCategories] = useState<ServiceCategory[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingService, setEditingService] = useState<Service | null>(null);
+    const [editingService, setEditingService] = useState<ServiceFormData | null>(null);
     const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
 
+    // Fetch services and categories on component mount
+    useEffect(() => {
+        fetchServices();
+        fetchCategories();
+    }, []);
+
+    const fetchServices = async () => {
+        try {
+            setIsLoading(true);
+            const data = await servicesApi.getAll();
+            setServices(data);
+        } catch (error) {
+            console.error("Error fetching services:", error);
+            toast.error("Failed to load services");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const data = await serviceCategoryApi.getAll();
+            setCategories(data);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+            toast.error("Failed to load service categories");
+        }
+    };
+
     const openModal = (service: Service | null = null) => {
-        setEditingService(
-            service ?? {
-                id: services.length + 1,
+        if (service) {
+            setEditingService({
+                id: service.id,
+                name: service.name,
+                price: service.price.toString(),
+                duration: service.duration.toString(),
+                session: service.session.toString(),
+                active: service.active,
+                serviceCategoryId: service.serviceCategory.id
+            });
+        } else {
+            setEditingService({
                 name: "",
                 price: "",
-                status: "Hoạt Động",
-                category: "Chăm Sóc Da",
-            }
-        );
+                duration: "60",
+                session: "1",
+                active: true,
+                serviceCategoryId: categories.length > 0 ? categories[0].id : 0
+            });
+        }
         setFormErrors({});
         setIsModalOpen(true);
     };
@@ -80,36 +95,72 @@ export default function ServiceManagement() {
         
         if (!editingService?.price.trim()) {
             errors.price = "Giá dịch vụ không được để trống";
-        } else if (!/^\d+(\.\d{3})*$/.test(editingService.price)) {
+        } else if (!/^\d+(\.\d{1,3})?$/.test(editingService.price)) {
             errors.price = "Giá dịch vụ không hợp lệ";
+        }
+
+        if (!editingService?.duration.trim()) {
+            errors.duration = "Thời gian dịch vụ không được để trống";
+        } else if (!/^\d+$/.test(editingService.duration) || parseInt(editingService.duration) < 1) {
+            errors.duration = "Thời gian dịch vụ phải là số nguyên dương";
+        }
+
+        if (!editingService?.session.trim()) {
+            errors.session = "Số buổi dịch vụ không được để trống";
+        } else if (!/^\d+$/.test(editingService.session) || parseInt(editingService.session) < 1) {
+            errors.session = "Số buổi dịch vụ phải là số nguyên dương";
         }
         
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
 
-    const handleSave = (e: React.FormEvent) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingService) return;
         
         if (!validateForm()) return;
 
-        setServices((prev) =>
-            prev.some((s) => s.id === editingService.id)
-                ? prev.map((s) =>
-                      s.id === editingService.id ? editingService : s
-                  )
-                : [...prev, editingService]
-        );
-        closeModal();
+        try {
+            const serviceData: ServicesRequest = {
+                name: editingService.name,
+                price: parseFloat(editingService.price),
+                duration: parseInt(editingService.duration),
+                session: parseInt(editingService.session),
+                active: editingService.active,
+                serviceCategoryId: editingService.serviceCategoryId
+            };
+
+            if (editingService.id) {
+                // Update existing service
+                await servicesApi.update(editingService.id, serviceData);
+                toast.success("Cập nhật dịch vụ thành công");
+            } else {
+                await servicesApi.create(serviceData);
+                toast.success("Thêm dịch vụ thành công");
+            }
+            
+            fetchServices();
+            closeModal();
+        } catch (error) {
+            console.error("Error saving service:", error);
+            toast.error("Lỗi khi lưu dịch vụ");
+        }
     };
 
-    const handleDelete = (id: number) => {
-        const confirmDelete = window.confirm(
-            "Bạn có chắc chắn muốn xóa dịch vụ này?"
-        );
-        if (confirmDelete) {
-            setServices(services.filter((service) => service.id !== id));
+    const handleActivateDeactivate = async (id: number, currentStatus: boolean) => {
+        try {
+            if (currentStatus) {
+                await servicesApi.deactivate(id);
+                toast.success("Đã vô hiệu hóa dịch vụ");
+            } else {
+                await servicesApi.activate(id);
+                toast.success("Đã kích hoạt dịch vụ");
+            }
+            fetchServices();
+        } catch (error) {
+            console.error("Error updating service status:", error);
+            toast.error("Lỗi khi cập nhật trạng thái dịch vụ");
         }
     };
 
@@ -118,8 +169,7 @@ export default function ServiceManagement() {
             service.name
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase()) &&
-            (selectedCategory === "Tất Cả" ||
-                service.category === selectedCategory)
+            (selectedCategory === null || service.serviceCategory.id === selectedCategory)
     );
 
     return (
@@ -163,13 +213,14 @@ export default function ServiceManagement() {
                         />
                     </div>
                     <select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        value={selectedCategory === null ? "" : String(selectedCategory)}
+                        onChange={(e) => setSelectedCategory(e.target.value ? Number(e.target.value) : null)}
                         className="w-full md:w-auto p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
                     >
+                        <option value="">Tất Cả Danh Mục</option>
                         {categories.map((category) => (
-                            <option key={category} value={category}>
-                                {category}
+                            <option key={category.id} value={String(category.id)}>
+                                {category.name}
                             </option>
                         ))}
                     </select>
@@ -185,89 +236,94 @@ export default function ServiceManagement() {
                     <h2 className="text-xl font-semibold mb-4">
                         Danh Sách Dịch Vụ
                     </h2>
-                    <div className="overflow-x-auto">
-                        <table className="w-full border-collapse rounded-lg overflow-hidden">
-                            <thead>
-                                <tr className="bg-white text-black">
-                                    <th className="p-3 text-left">ID</th>
-                                    <th className="p-3 text-left">Tên Dịch Vụ</th>
-                                    <th className="p-3 text-left">Giá (VND)</th>
-                                    <th className="p-3 text-left">Trạng Thái</th>
-                                    <th className="p-3 text-left">Danh Mục</th>
-                                    <th className="p-3 text-left">Hành Động</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white">
-                                {filteredServices.length > 0 ? (
-                                    filteredServices.map((service) => (
-                                        <motion.tr 
-                                            key={service.id} 
-                                            className="border-t hover:bg-pink-50 transition-colors"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ duration: 0.3 }}
-                                        >
-                                            <td className="p-3">{service.id}</td>
-                                            <td className="p-3 font-medium">{service.name}</td>
-                                            <td className="p-3">{service.price}</td>
-                                            <td className="p-3">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                    service.status === "Hoạt Động"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-yellow-100 text-yellow-800"
-                                                }`}>
-                                                    {service.status}
-                                                </span>
-                                            </td>
-                                            <td className="p-3">
-                                                <span className="bg-pink-100 text-pink-800 px-2 py-1 rounded-full text-xs">
-                                                    {service.category}
-                                                </span>
-                                            </td>
-                                            <td className="p-3 flex space-x-2">
-                                                <motion.button
-                                                    onClick={() => openModal(service)}
-                                                    className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                >
-                                                    <FaEdit size={14} /> Sửa
-                                                </motion.button>
-                                                <motion.button
-                                                    onClick={() => handleDelete(service.id)}
-                                                    className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                >
-                                                    <FaTrash size={14} /> Xóa
-                                                </motion.button>
-                                            </td>
-                                        </motion.tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={6} className="p-4 text-center text-gray-500">
-                                            Không tìm thấy dịch vụ nào
-                                        </td>
+                    
+                    {isLoading ? (
+                        <div className="text-center py-4">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto"></div>
+                            <p className="mt-2 text-gray-600">Đang tải dữ liệu...</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse rounded-lg overflow-hidden">
+                                <thead>
+                                    <tr className="bg-white text-black">
+                                        <th className="p-3 text-left">ID</th>
+                                        <th className="p-3 text-left">Tên Dịch Vụ</th>
+                                        <th className="p-3 text-left">Giá (VND)</th>
+                                        <th className="p-3 text-left">Thời Gian (phút)</th>
+                                        <th className="p-3 text-left">Số Buổi</th>
+                                        <th className="p-3 text-left">Trạng Thái</th>
+                                        <th className="p-3 text-left">Danh Mục</th>
+                                        <th className="p-3 text-left">Hành Động</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody className="bg-white">
+                                    {filteredServices.length > 0 ? (
+                                        filteredServices.map((service) => (
+                                            <motion.tr 
+                                                key={service.id} 
+                                                className="border-t hover:bg-pink-50 transition-colors"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                <td className="p-3">{service.id}</td>
+                                                <td className="p-3 font-medium">{service.name}</td>
+                                                <td className="p-3">{service.price.toLocaleString()}</td>
+                                                <td className="p-3">{service.duration}</td>
+                                                <td className="p-3">{service.session}</td>
+                                                <td className="p-3">
+                                                    <span 
+                                                        className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${
+                                                            service.active
+                                                                ? "bg-green-100 text-green-800"
+                                                                : "bg-yellow-100 text-yellow-800"
+                                                        }`}
+                                                        onClick={() => handleActivateDeactivate(service.id, service.active)}
+                                                    >
+                                                        {service.active ? "Hoạt Động" : "Không Hoạt Động"}
+                                                    </span>
+                                                </td>
+                                                <td className="p-3">
+                                                    <span className="bg-pink-100 text-pink-800 px-2 py-1 rounded-full text-xs">
+                                                        {service.serviceCategory.name}
+                                                    </span>
+                                                </td>
+                                                <td className="p-3 flex space-x-2">
+                                                    <motion.button
+                                                        onClick={() => openModal(service)}
+                                                        className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                    >
+                                                        <FaEdit size={14} /> Sửa
+                                                    </motion.button>
+                                                </td>
+                                            </motion.tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={8} className="p-4 text-center text-gray-500">
+                                                {searchTerm || selectedCategory ? "Không tìm thấy dịch vụ nào" : "Chưa có dịch vụ nào"}
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </motion.div>
-            </main>
 
-            {/* Modal for Adding/Editing Services */}
-            {isModalOpen && editingService && (
-                <ManagementModal 
-                    isOpen={isModalOpen} 
-                    onClose={closeModal}
-                    onSubmit={handleSave}
-                    title={editingService.id ? "Chỉnh Sửa Dịch Vụ" : "Thêm Dịch Vụ"}
-                >
-                    <form onSubmit={handleSave}>
-                        <label className="block mb-2">
-                            <span className="text-gray-700">Tên Dịch Vụ</span>
+                {/* Modal for Adding/Editing Services */}
+                {isModalOpen && editingService && (
+                    <ManagementModal
+                        isOpen={isModalOpen}
+                        onClose={closeModal}
+                        onSubmit={handleSave}
+                        title={editingService.id ? "Chỉnh Sửa Dịch Vụ" : "Thêm Dịch Vụ"}
+                    >
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Tên Dịch Vụ</label>
                             <input
                                 type="text"
                                 value={editingService.name}
@@ -277,17 +333,17 @@ export default function ServiceManagement() {
                                         name: e.target.value,
                                     })
                                 }
-                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                                    formErrors.name ? 'border-red-500' : ''
+                                className={`w-full p-2 border rounded-lg ${
+                                    formErrors.name ? "border-red-500" : "border-gray-300"
                                 }`}
                             />
                             {formErrors.name && (
                                 <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
                             )}
-                        </label>
+                        </div>
 
-                        <label className="block mb-2">
-                            <span className="text-gray-700">Giá (VND)</span>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Giá Dịch Vụ (VND)</label>
                             <input
                                 type="text"
                                 value={editingService.price}
@@ -297,59 +353,96 @@ export default function ServiceManagement() {
                                         price: e.target.value,
                                     })
                                 }
-                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                                    formErrors.price ? 'border-red-500' : ''
+                                className={`w-full p-2 border rounded-lg ${
+                                    formErrors.price ? "border-red-500" : "border-gray-300"
                                 }`}
-                                placeholder="150.000"
                             />
                             {formErrors.price && (
                                 <p className="text-red-500 text-sm mt-1">{formErrors.price}</p>
                             )}
-                        </label>
+                        </div>
 
-                        <label className="block mb-2">
-                            <span className="text-gray-700">Trạng Thái</span>
-                            <select
-                                value={editingService.status}
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Thời Gian (phút)</label>
+                            <input
+                                type="number"
+                                min="1"
+                                value={editingService.duration}
                                 onChange={(e) =>
                                     setEditingService({
                                         ...editingService,
-                                        status: e.target.value,
+                                        duration: e.target.value,
                                     })
                                 }
-                                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
-                            >
-                                <option value="Hoạt Động">Hoạt Động</option>
-                                <option value="Không Hoạt Động">
-                                    Không Hoạt Động
-                                </option>
-                            </select>
-                        </label>
+                                className={`w-full p-2 border rounded-lg ${
+                                    formErrors.duration ? "border-red-500" : "border-gray-300"
+                                }`}
+                            />
+                            {formErrors.duration && (
+                                <p className="text-red-500 text-sm mt-1">{formErrors.duration}</p>
+                            )}
+                        </div>
 
-                        <label className="block mb-4">
-                            <span className="text-gray-700">Danh Mục</span>
-                            <select
-                                value={editingService.category}
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Số Buổi</label>
+                            <input
+                                type="number"
+                                min="1"
+                                value={editingService.session}
                                 onChange={(e) =>
                                     setEditingService({
                                         ...editingService,
-                                        category: e.target.value,
+                                        session: e.target.value,
                                     })
                                 }
-                                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                className={`w-full p-2 border rounded-lg ${
+                                    formErrors.session ? "border-red-500" : "border-gray-300"
+                                }`}
+                            />
+                            {formErrors.session && (
+                                <p className="text-red-500 text-sm mt-1">{formErrors.session}</p>
+                            )}
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Trạng Thái</label>
+                            <select
+                                value={editingService.active ? "true" : "false"}
+                                onChange={(e) =>
+                                    setEditingService({
+                                        ...editingService,
+                                        active: e.target.value === "true",
+                                    })
+                                }
+                                className="w-full p-2 border border-gray-300 rounded-lg"
                             >
-                                {categories
-                                    .filter((cat) => cat !== "Tất Cả")
-                                    .map((category) => (
-                                        <option key={category} value={category}>
-                                            {category}
-                                        </option>
-                                    ))}
+                                <option value="true">Hoạt Động</option>
+                                <option value="false">Không Hoạt Động</option>
                             </select>
-                        </label>
-                    </form>
-                </ManagementModal>
-            )}
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Danh Mục</label>
+                            <select
+                                value={editingService.serviceCategoryId}
+                                onChange={(e) =>
+                                    setEditingService({
+                                        ...editingService,
+                                        serviceCategoryId: parseInt(e.target.value),
+                                    })
+                                }
+                                className="w-full p-2 border border-gray-300 rounded-lg"
+                            >
+                                {categories.map((category) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </ManagementModal>
+                )}
+            </main>
         </div>
     );
 }

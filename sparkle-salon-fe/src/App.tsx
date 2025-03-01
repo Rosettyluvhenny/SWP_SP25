@@ -17,6 +17,8 @@ import Payment from "./pages/Payment";
 import RoomManagement from "./pages/RoomManagement";
 import PaymentManagement from "./pages/PaymentManagement";
 import CustomerProfile from "./pages/CustomerProfile";
+import ServiceCategoryManagement from "./pages/ServiceCategoryManagement";
+import ServiceInfoManagement from "./pages/ServiceInfoManagement";
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
         <Route path="/manager" element={<Manager />} />
         <Route path="/manager/user" element={<UserManagement />} />
         <Route path="/manager/service" element={<ServiceManagement />} />
+        <Route path="/manager/service-category" element={<ServiceCategoryManagement />} />
+        <Route path="/manager/service-info" element={<ServiceInfoManagement />} />
         <Route path="/manager/order" element={<OrderManagement />} />
         <Route path="/manager/report" element={<Report />} />
         <Route path="/manager/room" element={<RoomManagement />} />

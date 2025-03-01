@@ -6,11 +6,19 @@ import {
     FiDollarSign,
     FiBarChart2,
     FiMenu,
+    FiChevronDown,
+    FiChevronRight,
 } from "react-icons/fi";
 import { MdMeetingRoom, MdOutlinePayments } from "react-icons/md";
+import { FaLayerGroup, FaInfoCircle } from "react-icons/fa";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
+    const [serviceSubmenuOpen, setServiceSubmenuOpen] = useState(false);
+
+    const toggleServiceSubmenu = () => {
+        setServiceSubmenuOpen(!serviceSubmenuOpen);
+    };
 
     return (
         <aside
@@ -46,16 +54,43 @@ const Sidebar = () => {
                         </li>
                     </Link>
 
-                    {/* Service Management */}
-                    <Link
-                        to="/manager/service"
-                        className={`${isOpen ? "block" : "hidden"}`}
-                    >
-                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
-                            <FiShoppingCart />
-                            Quản Lý Dịch Vụ
-                        </li>
-                    </Link>
+                    {/* Service Management with Submenu */}
+                    <div className={`${isOpen ? "block" : "hidden"}`}>
+                        <div 
+                            className="flex items-center justify-between gap-2 p-2 hover:bg-gray-700 rounded-lg cursor-pointer"
+                            onClick={toggleServiceSubmenu}
+                        >
+                            <div className="flex items-center gap-2">
+                                <FiShoppingCart />
+                                Quản Lý Dịch Vụ
+                            </div>
+                            {serviceSubmenuOpen ? <FiChevronDown /> : <FiChevronRight />}
+                        </div>
+                        
+                        {/* Submenu */}
+                        {serviceSubmenuOpen && (
+                            <ul className="pl-6 mt-2 space-y-2">
+                                <Link to="/manager/service">
+                                    <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg text-sm">
+                                        <FiShoppingCart />
+                                        Dịch Vụ
+                                    </li>
+                                </Link>
+                                <Link to="/manager/service-category">
+                                    <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg text-sm">
+                                        <FaLayerGroup />
+                                        Danh Mục Dịch Vụ
+                                    </li>
+                                </Link>
+                                <Link to="/manager/service-info">
+                                    <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg text-sm">
+                                        <FaInfoCircle />
+                                        Thông Tin Dịch Vụ
+                                    </li>
+                                </Link>
+                            </ul>
+                        )}
+                    </div>
 
                     {/* Orders Management */}
                     <Link
