@@ -382,7 +382,98 @@ const servicesData: Service[] = [
         price: 250000,
         duration: "60 phút",
         popularity: 89000,
-        description: "Dịch vụ Điều Trị Sẹo Rỗ giúp kích thích tái tạo collagen, làm đầy sẹo và cải thiện kết cấu da.\n\n**Quy trình điều trị sẹo rỗ:**\n- Làm sạch da\n- Lăn kim hoặc vi kim\n- Thoa tinh chất tái tạo\n- Điện di phục hồi\n- Đắp mặt nạ dưỡng chất\n- Dưỡng ẩm và chống nắng"
+        description: `
+            <h1>Điều Trị Sẹo Rỗ</h1>
+            
+            <p>Dịch vụ <strong>Điều Trị Sẹo Rỗ</strong> tại Sparkle Salon giúp kích thích tái tạo collagen, làm đầy sẹo và cải thiện kết cấu da, mang lại làn da mịn màng và đều màu.</p>
+            
+            <div class="highlight-box">
+                <p>Liệu trình được thiết kế đặc biệt cho những làn da có sẹo rỗ do mụn, thủy đậu hoặc chấn thương, sử dụng công nghệ tiên tiến và an toàn.</p>
+            </div>
+            
+            <h2>Quy Trình Điều Trị Sẹo Rỗ</h2>
+            
+            <ul class="service-steps">
+                <li><strong>Làm Sạch Da</strong> - Loại bỏ bụi bẩn, dầu thừa và trang điểm với sản phẩm làm sạch chuyên biệt.</li>
+                <li><strong>Lăn Kim hoặc Vi Kim</strong> - Tạo các vi tổn thương nhỏ trên da để kích thích quá trình tái tạo collagen tự nhiên.</li>
+                <li><strong>Thoa Tinh Chất Tái Tạo</strong> - Sử dụng các tinh chất giàu peptide, yếu tố tăng trưởng và hyaluronic acid.</li>
+                <li><strong>Điện Di Phục Hồi</strong> - Đưa dưỡng chất sâu vào da bằng công nghệ điện di, tăng cường hiệu quả.</li>
+                <li><strong>Đắp Mặt Nạ Dưỡng Chất</strong> - Sử dụng mặt nạ chuyên biệt giúp làm dịu và phục hồi da.</li>
+                <li><strong>Dưỡng Ẩm và Chống Nắng</strong> - Bảo vệ da khỏi tác hại của tia UV và giữ ẩm cho da.</li>
+            </ul>
+            
+            <h2>Lợi Ích Của Liệu Trình</h2>
+            
+            <ul>
+                <li>Làm phẳng sẹo rỗ và cải thiện kết cấu da</li>
+                <li>Kích thích sản sinh collagen tự nhiên</li>
+                <li>Làm đều màu da và giảm thâm sẹo</li>
+                <li>Tăng cường độ đàn hồi và săn chắc</li>
+                <li>Cải thiện tổng thể làn da</li>
+                <li>Tăng cường sự tự tin với làn da mịn màng</li>
+            </ul>
+            
+            <h3>Công Nghệ Sử Dụng</h3>
+            
+            <p>Liệu trình của chúng tôi kết hợp các công nghệ hiện đại:</p>
+            
+            <ul>
+                <li><em>Lăn kim tế bào gốc</em> - Kích thích tái tạo collagen tự nhiên</li>
+                <li><em>Vi kim điện</em> - Tạo các kênh vi mô để đưa dưỡng chất vào sâu trong da</li>
+                <li><em>Công nghệ RF (sóng cao tần)</em> - Làm săn chắc da và cải thiện kết cấu</li>
+                <li><em>Laser phân đoạn</em> - Tái tạo bề mặt da và làm mờ sẹo</li>
+            </ul>
+            
+            <h2>Bảng Giá Dịch Vụ</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gói Dịch Vụ</th>
+                        <th>Thời Gian</th>
+                        <th>Giá (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Điều trị cơ bản (1 lần)</td>
+                        <td>60 phút</td>
+                        <td>250.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 5 lần</td>
+                        <td>60 phút/lần</td>
+                        <td>1.100.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 10 lần</td>
+                        <td>60 phút/lần</td>
+                        <td>2.200.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình cao cấp (kết hợp laser)</td>
+                        <td>90 phút</td>
+                        <td>500.000/lần</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Lưu Ý Sau Khi Điều Trị</h3>
+            <p>Để đạt hiệu quả tối ưu, khách hàng nên:</p>
+            <ol>
+                <li>Tránh chạm tay lên mặt trong 24 giờ sau điều trị</li>
+                <li>Sử dụng kem chống nắng SPF 50+ mỗi ngày</li>
+                <li>Tránh tiếp xúc trực tiếp với ánh nắng mặt trời</li>
+                <li>Không sử dụng các sản phẩm có cồn hoặc gây kích ứng trong 48 giờ</li>
+                <li>Duy trì chế độ dưỡng ẩm đầy đủ</li>
+                <li>Tránh trang điểm trong 24 giờ sau điều trị</li>
+            </ol>
+            
+            <blockquote>
+                "Sau nhiều năm bị sẹo rỗ do mụn, tôi đã thử liệu trình điều trị tại Sparkle Salon và thực sự ngạc nhiên với kết quả. Các vết sẹo đã phẳng hơn rất nhiều và làn da của tôi mịn màng hơn hẳn." - Khách hàng Hoàng Minh
+            </blockquote>
+        `,
+        category: "Điều Trị Da",
     },
     {
         id: 6,
@@ -391,7 +482,102 @@ const servicesData: Service[] = [
         price: 600000,
         duration: "90 phút",
         popularity: 65000,
-        description: "Dịch vụ Điều Trị Da Nhờn giúp kiểm soát bã nhờn, giảm bóng dầu và ngăn ngừa mụn hiệu quả.\n\n**Quy trình điều trị:**\n- Làm sạch da\n- Tẩy tế bào chết kiểm soát dầu\n- Xông hơi hút bã nhờn\n- Đắp mặt nạ kiềm dầu\n- Điện di tinh chất kiểm soát dầu\n- Dưỡng ẩm cân bằng da"
+        description: `
+            <h1>Điều Trị Da Nhờn</h1>
+            
+            <p>Dịch vụ <strong>Điều Trị Da Nhờn</strong> tại Sparkle Salon giúp kiểm soát bã nhờn, giảm bóng dầu và ngăn ngừa mụn hiệu quả, mang lại làn da mịn màng, sạch thoáng và khỏe mạnh.</p>
+            
+            <div class="highlight-box">
+                <p>Liệu trình được thiết kế đặc biệt cho làn da dầu, da hỗn hợp thiên dầu và da dễ bị mụn, sử dụng các thành phần cân bằng dầu tự nhiên và an toàn.</p>
+            </div>
+            
+            <h2>Quy Trình Điều Trị</h2>
+            
+            <ul class="service-steps">
+                <li><strong>Làm Sạch Da</strong> - Loại bỏ bụi bẩn, dầu thừa và trang điểm với sản phẩm làm sạch chuyên biệt cho da dầu.</li>
+                <li><strong>Tẩy Tế Bào Chết Kiểm Soát Dầu</strong> - Sử dụng tẩy tế bào chết chứa BHA (Salicylic Acid) giúp thông thoáng lỗ chân lông.</li>
+                <li><strong>Xông Hơi Hút Bã Nhờn</strong> - Mở lỗ chân lông và hút sạch bã nhờn tích tụ sâu bên trong.</li>
+                <li><strong>Đắp Mặt Nạ Kiềm Dầu</strong> - Sử dụng mặt nạ đất sét hoặc than hoạt tính giúp hút dầu thừa và se khít lỗ chân lông.</li>
+                <li><strong>Điện Di Tinh Chất Kiểm Soát Dầu</strong> - Đưa dưỡng chất cân bằng dầu sâu vào da bằng công nghệ điện di.</li>
+                <li><strong>Dưỡng Ẩm Cân Bằng Da</strong> - Sử dụng kem dưỡng ẩm không dầu, giúp cân bằng độ ẩm mà không gây bít tắc lỗ chân lông.</li>
+            </ul>
+            
+            <h2>Lợi Ích Của Liệu Trình</h2>
+            
+            <ul>
+                <li>Kiểm soát dầu nhờn hiệu quả</li>
+                <li>Giảm bóng dầu trên da</li>
+                <li>Ngăn ngừa mụn và viêm nhiễm</li>
+                <li>Thu nhỏ lỗ chân lông</li>
+                <li>Cân bằng độ ẩm cho da</li>
+                <li>Làm mịn và đều màu da</li>
+                <li>Tạo cảm giác thoáng nhẹ cho da</li>
+            </ul>
+            
+            <h3>Thành Phần Hoạt Chất</h3>
+            
+            <p>Liệu trình của chúng tôi sử dụng các hoạt chất hiệu quả:</p>
+            
+            <ul>
+                <li><em>Niacinamide</em> - Kiểm soát dầu và giảm viêm</li>
+                <li><em>Salicylic Acid</em> - Thông thoáng lỗ chân lông và ngăn ngừa mụn</li>
+                <li><em>Zinc PCA</em> - Điều tiết bã nhờn</li>
+                <li><em>Chiết xuất trà xanh</em> - Chống oxy hóa và kháng khuẩn</li>
+                <li><em>Đất sét Kaolin</em> - Hút dầu thừa và làm sạch sâu</li>
+                <li><em>Hyaluronic Acid</em> - Cấp ẩm không gây nhờn</li>
+            </ul>
+            
+            <h2>Bảng Giá Dịch Vụ</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gói Dịch Vụ</th>
+                        <th>Thời Gian</th>
+                        <th>Giá (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Điều trị cơ bản (1 lần)</td>
+                        <td>90 phút</td>
+                        <td>600.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 5 lần</td>
+                        <td>90 phút/lần</td>
+                        <td>2.800.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 10 lần</td>
+                        <td>90 phút/lần</td>
+                        <td>5.400.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình cao cấp (kết hợp công nghệ ánh sáng)</td>
+                        <td>120 phút</td>
+                        <td>900.000/lần</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Lưu Ý Sau Khi Điều Trị</h3>
+            <p>Để đạt hiệu quả tối ưu, khách hàng nên:</p>
+            <ol>
+                <li>Rửa mặt với sữa rửa mặt dành cho da dầu, không quá 2 lần/ngày</li>
+                <li>Sử dụng toner không cồn để cân bằng độ pH</li>
+                <li>Dùng kem dưỡng ẩm không dầu (oil-free)</li>
+                <li>Sử dụng kem chống nắng dạng gel hoặc không dầu</li>
+                <li>Tránh các thực phẩm cay nóng, nhiều dầu mỡ và đường</li>
+                <li>Uống đủ nước mỗi ngày</li>
+                <li>Thay vỏ gối thường xuyên</li>
+            </ol>
+            
+            <blockquote>
+                "Tôi đã phải vật lộn với làn da dầu và mụn trong nhiều năm. Sau khi thử liệu trình điều trị da nhờn tại Sparkle Salon, làn da của tôi đã cải thiện đáng kể. Da không còn bóng dầu vào giữa ngày và mụn cũng giảm hẳn." - Khách hàng Thùy Linh
+            </blockquote>
+        `,
+        category: "Điều Trị Da",
     },
     {
         id: 7,
