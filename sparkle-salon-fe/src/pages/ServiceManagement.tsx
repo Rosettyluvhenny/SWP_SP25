@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
 import { motion } from "framer-motion";
 import { FaEdit, FaTrash, FaSearch, FaPlus } from "react-icons/fa";
+import { getAllServices, getAllServiceCategories } from "../api/serviceApi";
+import { Service } from "../types/service.types";
+import { toast } from "react-toastify";
 
-type Service = {
+type ServiceTableItem = {
     id: number;
     name: string;
     price: string;
@@ -15,44 +18,47 @@ type Service = {
 export default function ServiceManagement() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("Tất Cả");
-    const [services, setServices] = useState<Service[]>([
-        {
-            id: 1,
-            name: "Nặn Mụn Chuyên Sâu",
-            price: "150.000",
-            status: "Hoạt Động",
-            category: "Chăm Sóc Da",
-        },
-        {
-            id: 2,
-            name: "Trị da dầu",
-            price: "250.000",
-            status: "Không Hoạt Động",
-            category: "Trị Liệu",
-        },
-        {
-            id: 3,
-            name: "Trị da sẹo rỗ",
-            price: "300.000",
-            status: "Hoạt Động",
-            category: "Trị Liệu",
-        },
-        {
-            id: 4,
-            name: "Thải Độc Da",
-            price: "180.000",
-            status: "Hoạt Động",
-            category: "Chăm Sóc Da",
-        },
-    ]);
+    const [services, setServices] = useState<ServiceTableItem[]>([]);
+    const [categories, setCategories] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const categories = ["Tất Cả", "Chăm Sóc Da", "Trị Liệu", "Dịch Vụ Khác"];
+    // Fetch services and categories from API
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setIsLoading(true);
+                
+                // Fetch services
+                const servicesData = await getAllServices();
+                const tableServices = servicesData.map((service: Service) => ({
+                    id: service.id,
+                    name: service.name,
+                    price: service.price.toLocaleString(),
+                    status: service.active ? "Hoạt Động" : "Không Hoạt Động",
+                    category: service.serviceCategory?.name || "Chưa phân loại",
+                }));
+                setServices(tableServices);
+                
+                // Fetch categories
+                const categoriesData = await getAllServiceCategories();
+                const categoryNames = ["Tất Cả", ...categoriesData.map(cat => cat.name)];
+                setCategories(categoryNames);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                toast.error("Không thể tải dữ liệu dịch vụ. Vui lòng thử lại sau.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        fetchData();
+    }, []);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingService, setEditingService] = useState<Service | null>(null);
+    const [editingService, setEditingService] = useState<ServiceTableItem | null>(null);
     const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
 
-    const openModal = (service: Service | null = null) => {
+    const openModal = (service: ServiceTableItem | null = null) => {
         setEditingService(
             service ?? {
                 id: services.length + 1,
@@ -113,14 +119,29 @@ export default function ServiceManagement() {
         }
     };
 
-    const filteredServices = services.filter(
-        (service) =>
-            service.name
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()) &&
-            (selectedCategory === "Tất Cả" ||
-                service.category === selectedCategory)
-    );
+    // Filter services based on search term and selected category
+    const filteredServices = services.filter((service) => {
+        const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = selectedCategory === "Tất Cả" || service.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+    });
+
+    // Add a loading message at the top of the component if data is loading
+    if (isLoading) {
+        return (
+            <div className="flex h-screen bg-white">
+                <Sidebar />
+                <main className="flex-1 p-6 overflow-auto">
+                    <div className="flex justify-center items-center h-full">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto"></div>
+                            <p className="mt-4 text-gray-600">Đang tải dữ liệu...</p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen bg-white">
@@ -137,219 +158,241 @@ export default function ServiceManagement() {
                     </h1>
                     <motion.button
                         onClick={() => openModal(null)}
-                        className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2"
+                        className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg flex items-center"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
-                        <FaPlus /> Thêm Dịch Vụ
+                        <FaPlus className="mr-2" /> Thêm Dịch Vụ
                     </motion.button>
                 </motion.div>
 
-                {/* Search & Filter Section */}
-                <motion.div 
-                    className="mb-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-pink-100 p-4 rounded-lg shadow"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.5 }}
+                {/* Search and Filter Section */}
+                <motion.div
+                    className="mb-6 bg-white p-4 rounded-lg shadow-md"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
                 >
-                    <div className="w-full md:w-1/2 relative">
-                        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Tìm kiếm dịch vụ..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                        />
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="flex-1 relative">
+                            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Tìm kiếm dịch vụ..."
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <select
+                            className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 md:w-48"
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                        >
+                            {categories.map((category) => (
+                                <option key={category} value={category}>
+                                    {category}
+                                </option>
+                            ))}
+                        </select>
                     </div>
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="w-full md:w-auto p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
-                    >
-                        {categories.map((category) => (
-                            <option key={category} value={category}>
-                                {category}
-                            </option>
-                        ))}
-                    </select>
                 </motion.div>
 
                 {/* Services Table */}
-                <motion.div 
-                    className="bg-pink-100 shadow-lg rounded-lg p-6"
+                <motion.div
+                    className="bg-white rounded-lg shadow-md overflow-hidden"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.5 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                    <h2 className="text-xl font-semibold mb-4">
-                        Danh Sách Dịch Vụ
-                    </h2>
-                    <div className="overflow-x-auto">
-                        <table className="w-full border-collapse rounded-lg overflow-hidden">
-                            <thead>
-                                <tr className="bg-white text-black">
-                                    <th className="p-3 text-left">ID</th>
-                                    <th className="p-3 text-left">Tên Dịch Vụ</th>
-                                    <th className="p-3 text-left">Giá (VND)</th>
-                                    <th className="p-3 text-left">Trạng Thái</th>
-                                    <th className="p-3 text-left">Danh Mục</th>
-                                    <th className="p-3 text-left">Hành Động</th>
+                    {isLoading ? (
+                        <div className="p-6 text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto"></div>
+                            <p className="mt-4 text-gray-600">Đang tải dữ liệu...</p>
+                        </div>
+                    ) : (
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        ID
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tên Dịch Vụ
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Giá
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng Thái
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Danh Mục
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Thao Tác
+                                    </th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white">
+                            <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredServices.length > 0 ? (
                                     filteredServices.map((service) => (
-                                        <motion.tr 
-                                            key={service.id} 
-                                            className="border-t hover:bg-pink-50 transition-colors"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ duration: 0.3 }}
+                                        <tr
+                                            key={service.id}
+                                            className="hover:bg-gray-50"
                                         >
-                                            <td className="p-3">{service.id}</td>
-                                            <td className="p-3 font-medium">{service.name}</td>
-                                            <td className="p-3">{service.price}</td>
-                                            <td className="p-3">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                    service.status === "Hoạt Động"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-yellow-100 text-yellow-800"
-                                                }`}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {service.id}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {service.name}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {service.price} vnđ
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span
+                                                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                                        service.status ===
+                                                        "Hoạt Động"
+                                                            ? "bg-green-100 text-green-800"
+                                                            : "bg-red-100 text-red-800"
+                                                    }`}
+                                                >
                                                     {service.status}
                                                 </span>
                                             </td>
-                                            <td className="p-3">
+                                            <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="bg-pink-100 text-pink-800 px-2 py-1 rounded-full text-xs">
                                                     {service.category}
                                                 </span>
                                             </td>
-                                            <td className="p-3 flex space-x-2">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <motion.button
                                                     onClick={() => openModal(service)}
-                                                    className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
+                                                    className="text-indigo-600 hover:text-indigo-900 mr-4"
                                                     whileHover={{ scale: 1.05 }}
                                                     whileTap={{ scale: 0.95 }}
                                                 >
-                                                    <FaEdit size={14} /> Sửa
+                                                    <FaEdit size={16} />
                                                 </motion.button>
                                                 <motion.button
                                                     onClick={() => handleDelete(service.id)}
-                                                    className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
+                                                    className="text-red-600 hover:text-red-900"
                                                     whileHover={{ scale: 1.05 }}
                                                     whileTap={{ scale: 0.95 }}
                                                 >
-                                                    <FaTrash size={14} /> Xóa
+                                                    <FaTrash size={16} />
                                                 </motion.button>
                                             </td>
-                                        </motion.tr>
+                                        </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={6} className="p-4 text-center text-gray-500">
+                                        <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
                                             Không tìm thấy dịch vụ nào
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
-                    </div>
+                    )}
                 </motion.div>
+
+                {/* Modal for Adding/Editing Services */}
+                {isModalOpen && editingService && (
+                    <ManagementModal 
+                        isOpen={isModalOpen} 
+                        onClose={closeModal}
+                        onSubmit={handleSave}
+                        title={editingService.id ? "Chỉnh Sửa Dịch Vụ" : "Thêm Dịch Vụ"}
+                    >
+                        <form onSubmit={handleSave}>
+                            <label className="block mb-2">
+                                <span className="text-gray-700">Tên Dịch Vụ</span>
+                                <input
+                                    type="text"
+                                    value={editingService.name}
+                                    onChange={(e) =>
+                                        setEditingService({
+                                            ...editingService,
+                                            name: e.target.value,
+                                        })
+                                    }
+                                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
+                                        formErrors.name ? 'border-red-500' : ''
+                                    }`}
+                                />
+                                {formErrors.name && (
+                                    <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
+                                )}
+                            </label>
+
+                            <label className="block mb-2">
+                                <span className="text-gray-700">Giá (VND)</span>
+                                <input
+                                    type="text"
+                                    value={editingService.price}
+                                    onChange={(e) =>
+                                        setEditingService({
+                                            ...editingService,
+                                            price: e.target.value,
+                                        })
+                                    }
+                                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
+                                        formErrors.price ? 'border-red-500' : ''
+                                    }`}
+                                    placeholder="150.000"
+                                />
+                                {formErrors.price && (
+                                    <p className="text-red-500 text-sm mt-1">{formErrors.price}</p>
+                                )}
+                            </label>
+
+                            <label className="block mb-2">
+                                <span className="text-gray-700">Trạng Thái</span>
+                                <select
+                                    value={editingService.status}
+                                    onChange={(e) =>
+                                        setEditingService({
+                                            ...editingService,
+                                            status: e.target.value,
+                                        })
+                                    }
+                                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                >
+                                    <option value="Hoạt Động">Hoạt Động</option>
+                                    <option value="Không Hoạt Động">
+                                        Không Hoạt Động
+                                    </option>
+                                </select>
+                            </label>
+
+                            <label className="block mb-4">
+                                <span className="text-gray-700">Danh Mục</span>
+                                <select
+                                    value={editingService.category}
+                                    onChange={(e) =>
+                                        setEditingService({
+                                            ...editingService,
+                                            category: e.target.value,
+                                        })
+                                    }
+                                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                >
+                                    {categories
+                                        .filter((cat) => cat !== "Tất Cả")
+                                        .map((category) => (
+                                            <option key={category} value={category}>
+                                                {category}
+                                            </option>
+                                        ))}
+                                </select>
+                            </label>
+                        </form>
+                    </ManagementModal>
+                )}
             </main>
-
-            {/* Modal for Adding/Editing Services */}
-            {isModalOpen && editingService && (
-                <ManagementModal 
-                    isOpen={isModalOpen} 
-                    onClose={closeModal}
-                    onSubmit={handleSave}
-                    title={editingService.id ? "Chỉnh Sửa Dịch Vụ" : "Thêm Dịch Vụ"}
-                >
-                    <form onSubmit={handleSave}>
-                        <label className="block mb-2">
-                            <span className="text-gray-700">Tên Dịch Vụ</span>
-                            <input
-                                type="text"
-                                value={editingService.name}
-                                onChange={(e) =>
-                                    setEditingService({
-                                        ...editingService,
-                                        name: e.target.value,
-                                    })
-                                }
-                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                                    formErrors.name ? 'border-red-500' : ''
-                                }`}
-                            />
-                            {formErrors.name && (
-                                <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
-                            )}
-                        </label>
-
-                        <label className="block mb-2">
-                            <span className="text-gray-700">Giá (VND)</span>
-                            <input
-                                type="text"
-                                value={editingService.price}
-                                onChange={(e) =>
-                                    setEditingService({
-                                        ...editingService,
-                                        price: e.target.value,
-                                    })
-                                }
-                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                                    formErrors.price ? 'border-red-500' : ''
-                                }`}
-                                placeholder="150.000"
-                            />
-                            {formErrors.price && (
-                                <p className="text-red-500 text-sm mt-1">{formErrors.price}</p>
-                            )}
-                        </label>
-
-                        <label className="block mb-2">
-                            <span className="text-gray-700">Trạng Thái</span>
-                            <select
-                                value={editingService.status}
-                                onChange={(e) =>
-                                    setEditingService({
-                                        ...editingService,
-                                        status: e.target.value,
-                                    })
-                                }
-                                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
-                            >
-                                <option value="Hoạt Động">Hoạt Động</option>
-                                <option value="Không Hoạt Động">
-                                    Không Hoạt Động
-                                </option>
-                            </select>
-                        </label>
-
-                        <label className="block mb-4">
-                            <span className="text-gray-700">Danh Mục</span>
-                            <select
-                                value={editingService.category}
-                                onChange={(e) =>
-                                    setEditingService({
-                                        ...editingService,
-                                        category: e.target.value,
-                                    })
-                                }
-                                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
-                            >
-                                {categories
-                                    .filter((cat) => cat !== "Tất Cả")
-                                    .map((category) => (
-                                        <option key={category} value={category}>
-                                            {category}
-                                        </option>
-                                    ))}
-                            </select>
-                        </label>
-                    </form>
-                </ManagementModal>
-            )}
         </div>
     );
 }

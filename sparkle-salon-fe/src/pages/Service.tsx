@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { Service } from "../data/servicesData";
-import servicesData from "../data/servicesData";
+import { FrontendService, mapServiceToFrontendService } from "../types/service.types";
+import { getAllServices, getAllServiceCategories } from "../api/serviceApi";
 import SearchBar from "../components/SearchBar";
 import SortButtons from "../components/SortButton";
 import Pagination from "../components/Pagination";
 import ServiceList from "../components/ServiceList";
 import { debounce } from 'lodash';
+import { toast } from "react-toastify";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -16,15 +17,50 @@ export default function Service() {
     const searchTermParam = searchParams.get("search") || "";
     const sortByParam = searchParams.get("sort") || "";
     const pageParam = Number(searchParams.get("page")) || 1;
+    const categoryParam = searchParams.get("category") || "all";
 
     const [searchTerm, setSearchTerm] = useState<string>(searchTermParam);
     const [sortBy, setSortBy] = useState<string>(sortByParam);
     const [currentPage, setCurrentPage] = useState<number>(pageParam);
-    const [isLoading, setIsLoading] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<string>(categoryParam);
+    const [isLoading, setIsLoading] = useState(true);
+    const [services, setServices] = useState<FrontendService[]>([]);
+    const [categories, setCategories] = useState<string[]>([]);
+
+    // Fetch services and categories from API
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setIsLoading(true);
+                
+                // Fetch services
+                const servicesData = await getAllServices();
+                const frontendServices = servicesData.map(mapServiceToFrontendService);
+                setServices(frontendServices);
+                
+                // Fetch categories
+                const categoriesData = await getAllServiceCategories();
+                const categoryNames = categoriesData.map(cat => cat.name);
+                setCategories(categoryNames);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                toast.error("Không thể tải dữ liệu dịch vụ. Vui lòng thử lại sau.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        fetchData();
+    }, []);
 
     useEffect(() => {
-        setSearchParams({ search: searchTerm, sort: sortBy, page: currentPage.toString() });
-    }, [searchTerm, sortBy, currentPage, setSearchParams]);
+        setSearchParams({ 
+            search: searchTerm, 
+            sort: sortBy, 
+            page: currentPage.toString(),
+            category: selectedCategory
+        });
+    }, [searchTerm, sortBy, currentPage, selectedCategory, setSearchParams]);
 
     const debouncedSearch = debounce((term: string) => {
         setSearchTerm(term);
@@ -33,16 +69,25 @@ export default function Service() {
         setTimeout(() => setIsLoading(false), 300);
     }, 300);
 
-    const filteredServices = servicesData
-        .filter((service: Service) => {
+    const handleCategoryChange = (category: string) => {
+        setSelectedCategory(category);
+        setCurrentPage(1);
+    };
+
+    const filteredServices = services
+        .filter((service: FrontendService) => {
             const searchLower = searchTerm.toLowerCase();
+            const categoryMatch = selectedCategory === "all" || service.category === selectedCategory;
+            
             return (
-                service.name.toLowerCase().includes(searchLower) ||
-                (service.category?.toLowerCase().includes(searchLower)) ||
-                (service.description?.toLowerCase().includes(searchLower))
+                categoryMatch && (
+                    service.name.toLowerCase().includes(searchLower) ||
+                    (service.category?.toLowerCase().includes(searchLower)) ||
+                    (service.description?.toLowerCase().includes(searchLower))
+                )
             );
         })
-        .sort((a: Service, b: Service) => {
+        .sort((a: FrontendService, b: FrontendService) => {
             switch (sortBy) {
                 case "newest":
                     return b.id - a.id;
@@ -76,17 +121,45 @@ export default function Service() {
             {/* Search & Filter Section */}
             <div className="max-w-6xl mx-auto px-4">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg shadow-md -mt-8 relative z-20">
-                    <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
-                    <SearchBar 
-                        searchTerm={searchTerm} 
-                        setSearchTerm={debouncedSearch}
-                        isLoading={isLoading}
-                    />
+                    <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                        <button 
+                            onClick={() => handleCategoryChange("all")}
+                            className={`px-3 py-1 rounded-full text-sm ${
+                                selectedCategory === "all" 
+                                ? "bg-pink-500 text-white" 
+                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            }`}
+                        >
+                            All
+                        </button>
+                        {categories.map(category => (
+                            <button 
+                                key={category}
+                                onClick={() => handleCategoryChange(category)}
+                                className={`px-3 py-1 rounded-full text-sm ${
+                                    selectedCategory === category 
+                                    ? "bg-pink-500 text-white" 
+                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                }`}
+                            >
+                                {category}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-4 w-full md:w-auto">
+                        <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
+                        <SearchBar 
+                            searchTerm={searchTerm} 
+                            setSearchTerm={debouncedSearch}
+                            isLoading={isLoading}
+                        />
+                    </div>
                 </div>
 
                 {/* Results Summary */}
                 <div className="mt-4 text-gray-600 px-4">
                     Found {filteredServices.length} services
+                    {selectedCategory !== "all" && ` in ${selectedCategory}`}
                 </div>
 
                 {/* Services List */}
