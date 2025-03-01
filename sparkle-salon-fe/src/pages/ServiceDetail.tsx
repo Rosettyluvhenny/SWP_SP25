@@ -1,9 +1,9 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Service, FrontendService, mapServiceToFrontendService } from "../types/service.types";
 import { getServiceById } from "../api/serviceApi";
 import { feedbacksData } from "../data/feedbacksData";
-import { FaClock, FaMoneyBill, FaShare, FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaClock, FaMoneyBill, FaShare, FaHeart, FaRegHeart, FaSync } from "react-icons/fa";
 import FeedbackForm from "../components/FeedbackForm";
 import FeedbackList from "../components/FeedbackList";
 import { motion } from "framer-motion";
@@ -27,34 +27,42 @@ export default function ServiceDetail() {
     const [error, setError] = useState<string | null>(null);
     const [feedbacks, setFeedbacks] = useState<Feedback[]>(feedbacksData);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [isRetrying, setIsRetrying] = useState(false);
+
+    const fetchService = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            setIsRetrying(false);
+            
+            if (!id) {
+                setError("Service ID is missing");
+                return;
+            }
+            
+            // Fetch service from API
+            const serviceData = await getServiceById(parseInt(id));
+            setService(serviceData);
+            
+            // Convert to frontend service format for compatibility
+            setFrontendService(mapServiceToFrontendService(serviceData));
+            setError(null);
+        } catch (err) {
+            console.error("Error fetching service:", err);
+            setError("Failed to load service details");
+            toast.error("Không thể tải thông tin dịch vụ. Vui lòng thử lại sau.");
+        } finally {
+            setTimeout(() => setIsLoading(false), 500);
+        }
+    }, [id]);
 
     useEffect(() => {
-        const fetchService = async () => {
-            try {
-                setIsLoading(true);
-                if (!id) {
-                    setError("Service ID is missing");
-                    return;
-                }
-                
-                // Fetch service from API
-                const serviceData = await getServiceById(parseInt(id));
-                setService(serviceData);
-                
-                // Convert to frontend service format for compatibility
-                setFrontendService(mapServiceToFrontendService(serviceData));
-                setError(null);
-            } catch (err) {
-                console.error("Error fetching service:", err);
-                setError("Failed to load service details");
-                toast.error("Không thể tải thông tin dịch vụ. Vui lòng thử lại sau.");
-            } finally {
-                setTimeout(() => setIsLoading(false), 500);
-            }
-        };
-
         fetchService();
-    }, [id]);
+    }, [fetchService]);
+
+    const handleRetry = () => {
+        setIsRetrying(true);
+        fetchService();
+    };
 
     const handleBooking = () => {
         if (frontendService) {
@@ -121,12 +129,22 @@ export default function ServiceDetail() {
                     {error || "Service not found"}
                 </h2>
                 <p className="mb-6">The service you're looking for could not be found.</p>
-                <button
-                    className="bg-pink-500 text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-colors"
-                    onClick={() => navigate("/service")}
-                >
-                    Back to Services
-                </button>
+                <div className="flex justify-center gap-4">
+                    <button
+                        className="bg-pink-500 text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-colors"
+                        onClick={() => navigate("/service")}
+                    >
+                        Back to Services
+                    </button>
+                    <button
+                        className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center"
+                        onClick={handleRetry}
+                        disabled={isRetrying}
+                    >
+                        <FaSync className={`mr-2 ${isRetrying ? 'animate-spin' : ''}`} />
+                        Try Again
+                    </button>
+                </div>
             </div>
         );
     }
@@ -168,6 +186,10 @@ export default function ServiceDetail() {
                             src={imageUrl} 
                             alt={displayName}
                             className="w-full h-auto object-cover rounded-xl"
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "/placeholder.jpg";
+                            }}
                         />
                         <div className="absolute top-4 right-4 z-10">
                             <button 
@@ -250,6 +272,10 @@ export default function ServiceDetail() {
                                             src={service.serviceInfo.desImgUrl} 
                                             alt="Description illustration" 
                                             className="mt-6 rounded-lg w-full max-w-2xl mx-auto"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.src = "/placeholder.jpg";
+                                            }}
                                         />
                                     )}
                                 </div>
@@ -265,6 +291,10 @@ export default function ServiceDetail() {
                                                 src={service.serviceInfo.techImgUrl} 
                                                 alt="Technology illustration" 
                                                 className="mt-6 rounded-lg w-full max-w-2xl mx-auto"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = "/placeholder.jpg";
+                                                }}
                                             />
                                         )}
                                     </div>
@@ -281,6 +311,10 @@ export default function ServiceDetail() {
                                                 src={service.serviceInfo.mechaImgUrl} 
                                                 alt="Mechanism illustration" 
                                                 className="mt-6 rounded-lg w-full max-w-2xl mx-auto"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = "/placeholder.jpg";
+                                                }}
                                             />
                                         )}
                                     </div>
@@ -309,7 +343,7 @@ export default function ServiceDetail() {
                                 <h3 className="text-xl font-semibold text-pink-600 mb-4">Chia Sẻ Trải Nghiệm Của Bạn</h3>
                                 <FeedbackForm 
                                     onSubmit={(feedback) => {
-                                        setFeedbacks([...feedbacks, feedback]);
+                                        setFeedbacks([feedback, ...feedbacks]);
                                         toast.success("Cảm ơn bạn đã gửi đánh giá!");
                                     }} 
                                 />
