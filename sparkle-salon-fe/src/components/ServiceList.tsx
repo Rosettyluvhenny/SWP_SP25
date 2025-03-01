@@ -1,17 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ServiceCard from "./ServiceCard";
 import { AiFillFrown } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Service } from "../types/service";
+
+interface Service {
+    id: number;
+    name: string;
+    img: string;
+    price: number;
+    duration: string;
+    popularity: number;
+    category?: string;
+    description?: string;
+}
 
 interface ServiceListProps {
     services: Service[];
-    isLoading: boolean;
 }
 
-const ServiceList: React.FC<ServiceListProps> = ({ services, isLoading }) => {
+const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        setIsLoading(true);
+        setTimeout(() => setIsLoading(false), 500);
+    }, [services]);
 
     const handleSelectService = (serviceName: string) => {
         navigate("/contact", { state: { selectedService: serviceName } });
@@ -35,7 +50,7 @@ const ServiceList: React.FC<ServiceListProps> = ({ services, isLoading }) => {
     if (isLoading) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-6">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
+                {[1, 2, 3].map((i) => (
                     <div key={i} className="animate-pulse">
                         <div className="bg-gray-200 h-64 rounded-xl mb-4"></div>
                         <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>

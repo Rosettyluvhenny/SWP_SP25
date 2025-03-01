@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { Service } from "../types/service";
+import type { Service } from "../data/servicesData";
+import servicesData from "../data/servicesData";
 import SearchBar from "../components/SearchBar";
 import SortButtons from "../components/SortButton";
 import Pagination from "../components/Pagination";
 import ServiceList from "../components/ServiceList";
 import { debounce } from 'lodash';
-import { servicesApi } from "../api";
-import { adaptServicesToFrontend } from "../utils/serviceAdapter";
-import { toast } from "react-toastify";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -22,48 +20,7 @@ export default function Service() {
     const [searchTerm, setSearchTerm] = useState<string>(searchTermParam);
     const [sortBy, setSortBy] = useState<string>(sortByParam);
     const [currentPage, setCurrentPage] = useState<number>(pageParam);
-    const [isLoading, setIsLoading] = useState(true);
-    const [services, setServices] = useState<Service[]>([]);
-    const [error, setError] = useState<string | null>(null);
-
-    // Fetch services from API
-    useEffect(() => {
-        const fetchServices = async () => {
-            try {
-                setIsLoading(true);
-                console.log("Fetching services from API...");
-                const apiServices = await servicesApi.getAll();
-                console.log("API response:", apiServices);
-                
-                if (!apiServices || apiServices.length === 0) {
-                    console.warn("API returned empty services array");
-                    setServices([]);
-                    setError("Không có dịch vụ nào trong cơ sở dữ liệu. Vui lòng thêm dịch vụ trước.");
-                    toast.warning("Không có dịch vụ nào trong cơ sở dữ liệu");
-                } else {
-                    const adaptedServices = adaptServicesToFrontend(apiServices);
-                    console.log("Adapted services:", adaptedServices);
-                    setServices(adaptedServices);
-                    setError(null);
-                }
-            } catch (err) {
-                console.error("Error fetching services:", err);
-                setServices([]);
-                
-                if (err instanceof Error) {
-                    setError(`Không thể tải dữ liệu dịch vụ: ${err.message}`);
-                    toast.error(`Không thể tải dữ liệu dịch vụ: ${err.message}`);
-                } else {
-                    setError("Không thể tải dữ liệu dịch vụ. Vui lòng thử lại sau.");
-                    toast.error("Không thể tải dữ liệu dịch vụ");
-                }
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchServices();
-    }, []);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setSearchParams({ search: searchTerm, sort: sortBy, page: currentPage.toString() });
@@ -72,9 +29,11 @@ export default function Service() {
     const debouncedSearch = debounce((term: string) => {
         setSearchTerm(term);
         setCurrentPage(1); 
+        setIsLoading(true);
+        setTimeout(() => setIsLoading(false), 300);
     }, 300);
 
-    const filteredServices = services
+    const filteredServices = servicesData
         .filter((service: Service) => {
             const searchLower = searchTerm.toLowerCase();
             return (
@@ -130,15 +89,8 @@ export default function Service() {
                     Found {filteredServices.length} services
                 </div>
 
-                {/* Error Message */}
-                {error && (
-                    <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
-                        {error}
-                    </div>
-                )}
-
                 {/* Services List */}
-                <ServiceList services={paginatedServices} isLoading={isLoading} />
+                <ServiceList services={paginatedServices} />
                 <Pagination
                     totalPages={totalPages}
                     currentPage={currentPage}
