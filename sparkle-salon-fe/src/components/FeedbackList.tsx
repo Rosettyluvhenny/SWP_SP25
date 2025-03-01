@@ -27,7 +27,7 @@ const FeedbackList: React.FC<FeedbackListProps> = ({ feedbacks }) => {
     const averageRating = feedbacks.reduce((acc, curr) => acc + curr.rating, 0) / feedbacks.length;
     
     // Count ratings by star
-    const ratingCounts = [0, 0, 0, 0, 0]; // 5 stars, 4 stars, 3 stars, 2 stars, 1 star
+    const ratingCounts = [0, 0, 0, 0, 0]; 
     feedbacks.forEach(feedback => {
         if (feedback.rating >= 1 && feedback.rating <= 5) {
             ratingCounts[5 - feedback.rating]++;

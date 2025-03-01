@@ -195,7 +195,91 @@ const servicesData: Service[] = [
         price: 550000,
         duration: "45 phút",
         popularity: 97050,
-        description: "Dịch vụ Điều Trị Nám Da sử dụng công nghệ tiên tiến để làm mờ các đốm nám, ngăn ngừa sắc tố melanin và tái tạo làn da đều màu. \n\n**Quy trình điều trị nám:**\n- Làm sạch da\n- Peel da nhẹ loại bỏ tế bào sừng\n- Thoa tinh chất đặc trị nám\n- Điện di tinh chất\n- Đắp mặt nạ phục hồi\n- Dưỡng ẩm và chống nắng"
+        description: `
+            <h1>Điều Trị Nám Da</h1>
+            
+            <p>Dịch vụ <strong>Điều Trị Nám Da</strong> tại Sparkle Salon sử dụng công nghệ tiên tiến để làm mờ các đốm nám, ngăn ngừa sắc tố melanin và tái tạo làn da đều màu.</p>
+            
+            <div class="highlight-box">
+                <p>Phù hợp với mọi loại da, đặc biệt là những làn da đang gặp vấn đề về nám, tàn nhang và sạm màu do tác động của môi trường và nội tiết tố.</p>
+            </div>
+            
+            <h2>Quy Trình Điều Trị Nám</h2>
+            
+            <ul class="service-steps">
+                <li><strong>Làm Sạch Da</strong> - Sử dụng sản phẩm làm sạch chuyên biệt, loại bỏ bụi bẩn và tế bào chết.</li>
+                <li><strong>Peel Da Nhẹ</strong> - Loại bỏ tế bào sừng, giúp da sáng mịn và thông thoáng.</li>
+                <li><strong>Thoa Tinh Chất Đặc Trị Nám</strong> - Sử dụng các tinh chất chứa thành phần ức chế melanin.</li>
+                <li><strong>Điện Di Tinh Chất</strong> - Đưa dưỡng chất sâu vào da bằng công nghệ điện di.</li>
+                <li><strong>Đắp Mặt Nạ Phục Hồi</strong> - Làm dịu và cấp ẩm cho da sau điều trị.</li>
+                <li><strong>Dưỡng Ẩm và Chống Nắng</strong> - Bảo vệ da khỏi tác hại của tia UV.</li>
+            </ul>
+            
+            <h2>Lợi Ích Của Liệu Trình</h2>
+            
+            <ul>
+                <li>Làm mờ đốm nám và tàn nhang</li>
+                <li>Ngăn ngừa sự hình thành sắc tố melanin</li>
+                <li>Làm đều màu da</li>
+                <li>Tăng cường độ sáng cho da</li>
+                <li>Cải thiện kết cấu da</li>
+                <li>Bảo vệ da khỏi tác hại của môi trường</li>
+            </ul>
+            
+            <h3>Công Nghệ Sử Dụng</h3>
+            
+            <p>Liệu trình của chúng tôi kết hợp các công nghệ hiện đại:</p>
+            
+            <ul>
+                <li><em>Công nghệ Nano</em> - Giúp các phân tử dưỡng chất thẩm thấu sâu vào da</li>
+                <li><em>Ánh sáng sinh học</em> - Kích thích tái tạo tế bào da</li>
+                <li><em>Điện di ion</em> - Đưa dưỡng chất vào sâu trong da</li>
+            </ul>
+            
+            <h2>Bảng Giá Dịch Vụ</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gói Dịch Vụ</th>
+                        <th>Thời Gian</th>
+                        <th>Giá (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Điều trị cơ bản (1 lần)</td>
+                        <td>45 phút</td>
+                        <td>550.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 5 lần</td>
+                        <td>45 phút/lần</td>
+                        <td>2.500.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 10 lần</td>
+                        <td>45 phút/lần</td>
+                        <td>4.800.000</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Lưu Ý Sau Khi Điều Trị</h3>
+            <p>Để đạt hiệu quả tối ưu, khách hàng nên:</p>
+            <ol>
+                <li>Sử dụng kem chống nắng SPF 50+ mỗi ngày</li>
+                <li>Tránh tiếp xúc trực tiếp với ánh nắng mặt trời</li>
+                <li>Duy trì chế độ dưỡng ẩm đầy đủ</li>
+                <li>Tránh sử dụng các sản phẩm có cồn hoặc gây kích ứng</li>
+                <li>Uống đủ nước và bổ sung vitamin E</li>
+            </ol>
+            
+            <blockquote>
+                "Sau khi trải qua liệu trình điều trị nám tại Sparkle Salon, làn da của tôi đã cải thiện rõ rệt. Các đốm nám mờ dần và da sáng đều màu hơn. Tôi rất hài lòng với kết quả!" - Khách hàng Thanh Thảo
+            </blockquote>
+        `,
+        category: "Điều Trị Da",
     },
     {
         id: 4,
@@ -204,7 +288,92 @@ const servicesData: Service[] = [
         price: 300000,
         duration: "45 phút",
         popularity: 50000,
-        description: "Dịch vụ Điều Trị Tàn Nhang giúp giảm sắc tố, làm sáng vùng da sạm màu và ngăn ngừa tàn nhang lan rộng.\n\n**Quy trình điều trị:**\n- Làm sạch da\n- Thoa tinh chất ức chế melanin\n- Điện di tinh chất\n- Đắp mặt nạ làm sáng da\n- Dưỡng ẩm và chống nắng"
+        description: `
+            <h1>Điều Trị Tàn Nhang</h1>
+            
+            <p>Dịch vụ <strong>Điều Trị Tàn Nhang</strong> tại Sparkle Salon giúp giảm sắc tố, làm sáng vùng da sạm màu và ngăn ngừa tàn nhang lan rộng, mang lại làn da đều màu và rạng rỡ.</p>
+            
+            <div class="highlight-box">
+                <p>Liệu trình được thiết kế đặc biệt cho những làn da có tàn nhang, đốm nâu và không đều màu, sử dụng các thành phần an toàn và hiệu quả.</p>
+            </div>
+            
+            <h2>Quy Trình Điều Trị</h2>
+            
+            <ul class="service-steps">
+                <li><strong>Làm Sạch Da</strong> - Loại bỏ bụi bẩn, dầu thừa và trang điểm với sản phẩm làm sạch dịu nhẹ.</li>
+                <li><strong>Thoa Tinh Chất Ức Chế Melanin</strong> - Sử dụng các tinh chất chứa Vitamin C, Arbutin hoặc Kojic Acid để ức chế sản sinh melanin.</li>
+                <li><strong>Điện Di Tinh Chất</strong> - Đưa dưỡng chất sâu vào da bằng công nghệ điện di, tăng cường hiệu quả.</li>
+                <li><strong>Đắp Mặt Nạ Làm Sáng Da</strong> - Sử dụng mặt nạ chuyên biệt giúp làm sáng và đều màu da.</li>
+                <li><strong>Dưỡng Ẩm và Chống Nắng</strong> - Bảo vệ da khỏi tác hại của tia UV và giữ ẩm cho da.</li>
+            </ul>
+            
+            <h2>Lợi Ích Của Liệu Trình</h2>
+            
+            <ul>
+                <li>Làm mờ tàn nhang và đốm nâu</li>
+                <li>Làm sáng và đều màu da</li>
+                <li>Ngăn ngừa sự hình thành tàn nhang mới</li>
+                <li>Cải thiện kết cấu da</li>
+                <li>Tăng cường độ ẩm và độ đàn hồi</li>
+                <li>Bảo vệ da khỏi tác hại của môi trường</li>
+            </ul>
+            
+            <h3>Thành Phần Hoạt Chất</h3>
+            
+            <p>Liệu trình của chúng tôi sử dụng các hoạt chất hiệu quả:</p>
+            
+            <ul>
+                <li><em>Vitamin C</em> - Chống oxy hóa và làm sáng da</li>
+                <li><em>Arbutin</em> - Ức chế enzyme tyrosinase, giảm sản sinh melanin</li>
+                <li><em>Niacinamide</em> - Làm đều màu da và giảm viêm</li>
+                <li><em>Chiết xuất cam thảo</em> - Làm sáng da tự nhiên</li>
+                <li><em>Alpha Arbutin</em> - Làm mờ đốm nâu hiệu quả</li>
+            </ul>
+            
+            <h2>Bảng Giá Dịch Vụ</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gói Dịch Vụ</th>
+                        <th>Thời Gian</th>
+                        <th>Giá (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Điều trị cơ bản (1 lần)</td>
+                        <td>45 phút</td>
+                        <td>300.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 5 lần</td>
+                        <td>45 phút/lần</td>
+                        <td>1.400.000</td>
+                    </tr>
+                    <tr>
+                        <td>Liệu trình 10 lần</td>
+                        <td>45 phút/lần</td>
+                        <td>2.700.000</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Lưu Ý Sau Khi Điều Trị</h3>
+            <p>Để đạt hiệu quả tối ưu, khách hàng nên:</p>
+            <ol>
+                <li>Sử dụng kem chống nắng SPF 50+ mỗi ngày, kể cả khi ở trong nhà</li>
+                <li>Tránh tiếp xúc trực tiếp với ánh nắng mặt trời</li>
+                <li>Sử dụng sản phẩm dưỡng da có chứa Vitamin C</li>
+                <li>Tránh sử dụng các sản phẩm có cồn hoặc gây kích ứng</li>
+                <li>Duy trì chế độ ăn uống giàu chất chống oxy hóa</li>
+            </ol>
+            
+            <blockquote>
+                "Tôi đã thử nhiều phương pháp điều trị tàn nhang nhưng chỉ có liệu trình tại Sparkle Salon mới thực sự hiệu quả. Sau 5 lần điều trị, tàn nhang của tôi mờ đi rõ rệt và da sáng hơn hẳn." - Khách hàng Minh Tâm
+            </blockquote>
+        `,
+        category: "Điều Trị Da",
     },
     {
         id: 5,

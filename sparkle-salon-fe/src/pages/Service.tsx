@@ -26,7 +26,6 @@ export default function Service() {
         setSearchParams({ search: searchTerm, sort: sortBy, page: currentPage.toString() });
     }, [searchTerm, sortBy, currentPage, setSearchParams]);
 
-    
     const debouncedSearch = debounce((term: string) => {
         setSearchTerm(term);
         setCurrentPage(1); 
@@ -34,7 +33,6 @@ export default function Service() {
         setTimeout(() => setIsLoading(false), 300);
     }, 300);
 
-   
     const filteredServices = servicesData
         .filter((service: Service) => {
             const searchLower = searchTerm.toLowerCase();
@@ -59,6 +57,7 @@ export default function Service() {
             }
         });
 
+    // Pagination Section   
     const totalPages = Math.ceil(filteredServices.length / ITEMS_PER_PAGE);
     const paginatedServices = filteredServices.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,

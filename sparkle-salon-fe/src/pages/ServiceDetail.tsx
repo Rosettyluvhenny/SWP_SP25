@@ -2,19 +2,12 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import servicesData, { Service } from "../data/servicesData";
 import { feedbacksData } from "../data/feedbacksData";
-import {
-    FaClock,
-    FaStar,
-    FaMoneyBill,
-    FaShare,
-    FaHeart,
-    FaRegHeart,
-} from "react-icons/fa";
+import { FaClock, FaStar, FaMoneyBill, FaShare, FaHeart, FaRegHeart } from "react-icons/fa";
 import FeedbackForm from "../components/FeedbackForm";
 import FeedbackList from "../components/FeedbackList";
 import { motion } from "framer-motion";
-import "react-quill/dist/quill.snow.css";
-import "../styles/quill-custom.css";
+import 'react-quill/dist/quill.snow.css';
+import '../styles/quill-custom.css'; // We'll create this file for custom Quill styling
 
 interface Feedback {
     name: string;
@@ -40,11 +33,10 @@ export default function ServiceDetail() {
                     setError("Service ID is missing");
                     return;
                 }
-
-                const foundService = servicesData.find(
-                    (s) => s.id.toString() === id
-                );
-
+                
+                // Find the service by ID
+                const foundService = servicesData.find((s) => s.id.toString() === id);
+                
                 if (!foundService) {
                     setError("Service not found");
                 } else {
@@ -55,7 +47,7 @@ export default function ServiceDetail() {
                 console.error("Error fetching service:", err);
                 setError("Failed to load service details");
             } finally {
-                setTimeout(() => setIsLoading(false), 500);
+                setTimeout(() => setIsLoading(false), 500); 
             }
         };
 
@@ -64,20 +56,21 @@ export default function ServiceDetail() {
 
     const handleBooking = () => {
         if (service) {
-            const displayName = service.name.startsWith("http")
-                ? "Trẻ Hóa Da Công Nghệ Cao"
+            // Fix for URL in name field
+            const displayName = service.name.startsWith("http") 
+                ? "Trẻ Hóa Da Công Nghệ Cao" 
                 : service.name;
-
-            navigate("/contact", {
-                state: {
+                
+            navigate("/contact", { 
+                state: { 
                     selectedService: displayName,
                     service: {
                         id: service.id,
                         name: displayName,
                         price: service.price,
-                        duration: service.duration,
-                    },
-                },
+                        duration: service.duration
+                    }
+                } 
             });
         }
     };
@@ -92,21 +85,21 @@ export default function ServiceDetail() {
 
     const handleShare = () => {
         if (navigator.share) {
-            navigator
-                .share({
-                    title: service?.name || "Sparkle Salon Service",
-                    text: `Check out this service: ${service?.name}`,
-                    url: window.location.href,
-                })
-                .catch((error) => console.log("Error sharing", error));
+            navigator.share({
+                title: service?.name || 'Sparkle Salon Service',
+                text: `Check out this service: ${service?.name}`,
+                url: window.location.href,
+            })
+            .catch((error) => console.log('Error sharing', error));
         } else {
-            navigator.clipboard
-                .writeText(window.location.href)
-                .then(() => alert("Link copied to clipboard!"))
-                .catch((err) => console.error("Could not copy text: ", err));
+            // Fallback for browsers that don't support the Web Share API
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => alert('Link copied to clipboard!'))
+                .catch((err) => console.error('Could not copy text: ', err));
         }
     };
 
+    // Loading state
     if (isLoading) {
         return (
             <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
@@ -122,6 +115,7 @@ export default function ServiceDetail() {
         );
     }
 
+    // Error state
     if (error || !service) {
         return (
             <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
@@ -134,7 +128,7 @@ export default function ServiceDetail() {
                         <p className="text-2xl text-red-500 font-semibold mb-4">
                             {error || "Dịch vụ không tồn tại..."}
                         </p>
-                        <motion.button
+                        <motion.button 
                             onClick={() => navigate("/service")}
                             className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg"
                             whileHover={{ scale: 1.05 }}
@@ -148,43 +142,33 @@ export default function ServiceDetail() {
         );
     }
 
-    const displayName = service.name.startsWith("http")
-        ? "Trẻ Hóa Da Công Nghệ Cao"
+    // Fix for URL in name field
+    const displayName = service.name.startsWith("http") 
+        ? "Trẻ Hóa Da Công Nghệ Cao" 
         : service.name;
 
-    const imageUrl =
-        service.img && service.img.startsWith("http")
-            ? service.img
-            : "/placeholder.jpg";
+    // Fix for potentially broken image URLs
+    const imageUrl = service.img && service.img.startsWith("http") 
+        ? service.img 
+        : "/placeholder.jpg";
 
     return (
         <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
             <div className="max-w-7xl mx-auto p-6">
-                <motion.div
+                {/* Breadcrumb Navigation */}
+                <motion.div 
                     className="mb-6 text-sm text-gray-600"
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                 >
-                    <Link
-                        to="/"
-                        className="hover:text-pink-500 transition-colors"
-                    >
-                        Trang chủ
-                    </Link>{" "}
-                    {" / "}
-                    <Link
-                        to="/service"
-                        className="hover:text-pink-500 transition-colors"
-                    >
-                        Dịch vụ
-                    </Link>{" "}
-                    {" / "}
+                    <Link to="/" className="hover:text-pink-500 transition-colors">Trang chủ</Link> {" / "}
+                    <Link to="/service" className="hover:text-pink-500 transition-colors">Dịch vụ</Link> {" / "}
                     <span className="text-pink-500">{displayName}</span>
                 </motion.div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    <motion.div
+                    <motion.div 
                         className="lg:col-span-3 space-y-6"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -198,24 +182,22 @@ export default function ServiceDetail() {
                                     alt={displayName}
                                     className="w-full h-80 object-cover rounded-xl border border-pink-200 transition-transform duration-500 hover:scale-105"
                                     onError={(e) => {
-                                        (e.target as HTMLImageElement).src =
-                                            "/placeholder.jpg";
+                                        (e.target as HTMLImageElement).src = "/placeholder.jpg";
                                     }}
                                 />
                                 <div className="absolute top-4 right-4 flex space-x-2">
-                                    <motion.button
+                                    <motion.button 
                                         onClick={toggleFavorite}
                                         className="bg-white p-2 rounded-full shadow-md hover:bg-pink-50 transition-colors"
                                         whileHover={{ scale: 1.1 }}
                                         whileTap={{ scale: 0.9 }}
                                     >
-                                        {isFavorite ? (
-                                            <FaHeart className="text-pink-500 text-xl" />
-                                        ) : (
+                                        {isFavorite ? 
+                                            <FaHeart className="text-pink-500 text-xl" /> : 
                                             <FaRegHeart className="text-gray-400 text-xl" />
-                                        )}
+                                        }
                                     </motion.button>
-                                    <motion.button
+                                    <motion.button 
                                         onClick={handleShare}
                                         className="bg-white p-2 rounded-full shadow-md hover:bg-pink-50 transition-colors"
                                         whileHover={{ scale: 1.1 }}
@@ -233,9 +215,7 @@ export default function ServiceDetail() {
                                     <p className="text-pink-600 text-xl font-semibold flex items-center">
                                         <FaMoneyBill className="inline-block mr-2" />
                                         {service.price.toLocaleString()} vnđ
-                                        <span className="text-sm ml-2 text-gray-500">
-                                            (Đã bao gồm VAT)
-                                        </span>
+                                        <span className="text-sm ml-2 text-gray-500">(Đã bao gồm VAT)</span>
                                     </p>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-4 mb-6">
@@ -271,14 +251,12 @@ export default function ServiceDetail() {
                                     Thông tin dịch vụ
                                 </h2>
                             </div>
-
+                            
                             <div className="mt-3 quill-content">
-                                <div
+                                <div 
                                     className="prose prose-pink max-w-none prose-headings:text-pink-700 prose-a:text-pink-600 prose-strong:text-gray-800 prose-img:rounded-lg prose-img:shadow-md"
-                                    dangerouslySetInnerHTML={{
-                                        __html:
-                                            service.description ||
-                                            "Chưa có thông tin chi tiết về dịch vụ này.",
+                                    dangerouslySetInnerHTML={{ 
+                                        __html: service.description || "Chưa có thông tin chi tiết về dịch vụ này."
                                     }}
                                 />
                             </div>
@@ -295,7 +273,7 @@ export default function ServiceDetail() {
                     </motion.div>
 
                     {/*Sidebar Section */}
-                    <motion.aside
+                    <motion.aside 
                         className="space-y-6"
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -310,27 +288,21 @@ export default function ServiceDetail() {
                                 .slice(0, 5)
                                 .map((related, index) => {
                                     // Fix for URL in name field
-                                    const relatedDisplayName =
-                                        related.name.startsWith("http")
-                                            ? "Trẻ Hóa Da Công Nghệ Cao"
-                                            : related.name;
-
+                                    const relatedDisplayName = related.name.startsWith("http") 
+                                        ? "Trẻ Hóa Da Công Nghệ Cao" 
+                                        : related.name;
+                                    
                                     // Fix for potentially broken image URLs
-                                    const relatedImageUrl =
-                                        related.img &&
-                                        related.img.startsWith("http")
-                                            ? related.img
-                                            : "/placeholder.jpg";
-
+                                    const relatedImageUrl = related.img && related.img.startsWith("http") 
+                                        ? related.img 
+                                        : "/placeholder.jpg";
+                                        
                                     return (
                                         <motion.div
                                             key={related.id}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{
-                                                delay: 0.1 * index,
-                                                duration: 0.3,
-                                            }}
+                                            transition={{ delay: 0.1 * index, duration: 0.3 }}
                                         >
                                             <Link
                                                 to={`/service/${related.id}`}
@@ -342,10 +314,7 @@ export default function ServiceDetail() {
                                                         alt={relatedDisplayName}
                                                         className="w-20 h-20 rounded-lg object-cover"
                                                         onError={(e) => {
-                                                            (
-                                                                e.target as HTMLImageElement
-                                                            ).src =
-                                                                "/placeholder.jpg";
+                                                            (e.target as HTMLImageElement).src = "/placeholder.jpg";
                                                         }}
                                                     />
                                                     <div>
@@ -353,8 +322,7 @@ export default function ServiceDetail() {
                                                             {relatedDisplayName}
                                                         </p>
                                                         <p className="text-pink-500 font-medium mt-1">
-                                                            {related.price.toLocaleString()}{" "}
-                                                            đ
+                                                            {related.price.toLocaleString()} đ
                                                         </p>
                                                         <p className="text-gray-500 text-sm mt-1">
                                                             {related.duration}
