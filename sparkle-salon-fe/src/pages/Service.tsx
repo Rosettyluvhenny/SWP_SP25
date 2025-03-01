@@ -26,7 +26,7 @@ export default function Service() {
         setSearchParams({ search: searchTerm, sort: sortBy, page: currentPage.toString() });
     }, [searchTerm, sortBy, currentPage, setSearchParams]);
 
-    // Debounced search handler
+    
     const debouncedSearch = debounce((term: string) => {
         setSearchTerm(term);
         setCurrentPage(1); 
@@ -34,7 +34,7 @@ export default function Service() {
         setTimeout(() => setIsLoading(false), 300);
     }, 300);
 
-    // Enhanced filtering with category support
+   
     const filteredServices = servicesData
         .filter((service: Service) => {
             const searchLower = searchTerm.toLowerCase();
@@ -59,7 +59,6 @@ export default function Service() {
             }
         });
 
-    // Pagination Section   
     const totalPages = Math.ceil(filteredServices.length / ITEMS_PER_PAGE);
     const paginatedServices = filteredServices.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
@@ -68,14 +67,14 @@ export default function Service() {
 
     return (
         <div className="bg-gradient-to-t from-white to-pink-200 min-h-screen">
-            {/* Enhanced Banner Section */}
+            {/* Banner Section */}
             <div className="relative w-full h-[200px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-14">
                 <div className="absolute inset-0 bg-black opacity-40"></div>
                 <h1 className="relative z-10 text-white text-7xl font-serif mb-2">Our Services</h1>
                 <p className="relative z-10 text-white text-xl">Discover our beauty treatments</p>
             </div>
 
-            {/* Enhanced Search & Filter Section */}
+            {/* Search & Filter Section */}
             <div className="max-w-6xl mx-auto px-4">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg shadow-md -mt-8 relative z-20">
                     <SortButtons sortBy={sortBy} setSortBy={setSortBy} />

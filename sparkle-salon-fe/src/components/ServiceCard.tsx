@@ -1,5 +1,5 @@
 import React from "react";
-import { FaMoneyBill, FaRegHeart, FaHeart } from "react-icons/fa";
+import { FaMoneyBill } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -20,9 +20,7 @@ interface ServiceCardProps {
 const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelectService }) => {
     const navigate = useNavigate();
     const [isHovered, setIsHovered] = useState(false);
-    const [isFavorite, setIsFavorite] = useState(false);
 
-    // Fix for URL in name field
     const displayName = service.name.startsWith("http") ? "Trẻ Hóa Da Công Nghệ Cao" : service.name;
 
     const handleBooking = () => {
@@ -42,11 +40,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelectService }) =
         }
     };
 
-    const toggleFavorite = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setIsFavorite(!isFavorite);
-    };
-
     return (
         <div 
             className="bg-white hover:shadow-2xl transition-all duration-300 rounded-xl shadow-lg border border-pink-100 group h-full flex flex-col overflow-hidden"
@@ -54,21 +47,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelectService }) =
             onMouseLeave={() => setIsHovered(false)}
         >
             <div className="relative overflow-hidden">
-                {/* Category badge */}
                 <div className="absolute top-3 left-3 bg-gradient-to-r from-pink-500 to-pink-400 text-white px-3 py-1 rounded-full text-sm z-10 shadow-md">
                     {service.category || "Thẩm mỹ không xâm lấn"}
                 </div>
-                
-                {/* Favorite button */}
-                <button 
-                    onClick={toggleFavorite}
-                    className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md z-10 transition-all duration-300 hover:scale-110"
-                >
-                    {isFavorite ? 
-                        <FaHeart className="text-pink-500 text-lg" /> : 
-                        <FaRegHeart className="text-gray-400 text-lg hover:text-pink-500" />
-                    }
-                </button>
                 
                 {/* Service image */}
                 <img
@@ -77,7 +58,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelectService }) =
                     className={`w-full object-cover transition-all duration-500 ${isHovered ? 'scale-110 h-72' : 'h-64'}`}
                 />
                 
-                {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
             
