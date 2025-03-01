@@ -9,11 +9,15 @@ import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BlogPostMapper;
 import com.SWP.SkinCareService.repository.BlogPostRepository;
 import com.SWP.SkinCareService.repository.TherapistRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -23,13 +27,25 @@ public class BlogPostService {
     BlogPostRepository blogPostRepository;
     TherapistRepository therapistRepository;
     BlogPostMapper blogPostMapper;
+    SupabaseService supabaseService;
+    ObjectMapper objectMapper;
 
     @Transactional
-    public BlogPostResponse createBlogPost(BlogPostRequest request) {
+    public BlogPostResponse createBlogPost(BlogPostRequest request, MultipartFile img) throws IOException {
         Therapist therapist = getTherapistById(request.getTherapistID());
         BlogPost blogPost = blogPostMapper.toBlogPost(request);
         blogPost.setTherapist(therapist);
+        
+        // Save first to get the ID
         blogPostRepository.save(blogPost);
+        
+        // Handle image upload if present
+        if (img != null && !img.isEmpty()) {
+            String fileName = "blog_" + blogPost.getBlogId();
+            String imgUrl = supabaseService.uploadImage(img, fileName);
+            blogPost.setImg(imgUrl);
+        }
+        
         return blogPostMapper.toBlogPostResponse(blogPost);
     }
 
@@ -44,7 +60,7 @@ public class BlogPostService {
     }
 
     @Transactional
-    public BlogPostResponse updateBlogPost(Integer id, BlogPostRequest request) {
+    public BlogPostResponse updateBlogPost(Integer id, BlogPostRequest request, MultipartFile img) throws IOException {
         BlogPost blogPost = checkBlogPost(id);
 
         if (request.getTherapistID() != null) {
@@ -53,6 +69,13 @@ public class BlogPostService {
         }
 
         blogPostMapper.updateBlogPost(blogPost, request);
+        
+        // Handle image update if present
+        if (img != null && !img.isEmpty()) {
+            String fileName = "blog_" + blogPost.getBlogId();
+            String imgUrl = supabaseService.uploadImage(img, fileName);
+            blogPost.setImg(imgUrl);
+        }
 
         return blogPostMapper.toBlogPostResponse(blogPost);
     }
