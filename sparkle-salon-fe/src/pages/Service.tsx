@@ -6,6 +6,7 @@ import SearchBar from "../components/SearchBar";
 import SortButtons from "../components/SortButton";
 import Pagination from "../components/Pagination";
 import ServiceList from "../components/ServiceList";
+import { debounce } from 'lodash';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -19,20 +20,43 @@ export default function Service() {
     const [searchTerm, setSearchTerm] = useState<string>(searchTermParam);
     const [sortBy, setSortBy] = useState<string>(sortByParam);
     const [currentPage, setCurrentPage] = useState<number>(pageParam);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setSearchParams({ search: searchTerm, sort: sortBy, page: currentPage.toString() });
     }, [searchTerm, sortBy, currentPage, setSearchParams]);
 
+    // Debounced search handler
+    const debouncedSearch = debounce((term: string) => {
+        setSearchTerm(term);
+        setCurrentPage(1); 
+        setIsLoading(true);
+        setTimeout(() => setIsLoading(false), 300);
+    }, 300);
+
+    // Enhanced filtering with category support
     const filteredServices = servicesData
-        .filter((service: Service) =>
-            service.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        .filter((service: Service) => {
+            const searchLower = searchTerm.toLowerCase();
+            return (
+                service.name.toLowerCase().includes(searchLower) ||
+                (service.category?.toLowerCase().includes(searchLower)) ||
+                (service.description?.toLowerCase().includes(searchLower))
+            );
+        })
         .sort((a: Service, b: Service) => {
-            if (sortBy === "newest") return b.id - a.id;
-            if (sortBy === "low-high") return a.price - b.price;
-            if (sortBy === "high-low") return b.price - a.price;
-            return 0;
+            switch (sortBy) {
+                case "newest":
+                    return b.id - a.id;
+                case "low-high":
+                    return a.price - b.price;
+                case "high-low":
+                    return b.price - a.price;
+                case "popularity":
+                    return b.popularity - a.popularity;
+                default:
+                    return 0;
+            }
         });
 
     // Pagination Section   
@@ -43,20 +67,31 @@ export default function Service() {
     );
 
     return (
-        <div className="bg-gradient-to-t from-white to-pink-200">
-            {/* Page Banner Section */}
-            <div className="w-full h-[170px] flex flex-row justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-10">
-                <h1 className="text-white text-7xl mt-12 font-serif">Services</h1>
+        <div className="bg-gradient-to-t from-white to-pink-200 min-h-screen">
+            {/* Enhanced Banner Section */}
+            <div className="relative w-full h-[200px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-14">
+                <div className="absolute inset-0 bg-black opacity-40"></div>
+                <h1 className="relative z-10 text-white text-7xl font-serif mb-2">Our Services</h1>
+                <p className="relative z-10 text-white text-xl">Discover our beauty treatments</p>
             </div>
 
-            {/* Search & Sort Section */}
-            <div className="flex flex-row justify-between items-center bg-pink-100 p-3 shadow-md rounded-lg mb-5">
-                <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
-                <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-            </div>
+            {/* Enhanced Search & Filter Section */}
+            <div className="max-w-6xl mx-auto px-4">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg shadow-md -mt-8 relative z-20">
+                    <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
+                    <SearchBar 
+                        searchTerm={searchTerm} 
+                        setSearchTerm={debouncedSearch}
+                        isLoading={isLoading}
+                    />
+                </div>
 
-            {/* Services List */}
-            <div className="max-w-6xl mx-auto">
+                {/* Results Summary */}
+                <div className="mt-4 text-gray-600 px-4">
+                    Found {filteredServices.length} services
+                </div>
+
+                {/* Services List */}
                 <ServiceList services={paginatedServices} />
                 <Pagination
                     totalPages={totalPages}
