@@ -1,22 +1,25 @@
 package com.SWP.SkinCareService.entity;
 
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name="services")
+@Table(name = "services")
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Services {
 
     @Id
@@ -57,4 +60,27 @@ public class Services {
     @JsonManagedReference
     @ToString.Exclude
     ServiceInfo serviceInfo;
+
+
+    //Many to many with Quiz result
+    @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "ServiceQuizResult",
+            joinColumns = @JoinColumn(name = "serviceId"),
+            inverseJoinColumns = @JoinColumn(name = "quizResultId")
+    )
+    @JsonManagedReference
+    List<QuizResult> quizResults = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "services")
+    @JsonBackReference
+    List<Room> rooms = new ArrayList<>();
+
+
+    //One to many with Booking service
+    @OneToMany(mappedBy = "service", cascade = CascadeType.REMOVE)
+    @JsonManagedReference
+    List<Booking> bookings = new ArrayList<>();
+
+
 }

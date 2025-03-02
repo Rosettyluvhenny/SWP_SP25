@@ -1,7 +1,6 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Quiz.AnswerRequest;
-import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Quiz.AnswerResponse;
 import com.SWP.SkinCareService.entity.Question;
 import com.SWP.SkinCareService.exception.AppException;
@@ -11,14 +10,10 @@ import com.SWP.SkinCareService.repository.QuestionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.SWP.SkinCareService.entity.Answer;
-
 import com.SWP.SkinCareService.repository.AnswerRepository;
-
 import java.util.List;
 
 @Service
@@ -31,7 +26,7 @@ public class AnswerService {
 
     @Transactional
     public AnswerResponse create(AnswerRequest request) {
-        Question question = questionCheck(request.getQuestionId());
+        Question question =getQuestion(request.getQuestionId());
 
         Answer answer = answerMapper.ToAnswer(request);
         answer.setQuestion(question);
@@ -44,11 +39,11 @@ public class AnswerService {
 
 
     public AnswerResponse getById(int id) {
-        return answerMapper.ToAnswerResponse(answerCheck(id));
+        return answerMapper.ToAnswerResponse(getAnswer(id));
     }
 
     public List<AnswerResponse> getAllByQuestionId(int id){
-        Question question = questionCheck(id);
+        Question question = getQuestion(id);
 
         return answerRepository.findAllByQuestion(question).stream().map(answerMapper::ToAnswerResponse).toList();
     }
@@ -56,23 +51,24 @@ public class AnswerService {
     public AnswerResponse update(int answerId, AnswerRequest request) {
         Answer answer = answerRepository.findById(answerId).orElseThrow(()
                 -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
-        Question question = questionCheck(request.getQuestionId());
+        Question question = getQuestion(request.getQuestionId());
         answerMapper.updateAnswer(request,answer);
         answer.setQuestion(question);
         return answerMapper.ToAnswerResponse(answerRepository.save(answer));
     }
     @Transactional
     public void delete(int id) {
-        Answer answer = answerCheck(id);
+        Answer answer = getAnswer(id);
         answerRepository.deleteById(id);
     }
 
-    private Question questionCheck(int id){
+    private Question getQuestion(int id){
         return questionRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
     }
 
-    private Answer answerCheck(int id){
+
+    private Answer getAnswer(int id) {
         return answerRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
     }

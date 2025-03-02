@@ -31,7 +31,7 @@ public class ServiceCategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ServiceCategoryResponse>> getById(@PathVariable int id){
+    public ResponseEntity<ApiResponse<ServiceCategoryResponse>> getServiceCategoryById(@PathVariable int id){
         var result = serviceCategoryService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<ServiceCategoryResponse>builder()
@@ -40,8 +40,8 @@ public class ServiceCategoryController {
         );
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<ServiceCategoryResponse>>> getAll(){
+    @GetMapping()
+    ResponseEntity<ApiResponse<List<ServiceCategoryResponse>>> getAllServiceCategory() {
         var result = serviceCategoryService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<List<ServiceCategoryResponse>>builder()
@@ -59,6 +59,7 @@ public class ServiceCategoryController {
                         .build()
         );
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteServiceCategory(@PathVariable int id){

@@ -3,11 +3,13 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.dto.request.Services.ServicesRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServicesUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Services.ServicesResponse;
+import com.SWP.SkinCareService.entity.Room;
 import com.SWP.SkinCareService.entity.ServiceCategory;
 import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.ServicesMapper;
+import com.SWP.SkinCareService.repository.RoomRepository;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
 import com.SWP.SkinCareService.repository.ServicesRepository;
 import lombok.AccessLevel;
@@ -24,12 +26,15 @@ public class ServicesService {
     ServicesRepository servicesRepository;
     ServicesMapper servicesMapper;
     ServiceCategoryRepository serviceCategoryRepository;
+    private RoomRepository roomRepository;
 
     @Transactional
     public ServicesResponse create(ServicesRequest request){
         if(servicesRepository.existsByName(request.getName())){
             throw new AppException(ErrorCode.SERVICE_EXIST);
         }
+        Room newRoom = roomRepository.findById(request.getRoomId()).orElseThrow(()
+                -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
         ServiceCategory category = serviceCategoryRepository.findById(request.getServiceCategoryId()).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
         Services service = servicesMapper.toServices(request);
         service.setServiceCategory(category);
@@ -86,5 +91,6 @@ public class ServicesService {
     private ServiceCategory checkServiceCategory(int id){
         return serviceCategoryRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
     }
+
 
 }

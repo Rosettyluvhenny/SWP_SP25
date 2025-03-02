@@ -43,4 +43,5 @@ public class ServiceInfo {
 
     @Column(length = 512)
     String mechaImgUrl;
+
 }

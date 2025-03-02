@@ -8,10 +8,14 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)public interface QuizMapper {
-    Quiz toQuiz(QuizRequest request);
-    QuizResponse toQuizResponse(Quiz quiz);
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface QuizMapper {
+    @Mapping(target = "serviceCategory", ignore = true)
+    Quiz toQuiz(QuizRequest quiz);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "questions", ignore = true)
-    void updateQuiz(QuizRequest request, @MappingTarget Quiz quiz);
+    void updateQuiz(QuizRequest request,@MappingTarget Quiz quiz);
+    QuizResponse toResponse(Quiz quiz);
+
 }

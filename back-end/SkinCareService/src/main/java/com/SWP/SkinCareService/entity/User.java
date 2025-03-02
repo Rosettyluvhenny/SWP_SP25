@@ -1,5 +1,7 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -46,11 +48,27 @@ public class User {
     @Column(name = "is_active")
     private boolean isActive = true;
 
-
     LocalDate dob;
     @ManyToMany
     Set<Role> roles;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Therapist therapist;
+    Therapist therapist;
+
+    @ManyToOne
+    @JoinColumn(name = "skin_type", referencedColumnName = "id")
+    @JsonBackReference
+    QuizResult quizResult;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    Set<Booking> booking;
+
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    Set<Booking> bookingServicesStaff;
+
+    @OneToMany(mappedBy = "cancelBy", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonManagedReference
+    Set<BookingSession> bookingSessions;
 }

@@ -39,7 +39,15 @@ public enum ErrorCode {
     ACTIVATED(1023, "Is activate already",HttpStatus.BAD_REQUEST),
     DEACTIVATED(1023, "Is deactivated already",HttpStatus.BAD_REQUEST),
     SERVICE_INFO_NOT_FOUND(1024, "Service Infomation not found", HttpStatus.BAD_REQUEST),
-    IO_EXCEPTION(1025, "Failed to upload image", HttpStatus.BAD_REQUEST)
+    IO_EXCEPTION(1025, "Failed to upload image", HttpStatus.BAD_REQUEST),
+    SERVICE_CATEGORY_NOT_EXISTED(1010, "Service category Not Existed",HttpStatus.NOT_FOUND),
+    RESULT_NOT_EXISTED(1029, "Result not found", HttpStatus.NOT_FOUND),
+    ROOM_NOT_EXISTED(1031, "Room not found", HttpStatus.NOT_FOUND),
+    STAFF_NOT_EXISTED(1032, "Staff not found", HttpStatus.NOT_FOUND),
+    PAYMENT_METHOD_NOT_EXISTED(1033, "Payment method not found", HttpStatus.NOT_FOUND),
+    BOOKING_NOT_EXISTED(1034, "Booking not found", HttpStatus.NOT_FOUND),
+    SESSION_NOT_EXISTED(1035, "Session not found", HttpStatus.NOT_FOUND),
+
     ;
     int code;
     String message;

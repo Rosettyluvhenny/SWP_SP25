@@ -22,14 +22,14 @@ public class AnswerController {
     public ResponseEntity<ApiResponse<AnswerResponse>> createAnswer(@RequestBody @Valid AnswerRequest request) {
         var result = answerService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(
-            ApiResponse.<AnswerResponse>builder()
-                    .result(result)
-                    .build()
+                ApiResponse.<AnswerResponse>builder()
+                        .result(result)
+                        .build()
         );
     }
 
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<AnswerResponse>>> getAll() {
+    public ResponseEntity<ApiResponse<List<AnswerResponse>>> getAllAnswers() {
         var result = answerService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<List<AnswerResponse>>builder()
@@ -40,7 +40,7 @@ public class AnswerController {
 
 
     @GetMapping("/{answerId}")
-    public ResponseEntity<ApiResponse<AnswerResponse>> getById(@PathVariable int answerId) {
+    public ResponseEntity<ApiResponse<AnswerResponse>> getAnswerById(@PathVariable int answerId) {
         var result = answerService.getById(answerId);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<AnswerResponse>builder()
@@ -59,8 +59,9 @@ public class AnswerController {
         );
     }
 
+
     @PutMapping("/{answerId}")
-    public ResponseEntity<ApiResponse<AnswerResponse>> update(@PathVariable int answerId, @RequestBody @Valid AnswerRequest  request) {
+    public ResponseEntity<ApiResponse<AnswerResponse>> updateAnswer(@PathVariable int answerId, @RequestBody @Valid AnswerRequest  request) {
         var result = answerService.update(answerId, request);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<AnswerResponse>builder()
@@ -70,14 +71,12 @@ public class AnswerController {
     }
 
     @DeleteMapping("/{answerId}")
-    public ResponseEntity<ApiResponse> deleteAnswer(@PathVariable int id) {
-        answerService.delete(id);
+    ResponseEntity<ApiResponse> deleteAnswer(@PathVariable int answerId) {
+        answerService.delete(answerId);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.builder()
                         .message("Delete Successfully")
                         .build()
         );
     }
-
-
 }

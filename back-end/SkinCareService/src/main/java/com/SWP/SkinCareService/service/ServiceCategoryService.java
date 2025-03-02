@@ -7,11 +7,12 @@ import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.ServiceCategoryMapper;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 @Service
@@ -30,7 +31,7 @@ public class ServiceCategoryService {
                 .build();
         category = serviceCategoryRepository.save(category);
         serviceCategoryRepository.flush();
-        return serviceCategoryMapper.toReponse(category);
+        return serviceCategoryMapper.toResponse(category);
     }
     @Transactional
     public ServiceCategoryResponse update(int id,ServiceCategoryRequest request){
@@ -40,7 +41,7 @@ public class ServiceCategoryService {
 
         category = serviceCategoryRepository.save(category);
         serviceCategoryRepository.flush();
-        return serviceCategoryMapper.toReponse(category);
+        return serviceCategoryMapper.toResponse(category);
     }
     @Transactional
     public void delete(int id){
@@ -48,11 +49,11 @@ public class ServiceCategoryService {
         serviceCategoryRepository.delete(category);
     }
     public List<ServiceCategoryResponse> getAll(){
-        return serviceCategoryRepository.findAll().stream().map(serviceCategoryMapper::toReponse).toList();
+        return serviceCategoryRepository.findAll().stream().map(serviceCategoryMapper::toResponse).toList();
     }
 
     public ServiceCategoryResponse getById(int id){
-        return serviceCategoryMapper.toReponse(checkServiceCategory(id));
+        return serviceCategoryMapper.toResponse(checkServiceCategory(id));
     }
     private ServiceCategory checkServiceCategory(int id){
         return serviceCategoryRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));

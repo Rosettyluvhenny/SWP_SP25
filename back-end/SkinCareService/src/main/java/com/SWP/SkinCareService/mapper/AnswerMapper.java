@@ -1,10 +1,8 @@
 package com.SWP.SkinCareService.mapper;
 
-import com.SWP.SkinCareService.dto.request.Quiz.AnswerRequest;
-import com.SWP.SkinCareService.dto.request.Quiz.QuestionRequest;
-import com.SWP.SkinCareService.dto.response.Quiz.AnswerResponse;
 import com.SWP.SkinCareService.entity.Answer;
-import com.SWP.SkinCareService.entity.Question;
+import com.SWP.SkinCareService.dto.request.Quiz.AnswerRequest;
+import com.SWP.SkinCareService.dto.response.Quiz.AnswerResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -18,4 +16,6 @@ public interface AnswerMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "question", ignore = true)
     void updateAnswer(AnswerRequest request, @MappingTarget Answer answer);
+
+
 }

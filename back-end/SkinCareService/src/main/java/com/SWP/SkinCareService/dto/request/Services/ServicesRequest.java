@@ -37,4 +37,6 @@ public class ServicesRequest {
 
     @NotNull(message ="NOT_EMPTY")
     boolean active;
+
+    int roomId;
 }

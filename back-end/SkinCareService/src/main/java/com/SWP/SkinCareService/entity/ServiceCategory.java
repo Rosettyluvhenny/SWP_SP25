@@ -1,20 +1,20 @@
 package com.SWP.SkinCareService.entity;
 
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Date;
+
 
 @Entity
-@Table(name="serviceCategory")
+@Table(name = "service_category")
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
@@ -30,13 +30,19 @@ public class ServiceCategory {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    LocalDateTime createdAt;
+    LocalDate createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    LocalDateTime updatedAt;
+    LocalDate updatedAt;
 
     @OneToMany(mappedBy = "serviceCategory", cascade = CascadeType.PERSIST, orphanRemoval = false)
     @JsonBackReference
     List<Services> services;
+
+    @OneToMany(mappedBy = "serviceCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    List<Quiz> quiz;
+
+
 }

@@ -2,13 +2,15 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Identity.UserRequest;
 import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
-import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
+import com.SWP.SkinCareService.dto.request.Services.AssignSkinRequest;
 import com.SWP.SkinCareService.dto.response.UserResponse;
+import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.entity.Role;
 import com.SWP.SkinCareService.entity.User;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.UserMapper;
+import com.SWP.SkinCareService.repository.QuizResultRepository;
 import com.SWP.SkinCareService.repository.RoleRepository;
 import com.SWP.SkinCareService.repository.UserRepository;
 import lombok.AccessLevel;
@@ -33,6 +35,7 @@ public class UserService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
+    QuizResultRepository quizResultRepository;
 
 
     public User createUser(UserRequest userRequest){
@@ -71,7 +74,7 @@ public class UserService {
     public User getUser(String id) {
         return userRepository.findById(id).orElseThrow(()-> new RuntimeException("user can not be found"));
     }
-//    @PostAuthorize("returnObject.id == authentication.id")
+    //    @PostAuthorize("returnObject.id == authentication.id")
     public User getUserByUsername(String userName){
         return userRepository.findByUsername(userName).orElseThrow(()-> new RuntimeException("user can not be found"));
     }
@@ -89,6 +92,7 @@ public class UserService {
     public void delete(String userId){
         userRepository.delete(userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
+
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public UserResponse disable(String userId){
@@ -99,5 +103,14 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-
+    @Transactional
+    public UserResponse updateSkin(String userId, AssignSkinRequest skinId){
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new RuntimeException("user can not be found"));
+        QuizResult quizResult = quizResultRepository.findById(skinId.getSkinId()).orElseThrow(()
+                -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
+        user.setQuizResult(quizResult);
+        userRepository.save(user);
+        return userMapper.toUserResponse(user);
+    }
 }

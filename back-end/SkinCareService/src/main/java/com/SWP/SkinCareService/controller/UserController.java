@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.Identity.UserRequest;
 import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Services.AssignSkinRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.UserResponse;
 import com.SWP.SkinCareService.entity.User;
@@ -76,6 +77,12 @@ public class UserController {
                         .result(userService.updateUser(userId, request))
                         .build()
         );
+    }
+
+    @PutMapping("/{userId}/skin")
+    ApiResponse<UserResponse> updateSkin(@PathVariable String userId, @RequestBody AssignSkinRequest request){
+        userService.updateSkin(userId, request);
+        return ApiResponse.<UserResponse>builder().message("Assigned skin type").build();
     }
 
     @DeleteMapping("/{userId}")
