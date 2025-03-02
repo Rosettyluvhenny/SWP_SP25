@@ -32,8 +32,8 @@ public class Services {
     @JsonManagedReference
     ServiceCategory serviceCategory;
 
-    @Column(columnDefinition = "TEXT")
-    String subTitle;
+//    @Column(columnDefinition = "TEXT")
+//    String subTitle;
 
     @Column(nullable = false, precision = 19, scale = 0)
     BigDecimal price;
