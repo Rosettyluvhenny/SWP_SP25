@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import servicesData, { Service } from "../data/servicesData";
 import { feedbacksData } from "../data/feedbacksData";
-import { FaClock, FaMoneyBill, FaShare, FaHeart, FaRegHeart, FaCalendarAlt } from "react-icons/fa";
+import { FaClock, FaMoneyBill, FaCalendarAlt } from "react-icons/fa";
 import FeedbackForm from "../components/FeedbackForm";
 import FeedbackList from "../components/FeedbackList";
 import { motion } from "framer-motion";
@@ -23,7 +23,6 @@ export default function ServiceDetail() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [feedbacks, setFeedbacks] = useState<Feedback[]>(feedbacksData);
-    const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
         const fetchService = async () => {
@@ -77,26 +76,6 @@ export default function ServiceDetail() {
 
     const handleFeedbackSubmit = (newFeedback: Feedback) => {
         setFeedbacks((prev) => [newFeedback, ...prev]);
-    };
-
-    const toggleFavorite = () => {
-        setIsFavorite(!isFavorite);
-    };
-
-    const handleShare = () => {
-        if (navigator.share) {
-            navigator.share({
-                title: service?.name || 'Sparkle Salon Service',
-                text: `Check out this service: ${service?.name}`,
-                url: window.location.href,
-            })
-            .catch((error) => console.log('Error sharing', error));
-        } else {
-            // Fallback for browsers that don't support the Web Share API
-            navigator.clipboard.writeText(window.location.href)
-                .then(() => alert('Link copied to clipboard!'))
-                .catch((err) => console.error('Could not copy text: ', err));
-        }
     };
 
     // Loading state
@@ -185,27 +164,6 @@ export default function ServiceDetail() {
                                         (e.target as HTMLImageElement).src = "/placeholder.jpg";
                                     }}
                                 />
-                                <div className="absolute top-4 right-4 flex space-x-2">
-                                    <motion.button 
-                                        onClick={toggleFavorite}
-                                        className="bg-white p-2 rounded-full shadow-md hover:bg-pink-50 transition-colors"
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                    >
-                                        {isFavorite ? 
-                                            <FaHeart className="text-pink-500 text-xl" /> : 
-                                            <FaRegHeart className="text-gray-400 text-xl" />
-                                        }
-                                    </motion.button>
-                                    <motion.button 
-                                        onClick={handleShare}
-                                        className="bg-white p-2 rounded-full shadow-md hover:bg-pink-50 transition-colors"
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                    >
-                                        <FaShare className="text-gray-500 text-xl" />
-                                    </motion.button>
-                                </div>
                             </div>
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900 mb-3">
