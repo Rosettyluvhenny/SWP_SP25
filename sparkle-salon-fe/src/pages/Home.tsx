@@ -4,9 +4,9 @@ import { motion } from "framer-motion";
 export default function Home() {
     return (
         <div className="pt-16 flex flex-col">
-            {/* Hero Section with Parallax Effect */}
+            {/* Hero Section */}
             <div className="min-h-screen flex flex-row items-center bg-[url('/assets/home-banner.jpg')] bg-cover bg-center bg-no-repeat bg-fixed relative">
-                <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+                <div className="absolute inset-0 bg-opacity-40"></div>
                 <motion.div 
                     initial={{ opacity: 0, x: -100 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -35,7 +35,7 @@ export default function Home() {
                 </motion.div>
             </div>
 
-            {/* Features Section with Hover Effects */}
+            {/* Features Section */}
             <div className="flex justify-center items-center py-16 bg-white border-b border-gray-300">
                 <div className="flex justify-between w-4/5">
                     {[
@@ -84,7 +84,7 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* About Section with Parallax */}
+            {/* About Section */}
             <div className="flex flex-row items-center justify-center w-full bg-gradient-to-r from-white to-pink-100 text-center py-24">
                 <motion.div 
                     initial={{ opacity: 0, x: -100 }}
@@ -129,7 +129,7 @@ export default function Home() {
                 </motion.div>
             </div>
 
-            {/* Featured Services Section */}
+            {/* Services Section */}
             <div className="py-24 bg-gradient-to-r from-pink-100 to-white">
                 <motion.h2 
                     initial={{ opacity: 0, y: 20 }}
