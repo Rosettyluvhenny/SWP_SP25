@@ -10,9 +10,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -22,9 +25,18 @@ import java.util.List;
 public class ServicesController {
     ServicesService servicesService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<ServicesResponse>> createServiceCategory(@RequestBody @Valid ServicesRequest request){
-        var result = servicesService.create(request);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<ServicesResponse>> createServiceCategory(@ModelAttribute @Valid ServicesRequest request, 
+            @RequestParam(required = false) MultipartFile img) throws IOException {
+        if (img == null || img.isEmpty()) {
+            return ResponseEntity.badRequest().body(
+                ApiResponse.<ServicesResponse>builder()
+                    .code(400)
+                    .message("Image file is required")
+                    .build()
+            );
+        }
+        var result = servicesService.create(request, img);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 ApiResponse.<ServicesResponse>builder()
                         .result(result)
@@ -52,9 +64,19 @@ public class ServicesController {
         );
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ServicesResponse>> updateServiceCategory(@PathVariable int id, @RequestBody @Valid ServicesUpdateRequest request){
-        var result = servicesService.update(id, request);
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<ServicesResponse>> updateServiceCategory(@PathVariable int id, 
+            @ModelAttribute @Valid ServicesUpdateRequest request, 
+            @RequestParam(required = false) MultipartFile img) throws IOException {
+        if (img == null || img.isEmpty()) {
+            return ResponseEntity.badRequest().body(
+                ApiResponse.<ServicesResponse>builder()
+                    .code(400)
+                    .message("Image file is required")
+                    .build()
+            );
+        }
+        var result = servicesService.update(id, request, img);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<ServicesResponse>builder()
                         .result(result)
@@ -67,7 +89,7 @@ public class ServicesController {
         servicesService.activate(id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.builder()
-                        .message("Service disable successfully")
+                        .message("Service activated successfully")
                         .build()
         );
     }
@@ -77,17 +99,17 @@ public class ServicesController {
         servicesService.deactivate(id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.builder()
-                        .message("Service disable successfully")
+                        .message("Service deactivated successfully")
                         .build()
         );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteServiceCategory(@PathVariable int id){
+    public ResponseEntity<ApiResponse> deleteServiceCategory(@PathVariable int id) throws IOException {
         servicesService.delete(id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.builder()
-                        .message("Service delete successfully")
+                        .message("Service deleted successfully")
                         .build()
         );
     }

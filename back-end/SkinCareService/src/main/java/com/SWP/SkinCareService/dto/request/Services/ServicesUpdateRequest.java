@@ -16,24 +16,20 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServicesUpdateRequest {
-    @NotBlank(message = "NOT_EMPTY")
     String name;
 
-    @NotNull(message = "NOT_EMPTY")
     int serviceCategoryId;
 
-    String subTitle;
+    String description;
 
-    @NotNull(message = "NOT_EMPTY")
     @Min(value = 0, message = "MIN")
     BigDecimal price;
 
-    @NotNull(message = "NOT_EMPTY")
     @Min(value = 1, message = "MIN")
     int duration;
 
     @Min(value = 1, message = "MIN")
     int session;
-    @NotNull(message="NOT_EMPTY")
+
     boolean active;
 }

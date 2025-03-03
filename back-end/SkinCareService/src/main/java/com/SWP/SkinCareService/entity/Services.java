@@ -32,8 +32,8 @@ public class Services {
     @JsonManagedReference
     ServiceCategory serviceCategory;
 
-//    @Column(columnDefinition = "TEXT")
-//    String subTitle;
+    @Column(columnDefinition = "TEXT")
+    String description;
 
     @Column(nullable = false, precision = 19, scale = 0)
     BigDecimal price;
@@ -49,12 +49,9 @@ public class Services {
     @Column(name = "updated_at")
     LocalDateTime updatedAt;
 
-    int session;
+    int session = 1;
 
     boolean active = false;
 
-    @OneToOne(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    @ToString.Exclude
-    ServiceInfo serviceInfo;
+    String img;
 }

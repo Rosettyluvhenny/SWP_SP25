@@ -7,15 +7,23 @@ import com.SWP.SkinCareService.entity.ServiceCategory;
 import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
+import com.SWP.SkinCareService.exception.MultipleParameterValidationException;
 import com.SWP.SkinCareService.mapper.ServicesMapper;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
 import com.SWP.SkinCareService.repository.ServicesRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
@@ -24,15 +32,21 @@ public class ServicesService {
     ServicesRepository servicesRepository;
     ServicesMapper servicesMapper;
     ServiceCategoryRepository serviceCategoryRepository;
+    SupabaseService supabaseService;
 
     @Transactional
-    public ServicesResponse create(ServicesRequest request){
+    public ServicesResponse create(ServicesRequest request, MultipartFile img) throws IOException {
         if(servicesRepository.existsByName(request.getName())){
             throw new AppException(ErrorCode.SERVICE_EXIST);
         }
+        if(img ==null || img.isEmpty())
+            throw new MultipleParameterValidationException(Collections.singletonList("img"));
+
         ServiceCategory category = serviceCategoryRepository.findById(request.getServiceCategoryId()).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
         Services service = servicesMapper.toServices(request);
         service.setServiceCategory(category);
+        String serviceImg= supabaseService.uploadImage(img, LocalDateTime.now().toString());
+        service.setImg(serviceImg);
         service = servicesRepository.save(service);
         serviceCategoryRepository.flush();
         return servicesMapper.toResponse(service);
@@ -47,9 +61,16 @@ public class ServicesService {
     }
 
     @Transactional
-    public ServicesResponse update(int id, ServicesUpdateRequest request){
+    public ServicesResponse update(int id, ServicesUpdateRequest request, MultipartFile img) throws IOException {
         Services service = checkService(id);
         servicesMapper.update(request, service);
+        if(img ==null || img.isEmpty())
+            throw new MultipleParameterValidationException(Collections.singletonList("img"));
+        else{
+            supabaseService.deleteImage(service.getImg());
+            String serviceImg= supabaseService.uploadImage(img, LocalDateTime.now().toString());
+            service.setImg(serviceImg);
+        }
         ServiceCategory category = checkServiceCategory(request.getServiceCategoryId());
         service.setServiceCategory(category);
         servicesRepository.save(service);
@@ -75,8 +96,9 @@ public class ServicesService {
     }
 
     @Transactional
-    public void delete(int id){
+    public void delete(int id) throws IOException {
         Services service = checkService(id);
+        supabaseService.deleteImage(service.getImg());
         servicesRepository.delete(service);
     }
 

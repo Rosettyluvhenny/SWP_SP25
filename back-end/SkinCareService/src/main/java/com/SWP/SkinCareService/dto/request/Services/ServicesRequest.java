@@ -22,8 +22,8 @@ public class ServicesRequest {
     @NotNull(message = "NOT_EMPTY")
     int serviceCategoryId;
 
-//    String subTitle;
-
+    @NotBlank(message = "NOT_EMPTY")
+    String description;
     @NotNull(message = "NOT_EMPTY")
     @Min(value = 0, message = "MIN")
     BigDecimal price;
@@ -37,4 +37,5 @@ public class ServicesRequest {
 
     @NotNull(message ="NOT_EMPTY")
     boolean active;
+
 }
