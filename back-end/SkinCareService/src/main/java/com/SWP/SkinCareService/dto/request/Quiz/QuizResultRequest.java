@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.dto.request.Quiz;
 
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -10,13 +11,15 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class QuestionRequest {
+public class QuizResultRequest {
+    @NotBlank(message ="NOT_EMPTY")
+    String text;
+
     @NotNull(message = "NOT_EMPTY")
-    private int quizId;
+    int rangePoint;
 
-    @NotBlank(message ="NOT_EMPTY")
-    private String questionText;
+    @NotNull(message = "NOT_EMPTY")
+    int serviceId;
 
-    @NotBlank(message ="NOT_EMPTY")
-    private String questionType;
+    int quizId;
 }

@@ -12,12 +12,12 @@ import lombok.experimental.FieldDefaults;
 @Builder
 public class AnswerRequest {
     @NotNull(message = "NOT_EMPTY")
-    private int questionId;
+    int questionId;
 
     @NotBlank(message ="NOT_EMPTY")
-    private String text;
+    String text;
 
     @NotNull(message = "NOT_EMPTY")
-    private int point;
+    int point;
 
 }

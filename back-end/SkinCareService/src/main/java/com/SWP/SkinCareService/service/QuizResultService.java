@@ -118,12 +118,12 @@ public class QuizResultService {
         int lowerBound = 0;
         for (QuizResult result : results) {
             if (score >= lowerBound && score <= result.getRangePoint()) {
-                return result.getResultText();
+                return result.getText();
             }
 
             lowerBound = result.getRangePoint() + 1;
         }
-        return results.getLast().getResultText();
+        return results.getLast().getText();
     }
 
 }

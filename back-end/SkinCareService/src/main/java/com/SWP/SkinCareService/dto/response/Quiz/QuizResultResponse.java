@@ -1,7 +1,8 @@
-package com.SWP.SkinCareService.dto.response.service;
+package com.SWP.SkinCareService.dto.response.Quiz;
 
 import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.entity.Services;
+import com.SWP.SkinCareService.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,10 +13,11 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ServiceCategoryResponse {
-    private int id;
-    private String categoryName;
-    private String description;
-    private List<Quiz> quiz;
-    private List<Services> service;
+public class QuizResultResponse {
+    int id;
+    String text;
+    int rangePoint;
+    Quiz quiz;
+    List<User> users;
+    List<Services> services;
 }

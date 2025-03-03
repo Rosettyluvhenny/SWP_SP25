@@ -15,25 +15,15 @@ public class ServicesResponse {
 
     String name;
 
-//    ServiceCategory serviceCategory;
-
-//    String subTitle;
 
     BigDecimal price;
 
     int duration;
 
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-//    LocalDateTime createdAt;
-
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-//    LocalDateTime updatedAt;
 
     int session;
 
-//    boolean active;
 
-//    ServiceInfo serviceInfo;
     String img;
 
     String description;

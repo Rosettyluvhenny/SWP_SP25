@@ -21,7 +21,7 @@ public class QuizResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String resultText;
+    private String text;
     private int rangePoint;
 
     @OneToMany(mappedBy = "quizResult",cascade = CascadeType.ALL)
