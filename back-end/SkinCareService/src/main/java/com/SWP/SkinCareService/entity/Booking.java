@@ -22,7 +22,7 @@ import java.util.Set;
 @Builder
 public class Booking {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
     //Many to One - User
     @ManyToOne()

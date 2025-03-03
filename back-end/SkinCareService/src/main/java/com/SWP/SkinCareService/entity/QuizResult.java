@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 public class QuizResult {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String resultText;

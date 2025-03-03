@@ -39,4 +39,6 @@ public class ServicesRequest {
     boolean active;
 
     int roomId;
+
+    String therapistId;
 }

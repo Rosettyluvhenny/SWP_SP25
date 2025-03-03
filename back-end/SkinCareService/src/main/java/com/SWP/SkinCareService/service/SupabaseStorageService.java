@@ -20,12 +20,12 @@ public class SupabaseStorageService {
 
     public String uploadImage(MultipartFile file) throws IOException {
         String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
-        String url = config.getSupabaseUrl() + "/storage/v1/object/public/" + config.getBucketName() + "/" + fileName;
+        String url = config.getUrl() + "/storage/v1/object/public/" + config.getBucket() + "/" + fileName;
 
         RequestBody requestBody = RequestBody.create(file.getBytes(), MediaType.parse(file.getContentType()));
         Request request = new Request.Builder()
-                .url(config.getSupabaseUrl() + "/storage/v1/object/" + config.getBucketName() + "/" + fileName)
-                .header("Authorization", "Bearer " + config.getSupabaseKey())
+                .url(config.getUrl() + "/storage/v1/object/" + config.getBucket() + "/" + fileName)
+                .header("Authorization", "Bearer " + config.getKey())
                 .header("Content-Type", "application/octet-stream")
                 .put(requestBody)
                 .build();
@@ -40,11 +40,11 @@ public class SupabaseStorageService {
     }
 
     public boolean deleteImage(String fileName) throws IOException {
-        String url = config.getSupabaseUrl() + "/storage/v1/object/" + config.getBucketName() + "/" + fileName;
+        String url = config.getUrl() + "/storage/v1/object/" + config.getBucket() + "/" + fileName;
 
         Request request = new Request.Builder()
                 .url(url)
-                .header("Authorization", "Bearer " + config.getSupabaseKey())
+                .header("Authorization", "Bearer " + config.getKey())
                 .delete()
                 .build();
 
@@ -55,7 +55,7 @@ public class SupabaseStorageService {
 
 
     public String listFiles() throws IOException {
-        String url = config.getSupabaseUrl() + "/storage/v1/object/list/" + config.getBucketName();
+        String url = config.getUrl() + "/storage/v1/object/list/" + config.getBucket();
 
         // JSON body để lấy danh sách file (có thể chỉ định folder nếu cần)
         RequestBody requestBody = RequestBody.create(
@@ -65,7 +65,7 @@ public class SupabaseStorageService {
 
         Request request = new Request.Builder()
                 .url(url)
-                .header("Authorization", "Bearer " + config.getSupabaseKey())
+                .header("Authorization", "Bearer " + config.getKey())
                 .header("Content-Type", "application/json")
                 .post(requestBody)  // Supabase yêu cầu POST thay vì GET
                 .build();

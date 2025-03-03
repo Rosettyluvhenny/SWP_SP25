@@ -1,19 +1,9 @@
 package com.SWP.SkinCareService.dto.response.Services;
 
-import com.SWP.SkinCareService.entity.ServiceCategory;
-import com.SWP.SkinCareService.entity.ServiceInfo;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.cglib.core.Local;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)

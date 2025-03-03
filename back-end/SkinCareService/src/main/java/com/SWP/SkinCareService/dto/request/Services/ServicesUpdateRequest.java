@@ -36,4 +36,8 @@ public class ServicesUpdateRequest {
     int session;
     @NotNull(message="NOT_EMPTY")
     boolean active;
+
+    int roomId;
+
+    String therapistId;
 }

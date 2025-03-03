@@ -30,13 +30,14 @@ public class Services {
     @Column(nullable = false, length = 255)
     String name;
 
+    //Many to One - Service Category
     @ManyToOne
     @JoinColumn(name = "service_category_id", nullable = false)
     @JsonManagedReference
     ServiceCategory serviceCategory;
 
     @Column(columnDefinition = "TEXT")
-    String subTitle;
+    String description;
 
     @Column(nullable = false, precision = 19, scale = 0)
     BigDecimal price;
@@ -56,10 +57,7 @@ public class Services {
 
     boolean active = false;
 
-    @OneToOne(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    @ToString.Exclude
-    ServiceInfo serviceInfo;
+    String img;
 
 
     //Many to many with Quiz result
@@ -72,6 +70,7 @@ public class Services {
     @JsonManagedReference
     List<QuizResult> quizResults = new ArrayList<>();
 
+    //Many to Many - Service
     @ManyToMany(mappedBy = "services")
     @JsonBackReference
     List<Room> rooms = new ArrayList<>();
@@ -81,6 +80,11 @@ public class Services {
     @OneToMany(mappedBy = "service", cascade = CascadeType.REMOVE)
     @JsonManagedReference
     List<Booking> bookings = new ArrayList<>();
+
+    //Many to Many - Therapist
+    @ManyToMany(mappedBy = "services", cascade = CascadeType.ALL)
+    @JsonBackReference
+    List<Therapist> therapists = new ArrayList<>();
 
 
 }

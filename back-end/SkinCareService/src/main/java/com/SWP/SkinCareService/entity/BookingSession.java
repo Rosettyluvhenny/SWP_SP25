@@ -19,7 +19,7 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingSession {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
     //Many to One - Booking
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,6 +45,11 @@ public class BookingSession {
     Room room;
 
     //Therapist id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "therapistId")
+    @JsonBackReference
+    Therapist therapist;
+
 
     //Many to One - User
     @ManyToOne(fetch = FetchType.LAZY)

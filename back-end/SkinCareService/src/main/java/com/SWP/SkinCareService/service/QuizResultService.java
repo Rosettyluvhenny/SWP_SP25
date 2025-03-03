@@ -102,7 +102,7 @@ public class QuizResultService {
     }
 
     private Services getServiceById(int id) {
-        return servicesRepository.findById((long) id).orElseThrow(()
+        return servicesRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
     }
 

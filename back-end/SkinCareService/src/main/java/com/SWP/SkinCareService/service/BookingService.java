@@ -113,7 +113,7 @@ public class BookingService {
                 -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
-    Services getServiceById(long id) {
+    Services getServiceById(int id) {
         return servicesRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
     }
