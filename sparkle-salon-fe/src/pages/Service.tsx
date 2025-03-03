@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { Service } from "../data/servicesData";
-import servicesData from "../data/servicesData";
+import { servicesData } from "../data/servicesData";
 import SearchBar from "../components/SearchBar";
 import SortButtons from "../components/SortButton";
 import Pagination from "../components/Pagination";

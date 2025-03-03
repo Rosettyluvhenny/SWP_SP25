@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DateTimeSelector from "../components/DateTimeSelector";
 import { useLocation } from "react-router-dom";
-import servicesData, { Service } from "../data/servicesData"; 
+import  { Service, servicesData } from "../data/servicesData"; 
 import { FaMoneyBill } from "react-icons/fa";
 import { therapists } from "../data/therapistData";
 

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
 import { motion } from "framer-motion";
 import { FaEdit, FaTrash, FaSearch, FaPlus } from "react-icons/fa";
+import { deleteServiceById, servicesData } from "../data/servicesData";
 
 type Service = {
     id: number;
@@ -15,36 +16,22 @@ type Service = {
 export default function ServiceManagement() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("Tất Cả");
-    const [services, setServices] = useState<Service[]>([
-        {
-            id: 1,
-            name: "Nặn Mụn Chuyên Sâu",
-            price: "150.000",
-            status: "Hoạt Động",
-            category: "Chăm Sóc Da",
-        },
-        {
-            id: 2,
-            name: "Trị da dầu",
-            price: "250.000",
-            status: "Không Hoạt Động",
-            category: "Trị Liệu",
-        },
-        {
-            id: 3,
-            name: "Trị da sẹo rỗ",
-            price: "300.000",
-            status: "Hoạt Động",
-            category: "Trị Liệu",
-        },
-        {
-            id: 4,
-            name: "Thải Độc Da",
-            price: "180.000",
-            status: "Hoạt Động",
-            category: "Chăm Sóc Da",
-        },
-    ]);
+    const getServiceList =  useCallback(() => {
+        const serviceListData: Service[] = servicesData.map((service) => ({
+            id: service.id,
+            name: service.name,
+            price: service.price.toString(),
+            status: service.active ? "Hoạt Động" : "Không Hoạt Động",
+            category: service.categoryName,
+        }));
+        if (serviceListData.length > 0) {
+            setServices(serviceListData);
+        }
+    }, []);
+    const [services, setServices] = useState<Service[]>([]);
+    useEffect(() => {
+        getServiceList()
+    }, [getServiceList]);
 
     const categories = ["Tất Cả", "Chăm Sóc Da", "Trị Liệu", "Dịch Vụ Khác"];
 
@@ -104,12 +91,18 @@ export default function ServiceManagement() {
         closeModal();
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: number) => {
         const confirmDelete = window.confirm(
             "Bạn có chắc chắn muốn xóa dịch vụ này?"
         );
         if (confirmDelete) {
-            setServices(services.filter((service) => service.id !== id));
+            const deletedService = await deleteServiceById(id.toString());
+            if (deletedService) {
+                alert("Xóa dịch vụ thành công");
+                setServices(services.filter((service) => service.id !== id));
+            } else {
+                alert("Xóa dịch vụ thất bại");
+            }
         }
     };
 

@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import servicesData, { Service } from "../data/servicesData";
+import  { Service, serviceDataById, servicesData } from "../data/servicesData";
 import { feedbacksData } from "../data/feedbacksData";
 import { FaClock, FaMoneyBill, FaCalendarAlt } from "react-icons/fa";
 import FeedbackForm from "../components/FeedbackForm";
@@ -34,7 +34,7 @@ export default function ServiceDetail() {
                 }
                 
                 // Find the service by ID
-                const foundService = servicesData.find((s) => s.id.toString() === id);
+                const foundService = await serviceDataById(id)
                 
                 if (!foundService) {
                     setError("Service not found");
