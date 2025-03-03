@@ -45,9 +45,10 @@ public class ServicesService {
         ServiceCategory category = serviceCategoryRepository.findById(request.getServiceCategoryId()).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
         Services service = servicesMapper.toServices(request);
         service.setServiceCategory(category);
-        String serviceImg= supabaseService.uploadImage(img, LocalDateTime.now().toString());
-        service.setImg(serviceImg);
         service = servicesRepository.save(service);
+        String serviceImg= supabaseService.uploadImage(img, "service_" + service.getId());
+        service.setImg(serviceImg);
+
         serviceCategoryRepository.flush();
         return servicesMapper.toResponse(service);
     }
