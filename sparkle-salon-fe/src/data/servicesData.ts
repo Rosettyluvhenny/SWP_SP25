@@ -2,12 +2,12 @@
 export interface Service {
     id: number;
     name: string;
-    img: string;
     price: number;
     duration: string;
-    popularity: number;
+    session: number;
+    img: string;
     description: string;
-    category?: string;
+    categoryName: string;
 }
 
 const servicesData: Service[] = [
@@ -17,7 +17,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/BHwF63Mg/skin-treatment1.jpg",
         price: 150000,
         duration: "90 phút",
-        popularity: 765826,
+        session: 765826,
         description: `
             <h1>Điều Trị Mụn Chuyên Sâu 12 Bước</h1>
             <p>Dịch vụ <strong>Điều Trị Mụn Chuyên Sâu 12 Bước</strong> tại Sparkle Salon được thiết kế dành riêng cho làn da gặp vấn đề về mụn như mụn viêm, mụn đầu đen, mụn ẩn và da dễ kích ứng.</p>
@@ -99,7 +99,7 @@ const servicesData: Service[] = [
                 "Liệu trình điều trị mụn chuyên sâu đã giúp tôi cải thiện đáng kể tình trạng da. Sau 5 lần điều trị, mụn giảm hẳn và da sáng mịn hơn rất nhiều." - Khách hàng Minh Anh
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 2,
@@ -107,7 +107,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/fGYS3VzC/skin-treatment2.jpg",
         price: 200000,
         duration: "30 phút",
-        popularity: 13373,
+        session: 13373,
         description: `
             <h1>Thải Độc Da Thảo Dược</h1>
             
@@ -186,7 +186,7 @@ const servicesData: Service[] = [
                 "Sau khi thử liệu trình thải độc da thảo dược, làn da của tôi trở nên tươi sáng và khỏe mạnh hơn hẳn. Đặc biệt là cảm giác thư giãn trong quá trình điều trị thật tuyệt vời!" - Khách hàng Thanh Hà
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 3,
@@ -194,7 +194,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/p8hzvCs/skin-treatment3.jpg",
         price: 550000,
         duration: "45 phút",
-        popularity: 97050,
+        session: 97050,
         description: `
             <h1>Điều Trị Nám Da</h1>
             
@@ -284,7 +284,7 @@ const servicesData: Service[] = [
                 "Sau khi trải qua liệu trình điều trị nám tại Sparkle Salon, làn da của tôi đã cải thiện rõ rệt. Các đốm nám mờ dần và da sáng đều màu hơn. Tôi rất hài lòng với kết quả!" - Khách hàng Thanh Thảo
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 4,
@@ -292,19 +292,21 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/cmnDYzX/skin-treatment7.jpg",
         price: 300000,
         duration: "45 phút",
-        popularity: 50000,
+        session: 50000,
         description: `
             <h1>Điều Trị Tàn Nhang</h1>
             
-            <p>Dịch vụ <strong>Điều Trị Tàn Nhang</strong> tại Sparkle Salon giúp giảm sưng viêm, tiêu diệt vi khuẩn gây mụn và phục hồi làn da. **Quy trình bao gồm:** - Làm sạch da và tẩy tế bào chết - Xông hơi hỗ trợ giãn nở lỗ chân lông - Chấm tinh chất kháng khuẩn - Áp dụng công nghệ ánh sáng sinh học - Đắp mặt nạ làm dịu da - Dưỡng ẩm phục hồi`
+            <p>Dịch vụ <strong>Điều Trị Tàn Nhang</strong> tại Sparkle Salon giúp giảm sưng viêm, tiêu diệt vi khuẩn gây mụn và phục hồi làn da. **Quy trình bao gồm:** - Làm sạch da và tẩy tế bào chết - Xông hơi hỗ trợ giãn nở lỗ chân lông - Chấm tinh chất kháng khuẩn - Áp dụng công nghệ ánh sáng sinh học - Đắp mặt nạ làm dịu da - Dưỡng ẩm phục hồi`,
+        categoryName: "Điều Trị Da",
     },
+
     {
         id: 5,
         name: "Điều Trị Sẹo Rỗ",
         img: "https://i.ibb.co/n83Tryf1/skin-treatment4.jpg",
         price: 250000,
         duration: "60 phút",
-        popularity: 89000,
+        session: 89000,
         description: `
             <h1>Điều Trị Sẹo Rỗ</h1>
             
@@ -396,7 +398,7 @@ const servicesData: Service[] = [
                 "Sau nhiều năm bị sẹo rỗ do mụn, tôi đã thử liệu trình điều trị tại Sparkle Salon và thực sự ngạc nhiên với kết quả. Các vết sẹo đã phẳng hơn rất nhiều và làn da của tôi mịn màng hơn hẳn." - Khách hàng Hoàng Minh
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 6,
@@ -404,7 +406,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/V0WCLYCK/skin-treatment5.jpg",
         price: 600000,
         duration: "90 phút",
-        popularity: 65000,
+        session: 65000,
         description: `
             <h1>Điều Trị Da Nhờn</h1>
             
@@ -500,7 +502,7 @@ const servicesData: Service[] = [
                 "Tôi đã phải vật lộn với làn da dầu và mụn trong nhiều năm. Sau khi thử liệu trình điều trị da nhờn tại Sparkle Salon, làn da của tôi đã cải thiện đáng kể. Da không còn bóng dầu vào giữa ngày và mụn cũng giảm hẳn." - Khách hàng Thùy Linh
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 7,
@@ -508,7 +510,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/DHxYGwP1/skin-treatment6.jpg",
         price: 100000,
         duration: "40 phút",
-        popularity: 43000,
+        session: 43000,
         description: `
             <h1>Điều Trị Lão Hóa Da</h1>
             
@@ -604,7 +606,7 @@ const servicesData: Service[] = [
                 "Ở tuổi 45, tôi đã lo lắng về các dấu hiệu lão hóa trên da. Sau khi trải qua liệu trình điều trị tại Sparkle Salon, làn da của tôi đã trở nên căng mịn và tươi trẻ hơn rất nhiều. Các nếp nhăn đã mờ đi đáng kể và da săn chắc hơn." - Khách hàng Hồng Vân
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 8,
@@ -612,7 +614,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/WWVd35zw/skin-treatment8.webp",
         price: 350000,
         duration: "1 Giờ",
-        popularity: 52000,
+        session: 52000,
         description: `
             <h1>Điều Trị Da Không Đều Màu</h1>
             
@@ -708,7 +710,7 @@ const servicesData: Service[] = [
                 "Sau nhiều năm bị thâm nám và da không đều màu, tôi đã thử liệu trình điều trị tại Sparkle Salon. Chỉ sau vài lần, làn da của tôi đã sáng hơn và đều màu hơn rất nhiều. Tôi rất hài lòng với kết quả!" - Khách hàng Thanh Hà
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 9,
@@ -716,7 +718,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/tpBQL1Jh/skin-treatment9.jpg",
         price: 450000,
         duration: "50 phút",
-        popularity: 61000,
+        session: 61000,
         description: `
             <h1>Điều Trị Lỗ Chân Lông To</h1>
             
@@ -812,7 +814,7 @@ const servicesData: Service[] = [
                 "Tôi đã phải vật lộn với lỗ chân lông to trong nhiều năm. Sau khi thử liệu trình điều trị tại Sparkle Salon, làn da của tôi đã cải thiện đáng kể. Lỗ chân lông nhỏ hơn và da mịn màng hơn rất nhiều." - Khách hàng Minh Anh
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 10,
@@ -820,7 +822,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/Dgw0NW6m/skin-treatment10.webp",
         price: 700000,
         duration: "75 phút",
-        popularity: 72000,
+        session: 72000,
         description: `
             <h1>Trẻ Hóa Da Công Nghệ Cao</h1>
             
@@ -915,7 +917,7 @@ const servicesData: Service[] = [
                 "Tôi đã thử nhiều phương pháp trẻ hóa da nhưng chỉ có liệu trình tại Sparkle Salon mới thực sự hiệu quả. Sau 5 lần điều trị, làn da của tôi đã trở nên căng mịn và tươi trẻ hơn rất nhiều. Các nếp nhăn đã mờ đi đáng kể và da săn chắc hơn." - Khách hàng Thanh Thảo
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 11,
@@ -923,7 +925,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/hJ0f4yt2/skin-treatment11.webp",
         price: 800000,
         duration: "90 phút",
-        popularity: 91000,
+        session: 91000,
         description: `
             <h1>Cấy Tinh Chất Trắng Da</h1>
             
@@ -1031,7 +1033,7 @@ const servicesData: Service[] = [
                 "Sau khi trải qua liệu trình Cấy Tinh Chất Trắng Da tại Sparkle Salon, làn da của tôi đã trở nên sáng hơn và đều màu hơn rất nhiều. Các vết thâm nám cũng mờ đi đáng kể. Tôi rất hài lòng với kết quả!" - Khách hàng Ngọc Mai
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 12,
@@ -1039,7 +1041,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/cX1Jtv85/skin-treatment12.jpg",
         price: 180000,
         duration: "30 phút",
-        popularity: 56000,
+        session: 56000,
         description: `
             <h1>Điều Trị Mụn Đầu Đen</h1>
             
@@ -1147,7 +1149,7 @@ const servicesData: Service[] = [
                 "Tôi đã phải vật lộn với mụn đầu đen trong nhiều năm. Sau khi thử liệu trình điều trị tại Sparkle Salon, làn da của tôi đã cải thiện đáng kể. Mụn đầu đen giảm hẳn và lỗ chân lông nhỏ hơn rất nhiều." - Khách hàng Hồng Nhung
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 13,
@@ -1155,7 +1157,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/rfwYrmNr/skin-treatment13.jpg",
         price: 550000,
         duration: "1 Giờ",
-        popularity: 74000,
+        session: 74000,
         description: `
             <h1>Điều Trị Mụn Viêm</h1>
             
@@ -1265,7 +1267,7 @@ const servicesData: Service[] = [
                 "Tôi đã phải vật lộn với mụn viêm trong nhiều năm. Sau khi thử liệu trình điều trị tại Sparkle Salon, làn da của tôi đã cải thiện đáng kể. Mụn viêm giảm hẳn và da không còn đỏ, sưng như trước. Tôi rất hài lòng với kết quả!" - Khách hàng Minh Tú
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 14,
@@ -1273,7 +1275,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/rfwYrmNr/skin-treatment14.jpg",
         price: 400000,
         duration: "45 Phút",
-        popularity: 48000,
+        session: 48000,
         description: `
             <h1>Điều Trị Da Nhạy Cảm</h1>
             
@@ -1382,7 +1384,7 @@ const servicesData: Service[] = [
                 "Tôi đã thử rất nhiều phương pháp điều trị cho làn da nhạy cảm của mình nhưng chưa có kết quả. Sau khi điều trị tại Sparkle Salon, làn da của tôi đã bớt đỏ và ít phản ứng hơn với các sản phẩm. Tôi cảm thấy tự tin hơn rất nhiều với làn da của mình." - Khách hàng Thanh Hà
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 15,
@@ -1390,7 +1392,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/cS8J7zN7/skin-treatment15.jpg",
         price: 320000,
         duration: "50 phút",
-        popularity: 67000,
+        session: 67000,
         description: `
             <h1>Thải Độc Da Bằng Than Hoạt Tính</h1>
             
@@ -1501,7 +1503,7 @@ const servicesData: Service[] = [
                 "Sau khi thử dịch vụ Thải Độc Da Bằng Than Hoạt Tính tại Sparkle Salon, tôi cảm thấy làn da mình như được 'thở' trở lại. Da sạch hơn, sáng hơn và các lỗ chân lông cũng thu nhỏ đáng kể. Đây sẽ là liệu trình tôi duy trì hàng tháng!" - Khách hàng Minh Anh
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 16,
@@ -1509,7 +1511,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/sdgRzjxh/skin-treatment16.png",
         price: 280000,
         duration: "40 phút",
-        popularity: 57000,
+        session: 57000,
         description: `
             <h1>Điều Trị Da Khô</h1>
             
@@ -1621,7 +1623,7 @@ const servicesData: Service[] = [
                 "Tôi đã phải chịu đựng làn da khô, bong tróc và thường xuyên cảm thấy căng rát. Sau khi thử liệu trình Điều Trị Da Khô tại Sparkle Salon, làn da của tôi đã thay đổi hoàn toàn. Da mềm mại, căng mọng và không còn cảm giác khó chịu nữa. Tôi rất hài lòng với kết quả!" - Khách hàng Thanh Thảo
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 17,
@@ -1629,7 +1631,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/0yHCq6Ym/skin-treatment17.jpg",
         price: 650000,
         duration: "80 phút",
-        popularity: 88000,
+        session: 88000,
         description: `
             <h1>Căng Bóng Da Hàn Quốc</h1>
             
@@ -1741,7 +1743,7 @@ const servicesData: Service[] = [
                 "Tôi đã thử rất nhiều phương pháp làm đẹp nhưng chưa có gì mang lại hiệu quả nhanh chóng như liệu trình Căng Bóng Da Hàn Quốc tại Sparkle Salon. Chỉ sau một lần điều trị, da tôi đã trở nên căng mọng, sáng bóng như được 'tiêm' nước vào da. Bạn bè ai cũng khen ngợi và hỏi bí quyết!" - Khách hàng Minh Tâm
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 18,
@@ -1749,7 +1751,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/VYcF627p/skin-treatment18.jpg",
         price: 750000,
         duration: "85 phút",
-        popularity: 94000,
+        session: 94000,
         description: `
             <h1>Liệu Trình Collagen Trẻ Hóa</h1>
             
@@ -1862,7 +1864,7 @@ const servicesData: Service[] = [
                 "Ở tuổi 45, tôi đã thấy rõ các dấu hiệu lão hóa trên da. Sau khi thực hiện Liệu Trình Collagen Trẻ Hóa tại Sparkle Salon, làn da của tôi đã cải thiện đáng kể. Các nếp nhăn mờ đi, da săn chắc hơn và tôi cảm thấy trẻ ra ít nhất 5 tuổi. Đây là liệu trình tuyệt vời mà tôi sẽ tiếp tục duy trì!" - Khách hàng Ngọc Anh
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 19,
@@ -1870,7 +1872,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/rG0SLBfS/skin-treatment19.jpg",
         price: 900000,
         duration: "95 phút",
-        popularity: 102000,
+        session: 102000,
         description: `
             <h1>Tái Tạo Da Bằng Tế Bào Gốc</h1>
             
@@ -1983,7 +1985,7 @@ const servicesData: Service[] = [
                 "Sau khi trải qua liệu trình Tái Tạo Da Bằng Tế Bào Gốc tại Sparkle Salon, tôi thực sự kinh ngạc với kết quả. Làn da của tôi không chỉ trở nên sáng hơn, mịn màng hơn mà còn có sức sống và độ đàn hồi như khi còn trẻ. Các vết thâm và nếp nhăn cũng mờ đi đáng kể. Đây là liệu trình đáng đầu tư nhất mà tôi từng thử!" - Khách hàng Hương Giang
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 20,
@@ -1991,7 +1993,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/fYx4fDx9/skin-treatment25.jpg",
         price: 950000,
         duration: "110 phút",
-        popularity: 97000,
+        session: 97000,
         description: `
             <h1>Điều Trị Mụn Bằng Công Nghệ IPL</h1>
             
@@ -2106,7 +2108,7 @@ const servicesData: Service[] = [
                 "Tôi đã phải vật lộn với mụn viêm nhiều năm và đã thử nhiều phương pháp điều trị khác nhau. Sau khi thử liệu trình Điều Trị Mụn Bằng Công Nghệ IPL tại Sparkle Salon, làn da của tôi đã cải thiện đáng kể chỉ sau 3 lần điều trị. Mụn viêm giảm hẳn, da không còn đỏ và các vết thâm cũng mờ dần. Tôi rất hài lòng với kết quả và sẽ tiếp tục liệu trình này!" - Khách hàng Minh Tuấn
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 21,
@@ -2114,7 +2116,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/Lbxv4wS/skin-treatment26.jpg",
         price: 180000,
         duration: "30 phút",
-        popularity: 65000,
+        session: 65000,
         description: `
             <h1>Chăm Sóc Da Mặt Cơ Bản</h1>
             
@@ -2222,7 +2224,7 @@ const servicesData: Service[] = [
                 "Dịch vụ Chăm Sóc Da Mặt Cơ Bản tại Sparkle Salon là lựa chọn hoàn hảo cho lịch trình bận rộn của tôi. Chỉ với 30 phút, làn da của tôi được làm sạch sâu, cấp ẩm và trở nên tươi tắn hơn. Các chuyên viên rất tận tâm và hiểu rõ nhu cầu của da tôi. Tôi thường xuyên sử dụng dịch vụ này mỗi tháng để duy trì làn da khỏe mạnh." - Khách hàng Thanh Mai
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 22,
@@ -2230,7 +2232,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/Rkyqd87G/skin-treatment27.jpg",
         price: 350000,
         duration: "70 phút",
-        popularity: 72000,
+        session: 72000,
         description: `
             <h1>Chăm Sóc Da Chuyên Sâu</h1>
             
@@ -2344,7 +2346,7 @@ const servicesData: Service[] = [
                 "Liệu trình Chăm Sóc Da Chuyên Sâu tại Sparkle Salon đã thực sự làm thay đổi làn da của tôi. Sau 5 lần điều trị, làn da của tôi trở nên căng mịn, sáng đều màu và khỏe mạnh hơn rất nhiều. Các kỹ thuật viên rất chuyên nghiệp và tận tâm, họ hiểu rõ tình trạng da của tôi và đưa ra những giải pháp phù hợp. Tôi đặc biệt thích phần massage nâng cơ, vừa thư giãn vừa hiệu quả. Đây là khoản đầu tư xứng đáng cho làn da của tôi!" - Khách hàng Minh Tâm
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 23,
@@ -2352,7 +2354,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/rRdLJj1S/skin-treatment23.jpg",
         price: 400000,
         duration: "45 phút",
-        popularity: 69000,
+        session: 69000,
         description: `
             <h1>Điều Trị Thâm Mụn</h1>
             
@@ -2463,7 +2465,7 @@ const servicesData: Service[] = [
                 "Sau khi trải qua liệu trình Điều Trị Thâm Mụn tại Sparkle Salon, làn da của tôi đã cải thiện rõ rệt. Những vết thâm sau mụn đã mờ đi đáng kể, da sáng và đều màu hơn. Tôi đặc biệt ấn tượng với sự chuyên nghiệp của các kỹ thuật viên và hiệu quả của các sản phẩm được sử dụng. Giờ đây tôi tự tin hơn rất nhiều với làn da của mình." - Khách hàng Minh Anh
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 24,
@@ -2471,7 +2473,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/0y1TmyWZ/skin-treatment24.webp",
         price: 1200000,
         duration: "120 phút",
-        popularity: 112000,
+        session: 112000,
         description: `
             <h1>Điều Trị Nám Tàn Nhang Bằng Laser</h1>
             
@@ -2598,7 +2600,7 @@ const servicesData: Service[] = [
                 "Tôi đã phải vật lộn với nám da nhiều năm và đã thử nhiều phương pháp khác nhau nhưng không hiệu quả. Sau khi điều trị nám bằng laser tại Sparkle Salon, làn da của tôi đã thay đổi hoàn toàn. Các đốm nám đã mờ đi đáng kể chỉ sau 3 lần điều trị, và tông màu da của tôi trở nên đều màu và tươi sáng hơn. Các chuyên viên rất tận tâm và chuyên nghiệp, luôn giải thích rõ ràng về quy trình và cách chăm sóc da sau điều trị. Tôi rất hài lòng với kết quả và sẽ tiếp tục sử dụng dịch vụ tại đây." - Khách hàng Thanh Hương
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     {
         id: 25,
@@ -2606,7 +2608,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/fYx4fDx9/skin-treatment25.jpg",
         price: 950000,
         duration: "110 phút",
-        popularity: 97000,
+        session: 97000,
         description: `
             <h1>Điều Trị Mụn Bằng Công Nghệ IPL</h1>
             
@@ -2736,7 +2738,7 @@ const servicesData: Service[] = [
                 "Tôi đã phải vật lộn với mụn viêm nhiều năm và đã thử nhiều phương pháp điều trị khác nhau. Sau khi điều trị mụn bằng công nghệ IPL tại Sparkle Salon, làn da của tôi đã cải thiện đáng kể. Mụn giảm hẳn chỉ sau 3 lần điều trị, da không còn đỏ và viêm như trước. Đặc biệt, mụn không tái phát nhiều như trước đây. Các chuyên viên rất tận tâm và chuyên nghiệp, luôn theo dõi tình trạng da của tôi sau mỗi lần điều trị. Tôi rất hài lòng với kết quả và sẽ tiếp tục sử dụng dịch vụ này." - Khách hàng Minh Tuấn
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     // ... existing code ...
     {
@@ -2745,7 +2747,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/Lbxv4wS/skin-treatment26.jpg",
         price: 180000,
         duration: "30 phút",
-        popularity: 65000,
+        session: 65000,
         description: `
             <h1>Chăm Sóc Da Mặt Cơ Bản</h1>
             
@@ -2853,7 +2855,7 @@ const servicesData: Service[] = [
                 "Dịch vụ Chăm Sóc Da Mặt Cơ Bản tại Sparkle Salon là lựa chọn hoàn hảo cho lịch trình bận rộn của tôi. Chỉ với 30 phút, làn da của tôi được làm sạch sâu, cấp ẩm và trở nên tươi tắn hơn. Các chuyên viên rất tận tâm và hiểu rõ nhu cầu của da tôi. Tôi thường xuyên sử dụng dịch vụ này mỗi tháng để duy trì làn da khỏe mạnh." - Khách hàng Thanh Mai
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     },
     // ... existing code ...
     {
@@ -2862,7 +2864,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/Rkyqd87G/skin-treatment27.jpg",
         price: 350000,
         duration: "70 phút",
-        popularity: 72000,
+        session: 72000,
         description: `
             <h1>Chăm Sóc Da Chuyên Sâu</h1>
             
@@ -2976,8 +2978,10 @@ const servicesData: Service[] = [
                 "Liệu trình Chăm Sóc Da Chuyên Sâu tại Sparkle Salon đã thực sự làm thay đổi làn da của tôi. Sau 5 lần điều trị, làn da của tôi trở nên căng mịn, sáng đều màu và khỏe mạnh hơn rất nhiều. Các kỹ thuật viên rất chuyên nghiệp và tận tâm, họ hiểu rõ tình trạng da của tôi và đưa ra những giải pháp phù hợp. Tôi đặc biệt thích phần massage nâng cơ, vừa thư giãn vừa hiệu quả. Đây là khoản đầu tư xứng đáng cho làn da của tôi!" - Khách hàng Minh Tâm
             </blockquote>
         `,
-        category: "Điều Trị Da",
+        categoryName: "Điều Trị Da",
     }
 ];
+
+
 
 export default servicesData;

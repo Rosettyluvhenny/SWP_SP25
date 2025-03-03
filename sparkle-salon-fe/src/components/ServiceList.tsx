@@ -7,12 +7,12 @@ import { motion } from "framer-motion";
 interface Service {
     id: number;
     name: string;
-    img: string;
     price: number;
     duration: string;
-    popularity: number;
-    category?: string;
-    description?: string;
+    session: number;
+    img: string;
+    description: string;
+    categoryName: string;
 }
 
 interface ServiceListProps {
