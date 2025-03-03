@@ -1,8 +1,12 @@
 package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.Quiz.QuizRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.UserResultRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Quiz.QuizResponse;
+import com.SWP.SkinCareService.dto.response.Quiz.QuizResultResponse;
+import com.SWP.SkinCareService.dto.response.Quiz.ResultResponse;
+import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.service.QuizService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -69,6 +73,14 @@ public class QuizController {
                 ApiResponse.builder()
                         .message("Delete Successfully")
                         .build()
+        );
+    }
+    
+    @GetMapping("/result")
+    public ResponseEntity<ApiResponse<ResultResponse>> getResult(@RequestBody UserResultRequest request) {
+        var result = quizService.getResult(request);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<ResultResponse>builder().result(result).build()
         );
     }
 

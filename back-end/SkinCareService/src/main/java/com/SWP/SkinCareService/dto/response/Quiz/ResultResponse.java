@@ -1,8 +1,6 @@
 package com.SWP.SkinCareService.dto.response.Quiz;
 
-import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.entity.Services;
-import com.SWP.SkinCareService.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,12 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class QuizResultResponse {
+public class ResultResponse {
     int id;
     String resultText;
-    int minPoint;
-    int maxPoint;
-    //Quiz quiz;
-    List<User> users;
     List<Services> services;
 }

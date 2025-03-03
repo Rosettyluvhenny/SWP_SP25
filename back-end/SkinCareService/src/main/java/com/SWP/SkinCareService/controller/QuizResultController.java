@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.Quiz.QuizResultRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.UserResultRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Quiz.QuizResultResponse;
 import com.SWP.SkinCareService.service.QuizResultService;

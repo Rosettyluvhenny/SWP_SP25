@@ -14,8 +14,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuestionResponse {
     int id;
-    String questionText;
-    String questionType;
+    String text;
+    String type;
     Date createdAt;
     Date updatedAt;
     List<Answer> answers;

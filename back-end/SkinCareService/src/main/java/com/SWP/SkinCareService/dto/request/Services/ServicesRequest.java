@@ -22,7 +22,7 @@ public class ServicesRequest {
     @NotNull(message = "NOT_EMPTY")
     int serviceCategoryId;
 
-    String subTitle;
+    String description;
 
     @NotNull(message = "NOT_EMPTY")
     @Min(value = 0, message = "MIN")

@@ -14,11 +14,13 @@ import java.util.List;
 
 @Entity
 @Table(name = "therapist")
+@Getter
+@Setter
+@ToString(exclude = {"user", "bookingSessions", "services"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
 public class Therapist {
 
     @Id
@@ -54,5 +56,16 @@ public class Therapist {
     )
     List<Services> services;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Therapist therapist = (Therapist) o;
+        return id != null && id.equals(therapist.id);
+    }
 
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

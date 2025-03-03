@@ -10,6 +10,9 @@ import java.util.List;
 
 @Repository
 public interface QuizResultRepository extends JpaRepository<QuizResult, Integer> {
+    /*
     @Query("SELECT q FROM QuizResult q WHERE q.id = :quizId ORDER BY q.rangePoint ASC")
-    List<QuizResult> findByQuizIdOrdered(@Param("quizId") Long quizId);
+    List<QuizResult> findByQuizIdOrdered(@Param("quizId") int quizId);
+
+     */
 }

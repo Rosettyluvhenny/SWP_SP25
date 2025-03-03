@@ -11,11 +11,15 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface QuestionMapper {
     @Mapping(target = "quiz", ignore = true)
+    @Mapping(target = "text", source = "text")
+    @Mapping(target = "type", source = "type")
     Question toQuestion(QuestionRequest request);
     QuestionResponse toResponse(Question Question);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "answers", ignore = true)
+    @Mapping(target = "text", source = "text")
+    @Mapping(target = "type", source = "type")
     void updateQuestion(@MappingTarget Question question, QuestionRequest request);
 
 }

@@ -12,7 +12,9 @@ import java.util.Set;
 
 @Entity
 @Table(name="user")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"therapist", "quizResult", "booking", "bookingServicesStaff", "bookingSessions"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -71,4 +73,17 @@ public class User {
     @OneToMany(mappedBy = "cancelBy", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonManagedReference
     Set<BookingSession> bookingSessions;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != null && id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

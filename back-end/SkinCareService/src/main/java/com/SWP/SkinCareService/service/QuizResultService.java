@@ -1,10 +1,12 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Quiz.QuizResultRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.UserResultRequest;
 import com.SWP.SkinCareService.dto.response.Quiz.QuizResultResponse;
 import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.entity.Services;
+import com.SWP.SkinCareService.entity.User;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.QuizResultMapper;
@@ -90,9 +92,24 @@ public class QuizResultService {
         return quizResultMapper.toQuizResultResponse(quizResult);
     }
 
+    @Transactional
     public void deleteQuizResult(int id) {
-        //Check result existed or not
         QuizResult quizResult = checkQuizResult(id);
+        
+        // Clear references from users
+        for (User user : quizResult.getUsers()) {
+            user.setQuizResult(null);
+        }
+        
+        // Clear references from services
+        for (Services service : quizResult.getServices()) {
+            service.getQuizResults().remove(quizResult);
+        }
+        
+        // Clear lists to avoid any potential issues
+        quizResult.getUsers().clear();
+        quizResult.getServices().clear();
+        
         quizResultRepository.delete(quizResult);
     }
 
@@ -111,7 +128,10 @@ public class QuizResultService {
                 -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
     }
 
-    public String getQuizResult(Long quizId, int score) {
+    /*
+    public String getQuizResult(UserResultRequest request) {
+        int quizId = request.getQuizId();
+        int score = request.getScore();
 
         List<QuizResult> results = quizResultRepository.findByQuizIdOrdered(quizId);
 
@@ -124,6 +144,18 @@ public class QuizResultService {
             lowerBound = result.getRangePoint() + 1;
         }
         return results.getLast().getResultText();
+    }
+
+     */
+
+    public List<QuizResult> getQuizResultsByQuizId(int quizId) {
+        List<QuizResult> list = new ArrayList<>();
+        for (QuizResult result : quizResultRepository.findAll()) {
+            if (result.getQuiz().getId() == quizId) {
+                list.add(result);
+            }
+        }
+        return list;
     }
 
 }

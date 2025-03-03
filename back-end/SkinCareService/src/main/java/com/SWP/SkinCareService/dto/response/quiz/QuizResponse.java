@@ -15,7 +15,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuizResponse {
     int id;
-    String quizName;
+    String name;
     ServiceCategory serviceCategory;
     List<Question> questions;
     List<QuizResult> quizResults;

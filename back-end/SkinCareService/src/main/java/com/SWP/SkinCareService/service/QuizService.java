@@ -1,10 +1,14 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Quiz.QuizRequest;
+import com.SWP.SkinCareService.dto.request.Quiz.UserResultRequest;
 import com.SWP.SkinCareService.dto.response.Quiz.QuizResponse;
+import com.SWP.SkinCareService.dto.response.Quiz.ResultResponse;
+import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.QuizMapper;
+import com.SWP.SkinCareService.mapper.QuizResultMapper;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +27,8 @@ public class QuizService {
     QuizRepository quizRepository;
     QuizMapper quizMapper;
     ServiceCategoryRepository serviceCategoryRepository;
+    QuizResultService quizResultService;
+    QuizResultMapper quizResultMapper;
 
     @Transactional
     public QuizResponse create(QuizRequest request) {
@@ -32,7 +38,6 @@ public class QuizService {
         quizRepository.save(quiz);
         return quizMapper.toResponse(quiz);
     }
-
 
     public List<QuizResponse> getAll() {
         var quiz = quizRepository.findAll().stream().map(quizMapper::toResponse).toList();
@@ -67,4 +72,23 @@ public class QuizService {
         return serviceCategoryRepository.findById(id).
                 orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
     }
+
+    public ResultResponse getResult(UserResultRequest request){
+        int quizId = request.getQuizId();
+
+        int score = request.getScore();
+        QuizResult skinType = null;
+
+        for (QuizResult result : quizResultService.getQuizResultsByQuizId(quizId)) {
+            if ((result.getMinPoint() <= score) && (score <= result.getMaxPoint())) {
+                skinType = result;
+            }
+        }
+        if (skinType == null) {
+            throw new AppException(ErrorCode.RESULT_NOT_EXISTED);
+        }
+
+        return quizResultMapper.toResultResponse(skinType);
+    }
+
 }
