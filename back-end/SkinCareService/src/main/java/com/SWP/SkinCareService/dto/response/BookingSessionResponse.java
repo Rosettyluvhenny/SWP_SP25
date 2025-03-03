@@ -1,11 +1,7 @@
 package com.SWP.SkinCareService.dto.response;
 
-import com.SWP.SkinCareService.entity.Booking;
-import com.SWP.SkinCareService.entity.Room;
-import com.SWP.SkinCareService.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.time.LocalTime;
 import java.util.Date;
 
@@ -16,13 +12,23 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingSessionResponse {
     int id;
-    Booking booking;
+    int bookingId;  // Instead of full Booking object
     Date bookingDate;
     LocalTime bookingTime;
     String status;
     String note;
     String imgBefore;
     String imgAfter;
-    Room room;
-    User user;
+    
+    // Room details
+    int roomId;
+    String roomName;
+    
+    // User details
+    String userId;
+    String userName;
+    
+    // Therapist details
+    String therapistId;
+    String therapistName;
 }

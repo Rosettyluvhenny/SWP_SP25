@@ -12,9 +12,11 @@ import java.util.Date;
 
 @Entity
 @Table
+@Getter
+@Setter
+@ToString(exclude = {"booking", "room", "therapist", "cancelBy"})
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingSession {
@@ -56,4 +58,17 @@ public class BookingSession {
     @JoinColumn(name = "isCancelBy")
     @JsonBackReference
     private User cancelBy;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookingSession that = (BookingSession) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
 }

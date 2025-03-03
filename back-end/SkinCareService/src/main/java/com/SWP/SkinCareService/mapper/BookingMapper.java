@@ -26,7 +26,7 @@ public interface BookingMapper {
     @Mapping(target = "createAt", ignore = true)
     void updateBooking(BookingRequest request, @MappingTarget Booking booking);
 
-    @Mapping(target = "bookingSessions", ignore = true)
+    //@Mapping(target = "bookingSessions", ignore = true)
     @Mapping(target = "user.booking", ignore = true)
     @Mapping(target = "user.bookingServicesStaff", ignore = true)
     @Mapping(target = "user.bookingSessions", ignore = true)

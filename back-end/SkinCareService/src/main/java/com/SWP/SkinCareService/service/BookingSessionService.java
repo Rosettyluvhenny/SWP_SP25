@@ -1,18 +1,13 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.BookingSessionRequest;
+import com.SWP.SkinCareService.dto.request.BookingSessionUpdateRequest;
 import com.SWP.SkinCareService.dto.response.BookingSessionResponse;
-import com.SWP.SkinCareService.entity.Booking;
-import com.SWP.SkinCareService.entity.BookingSession;
-import com.SWP.SkinCareService.entity.Room;
-import com.SWP.SkinCareService.entity.User;
+import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BookingSessionMapper;
-import com.SWP.SkinCareService.repository.BookingRepository;
-import com.SWP.SkinCareService.repository.BookingSessionRepository;
-import com.SWP.SkinCareService.repository.RoomRepository;
-import com.SWP.SkinCareService.repository.UserRepository;
+import com.SWP.SkinCareService.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +24,7 @@ public class BookingSessionService {
     BookingRepository bookingRepository;
     UserRepository userRepository;
     RoomRepository roomRepository;
+    TherapistRepository therapistRepository;
 
     public BookingSessionResponse createBookingSession(BookingSessionRequest request) {
         //Check user
@@ -37,11 +33,15 @@ public class BookingSessionService {
         Room room = getRoomById(request.getRoomId());
         //Check booking
         Booking booking = getBookingById(request.getBookingId());
+        //Check therapist
+        Therapist therapist = getTherapistById(request.getTherapistId());
+
 
         BookingSession session = bookingSessionMapper.toBookingSession(request);
         session.setCancelBy(user);
         session.setBooking(booking);
         session.setRoom(room);
+        session.setTherapist(therapist);
 
         bookingSessionRepository.save(session);
         return bookingSessionMapper.toBookingSessionResponse(session);
@@ -52,7 +52,7 @@ public class BookingSessionService {
     public BookingSessionResponse getBookingSessionById(int id) {
         return bookingSessionMapper.toBookingSessionResponse(checkSession(id));
     }
-    public BookingSessionResponse updateBookingSession(int id, BookingSessionRequest request) {
+    public BookingSessionResponse updateBookingSession(int id, BookingSessionUpdateRequest request) {
         //Check user
         User user = getUserById(request.getUserId());
         //Check room
@@ -61,6 +61,8 @@ public class BookingSessionService {
         Booking booking = getBookingById(request.getBookingId());
         //Check session
         BookingSession session = checkSession(id);
+        //Check therapist
+        Therapist therapist = getTherapistById(request.getTherapistId());
 
         bookingSessionMapper.updateBookingSession(session, request);
         
@@ -71,6 +73,7 @@ public class BookingSessionService {
         session.setNote(request.getNote());
         session.setImgBefore(request.getImgBefore());
         session.setImgAfter(request.getImgAfter());
+        session.setTherapist(therapist);
 
         bookingSessionRepository.save(session);
         return bookingSessionMapper.toBookingSessionResponse(session);
@@ -95,5 +98,9 @@ public class BookingSessionService {
     Room getRoomById(int id) {
         return roomRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
+    }
+    Therapist getTherapistById(String id) {
+        return therapistRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
     }
 }

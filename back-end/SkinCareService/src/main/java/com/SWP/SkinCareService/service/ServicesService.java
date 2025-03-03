@@ -43,20 +43,28 @@ public class ServicesService {
         //Get therapist
         List<Therapist> therapistsList = new ArrayList<>();
         therapistsList.add(therapist);
+
         //Get Room
         List<Room> rooms = new ArrayList<>();
         rooms.add(newRoom);
+
         //Convert request to entity
         Services service = servicesMapper.toServices(request);
         //Assign therapist, room, category to service
         service.setTherapists(therapistsList);
+
+        //------------------------------
         service.setRooms(rooms);
+        //------------------------------
+
         service.setServiceCategory(category);
         service = servicesRepository.save(service);
         //Save service to therapist - save
         therapist.getServices().add(service);
         therapistRepository.save(therapist);
+
         //Save service to room - save
+        //------------------------------
         newRoom.getServices().add(service);
         roomRepository.save(newRoom);
 
@@ -79,6 +87,7 @@ public class ServicesService {
         //Get category - assign category
         ServiceCategory category = checkServiceCategory(request.getServiceCategoryId());
         service.setServiceCategory(category);
+
         //Remove service in old room
         for (Room oldRoom : service.getRooms()){
             oldRoom.getServices().remove(service);
@@ -89,9 +98,8 @@ public class ServicesService {
         //Assign service - save
         newRoom.getServices().add(service);
         roomRepository.save(newRoom);
-        //Clear the old room in service
+        //Clear the old room in service - add new room
         service.getRooms().clear();
-        //Add new room
         service.getRooms().add(newRoom);
 
         //Remove service in old therapist
@@ -104,9 +112,8 @@ public class ServicesService {
         //Assign service - save
         newTherapist.getServices().add(service);
         therapistRepository.save(newTherapist);
-        //Clear old therapist in service
+        //Clear old therapist in service - add new therapist
         service.getTherapists().clear();
-        //Add new therapist
         service.getTherapists().add(newTherapist);
 
         servicesRepository.save(service);
@@ -151,5 +158,7 @@ public class ServicesService {
     private Room checkRoom(int id){
         return roomRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
     }
+
+
 
 }

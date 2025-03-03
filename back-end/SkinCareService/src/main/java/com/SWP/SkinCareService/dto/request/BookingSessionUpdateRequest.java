@@ -8,13 +8,13 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BookingSessionRequest {
+public class BookingSessionUpdateRequest {
     String userId;
     int bookingId;
     String status;
     String note;
     String imgBefore;
-    //String imgAfter;
+    String imgAfter;
     int roomId;
     String therapistId;
 

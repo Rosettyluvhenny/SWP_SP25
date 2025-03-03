@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.mapper;
 
 import com.SWP.SkinCareService.dto.request.BookingSessionRequest;
+import com.SWP.SkinCareService.dto.request.BookingSessionUpdateRequest;
 import com.SWP.SkinCareService.dto.response.BookingSessionResponse;
 import com.SWP.SkinCareService.entity.BookingSession;
 import org.mapstruct.Mapper;
@@ -20,19 +21,14 @@ public interface BookingSessionMapper {
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "cancelBy", ignore = true)
     @Mapping(target = "bookingDate", ignore = true)
-    void updateBookingSession(@MappingTarget BookingSession bookingSession, BookingSessionRequest request);
+    void updateBookingSession(@MappingTarget BookingSession bookingSession, BookingSessionUpdateRequest request);
 
-    @Mapping(target = "booking.bookingSessions", ignore = true)
-    @Mapping(target = "booking.user.booking", ignore = true)
-    @Mapping(target = "booking.user.bookingServicesStaff", ignore = true)
-    @Mapping(target = "booking.user.bookingSessions", ignore = true)
-    @Mapping(target = "booking.service.bookings", ignore = true)
-    @Mapping(target = "booking.service.rooms", ignore = true)
-    @Mapping(target = "booking.payment.bookings", ignore = true)
-    @Mapping(target = "booking.staff.booking", ignore = true)
-    @Mapping(target = "booking.staff.bookingServicesStaff", ignore = true)
-    @Mapping(target = "booking.staff.bookingSessions", ignore = true)
-    @Mapping(target = "room.bookingSessions", ignore = true)
-    @Mapping(target = "room.services", ignore = true)
+    @Mapping(target = "bookingId", source = "booking.id")
+    @Mapping(target = "roomId", source = "room.roomId")
+    @Mapping(target = "roomName", source = "room.roomName")
+    @Mapping(target = "userId", source = "booking.user.id")
+    @Mapping(target = "userName", source = "booking.user.username")
+    @Mapping(target = "therapistId", source = "therapist.id")
+    @Mapping(target = "therapistName", source = "therapist.user.fullName")
     BookingSessionResponse toBookingSessionResponse(BookingSession bookingSession);
 }
