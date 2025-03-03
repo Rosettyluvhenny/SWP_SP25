@@ -102,14 +102,8 @@ export default function SkinTest() {
             >
               ⬅
             </button>
-            <div className="flex items-lef justify-center">
-              <h1 className="px-16
-               text-3xl font-bold">
-                <input
-                  value={selectedTest}
-                  className=" rounded px-3 py-2 text-center"
-                />
-              </h1>
+            <div className="pl-40 font-bold text-4xl">
+            {selectedTest}        
             </div>
           </div>
 

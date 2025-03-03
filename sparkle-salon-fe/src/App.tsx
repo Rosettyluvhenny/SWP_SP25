@@ -20,6 +20,8 @@ import CustomerProfile from "./pages/CustomerProfile";
 import ManagerStaff from "./pages/ManagerStaff";
 import SkinTest from "./pages/SkinTest";
 import CreaterQuiz from "./pages/CreaterQuiz";
+import QuizManagement from "./pages/QuizManagement";
+
 
 function App() {
   return (
@@ -43,8 +45,9 @@ function App() {
         <Route path="/payment" element={<Payment />} />
         <Route path="/profile" element={<MainLayout><CustomerProfile /></MainLayout>} />
         <Route path="/managerstaff" element={<ManagerStaff />} />
-        <Route path="/SkinTest" element={<MainLayout><SkinTest /></MainLayout>} />
-        <Route path="/CreaterQuiz" element={<MainLayout><CreaterQuiz /></MainLayout>} />
+        <Route path="/skinTest" element={<MainLayout><SkinTest /></MainLayout>} />
+        <Route path="/createrquiz" element={<MainLayout><CreaterQuiz /></MainLayout>} />
+        <Route path="/manager/quiz" element={<QuizManagement />} />
 
 
       </Routes>

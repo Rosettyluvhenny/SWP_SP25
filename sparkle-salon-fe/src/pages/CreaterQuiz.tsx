@@ -6,6 +6,7 @@ type Question = {
   options: string[];
   multiple: boolean;
   correctAnswers: string[];
+  points: number;
 };
 
 export default function CreateQuiz() {
@@ -14,7 +15,7 @@ export default function CreateQuiz() {
   const addQuestion = () => {
     setQuestions((prev) => [
       ...prev,
-      { id: Date.now(), question: "", options: [""], multiple: false, correctAnswers: [] },
+      { id: Date.now(), question: "", options: [""], multiple: false, correctAnswers: [], points: 1 },
     ]);
   };
 
@@ -67,6 +68,12 @@ export default function CreateQuiz() {
     setQuestions((prev) => prev.filter((q) => q.id !== id));
   };
 
+  const updatePoints = (id: number, value: number) => {
+    setQuestions((prev) =>
+      prev.map((q) => (q.id === id ? { ...q, points: value } : q))
+    );
+  };
+
   const saveQuiz = () => {
     console.log("Quiz saved:", questions);
   };
@@ -82,13 +89,25 @@ export default function CreateQuiz() {
       </button>
       {questions.map((q) => (
         <div key={q.id} className="mt-6 p-4 border rounded-lg shadow-md bg-white">
-          <input
-            type="text"
-            placeholder="Nhập câu hỏi"
-            value={q.question}
-            onChange={(e) => updateQuestion(q.id, e.target.value)}
-            className="w-full p-2 border rounded"
-          />
+          <div className="flex gap-4 mb-4">
+            <input
+              type="text"
+              placeholder="Nhập câu hỏi"
+              value={q.question}
+              onChange={(e) => updateQuestion(q.id, e.target.value)}
+              className="w-full p-2 border rounded"
+            />
+            <div className="flex items-center">
+              <label className="mr-2">Điểm:</label>
+              <input
+                type="number"
+                min="0"
+                value={q.points}
+                onChange={(e) => updatePoints(q.id, parseInt(e.target.value) || 0)}
+                className="p-2 border rounded w-20"
+              />
+            </div>
+          </div>
           {q.options.map((opt, index) => (
             <div key={index} className="mt-2 flex items-center">
               <input
