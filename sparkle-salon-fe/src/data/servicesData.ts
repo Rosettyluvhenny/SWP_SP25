@@ -17,7 +17,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/BHwF63Mg/skin-treatment1.jpg",
         price: 150000,
         duration: "90 phút",
-        session: 765826,
+        session: 3,
         description: `
             <h1>Điều Trị Mụn Chuyên Sâu 12 Bước</h1>
             <p>Dịch vụ <strong>Điều Trị Mụn Chuyên Sâu 12 Bước</strong> tại Sparkle Salon được thiết kế dành riêng cho làn da gặp vấn đề về mụn như mụn viêm, mụn đầu đen, mụn ẩn và da dễ kích ứng.</p>
@@ -107,7 +107,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/fGYS3VzC/skin-treatment2.jpg",
         price: 200000,
         duration: "30 phút",
-        session: 13373,
+        session: 2,
         description: `
             <h1>Thải Độc Da Thảo Dược</h1>
             
@@ -194,7 +194,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/p8hzvCs/skin-treatment3.jpg",
         price: 550000,
         duration: "45 phút",
-        session: 97050,
+        session: 2,
         description: `
             <h1>Điều Trị Nám Da</h1>
             
@@ -292,7 +292,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/cmnDYzX/skin-treatment7.jpg",
         price: 300000,
         duration: "45 phút",
-        session: 50000,
+        session: 2,
         description: `
             <h1>Điều Trị Tàn Nhang</h1>
             
@@ -306,7 +306,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/n83Tryf1/skin-treatment4.jpg",
         price: 250000,
         duration: "60 phút",
-        session: 89000,
+        session: 2,
         description: `
             <h1>Điều Trị Sẹo Rỗ</h1>
             
@@ -406,7 +406,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/V0WCLYCK/skin-treatment5.jpg",
         price: 600000,
         duration: "90 phút",
-        session: 65000,
+        session: 2,
         description: `
             <h1>Điều Trị Da Nhờn</h1>
             
@@ -510,7 +510,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/DHxYGwP1/skin-treatment6.jpg",
         price: 100000,
         duration: "40 phút",
-        session: 43000,
+        session: 2,
         description: `
             <h1>Điều Trị Lão Hóa Da</h1>
             
@@ -614,7 +614,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/WWVd35zw/skin-treatment8.webp",
         price: 350000,
         duration: "1 Giờ",
-        session: 52000,
+        session: 2,
         description: `
             <h1>Điều Trị Da Không Đều Màu</h1>
             
@@ -718,7 +718,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/tpBQL1Jh/skin-treatment9.jpg",
         price: 450000,
         duration: "50 phút",
-        session: 61000,
+        session: 2,
         description: `
             <h1>Điều Trị Lỗ Chân Lông To</h1>
             
@@ -822,7 +822,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/Dgw0NW6m/skin-treatment10.webp",
         price: 700000,
         duration: "75 phút",
-        session: 72000,
+        session: 2,
         description: `
             <h1>Trẻ Hóa Da Công Nghệ Cao</h1>
             
@@ -925,7 +925,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/hJ0f4yt2/skin-treatment11.webp",
         price: 800000,
         duration: "90 phút",
-        session: 91000,
+        session: 2,
         description: `
             <h1>Cấy Tinh Chất Trắng Da</h1>
             
@@ -1041,7 +1041,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/cX1Jtv85/skin-treatment12.jpg",
         price: 180000,
         duration: "30 phút",
-        session: 56000,
+        session: 2,
         description: `
             <h1>Điều Trị Mụn Đầu Đen</h1>
             
@@ -1157,7 +1157,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/rfwYrmNr/skin-treatment13.jpg",
         price: 550000,
         duration: "1 Giờ",
-        session: 74000,
+        session: 2,
         description: `
             <h1>Điều Trị Mụn Viêm</h1>
             
@@ -1275,7 +1275,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/rfwYrmNr/skin-treatment14.jpg",
         price: 400000,
         duration: "45 Phút",
-        session: 48000,
+        session: 2,
         description: `
             <h1>Điều Trị Da Nhạy Cảm</h1>
             
@@ -1392,7 +1392,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/cS8J7zN7/skin-treatment15.jpg",
         price: 320000,
         duration: "50 phút",
-        session: 67000,
+        session: 2,
         description: `
             <h1>Thải Độc Da Bằng Than Hoạt Tính</h1>
             
@@ -1511,7 +1511,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/sdgRzjxh/skin-treatment16.png",
         price: 280000,
         duration: "40 phút",
-        session: 57000,
+        session: 2,
         description: `
             <h1>Điều Trị Da Khô</h1>
             
@@ -1631,7 +1631,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/0yHCq6Ym/skin-treatment17.jpg",
         price: 650000,
         duration: "80 phút",
-        session: 88000,
+        session: 2,
         description: `
             <h1>Căng Bóng Da Hàn Quốc</h1>
             
@@ -1751,7 +1751,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/VYcF627p/skin-treatment18.jpg",
         price: 750000,
         duration: "85 phút",
-        session: 94000,
+        session: 2,
         description: `
             <h1>Liệu Trình Collagen Trẻ Hóa</h1>
             
@@ -1872,7 +1872,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/rG0SLBfS/skin-treatment19.jpg",
         price: 900000,
         duration: "95 phút",
-        session: 102000,
+        session: 20,
         description: `
             <h1>Tái Tạo Da Bằng Tế Bào Gốc</h1>
             
@@ -1993,7 +1993,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/fYx4fDx9/skin-treatment25.jpg",
         price: 950000,
         duration: "110 phút",
-        session: 97000,
+        session: 2,
         description: `
             <h1>Điều Trị Mụn Bằng Công Nghệ IPL</h1>
             
@@ -2116,7 +2116,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/Lbxv4wS/skin-treatment26.jpg",
         price: 180000,
         duration: "30 phút",
-        session: 65000,
+        session: 2,
         description: `
             <h1>Chăm Sóc Da Mặt Cơ Bản</h1>
             
@@ -2232,7 +2232,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/Rkyqd87G/skin-treatment27.jpg",
         price: 350000,
         duration: "70 phút",
-        session: 72000,
+        session: 2,
         description: `
             <h1>Chăm Sóc Da Chuyên Sâu</h1>
             
@@ -2354,7 +2354,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/rRdLJj1S/skin-treatment23.jpg",
         price: 400000,
         duration: "45 phút",
-        session: 69000,
+        session: 2,
         description: `
             <h1>Điều Trị Thâm Mụn</h1>
             
@@ -2473,7 +2473,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/0y1TmyWZ/skin-treatment24.webp",
         price: 1200000,
         duration: "120 phút",
-        session: 112000,
+        session: 20,
         description: `
             <h1>Điều Trị Nám Tàn Nhang Bằng Laser</h1>
             
@@ -2608,7 +2608,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/fYx4fDx9/skin-treatment25.jpg",
         price: 950000,
         duration: "110 phút",
-        session: 97000,
+        session: 2,
         description: `
             <h1>Điều Trị Mụn Bằng Công Nghệ IPL</h1>
             
@@ -2747,7 +2747,7 @@ const servicesData: Service[] = [
         img: "https://i.ibb.co/Lbxv4wS/skin-treatment26.jpg",
         price: 180000,
         duration: "30 phút",
-        session: 65000,
+        session: 2,
         description: `
             <h1>Chăm Sóc Da Mặt Cơ Bản</h1>
             
@@ -2857,14 +2857,13 @@ const servicesData: Service[] = [
         `,
         categoryName: "Điều Trị Da",
     },
-    // ... existing code ...
     {
         id: 27,
         name: "Chăm Sóc Da Chuyên Sâu",
         img: "https://i.ibb.co/Rkyqd87G/skin-treatment27.jpg",
         price: 350000,
         duration: "70 phút",
-        session: 72000,
+        session: 2,
         description: `
             <h1>Chăm Sóc Da Chuyên Sâu</h1>
             

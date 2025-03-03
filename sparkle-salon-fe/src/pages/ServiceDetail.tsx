@@ -2,12 +2,12 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import servicesData, { Service } from "../data/servicesData";
 import { feedbacksData } from "../data/feedbacksData";
-import { FaClock, FaStar, FaMoneyBill, FaShare, FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaClock, FaMoneyBill, FaShare, FaHeart, FaRegHeart, FaCalendarAlt } from "react-icons/fa";
 import FeedbackForm from "../components/FeedbackForm";
 import FeedbackList from "../components/FeedbackList";
 import { motion } from "framer-motion";
 import 'react-quill/dist/quill.snow.css';
-import '../styles/quill-custom.css'; // We'll create this file for custom Quill styling
+import '../styles/quill-custom.css'; 
 
 interface Feedback {
     name: string;
@@ -224,8 +224,8 @@ export default function ServiceDetail() {
                                         {service.duration}
                                     </p>
                                     <p className="flex items-center text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
-                                        <FaStar className="mr-1 text-yellow-500" />
-                                        {service.popularity} đánh giá
+                                        <FaCalendarAlt className="mr-2 text-pink-500" />
+                                        {service.session} buổi
                                     </p>
                                     {service.categoryName && (
                                         <p className="bg-pink-100 text-pink-700 px-3 py-1 rounded-full">
