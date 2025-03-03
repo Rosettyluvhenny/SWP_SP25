@@ -42,7 +42,8 @@ public enum ErrorCode {
     IO_EXCEPTION(1025, "Failed to upload image", HttpStatus.BAD_REQUEST),
     BLOGPOST_NOT_EXISTED(1026,"BlogPost not found", HttpStatus.NOT_FOUND),
     PAYMENT_NOT_EXISTED(1012, "Payment not existed", HttpStatus.NOT_FOUND),
-    ROOM_NOT_EXISTED(1027, "Room not found", HttpStatus.NOT_FOUND)
+    ROOM_NOT_EXISTED(1027, "Room not found", HttpStatus.NOT_FOUND),
+    IMAGE_UPLOAD_FAILED(1027, "Failed to upload image", HttpStatus.INTERNAL_SERVER_ERROR)
     ;
     int code;
     String message;

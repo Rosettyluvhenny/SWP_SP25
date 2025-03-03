@@ -42,8 +42,12 @@ public class BlogPostService {
         // Handle image upload if present
         if (img != null && !img.isEmpty()) {
             String fileName = "blog_" + blogPost.getBlogId();
-            String imgUrl = supabaseService.uploadImage(img, fileName);
-            blogPost.setImg(imgUrl);
+            try {
+                supabaseService.uploadImage(img, fileName);
+                blogPost.setImg(fileName);
+            } catch (IOException e) {
+                throw new AppException(ErrorCode.IMAGE_UPLOAD_FAILED);
+            }
         }
         
         return blogPostMapper.toBlogPostResponse(blogPost);
@@ -73,16 +77,42 @@ public class BlogPostService {
         // Handle image update if present
         if (img != null && !img.isEmpty()) {
             String fileName = "blog_" + blogPost.getBlogId();
-            String imgUrl = supabaseService.uploadImage(img, fileName);
-            blogPost.setImg(imgUrl);
+            
+            // Try to delete old image if exists
+            if (blogPost.getImg() != null) {
+                try {
+                    supabaseService.deleteImage("blog_" + blogPost.getBlogId());
+                } catch (IOException e) {
+                    // Ignore if image doesn't exist
+                }
+            }
+            
+            try {
+                // Upload new image and save the filename
+                supabaseService.uploadImage(img, fileName);
+                blogPost.setImg(fileName);
+            } catch (IOException e) {
+                throw new AppException(ErrorCode.IMAGE_UPLOAD_FAILED);
+            }
         }
 
+        blogPostRepository.save(blogPost);
         return blogPostMapper.toBlogPostResponse(blogPost);
     }
 
     @Transactional
     public void deleteBlogPost(Integer id) {
         BlogPost blogPost = checkBlogPost(id);
+        
+        // Delete image from Supabase if exists
+        if (blogPost.getImg() != null) {
+            try {
+                supabaseService.deleteImage("blog_" + blogPost.getBlogId());
+            } catch (IOException e) {
+                // Ignore if image doesn't exist or deletion fails
+            }
+        }
+        
         blogPostRepository.delete(blogPost);
     }
 
