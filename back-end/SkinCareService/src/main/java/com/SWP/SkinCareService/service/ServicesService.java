@@ -52,12 +52,23 @@ public class ServicesService {
         return servicesMapper.toResponse(service);
     }
 
-    public ServicesResponse getById(int id){
-        return servicesMapper.toResponse(checkService(id));
+    public ServicesResponse getById(int id) throws IOException {
+        var result = servicesMapper.toResponse(checkService(id));
+        result.setImg(supabaseService.getImage(result.getImg()));
+        return result;
     }
 
-    public List<ServicesResponse> getAll(){
-        return servicesRepository.findAll().stream().map(servicesMapper::toResponse).toList();
+    public List<ServicesResponse> getAll() throws IOException{
+        return servicesRepository.findAll().stream()
+                .map(service ->{
+                    try {
+                        var response = servicesMapper.toResponse(service);
+                        response.setImg(supabaseService.getImage(response.getImg()));
+                        return response;
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).toList();
     }
 
     @Transactional

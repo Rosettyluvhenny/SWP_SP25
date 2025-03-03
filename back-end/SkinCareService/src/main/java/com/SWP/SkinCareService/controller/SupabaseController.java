@@ -16,9 +16,9 @@ public class SupabaseController {
     private final SupabaseService supabaseService;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file, @RequestParam("filename") String fileName) {
         try {
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename(); // Unique filename
+//            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename(); // Unique filename
             String imageUrl = supabaseService.uploadImage(file, fileName);
             return ResponseEntity.ok(imageUrl);
         } catch (IOException e) {

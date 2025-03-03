@@ -45,7 +45,7 @@ public class ServicesController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ServicesResponse>> getById(@PathVariable int id){
+    public ResponseEntity<ApiResponse<ServicesResponse>> getById(@PathVariable int id) throws IOException {
         var result = servicesService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<ServicesResponse>builder()
@@ -55,7 +55,7 @@ public class ServicesController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ServicesResponse>>> getAll(){
+    public ResponseEntity<ApiResponse<List<ServicesResponse>>> getAll() throws IOException {
         var result = servicesService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<List<ServicesResponse>>builder()
