@@ -3,11 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 export default function Header() {
     const [loginData, setLoginData] = useState({ username: "", password: "" });
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [registerData, setRegisterData] = useState({
         name: "",
         email: "",
@@ -26,6 +28,10 @@ export default function Header() {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [location]);
 
     const handleLogout = () => {
         setIsLoggedIn(false);
@@ -98,24 +104,37 @@ export default function Header() {
         <motion.header 
             className={`fixed top-0 left-0 w-full flex justify-between items-center p-4 transition-all duration-300 z-50 ${
                 isScrolled 
-                    ? "bg-white bg-opacity-90 backdrop-blur-md shadow-lg" 
+                    ? "bg-opacity-90 backdrop-blur-md shadow-lg" 
                     : "bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat"
             }`}
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <Link to="/" className="text-2xl font-serif text-[#f398d0] flex items-center">
+            <Link to="/" className="text-2xl font-serif text-[#f398d0] flex items-center z-20">
                 <motion.img
                     src="/assets/logo1.jpg"
                     alt="logo"
-                    className="w-[70px] h-[70px] ml-10 rounded-full"
+                    className="w-[50px] h-[50px] md:w-[70px] md:h-[70px] ml-2 md:ml-10 rounded-full"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                 />
             </Link>
 
-            <nav className="flex-1 flex justify-center">
+            {/* Mobile Menu Button */}
+            <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden z-20 text-2xl p-2"
+            >
+                {isMobileMenuOpen ? (
+                    <FaTimes className={isScrolled ? "text-white" : "text-white"} />
+                ) : (
+                    <FaBars className={isScrolled ? "text-white" : "text-white"} />
+                )}
+            </button>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex flex-1 justify-center">
                 <ul className="flex space-x-10 text-lg">
                     {navItems.map((item) => (
                         <motion.li key={item.path} whileHover={{ scale: 1.1 }}>
@@ -124,7 +143,7 @@ export default function Header() {
                                 className={`relative px-3 py-2 transition-colors duration-300 ${
                                     location.pathname === item.path
                                         ? "text-[#f398d0] font-semibold"
-                                        : isScrolled ? "text-gray-800" : "text-white"
+                                        : isScrolled ? "text-white" : "text-white"
                                 }`}
                             >
                                 {item.label}
@@ -140,7 +159,70 @@ export default function Header() {
                 </ul>
             </nav>
 
-            <div className="flex items-center space-x-6 mr-10">
+            {/* Mobile Navigation */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, x: "100%" }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: "100%" }}
+                        transition={{ type: "tween" }}
+                        className="fixed inset-0 bg-white z-10 lg:hidden pt-20"
+                    >
+                        <nav className="container mx-auto px-4">
+                            <ul className="space-y-4">
+                                {navItems.map((item) => (
+                                    <motion.li 
+                                        key={item.path}
+                                        whileHover={{ x: 10 }}
+                                        className="border-b border-gray-100 py-2"
+                                    >
+                                        <Link
+                                            to={item.path}
+                                            className={`block text-lg ${
+                                                location.pathname === item.path
+                                                    ? "text-[#f398d0] font-semibold"
+                                                    : "text-gray-800"
+                                            }`}
+                                        >
+                                            {item.label}
+                                        </Link>
+                                    </motion.li>
+                                ))}
+                                {!isLoggedIn && (
+                                    <>
+                                        <motion.li whileHover={{ x: 10 }} className="border-b border-gray-100 py-2">
+                                            <button
+                                                onClick={() => {
+                                                    setIsLoginOpen(true);
+                                                    setIsMobileMenuOpen(false);
+                                                }}
+                                                className="block w-full text-left text-lg text-gray-800"
+                                            >
+                                                Đăng nhập
+                                            </button>
+                                        </motion.li>
+                                        <motion.li whileHover={{ x: 10 }} className="border-b border-gray-100 py-2">
+                                            <button
+                                                onClick={() => {
+                                                    setIsRegisterOpen(true);
+                                                    setIsMobileMenuOpen(false);
+                                                }}
+                                                className="block w-full text-left text-lg text-gray-800"
+                                            >
+                                                Đăng ký
+                                            </button>
+                                        </motion.li>
+                                    </>
+                                )}
+                            </ul>
+                        </nav>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Desktop Auth Buttons */}
+            <div className="hidden lg:flex items-center space-x-6 mr-10">
                 {isLoggedIn ? (
                     <motion.div 
                         className="flex items-center space-x-4"
@@ -154,7 +236,7 @@ export default function Header() {
                                 className="w-10 h-10 rounded-full border-2 border-[#f398d0]"
                                 whileHover={{ scale: 1.1 }}
                             />
-                            <span className={`${isScrolled ? "text-gray-800" : "text-white"} group-hover:text-[#f398d0] transition-colors`}>
+                            <span className={`${isScrolled ? "text-white" : "text-white"} group-hover:text-[#f398d0] transition-colors`}>
                                 {user?.name}
                             </span>
                         </Link>
@@ -173,7 +255,7 @@ export default function Header() {
                             onClick={() => setIsLoginOpen(true)}
                             className={`px-4 py-2 rounded-full ${
                                 isScrolled 
-                                    ? "text-gray-800 hover:text-[#f398d0]" 
+                                    ? "text-white hover:text-[#f398d0]" 
                                     : "text-white hover:text-[#f398d0]"
                             } transition-colors`}
                             whileHover={{ scale: 1.1 }}
@@ -186,7 +268,7 @@ export default function Header() {
                             onClick={() => setIsRegisterOpen(true)}
                             className={`px-4 py-2 rounded-full ${
                                 isScrolled 
-                                    ? "text-gray-800 hover:text-[#f398d0]" 
+                                    ? "text-white hover:text-[#f398d0]" 
                                     : "text-white hover:text-[#f398d0]"
                             } transition-colors`}
                             whileHover={{ scale: 1.1 }}
@@ -202,7 +284,7 @@ export default function Header() {
                 {/* Login Modal */}
                 {isLoginOpen && (
                     <motion.div 
-                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50"
+                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50 p-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -330,7 +412,7 @@ export default function Header() {
                 {/* Register Modal */}
                 {isRegisterOpen && (
                     <motion.div 
-                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50"
+                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50 p-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
