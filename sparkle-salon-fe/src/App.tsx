@@ -45,8 +45,8 @@ function App() {
         <Route path="/payment" element={<Payment />} />
         <Route path="/profile" element={<MainLayout><CustomerProfile /></MainLayout>} />
         <Route path="/managerstaff" element={<ManagerStaff />} />
-        <Route path="/skinTest" element={<MainLayout><SkinTest /></MainLayout>} />
-        <Route path="/createrquiz" element={<MainLayout><CreaterQuiz /></MainLayout>} />
+        <Route path="/skintest" element={<MainLayout><SkinTest /></MainLayout>} />
+        <Route path="/manager/createrquiz" element={<CreaterQuiz />} />
         <Route path="/manager/quiz" element={<QuizManagement />} />
 
 
