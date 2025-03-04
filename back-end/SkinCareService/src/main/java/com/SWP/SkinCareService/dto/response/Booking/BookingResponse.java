@@ -41,5 +41,7 @@ public class BookingResponse {
         String staffId;
 
         String staffName;
+
+        String img;
  }
 

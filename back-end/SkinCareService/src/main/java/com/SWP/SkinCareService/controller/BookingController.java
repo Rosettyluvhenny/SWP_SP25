@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class BookingController {
     @Operation(summary = "Create a new booking")
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApiResponse<BookingResponse>> create(@Valid @RequestBody BookingRequest request) {
+    public ResponseEntity<ApiResponse<BookingResponse>> create(@Valid @RequestBody BookingRequest request) throws IOException {
         var result = bookingService.create(request);
         return ResponseEntity.ok(
                 ApiResponse.<BookingResponse>builder()
@@ -54,7 +56,7 @@ public class BookingController {
     @Operation(summary = "Get all bookings for authenticated user")
     @GetMapping("/my-bookings")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApiResponse<Page<BookingResponse>>> getAllByUser(Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<BookingResponse>>> getAllByUser(Pageable pageable) throws IOException {
         var result = bookingService.getAllByUser(pageable);
         return ResponseEntity.ok(
                 ApiResponse.<Page<BookingResponse>>builder()
@@ -82,6 +84,18 @@ public class BookingController {
         var result = bookingService.getAllByUserPhone(phone,pageable);
         return ResponseEntity.ok(
                 ApiResponse.<Page<BookingResponse>>builder()
+                        .result(result)
+                        .build()
+        );
+    }
+
+    @Operation(summary = "Get all bookings for authenticated staff using user phone number")
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiResponse<BookingResponse>> UpdateStatus(@PathVariable int id ,@RequestBody String status) {
+        var result = bookingService.updateStatus(id,status);
+        return ResponseEntity.ok(
+                ApiResponse.<BookingResponse>builder()
                         .result(result)
                         .build()
         );

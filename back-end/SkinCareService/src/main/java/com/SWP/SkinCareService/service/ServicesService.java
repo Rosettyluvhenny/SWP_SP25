@@ -127,4 +127,5 @@ public class ServicesService {
         return serviceCategoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
     }
+
 }

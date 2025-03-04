@@ -18,6 +18,7 @@ public interface BookingMapper {
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "serviceId", source = "service.id")
     @Mapping(target = "staffId", source = "staff.id")
+    @Mapping(target = "img", source = "service.img")
     BookingResponse toResponse(Booking booking);
 
     void update(@MappingTarget Booking booking, BookingRequest request);

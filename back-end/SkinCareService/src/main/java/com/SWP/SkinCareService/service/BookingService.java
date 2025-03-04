@@ -6,6 +6,7 @@ import com.SWP.SkinCareService.entity.Booking;
 import com.SWP.SkinCareService.entity.Payment;
 import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.entity.User;
+import com.SWP.SkinCareService.enums.BookingStatus;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BookingMapper;
@@ -21,8 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +35,9 @@ public class BookingService {
     TherapistRepository therapistRepository;
     BookingMapper bookingMapper;
     ServicesRepository servicesRepository;
-
+    SupabaseService supabaseService;
     @Transactional
-    public BookingResponse create(BookingRequest request) {
+    public BookingResponse create(BookingRequest request) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String username = authentication.getName();
@@ -63,17 +63,27 @@ public class BookingService {
 
         bookingRepository.save(booking);
         bookingRepository.flush();
-
-        return bookingMapper.toResponse(booking);
+        var result = bookingMapper.toResponse(booking);
+        result.setImg(supabaseService.getImage(result.getImg()));
+        return result;
     }
 
-    public Page<BookingResponse> getAllByUser(Pageable pageable) {
+    public Page<BookingResponse> getAllByUser(Pageable pageable) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String name = authentication.getName();
         User user = userRepository.findByUsername(name).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Page<Booking> bookings = bookingRepository.findAllByUserId(user.getId(), pageable);
-        return bookings.map(bookingMapper::toResponse);
+
+        return bookings.map(booking -> {
+            BookingResponse result = bookingMapper.toResponse(booking);
+            try {
+                result.setImg(supabaseService.getImage(result.getImg()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return result;
+        });
     }
 
     public Page<BookingResponse> getAllByStaff(Pageable pageable) {
@@ -100,4 +110,20 @@ public class BookingService {
 
         return bookingMapper.toResponse(booking);
     }
+
+    public BookingResponse updateStatus(int id,String status){
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
+        try {
+            BookingStatus newStatus = BookingStatus.valueOf(status.toUpperCase());
+            booking.setStatus(newStatus);
+            bookingRepository.save(booking);
+
+            return bookingMapper.toResponse(booking);
+        } catch (IllegalArgumentException e) {
+            throw new AppException(ErrorCode.INVALID_STATUS, "Invalid status: " + status);
+        }
+
+    }
+
 }

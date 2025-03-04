@@ -10,5 +10,6 @@ public enum BookingStatus {
     PENDING,
     ON_GOING,
     IS_CANCELED,
-    COMPLETED
+    COMPLETED,
+    PAY_FAIL
 }
