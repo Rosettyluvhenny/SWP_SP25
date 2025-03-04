@@ -12,6 +12,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
@@ -91,4 +93,14 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/staff")
+    @PreAuthorize("hasRole(ADMIN)")
+    public ResponseEntity<ApiResponse<UserResponse>> createStaff(@RequestBody UserRequest request){
+        var result = userService.createStaff(request);
+        return ResponseEntity.ok(
+                ApiResponse.<UserResponse>builder()
+                        .result(result)
+                        .build()
+        );
+    }
 }

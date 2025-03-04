@@ -13,6 +13,7 @@ import com.SWP.SkinCareService.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -30,6 +31,7 @@ import java.util.Set;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     UserMapper userMapper;
     UserRepository userRepository;
@@ -44,6 +46,8 @@ public class UserService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
+        if(userRepository.existsByPhone(request.getPhone()))
+            throw new AppException(ErrorCode.PHONE_EXISTED);
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         Role roleUser = roleRepository.findById("USER").orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -75,7 +79,6 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(()-> new RuntimeException("user can not be found"));
     }
 
-    @PostAuthorize("returnObject.id == authentication.id")
     public User getUserByUsername(String userName){
         return userRepository.findByUsername(userName).orElseThrow(()-> new RuntimeException("user can not be found"));
     }
@@ -113,8 +116,12 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void delete(String userId){
-        userRepository.delete(userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED)));
+        var user = userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        user.getRoles().clear();
+        userRepository.delete(user);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -133,11 +140,16 @@ public class UserService {
             throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
         if (userRepository.existsByEmail(request.getEmail())) {
+            log.info(userRepository.existsByEmail(request.getEmail()) + " existed: "+ request.getEmail());
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
+
+        if(userRepository.existsByPhone(request.getPhone()))
+            throw new AppException(ErrorCode.PHONE_EXISTED);
+
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        Role roleUser = roleRepository.findById("STAFF").orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Role roleUser = roleRepository.findById("STAFF").orElseThrow(()-> new AppException(ErrorCode.ROLE_NOT_EXISTED));
         Set<Role> roles = new HashSet<>();
         roles.add(roleUser);
         user.setRoles(roles);

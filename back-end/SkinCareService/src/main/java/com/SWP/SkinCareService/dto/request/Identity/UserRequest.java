@@ -23,6 +23,7 @@ public class UserRequest {
     String password;
     @NotBlank(message = "NOT_EMPTY")
     String fullName;
+
     @NotBlank(message = "NOT_EMPTY")
     @Email(message = "EMAIL_INVALID")
     String email;

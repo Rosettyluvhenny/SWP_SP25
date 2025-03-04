@@ -40,10 +40,11 @@ public class BookingService {
     public BookingResponse create(BookingRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        log.info(authentication.toString());
-        String userId = authentication.getName();
+        String username = authentication.getName();
 
-        User user = userRepository.findById(userId)
+        log.info(username);
+
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Booking booking = bookingMapper.toBooking(request);
@@ -68,17 +69,21 @@ public class BookingService {
 
     public Page<BookingResponse> getAllByUser(Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
+        String name = authentication.getName();
+        User user = userRepository.findByUsername(name).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        Page<Booking> bookings = bookingRepository.findAllByUserId(userId, pageable);
+        Page<Booking> bookings = bookingRepository.findAllByUserId(user.getId(), pageable);
         return bookings.map(bookingMapper::toResponse);
     }
 
     public Page<BookingResponse> getAllByStaff(Pageable pageable) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String staffId = authentication.getName();
+        Page<Booking> bookings = bookingRepository.findAll(pageable);
+        return bookings.map(bookingMapper::toResponse);
+    }
 
-        Page<Booking> bookings = bookingRepository.findAllByStaffId(staffId, pageable);
+    public Page<BookingResponse> getAllByUserPhone(String phone,Pageable pageable) {
+        User user = userRepository.findByPhone(phone).orElseThrow(()-> new AppException(ErrorCode.PHONE_NOT_EXISTED));
+        Page<Booking> bookings = bookingRepository.findAllByUserId(user.getId(), pageable);
         return bookings.map(bookingMapper::toResponse);
     }
 

@@ -1,7 +1,9 @@
 package com.SWP.SkinCareService.config;
 
+import com.SWP.SkinCareService.entity.Payment;
 import com.SWP.SkinCareService.entity.Role;
 import com.SWP.SkinCareService.entity.User;
+import com.SWP.SkinCareService.repository.PaymentRepository;
 import com.SWP.SkinCareService.repository.RoleRepository;
 import com.SWP.SkinCareService.repository.UserRepository;
 import lombok.AccessLevel;
@@ -12,7 +14,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
+import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +27,7 @@ public class ApplicationInitCofig {
 
     PasswordEncoder passwordEncoder;
     @Bean
-    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository){
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository, PaymentRepository paymentRepository){
         return args ->{
             if (userRepository.findByUsername("admin").isEmpty()){
                 Role userRole = roleRepository.save(Role.builder().name("USER").description("User role").build());
@@ -34,6 +36,9 @@ public class ApplicationInitCofig {
                 Role StaffRole   = roleRepository.save(Role.builder().name("STAFF").description("Therapist role").build());
                 Set<Role> roles = new HashSet<>();
                 roles.add(adminRole);
+
+                paymentRepository.saveAll(List.of(Payment.builder().name("Cash").build()
+                        ,Payment.builder().name("VNPay").build()));
                 User user = User.builder()
                         .username("admin")
                         .roles(roles)
