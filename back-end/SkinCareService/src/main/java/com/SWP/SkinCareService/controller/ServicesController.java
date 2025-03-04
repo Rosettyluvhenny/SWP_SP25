@@ -7,6 +7,7 @@ import com.SWP.SkinCareService.dto.response.Services.ServicesResponse;
 import com.SWP.SkinCareService.service.ServicesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -14,6 +15,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.List;
 
 @RestController
 @RequestMapping("/services")
@@ -95,11 +98,17 @@ public class ServicesController {
         );
     }
 
+    @Operation(
+        summary = "Get all active services",
+        description = "Retrieve a paginated list of all active services. Use page, size, and sort parameters for pagination and sorting."
+    )
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ServicesResponse>>> getAll() throws IOException {
-        var result = servicesService.getAll();
+    public ResponseEntity<ApiResponse<Page<ServicesResponse>>> getAll(
+            @Parameter(description = "Page number (0-based)")
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) throws IOException {
+        var result = servicesService.getAll(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<List<ServicesResponse>>builder()
+                ApiResponse.<Page<ServicesResponse>>builder()
                         .result(result)
                         .build()
         );
@@ -161,7 +170,7 @@ public class ServicesController {
     }
 
     @PutMapping("/{id}/activate")
-    public ResponseEntity<ApiResponse> activateServiceCategory(@PathVariable int id){
+    public ResponseEntity<ApiResponse> activateServiceCategory(@PathVariable int id) {
         servicesService.activate(id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.builder()
@@ -171,7 +180,7 @@ public class ServicesController {
     }
 
     @PutMapping("/{id}/deactivate")
-    public ResponseEntity<ApiResponse> deactivateServiceCategory(@PathVariable int id){
+    public ResponseEntity<ApiResponse> deactivateServiceCategory(@PathVariable int id) {
         servicesService.deactivate(id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.builder()

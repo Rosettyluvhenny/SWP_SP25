@@ -39,8 +39,11 @@ public enum ErrorCode {
     ACTIVATED(1023, "Is activate already",HttpStatus.BAD_REQUEST),
     DEACTIVATED(1023, "Is deactivated already",HttpStatus.BAD_REQUEST),
     SERVICE_INFO_NOT_FOUND(1024, "Service Infomation not found", HttpStatus.BAD_REQUEST),
-    IO_EXCEPTION(1025, "Failed to upload image", HttpStatus.BAD_REQUEST)
-    ;
+    IO_EXCEPTION(1025, "Failed to upload image", HttpStatus.BAD_REQUEST),
+    PAYMENT_NOT_EXISTED(1026,"Payment method not existed" , HttpStatus.BAD_REQUEST ),
+    BOOKING_NOT_EXISTED(1027, "Booking not existed", HttpStatus.BAD_REQUEST ),
+    USERNAME_EXISTED(1028, "User name is existed" , HttpStatus.BAD_REQUEST ),
+    EMAIL_EXISTED(1029,"Email is existed", HttpStatus.BAD_REQUEST);
     int code;
     String message;
     HttpStatusCode httpStatusCode;

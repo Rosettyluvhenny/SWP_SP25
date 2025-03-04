@@ -14,8 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -30,21 +31,21 @@ public class UserController {
     UserService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody @Valid UserRequest requestDto) {
-        var user = userService.createUser(requestDto);
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(@RequestBody @Valid UserRequest requestDto) {
+        var user = userService.create(requestDto);
         return ResponseEntity.status(201).body(
-                ApiResponse.<User>builder()
+                ApiResponse.<UserResponse>builder()
                         .result(user)
                         .build()
         );
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsers() {
+    public ResponseEntity<ApiResponse<Page<UserResponse>>> getUsers(Pageable pageable) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(
-                ApiResponse.<List<UserResponse>>builder()
-                        .result(userService.getUsers())
+                ApiResponse.<Page<UserResponse>>builder()
+                        .result(userService.getAll(pageable))
                         .build()
         );
     }
@@ -53,7 +54,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<User>> getUser(@PathVariable String userId) {
         return ResponseEntity.ok(
                 ApiResponse.<User>builder()
-                        .result(userService.getUser(userId))
+                        .result(userService.getById(userId))
                         .build()
         );
     }
@@ -73,7 +74,7 @@ public class UserController {
             @RequestBody UserUpdateRequest request) {
         return ResponseEntity.ok(
                 ApiResponse.<UserResponse>builder()
-                        .result(userService.updateUser(userId, request))
+                        .result(userService.update(request))
                         .build()
         );
     }

@@ -14,7 +14,8 @@ import com.SWP.SkinCareService.repository.ServicesRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -39,17 +41,19 @@ public class ServicesService {
         if(servicesRepository.existsByName(request.getName())){
             throw new AppException(ErrorCode.SERVICE_EXIST);
         }
-        if(img ==null || img.isEmpty())
+        if(img == null || img.isEmpty())
             throw new MultipleParameterValidationException(Collections.singletonList("img"));
 
-        ServiceCategory category = serviceCategoryRepository.findById(request.getServiceCategoryId()).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+        ServiceCategory category = serviceCategoryRepository.findById(request.getServiceCategoryId())
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+        
         Services service = servicesMapper.toServices(request);
         service.setServiceCategory(category);
         service = servicesRepository.save(service);
-        String serviceImg= supabaseService.uploadImage(img, "service_" + service.getId());
+        String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());
         service.setImg(serviceImg);
 
-        serviceCategoryRepository.flush();
+        servicesRepository.flush();
         return servicesMapper.toResponse(service);
     }
 
@@ -59,9 +63,9 @@ public class ServicesService {
         return result;
     }
 
-    public List<ServicesResponse> getAll() throws IOException{
-        return servicesRepository.findAll().stream()
-                .map(service ->{
+    public Page<ServicesResponse> getAll(Pageable pageable) throws IOException {
+        return servicesRepository.findAllByActiveTrue(pageable)
+                .map(service -> {
                     try {
                         var response = servicesMapper.toResponse(service);
                         response.setImg(supabaseService.getImage(response.getImg()));
@@ -69,18 +73,18 @@ public class ServicesService {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                }).toList();
+                });
     }
 
     @Transactional
     public ServicesResponse update(int id, ServicesUpdateRequest request, MultipartFile img) throws IOException {
         Services service = checkService(id);
         servicesMapper.update(request, service);
-        if(img ==null || img.isEmpty())
+        if(img == null || img.isEmpty())
             throw new MultipleParameterValidationException(Collections.singletonList("img"));
-        else{
+        else {
             supabaseService.deleteImage(service.getImg());
-            String serviceImg= supabaseService.uploadImage(img, LocalDateTime.now().toString());
+            String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());
             service.setImg(serviceImg);
         }
         ServiceCategory category = checkServiceCategory(request.getServiceCategoryId());
@@ -90,7 +94,7 @@ public class ServicesService {
     }
 
     @Transactional
-    public void activate(int id){
+    public void activate(int id) {
         Services service = checkService(id);
         if(service.isActive())
             throw new AppException(ErrorCode.ACTIVATED);
@@ -99,7 +103,7 @@ public class ServicesService {
     }
 
     @Transactional
-    public void deactivate(int id){
+    public void deactivate(int id) {
         Services service = checkService(id);
         if(!service.isActive())
             throw new AppException(ErrorCode.DEACTIVATED);
@@ -114,11 +118,13 @@ public class ServicesService {
         servicesRepository.delete(service);
     }
 
-    private Services checkService(int id){
-        return servicesRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
-    }
-    private ServiceCategory checkServiceCategory(int id){
-        return serviceCategoryRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+    private Services checkService(int id) {
+        return servicesRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
     }
 
+    private ServiceCategory checkServiceCategory(int id) {
+        return serviceCategoryRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+    }
 }

@@ -14,9 +14,9 @@ public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "isActive", expression = "java(true)")
     User toUser(UserRequest request);
-    UserResponse toUserResponse(User user);
+    UserResponse toResponse(User user);
     @Mapping(target ="roles", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    User updateUser(UserUpdateRequest request, @MappingTarget User user);
+    User update(UserUpdateRequest request, @MappingTarget User user);
 
 }
