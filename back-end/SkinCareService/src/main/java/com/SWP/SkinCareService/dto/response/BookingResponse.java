@@ -17,16 +17,27 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingResponse {
     int id;
-    User user;
-    Services service;
+    //User user;
+    String userId;
+    String fullName;
+
+    //Services service;
+    int serviceId;
+    String serviceName;
+
     String status;
     String paymentStatus;
-    Payment payment;
+    //Payment payment;
+    String paymentMethod;
+
     String notes;
     Date createAt;
     Date updateAt;
     int sessionRemain;
-    private User staff;
+    //private User staff;
+    String staffId;
+    String staffName;
+
     List<BookingSession> bookingSessions;
     int price;
 

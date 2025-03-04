@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "quizAnswer")
@@ -30,10 +31,10 @@ public class Answer {
     String text;
 
     @CreationTimestamp
-    LocalDate createdAt;
+    LocalDateTime createdAt;
 
     @UpdateTimestamp
-    LocalDate updatedAt;
+    LocalDateTime updatedAt;
     int point;
 
 }

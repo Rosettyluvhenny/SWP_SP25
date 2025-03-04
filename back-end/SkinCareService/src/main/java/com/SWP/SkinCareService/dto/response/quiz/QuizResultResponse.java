@@ -1,7 +1,7 @@
 package com.SWP.SkinCareService.dto.response.Quiz;
 
-import com.SWP.SkinCareService.entity.Quiz;
-import com.SWP.SkinCareService.entity.Services;
+import com.SWP.SkinCareService.dto.response.basicDTO.ServiceDTO;
+import com.SWP.SkinCareService.dto.response.basicDTO.UserDTO;
 import com.SWP.SkinCareService.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,6 +19,9 @@ public class QuizResultResponse {
     int minPoint;
     int maxPoint;
     //Quiz quiz;
-    List<User> users;
-    List<Services> services;
+    int quizId;
+    String quizName;
+
+    List<UserDTO> users;
+    List<ServiceDTO> services;
 }

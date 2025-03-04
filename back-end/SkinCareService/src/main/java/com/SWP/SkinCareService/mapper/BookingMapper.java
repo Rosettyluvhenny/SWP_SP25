@@ -36,6 +36,14 @@ public interface BookingMapper {
     @Mapping(target = "staff.booking", ignore = true)
     @Mapping(target = "staff.bookingServicesStaff", ignore = true)
     @Mapping(target = "staff.bookingSessions", ignore = true)
+
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "fullName", source = "user.fullName")
+    @Mapping(target = "serviceId", source = "service.id")
+    @Mapping(target = "serviceName", source = "service.name")
+    @Mapping(target = "paymentMethod", source = "payment.paymentName")
+    @Mapping(target = "staffId", source = "staff.id")
+    @Mapping(target = "staffName", source = "staff.fullName")
     BookingResponse toBookingResponse(Booking booking);
 
 }

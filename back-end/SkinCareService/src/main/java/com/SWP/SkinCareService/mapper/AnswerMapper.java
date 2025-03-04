@@ -12,7 +12,14 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface AnswerMapper {
     @Mapping(target = "question", ignore = true)
     Answer ToAnswer(AnswerRequest request);
+
+
+    @Mapping(target = "questionId", source = "question.id")
+    @Mapping(target = "questionText", source = "question.text")
+    @Mapping(target = "createdAt", source = "createdAt")
+    @Mapping(target = "updatedAt", source = "updatedAt")
     AnswerResponse ToAnswerResponse(Answer answer);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "question", ignore = true)
     void updateAnswer(AnswerRequest request, @MappingTarget Answer answer);
