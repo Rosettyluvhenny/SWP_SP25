@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QuillTest from "./QuillTest";
+import axios from "axios";
 
-const categoryOptions = [
-    "Tất Cả",
-    "Chăm Sóc Da",
-    "Trị Liệu",
-    "Dịch Vụ Khác",
-];
+
+type Service = {
+    id: number;
+    name: string;
+    price: string;
+    status: string;
+    category: string;
+};
+
+type ServiceCategory = {
+    id: number;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    services: Service[];
+};
 
 const ServiceInfoForm = ({
     handleCloseServiceForm,
@@ -14,6 +25,28 @@ const ServiceInfoForm = ({
     handleCloseServiceForm: () => void;
 }) => {
     const [selectedCategory, setSelectedCategory] = useState("Tất Cả");
+    const [categories, setCategories] = useState<ServiceCategory[]>([]);
+    const [serviceName, setServiceName] = useState("");
+    const [servicePrice, setServicePrice] = useState("");
+    const [serviceDuration, setServiceDuration] = useState("");
+    const [serviceSession, setServiceSession] = useState("");
+    const [serviceImage, setServiceImage] = useState("");
+
+    const fetchCategories = async () => {
+        try {
+            const response = await axios.get<{ result: ServiceCategory[] }>(
+                "http://localhost:8081/swp/category"
+            );
+            setCategories(response.data.result);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+
     return (
         <div className="flex flex-col">
             <h1 className="text-2xl font-bold text-pink-400">Tạo Dịch Vụ</h1>
@@ -40,6 +73,8 @@ const ServiceInfoForm = ({
                         type="text"
                         id="name"
                         className="border-2 border-gray-300 h-[50px] rounded-md px-4 py-2 w-full"
+                        value={serviceName}
+                        onChange={(e) => setServiceName(e.target.value)}
                     />
                 </span>
             </div>
@@ -53,6 +88,8 @@ const ServiceInfoForm = ({
                             type="file"
                             id="image"
                             className="border-2 border-gray-300 h-[50px] rounded-md px-4 py-2"
+                            value={serviceImage}
+                            onChange={(e) => setServiceImage(e.target.value)}
                         />
                     </span>
                 </div>
@@ -64,6 +101,8 @@ const ServiceInfoForm = ({
                         type="text"
                         id="duration"
                         className="border-2 border-gray-300 h-[50px] rounded-md px-4 py-2"
+                        value={serviceDuration}
+                        onChange={(e) => setServiceDuration(e.target.value)}
                     />
                 </span>
                 <span className="flex flex-col w-full">
@@ -74,6 +113,8 @@ const ServiceInfoForm = ({
                         type="text"
                         id="session"
                         className="border-2 border-gray-300 h-[50px] rounded-md px-4 py-2"
+                        value={serviceSession}
+                        onChange={(e) => setServiceSession(e.target.value)}
                     />
                 </span>
                 <span className="flex flex-col w-full">
@@ -84,6 +125,8 @@ const ServiceInfoForm = ({
                         type="text"
                         id="price"
                         className="border-2 border-gray-300 h-[50px] rounded-md px-4 py-2"
+                        value={servicePrice}
+                        onChange={(e) => setServicePrice(e.target.value)}
                     />
                 </span>
                 <span className="flex flex-col w-full">
@@ -95,11 +138,11 @@ const ServiceInfoForm = ({
                         onChange={(e) => setSelectedCategory(e.target.value)}
                         className="w-full p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 h-[50px]"
                     >
-                        {categoryOptions
-                            .filter((cat) => cat !== "Tất Cả")
+                        <option value="0">Chọn Danh Mục</option>
+                        {categories
                             .map((category) => (
-                                <option key={category} value={category}>
-                                    {category}
+                                <option key={category.id} value={category.id}>
+                                    {category.name}
                                 </option>
                             ))}
                     </select>
