@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { FaEdit, FaTrash, FaSearch, FaPlus } from "react-icons/fa";
 import { deleteServiceById, servicesData } from "../data/servicesData";
 import axios from "axios";
-import ServiceInfoForm from "../components/CreateServiceForm";
+// import QuillTest from "../components/QuillTest";
+import ServiceInfoForm from "../components/ServiceForm";
 
 type Service = {
     id: number;

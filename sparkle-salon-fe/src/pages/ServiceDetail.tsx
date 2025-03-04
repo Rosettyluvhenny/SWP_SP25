@@ -6,8 +6,6 @@ import { FaClock, FaMoneyBill, FaCalendarAlt } from "react-icons/fa";
 import FeedbackForm from "../components/FeedbackForm";
 import FeedbackList from "../components/FeedbackList";
 import { motion } from "framer-motion";
-import 'react-quill/dist/quill.snow.css';
-import '../styles/quill-custom.css'; 
 
 interface Feedback {
     name: string;
