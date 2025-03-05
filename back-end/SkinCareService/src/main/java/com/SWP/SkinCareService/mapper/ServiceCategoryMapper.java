@@ -8,5 +8,5 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ServiceCategoryMapper {
 
-    ServiceCategoryResponse toReponse(ServiceCategory serviceCategory);
+    ServiceCategoryResponse toResponse(ServiceCategory serviceCategory);
 }

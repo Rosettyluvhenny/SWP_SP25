@@ -25,10 +25,11 @@ public class ServiceCategoryResponse {
 
     String name;
 
+    String description;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt;
 
-    List<Services> services;
 }

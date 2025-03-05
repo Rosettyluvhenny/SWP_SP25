@@ -20,4 +20,6 @@ public class BookingRequest {
     int paymentId;
 
     String notes;
+
+    int StaffId;
 }

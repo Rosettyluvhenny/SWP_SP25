@@ -11,10 +11,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ServiceCategoryRequest {
-    @NotBlank(message = "NOT_EMPTY")
+public class CategoryUpdateRequest {
     String name;
 
-    @NotBlank(message = "NOT_EMPTY")
     String description;
 }

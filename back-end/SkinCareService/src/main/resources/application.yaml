@@ -27,6 +27,7 @@ openapi:
   description: API service
   serverUrl: http://localhost:8080/swp
   serverName: Test Server
+
 springdoc:
   api-docs:
     enabled: true

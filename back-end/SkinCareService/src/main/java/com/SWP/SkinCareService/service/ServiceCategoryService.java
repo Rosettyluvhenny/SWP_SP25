@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.request.Services.CategoryUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServiceCategoryRequest;
 import com.SWP.SkinCareService.dto.response.Services.ServiceCategoryResponse;
 import com.SWP.SkinCareService.entity.ServiceCategory;
@@ -27,20 +28,22 @@ public class ServiceCategoryService {
         }
         ServiceCategory category = ServiceCategory.builder()
                 .name(request.getName())
+                .description(request.getDescription())
                 .build();
         category = serviceCategoryRepository.save(category);
         serviceCategoryRepository.flush();
-        return serviceCategoryMapper.toReponse(category);
+        return serviceCategoryMapper.toResponse(category);
     }
     @Transactional
-    public ServiceCategoryResponse update(int id,ServiceCategoryRequest request){
+    public ServiceCategoryResponse update(int id, CategoryUpdateRequest request){
         ServiceCategory category = checkServiceCategory(id);
-
-        category.setName(request.getName());
-
+        if(!request.getName().isBlank())
+            category.setName(request.getName());
+        if(!request.getDescription().isBlank())
+            category.setDescription(request.getDescription());
         category = serviceCategoryRepository.save(category);
         serviceCategoryRepository.flush();
-        return serviceCategoryMapper.toReponse(category);
+        return serviceCategoryMapper.toResponse(category);
     }
     @Transactional
     public void delete(int id){
@@ -48,11 +51,11 @@ public class ServiceCategoryService {
         serviceCategoryRepository.delete(category);
     }
     public List<ServiceCategoryResponse> getAll(){
-        return serviceCategoryRepository.findAll().stream().map(serviceCategoryMapper::toReponse).toList();
+        return serviceCategoryRepository.findAll().stream().map(serviceCategoryMapper::toResponse).toList();
     }
 
     public ServiceCategoryResponse getById(int id){
-        return serviceCategoryMapper.toReponse(checkServiceCategory(id));
+        return serviceCategoryMapper.toResponse(checkServiceCategory(id));
     }
     private ServiceCategory checkServiceCategory(int id){
         return serviceCategoryRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));

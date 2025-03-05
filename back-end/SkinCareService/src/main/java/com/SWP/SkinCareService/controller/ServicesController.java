@@ -5,8 +5,10 @@ import com.SWP.SkinCareService.dto.request.Services.ServicesUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Services.ServicesResponse;
 import com.SWP.SkinCareService.service.ServicesService;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -36,9 +38,10 @@ public class ServicesController {
 
     @Operation(summary = "Create a new service", description = "Create a new service with image upload")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<ServicesResponse>> createServiceCategory(@RequestPart("data") @Valid ServicesRequest request,
+    public ResponseEntity<ApiResponse<ServicesResponse>> createServiceCategory(
+            @RequestPart("data") @Valid ServicesRequest request,
             @Parameter(description = "Service image file")
-            @RequestParam MultipartFile img) throws IOException {
+            @RequestPart("img") MultipartFile img) throws IOException {
         
         if (img == null || img.isEmpty()) {
             return ResponseEntity.badRequest().body(
@@ -49,15 +52,7 @@ public class ServicesController {
             );
         }
 
-//        ServicesRequest request = ServicesRequest.builder()
-//                .name(name)
-//                .serviceCategoryId(serviceCategoryId)
-//                .description(description)
-//                .price(price)
-//                .duration(duration)
-//                .session(session)
-//                .active(active)
-//                .build();
+
 
         var result = servicesService.create(request, img);
         return ResponseEntity.status(HttpStatus.CREATED).body(
