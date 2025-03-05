@@ -36,28 +36,7 @@ public class ServicesController {
 
     @Operation(summary = "Create a new service", description = "Create a new service with image upload")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<ServicesResponse>> createServiceCategory(
-            @Parameter(description = "Name of the service")
-            @RequestParam @NotBlank(message = "NOT_EMPTY") String name,
-            
-            @Parameter(description = "Service category ID")
-            @RequestParam @NotNull(message = "NOT_EMPTY") @Min(value = 1, message = "MIN") Integer serviceCategoryId,
-            
-            @Parameter(description = "Description of the service")
-            @RequestParam @NotBlank(message = "NOT_EMPTY") String description,
-            
-            @Parameter(description = "Price of the service in dollars")
-            @RequestParam @NotNull(message = "NOT_EMPTY") @Min(value = 0, message = "MIN") BigDecimal price,
-            
-            @Parameter(description = "Duration of the service in minutes")
-            @RequestParam @NotNull(message = "NOT_EMPTY") @Min(value = 1, message = "MIN") Integer duration,
-            
-            @Parameter(description = "Number of sessions")
-            @RequestParam @NotNull(message = "NOT_EMPTY") @Min(value = 1, message = "MIN") Integer session,
-            
-            @Parameter(description = "Whether the service is active")
-            @RequestParam(defaultValue = "true") Boolean active,
-            
+    public ResponseEntity<ApiResponse<ServicesResponse>> createServiceCategory(@RequestPart("data") @Valid ServicesRequest request,
             @Parameter(description = "Service image file")
             @RequestParam MultipartFile img) throws IOException {
         
@@ -70,15 +49,15 @@ public class ServicesController {
             );
         }
 
-        ServicesRequest request = ServicesRequest.builder()
-                .name(name)
-                .serviceCategoryId(serviceCategoryId)
-                .description(description)
-                .price(price)
-                .duration(duration)
-                .session(session)
-                .active(active)
-                .build();
+//        ServicesRequest request = ServicesRequest.builder()
+//                .name(name)
+//                .serviceCategoryId(serviceCategoryId)
+//                .description(description)
+//                .price(price)
+//                .duration(duration)
+//                .session(session)
+//                .active(active)
+//                .build();
 
         var result = servicesService.create(request, img);
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -118,27 +97,7 @@ public class ServicesController {
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ServicesResponse>> updateServiceCategory(
             @PathVariable int id,
-            @Parameter(description = "Name of the service")
-            @RequestParam(required = false) String name,
-            
-            @Parameter(description = "Service category ID")
-            @RequestParam(required = false) Integer serviceCategoryId,
-            
-            @Parameter(description = "Description of the service")
-            @RequestParam(required = false) String description,
-            
-            @Parameter(description = "Price of the service in dollars")
-            @RequestParam(required = false) BigDecimal price,
-            
-            @Parameter(description = "Duration of the service in minutes")
-            @RequestParam(required = false) Integer duration,
-            
-            @Parameter(description = "Number of sessions")
-            @RequestParam(required = false) Integer session,
-            
-            @Parameter(description = "Whether the service is active")
-            @RequestParam(required = false) Boolean active,
-            
+            @RequestPart("data") @Valid ServicesUpdateRequest request,
             @Parameter(description = "Service image file")
             @RequestParam MultipartFile img) throws IOException {
         
@@ -151,15 +110,6 @@ public class ServicesController {
             );
         }
 
-        ServicesUpdateRequest request = ServicesUpdateRequest.builder()
-                .name(name)
-                .serviceCategoryId(serviceCategoryId)
-                .description(description)
-                .price(price)
-                .duration(duration)
-                .session(session)
-                .active(active)
-                .build();
 
         var result = servicesService.update(id, request, img);
         return ResponseEntity.status(HttpStatus.OK).body(
