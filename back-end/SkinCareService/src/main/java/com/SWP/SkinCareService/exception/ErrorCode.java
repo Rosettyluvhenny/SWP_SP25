@@ -46,7 +46,8 @@ public enum ErrorCode {
     EMAIL_EXISTED(1029,"Email is existed", HttpStatus.BAD_REQUEST),
     PHONE_NOT_EXISTED(1030, "Phone number not found", HttpStatus.BAD_REQUEST ),
     PHONE_EXISTED(1031,"Phone existed" ,HttpStatus.BAD_REQUEST ),
-    INVALID_STATUS(1032,"Status not existed" , HttpStatus.BAD_REQUEST );
+    INVALID_STATUS(1032,"Status not existed" , HttpStatus.BAD_REQUEST ),
+    SESSION_NOT_EXISTED(1034,"Session is cancelled or not exist" , HttpStatus.BAD_REQUEST );
     int code;
     String message;
     HttpStatusCode httpStatusCode;

@@ -121,7 +121,7 @@ public class BookingService {
 
             return bookingMapper.toResponse(booking);
         } catch (IllegalArgumentException e) {
-            throw new AppException(ErrorCode.INVALID_STATUS, "Invalid status: " + status);
+            throw new AppException(ErrorCode.INVALID_STATUS);
         }
 
     }
