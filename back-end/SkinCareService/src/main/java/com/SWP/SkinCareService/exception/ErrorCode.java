@@ -51,6 +51,11 @@ public enum ErrorCode {
     QUESTION_EXISTED(1037, "Question existed", HttpStatus.BAD_REQUEST),
     QUIZ_EXISTED(1038, "Quiz existed", HttpStatus.BAD_REQUEST),
     CATEGORY_EXISTED(1039, "Category existed", HttpStatus.BAD_REQUEST),
+    BOOKING_ON_GOING(1040, "Your booking are ongoing", HttpStatus.BAD_REQUEST),
+    THERAPIST_NOT_AVAILABLE(1041, "Therapist not available at this time", HttpStatus.BAD_REQUEST),
+    ROOM_NOT_AVAILABLE(1042, "Room not available at this time", HttpStatus.BAD_REQUEST),
+    RESULT_EXISTED(1043, "Result existed", HttpStatus.BAD_REQUEST),
+    ;
     ;
     int code;
     String message;

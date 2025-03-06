@@ -37,11 +37,18 @@ public class QuizResultService {
 
     @Transactional
     public QuizResultResponse createQuizResult(QuizResultRequest request) {
+        //Check service existed or not
+        Services service = getServiceById(request.getServiceId());
+        //Check quiz existed or not
+        Quiz quiz = getQuizById(request.getQuizId());
+        for (QuizResult quizResult : quiz.getQuizResults()) {
+            if (quizResult.getResultText().equals(request.getResultText())) {
+                throw new AppException(ErrorCode.RESULT_EXISTED);
+            }
+        }
+
         QuizResult quizResult = quizResultMapper.toQuizResult(request);
         quizResult = quizResultRepository.save(quizResult);
-
-        Services service = getServiceById(request.getServiceId());
-        Quiz quiz = getQuizById(request.getQuizId());
 
         service.getQuizResults().add(quizResult);
 
@@ -127,26 +134,6 @@ public class QuizResultService {
         return quizRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
     }
-
-    /*
-    public String getQuizResult(UserResultRequest request) {
-        int quizId = request.getQuizId();
-        int score = request.getScore();
-
-        List<QuizResult> results = quizResultRepository.findByQuizIdOrdered(quizId);
-
-        int lowerBound = 0;
-        for (QuizResult result : results) {
-            if (score >= lowerBound && score <= result.getRangePoint()) {
-                return result.getResultText();
-            }
-
-            lowerBound = result.getRangePoint() + 1;
-        }
-        return results.getLast().getResultText();
-    }
-
-     */
 
     public List<QuizResult> getQuizResultsByQuizId(int quizId) {
         List<QuizResult> list = new ArrayList<>();
