@@ -14,7 +14,12 @@ type Service = {
     price: string;
     status: string;
     category: string;
+    image: string;
+    duration: string;
+    session: string;
 };
+
+
 
 type ServiceCategory = {
     id: number;
@@ -39,6 +44,7 @@ export default function ServiceManagement() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingService, setEditingService] = useState<Service | null>(null);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+    const [selectedService, setSelectedService] = useState< string | null>(null);
 
     // Categories state
     const [categories, setCategories] = useState<ServiceCategory[]>([]);
@@ -51,23 +57,29 @@ export default function ServiceManagement() {
     }>({});
     const [categoryFormValue, setCategoryFormValue] = useState<string>("");
 
-    const handleOpenServiceForm = () => {
+    const handleOpenServiceForm = (serviceId: string | null) => {
+        setSelectedService(serviceId);
         setIsOpenServiceForm(true);
     };
 
     const handleCloseServiceForm = () => {
+        setSelectedService(null);
         setIsOpenServiceForm(false);
     };
 
     // Services logic
     
-    const getServiceList = useCallback(() => {
-        const serviceListData: Service[] = servicesData.map((service) => ({
+    const getServiceList = useCallback( async() => {
+        const services = await servicesData();
+        const serviceListData: Service[] = services.map((service) => ({
             id: service.id,
             name: service.name,
             price: service.price.toString(),
             status: service.active ? "Hoạt Động" : "Không Hoạt Động",
             category: service.categoryName,
+            image: service.img,
+            duration: service.duration,
+            session: service.session.toString(),
         }));
         if (serviceListData.length > 0) {
             setServices(serviceListData);
@@ -86,20 +98,6 @@ export default function ServiceManagement() {
         "Dịch Vụ Khác",
     ];
 
-    // Service Modal functions
-    const openServiceModal = (service: Service | null = null) => {
-        setEditingService(
-            service ?? {
-                id: services.length + 1,
-                name: "",
-                price: "",
-                status: "Hoạt Động",
-                category: "Chăm Sóc Da",
-            }
-        );
-        setFormErrors({});
-        setIsModalOpen(true);
-    };
 
     const closeServiceModal = () => {
         setIsModalOpen(false);
@@ -260,7 +258,7 @@ export default function ServiceManagement() {
                     <h1 className="text-2xl font-bold text-gray-800 mb-4">
                         Quản Lý Dịch Vụ & Danh Mục
                     </h1>
-                    {isOpenCreateService ? (<ServiceInfoForm handleCloseServiceForm={handleCloseServiceForm} />) : (<>
+                    {isOpenCreateService ? (<ServiceInfoForm selectedService={selectedService} handleCloseServiceForm={handleCloseServiceForm} />) : (<>
                     <div className="flex space-x-4 mb-6">
                         <button
                             onClick={() => setActiveTab("services")}
@@ -286,9 +284,10 @@ export default function ServiceManagement() {
                     {/* Services Tab Content */}
                     {activeTab === "services" && (
                         <div>
+                            <button className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2" onClick={() => handleOpenServiceForm("49")}>Test PUT button</button>
                             <div className="flex justify-end mb-4">
                                 <motion.button
-                                    onClick={() => handleOpenServiceForm()}
+                                    onClick={() => handleOpenServiceForm(null)}
                                     className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
@@ -352,7 +351,16 @@ export default function ServiceManagement() {
                                                     Tên Dịch Vụ
                                                 </th>
                                                 <th className="p-3 text-left">
+                                                    Hình Ảnh
+                                                </th>
+                                                <th className="p-3 text-left">
                                                     Giá (VND)
+                                                </th>
+                                                <th className="p-3 text-left">
+                                                    Thời Lượng
+                                                </th>
+                                                <th className="p-3 text-left">
+                                                    Số Buổi
                                                 </th>
                                                 <th className="p-3 text-left">
                                                     Trạng Thái
@@ -385,11 +393,21 @@ export default function ServiceManagement() {
                                                             <td className="p-3">
                                                                 {service.id}
                                                             </td>
+                                                        
                                                             <td className="p-3 font-medium">
                                                                 {service.name}
                                                             </td>
+                                                            <td className="p-3 font-medium">
+                                                                {service.image}
+                                                            </td>
                                                             <td className="p-3">
                                                                 {service.price}
+                                                            </td>
+                                                            <td className="p-3">
+                                                                {service.duration}
+                                                            </td>
+                                                            <td className="p-3">
+                                                                {service.session}
                                                             </td>
                                                             <td className="p-3">
                                                                 <span
@@ -414,11 +432,16 @@ export default function ServiceManagement() {
                                                             </td>
                                                             <td className="p-3 flex space-x-2">
                                                                 <motion.button
-                                                                    onClick={() =>
-                                                                        openServiceModal(
-                                                                            service
-                                                                        )
-                                                                    }
+                                                                    // onClick={() =>
+                                                                    //     setSelectedService(
+                                                                    //         {
+                                                                    //             active: true,
+                                                                    //             description: "123",
+                                                                    //             id: service.id,
+                                                                    //         }
+
+                                                                    //     )
+                                                                    // }
                                                                     className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
                                                                     whileHover={{
                                                                         scale: 1.05,
@@ -431,7 +454,7 @@ export default function ServiceManagement() {
                                                                         size={
                                                                             14
                                                                         }
-                                                                    />{" "}
+                                                                    />
                                                                     Sửa
                                                                 </motion.button>
                                                                 <motion.button
@@ -462,7 +485,7 @@ export default function ServiceManagement() {
                                             ) : (
                                                 <tr>
                                                     <td
-                                                        colSpan={6}
+                                                        colSpan={9}
                                                         className="p-4 text-center text-gray-500"
                                                     >
                                                         Không tìm thấy dịch vụ

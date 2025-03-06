@@ -1,12 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Quill from 'quill';
-import { forwardRef, useEffect,  useRef } from 'react';
+import { forwardRef,  useEffect,  useLayoutEffect,  useRef } from 'react';
+import "quill/dist/quill.snow.css";
 const Editor = forwardRef(
-  ({ onTextChange, defaultValue }: { onTextChange: (text: string) => void, defaultValue: any }, ref: any) => {
+  ({ onTextChange, defaultValue }: { onTextChange: (text: string) => void, defaultValue: string |null }, ref: any) => {
     
     const containerRef = useRef(null);
     const defaultValueRef = useRef(defaultValue);
+    useEffect(() => {
+      defaultValueRef.current = defaultValue;
+    }, [defaultValue]);
     const onTextChangeRef = useRef(onTextChange);
+    useLayoutEffect(() => {
+        onTextChangeRef.current = onTextChange;
+      });
     useEffect(() => {
         const toolbarOptions = [
             ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
@@ -36,20 +43,19 @@ const Editor = forwardRef(
           toolbar: toolbarOptions
         }
       });
-      if (defaultValueRef.current) {
-        quill.setContents(defaultValueRef.current);
-      }
+      ref.current = quill;
       quill.on(Quill.events.TEXT_CHANGE, () => {
         onTextChangeRef.current?.(quill.getSemanticHTML());
       });
-
-      ref.current = quill;
-
+      if (defaultValue) {
+        const delta = quill.clipboard.convert({html:defaultValue})
+        quill.setContents(delta, Quill.sources.SILENT);
+      }
       return () => {
         ref.current = null;
         container.innerHTML = '';
       };
-    }, [onTextChange, ref]);
+    }, [ref, defaultValue]);
 
     return <div className='h-[400px]' ref={containerRef}></div>;
   },

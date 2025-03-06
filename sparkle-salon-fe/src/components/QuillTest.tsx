@@ -5,14 +5,17 @@ import Quill from 'quill';
 import "quill/dist/quill.snow.css";
 const Delta = Quill.import('delta');
 
-const QuillTest = () => {
+const QuillTest = ({defaultValue, setServiceDescription}: {defaultValue: string, setServiceDescription: (text: string) => void}) => {
 
   // Use a ref to access the quill instance directly
-  const quillRef = useRef<Quill>(undefined);
+  const quillRef = useRef<any>(undefined);
+  const defaultValueRef = useRef(defaultValue);
   const onTextChange = (text: string) => {
-    console.log(text);
+    setServiceDescription(text);
   }
-
+  if (defaultValueRef.current) {
+    quillRef.current.setContents(defaultValueRef.current);
+  }
   return (
     <div className='mt-5'>
       <Editor

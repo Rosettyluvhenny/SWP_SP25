@@ -8,11 +8,18 @@ export interface Service {
     session: number;
     img: string;
     description: string;
+    categoryId: number;
     categoryName: string;
 }
 
-const servicesResponse = await axios.get("http://localhost:8081/swp/services");
-const servicesData: Service[] = servicesResponse.data.result;
+
+const servicesData = async (): Promise<Service[]> =>{
+    const servicesResponse = await axios.get("http://localhost:8081/swp/services");
+    if (servicesResponse.status === 200) {
+        return servicesResponse.data.result;
+    }
+    return [];
+};
 
 
 // const servicesDataTest: Service[] = [
@@ -2988,8 +2995,11 @@ const servicesData: Service[] = servicesResponse.data.result;
 
 const serviceDataById = async (id:string) => {
     const serviceResponse = await axios.get(`http://localhost:8081/swp/services/${id}`)
-    const serviceData = serviceResponse.data.result
-    return serviceData
+    if (serviceResponse.status === 200) {
+        const serviceData = serviceResponse.data.result
+        return serviceData
+    }
+    return null
 }
 
 const deleteServiceById = async (id:string) => {

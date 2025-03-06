@@ -22,9 +22,18 @@ export default function Service() {
     const [currentPage, setCurrentPage] = useState<number>(pageParam);
     const [isLoading, setIsLoading] = useState(false);
 
+    const [services, setServices] = useState<Service[]>([]);
     useEffect(() => {
         setSearchParams({ search: searchTerm, sort: sortBy, page: currentPage.toString() });
     }, [searchTerm, sortBy, currentPage, setSearchParams]);
+
+    const fetchServices = async () => {
+        const services = await servicesData();
+        setServices(services);
+    };
+    useEffect(() => {
+        fetchServices();
+    }, []);
 
     const debouncedSearch = debounce((term: string) => {
         setSearchTerm(term);
@@ -33,7 +42,7 @@ export default function Service() {
         setTimeout(() => setIsLoading(false), 300);
     }, 300);
 
-    const filteredServices = servicesData
+    const filteredServices =  services
         .filter((service: Service) => {
             const searchLower = searchTerm.toLowerCase();
             return (
