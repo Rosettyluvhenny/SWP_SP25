@@ -94,16 +94,7 @@ public class ServicesController {
             @PathVariable int id,
             @RequestPart("data") @Valid ServicesUpdateRequest request,
             @Parameter(description = "Service image file")
-            @RequestParam MultipartFile img) throws IOException {
-        
-        if (img == null || img.isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                ApiResponse.<ServicesResponse>builder()
-                    .code(400)
-                    .message("Image file is required")
-                    .build()
-            );
-        }
+            @RequestParam(required = false) MultipartFile img) throws IOException {
 
 
         var result = servicesService.update(id, request, img);
