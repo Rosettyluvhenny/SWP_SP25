@@ -18,7 +18,7 @@ public interface BlogPostMapper {
     @Mapping(target = "img", ignore = true)
     void updateBlogPost(@MappingTarget BlogPost blogPost, BlogPostRequest request);
 
-    @Mapping(source = "blogId", target = "blogID")
+    @Mapping(source = "blogId", target = "blogId")
     @Mapping(source = "therapist.user.fullName", target = "therapistName")
     BlogPostResponse toBlogPostResponse(BlogPost blogPost);
 }

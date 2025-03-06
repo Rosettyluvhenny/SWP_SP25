@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BlogPostResponse {
-    Integer blogID;
+    Integer blogId;
     String category;
     String title;
     String content;
