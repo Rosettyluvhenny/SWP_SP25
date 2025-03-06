@@ -22,5 +22,5 @@ public class QuizResponse {
     String categoryName;
 
     List<QuestionDTO> questions;
-    List<QuizResultDTO> quizResults;
+    //List<QuizResultDTO> quizResults;
 }

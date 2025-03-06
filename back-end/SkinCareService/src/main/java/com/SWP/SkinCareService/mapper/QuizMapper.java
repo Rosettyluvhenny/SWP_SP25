@@ -28,7 +28,7 @@ public interface QuizMapper {
     @Mapping(target = "categoryId", source = "serviceCategory.id")
     @Mapping(target = "categoryName", source = "serviceCategory.name")
     @Mapping(target = "questions", expression = "java(toQuestionDTOList(quiz.getQuestions()))")
-    @Mapping(target = "quizResults", expression = "java(toQuizResultDTOList(quiz.getQuizResults()))")
+    //@Mapping(target = "quizResults", expression = "java(toQuizResultDTOList(quiz.getQuizResults()))")
     QuizResponse toResponse(Quiz quiz);
 
     @Mapping(target = "id", source = "id")
@@ -41,4 +41,7 @@ public interface QuizMapper {
     @Mapping(target = "text", source = "resultText")
     QuizResultDTO toQuizResultDTO(QuizResult quizResult);
     List<QuizResultDTO> toQuizResultDTOList(List<QuizResult> quizResults);
+
+
+
 }

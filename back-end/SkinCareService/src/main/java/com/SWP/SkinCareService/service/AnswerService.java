@@ -26,12 +26,16 @@ public class AnswerService {
 
     @Transactional
     public AnswerResponse create(AnswerRequest request) {
-        if (answerRepository.existsByText(request.getText())) {
-            throw new AppException(ErrorCode.ANSWER_EXISTED);
-        }
-
+        //Check question
         Question question =getQuestion(request.getQuestionId());
-
+        List<Answer> answerList = question.getAnswers();
+        //Check answer existed by question or not
+        for (Answer answer : answerList) {
+            if (answer.getText().equals(request.getText())) {
+                throw new AppException(ErrorCode.ANSWER_EXISTED);
+            }
+        }
+        //Convert
         Answer answer = answerMapper.ToAnswer(request);
         answer.setQuestion(question);
         return answerMapper.ToAnswerResponse(answerRepository.save(answer));

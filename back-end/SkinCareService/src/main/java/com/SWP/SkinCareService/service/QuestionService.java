@@ -20,19 +20,22 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class QuestionService {
-    QuizRepository quizRepository;
-
     QuestionRepository questionRepository;
-
     QuestionMapper questionMapper;
+    QuizRepository quizRepository;
 
     @Transactional
     public QuestionResponse create(QuestionRequest request) {
-        if (questionRepository.existsByText(request.getText())) {
-            throw new AppException(ErrorCode.QUESTION_EXISTED);
-        }
-
+        //Check quiz
         Quiz quiz = getQuiz(request.getQuizId());
+        List<Question> questionList = quiz.getQuestions();
+        //Check question existed by quiz or not
+        for (Question question : questionList) {
+            if (question.getText().equals(request.getText())) {
+                throw new AppException(ErrorCode.QUESTION_EXISTED);
+            }
+        }
+        //Convert
         Question question = questionMapper.toQuestion(request);
         question.setQuiz(quiz);
         return questionMapper.toResponse(questionRepository.save(question));

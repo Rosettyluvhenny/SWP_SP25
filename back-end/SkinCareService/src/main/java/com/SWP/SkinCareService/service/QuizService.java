@@ -26,17 +26,23 @@ import java.util.List;
 public class QuizService {
     QuizRepository quizRepository;
     QuizMapper quizMapper;
+
     ServiceCategoryRepository serviceCategoryRepository;
     QuizResultService quizResultService;
     QuizResultMapper quizResultMapper;
 
     @Transactional
     public QuizResponse create(QuizRequest request) {
-        if (quizRepository.existsByName(request.getName())) {
-            throw new AppException(ErrorCode.QUIZ_EXISTED);
-        }
-
+        //Check category
         ServiceCategory serviceCategory = getCategory(request.getServiceCategoryId());
+        List<Quiz> quizList= serviceCategory.getQuiz();
+        //Check quiz existed by category or not
+        for (Quiz quiz : quizList) {
+            if (quiz.getName().equals(request.getName())) {
+                throw new AppException(ErrorCode.QUIZ_EXISTED);
+            }
+        }
+        //Convert
         Quiz quiz = quizMapper.toQuiz(request);
         quiz.setServiceCategory(serviceCategory);
         quizRepository.save(quiz);
@@ -66,7 +72,7 @@ public class QuizService {
 
     public void delete(int id) {
         Quiz quiz = getQuiz(id);
-        quizRepository.deleteById(id);
+        quizRepository.delete(quiz);
     }
     private Quiz getQuiz(int id) {
         return quizRepository.findById(id).orElseThrow(()
