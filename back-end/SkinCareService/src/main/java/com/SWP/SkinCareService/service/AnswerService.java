@@ -26,6 +26,10 @@ public class AnswerService {
 
     @Transactional
     public AnswerResponse create(AnswerRequest request) {
+        if (answerRepository.existsByText(request.getText())) {
+            throw new AppException(ErrorCode.ANSWER_EXISTED);
+        }
+
         Question question =getQuestion(request.getQuestionId());
 
         Answer answer = answerMapper.ToAnswer(request);

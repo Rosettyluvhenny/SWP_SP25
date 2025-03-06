@@ -28,6 +28,10 @@ public class QuestionService {
 
     @Transactional
     public QuestionResponse create(QuestionRequest request) {
+        if (questionRepository.existsByText(request.getText())) {
+            throw new AppException(ErrorCode.QUESTION_EXISTED);
+        }
+
         Quiz quiz = getQuiz(request.getQuizId());
         Question question = questionMapper.toQuestion(request);
         question.setQuiz(quiz);

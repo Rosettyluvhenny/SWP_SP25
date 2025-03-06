@@ -38,7 +38,7 @@ public enum ErrorCode {
     SERVICE_NOT_EXISTED(1022, "Service not found", HttpStatus.BAD_REQUEST),
     ACTIVATED(1023, "Is activate already",HttpStatus.BAD_REQUEST),
     DEACTIVATED(1023, "Is deactivated already",HttpStatus.BAD_REQUEST),
-    SERVICE_INFO_NOT_FOUND(1024, "Service Infomation not found", HttpStatus.BAD_REQUEST),
+    SERVICE_INFO_NOT_FOUND(1024, "Service Information not found", HttpStatus.BAD_REQUEST),
     IO_EXCEPTION(1025, "Failed to upload image", HttpStatus.BAD_REQUEST),
     SERVICE_CATEGORY_NOT_EXISTED(1010, "Service category Not Existed",HttpStatus.NOT_FOUND),
     RESULT_NOT_EXISTED(1029, "Result not found", HttpStatus.NOT_FOUND),
@@ -47,7 +47,10 @@ public enum ErrorCode {
     PAYMENT_METHOD_NOT_EXISTED(1033, "Payment method not found", HttpStatus.NOT_FOUND),
     BOOKING_NOT_EXISTED(1034, "Booking not found", HttpStatus.NOT_FOUND),
     SESSION_NOT_EXISTED(1035, "Session not found", HttpStatus.NOT_FOUND),
-
+    ANSWER_EXISTED(1036, "Answer existed", HttpStatus.BAD_REQUEST),
+    QUESTION_EXISTED(1037, "Question existed", HttpStatus.BAD_REQUEST),
+    QUIZ_EXISTED(1038, "Quiz existed", HttpStatus.BAD_REQUEST),
+    CATEGORY_EXISTED(1039, "Category existed", HttpStatus.BAD_REQUEST),
     ;
     int code;
     String message;

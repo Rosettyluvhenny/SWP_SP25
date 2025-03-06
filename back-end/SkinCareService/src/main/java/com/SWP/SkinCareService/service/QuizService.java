@@ -32,6 +32,10 @@ public class QuizService {
 
     @Transactional
     public QuizResponse create(QuizRequest request) {
+        if (quizRepository.existsByName(request.getName())) {
+            throw new AppException(ErrorCode.QUIZ_EXISTED);
+        }
+
         ServiceCategory serviceCategory = getCategory(request.getServiceCategoryId());
         Quiz quiz = quizMapper.toQuiz(request);
         quiz.setServiceCategory(serviceCategory);
