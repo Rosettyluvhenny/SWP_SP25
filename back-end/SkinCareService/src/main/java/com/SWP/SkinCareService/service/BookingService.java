@@ -98,15 +98,9 @@ public class BookingService {
     }
 
     public BookingResponse getById(int id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
 
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
-
-        if (!booking.getUser().getId().equals(userId) && !booking.getStaff().getId().equals(userId)) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
 
         return bookingMapper.toResponse(booking);
     }

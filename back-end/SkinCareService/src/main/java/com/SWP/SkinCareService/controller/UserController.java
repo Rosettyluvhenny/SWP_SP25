@@ -43,16 +43,28 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<UserResponse>>> getUsers(Pageable pageable) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Page<UserResponse>>> getUsersActive(Pageable pageable) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(
                 ApiResponse.<Page<UserResponse>>builder()
-                        .result(userService.getAll(pageable))
+                        .result(userService.getAllActive(pageable))
+                        .build()
+        );
+    }
+
+    @GetMapping("/unactive")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Page<UserResponse>>> getUsersUnactive(Pageable pageable) {
+        return ResponseEntity.ok(
+                ApiResponse.<Page<UserResponse>>builder()
+                        .result(userService.getAllUnactive(pageable))
                         .build()
         );
     }
 
     @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public ResponseEntity<ApiResponse<User>> getUser(@PathVariable String userId) {
         return ResponseEntity.ok(
                 ApiResponse.<User>builder()
@@ -82,6 +94,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable String userId) {
         userService.delete(userId);
         return ResponseEntity.noContent().build();
@@ -94,7 +107,7 @@ public class UserController {
     }
 
     @PostMapping("/staff")
-    @PreAuthorize("hasRole(ADMIN)")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UserResponse>> createStaff(@RequestBody UserRequest request){
         var result = userService.createStaff(request);
         return ResponseEntity.ok(

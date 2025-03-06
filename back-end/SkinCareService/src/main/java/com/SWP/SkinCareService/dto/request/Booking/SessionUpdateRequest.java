@@ -1,4 +1,4 @@
-package com.SWP.SkinCareService.dto.request.BookingSession;
+package com.SWP.SkinCareService.dto.request.Booking;
 
 import com.SWP.SkinCareService.enums.BookingStatus;
 import jakarta.validation.constraints.NotNull;

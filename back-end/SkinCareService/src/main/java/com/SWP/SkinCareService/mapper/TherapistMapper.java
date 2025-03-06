@@ -12,7 +12,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface TherapistMapper {
+
     Therapist toTherapist(TherapistRequest request);
+
     User toUser(TherapistRequest request);
     @Mapping(target = "username", source = "user.username")
     @Mapping(target = "fullName", source = "user.fullName")
@@ -20,8 +22,8 @@ public interface TherapistMapper {
     @Mapping(target = "dob", source = "user.dob")
     @Mapping(target = "phone", source = "user.phone")
     @Mapping(target = "roles", source = "user.roles")
+    @Mapping(target = "")
+    TherapistResponse toTherapistResponse(Therapist therapist);
 
-    TherapistResponse toTheRapistResponse(Therapist therapist);
-
-    void updateMapper(TherapistUpdateRequest request, @MappingTarget Therapist therapist);
+    void update(TherapistUpdateRequest request, @MappingTarget Therapist therapist);
 }

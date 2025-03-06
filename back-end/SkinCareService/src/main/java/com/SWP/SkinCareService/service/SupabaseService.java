@@ -78,6 +78,9 @@ public class SupabaseService {
             } else {
                 throw new IOException("Image not exist");
             }
+        }catch (IOException e){
+            return supabaseConfig.getUrl() + "/storage/v1/object/public/"
+                    + supabaseConfig.getBucket() + "/" +"Default";
         }
     }
 }

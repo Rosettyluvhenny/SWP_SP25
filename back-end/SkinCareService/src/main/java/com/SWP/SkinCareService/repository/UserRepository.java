@@ -21,6 +21,8 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Page<User> findAllByIsActiveTrue(Pageable pageable);
 
+    Page<User> findAllByIsActiveFalse(Pageable pageable);
+
     Optional<User> findByPhone(String phone);
 
     boolean existsByPhone(String phone);

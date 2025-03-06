@@ -1,10 +1,11 @@
 package com.SWP.SkinCareService.dto.response.Services;
 
+import com.SWP.SkinCareService.dto.response.TherapistResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
-
+import java.util.List;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
@@ -27,4 +28,9 @@ public class ServicesResponse {
 
     String categoryName;
 
+    List<String> therapistIds;
+
+    List<String> therapistNames;
+
+    List<String> imgUrl;
 }

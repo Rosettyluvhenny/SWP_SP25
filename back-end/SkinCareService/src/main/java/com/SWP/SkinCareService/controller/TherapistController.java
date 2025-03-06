@@ -4,79 +4,117 @@ import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.TherapistResponse;
+import com.SWP.SkinCareService.entity.Therapist;
+import com.SWP.SkinCareService.mapper.TherapistMapper;
 import com.SWP.SkinCareService.service.TherapistService;
-import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.RequestEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/therapist")
+@RequestMapping("/therapists")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class TherapistController {
+public class TherapistController {
     TherapistService therapistService;
+    TherapistMapper therapistMapper;
 
     @PostMapping
-    ResponseEntity<ApiResponse<TherapistResponse>> create(@RequestBody @Valid TherapistRequest request){
-        var result = therapistService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.<TherapistResponse>builder()
-                        .result(result)
-                        .build()
-        );
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<TherapistResponse> create(@RequestPart("data") TherapistRequest request, @RequestPart("img") MultipartFile file) throws IOException {
+        return ApiResponse.<TherapistResponse>builder()
+                .result(therapistService.create(request,file))
+                .build();
     }
 
     @GetMapping
-    ResponseEntity<ApiResponse<List<TherapistResponse>>> getAll(){
-        var result = therapistService.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<List<TherapistResponse>>builder()
-                        .result(result)
-                        .build()
-        );
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<List<TherapistResponse>> getAll() {
+        return ApiResponse.<List<TherapistResponse>>builder()
+                .result(therapistService.findAll())
+                .build();
     }
 
-    @GetMapping("/{therapistId}")
-    ResponseEntity<ApiResponse<TherapistResponse>> getById(@PathVariable String therapistId){
-        var result = therapistService.findById(therapistId);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<TherapistResponse>builder()
-                        .result(result)
-                        .build()
-        );
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<TherapistResponse> getById(@PathVariable String id) {
+        return ApiResponse.<TherapistResponse>builder()
+                .result(therapistService.findById(id))
+                .build();
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<TherapistResponse>> update(@PathVariable String id, @RequestBody @Valid TherapistUpdateRequest request){
-        var result = therapistService.update(id, request);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<TherapistResponse>builder()
-                        .result(result)
-                        .build()
-        );
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostAuthorize("returnObject.id == authentication.id")
+    public ApiResponse<TherapistResponse> update(@PathVariable String id,
+                                                 @RequestPart("data") TherapistUpdateRequest request,
+                                                 @RequestPart("img") MultipartFile file) {
+        return ApiResponse.<TherapistResponse>builder()
+                .result(therapistService.update(id, request,file))
+                .build();
     }
 
-    @PutMapping("/{id}/disable")
-    ResponseEntity<ApiResponse> disable (@PathVariable String id){
+    @DeleteMapping("/{id}/disable")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> disable(@PathVariable String id) {
         therapistService.disable(id);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.builder()
-                        .message("Disable successfully")
-                        .build()
-        );
+        return ApiResponse.<Void>builder()
+                .message("Therapist disabled successfully")
+                .build();
     }
+
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse> delete (@PathVariable String id){
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> delete(@PathVariable String id) {
         therapistService.delete(id);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.builder()
-                        .message("Delete successfully")
-                        .build()
-        );
+        return ApiResponse.<Void>builder()
+                .message("Therapist deleted successfully")
+                .build();
+    }
+
+    // New endpoints for managing therapist services
+    @PostMapping("/{therapistId}/services/{serviceId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<TherapistResponse> addService(
+            @PathVariable String therapistId,
+            @PathVariable int serviceId) {
+        Therapist therapist = therapistService.addService(therapistId, serviceId);
+        return ApiResponse.<TherapistResponse>builder()
+                .result(therapistMapper.toTherapistResponse(therapist))
+                .message("Service added to therapist successfully")
+                .build();
+    }
+
+    @DeleteMapping("/{therapistId}/services/{serviceId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<TherapistResponse> removeService(
+            @PathVariable String therapistId,
+            @PathVariable int serviceId) {
+        Therapist therapist = therapistService.removeService(therapistId, serviceId);
+        return ApiResponse.<TherapistResponse>builder()
+                .result(therapistMapper.toTherapistResponse(therapist))
+                .message("Service removed from therapist successfully")
+                .build();
+    }
+
+    @GetMapping("/by-service/{serviceId}")
+    public ApiResponse<Page<TherapistResponse>> getTherapistsByService(
+            @PathVariable int serviceId,
+            Pageable pageable) {
+        Page<TherapistResponse> therapists = therapistService.findTherapistsByService(serviceId, pageable)
+                .map(therapistMapper::toTherapistResponse);
+        return ApiResponse.<Page<TherapistResponse>>builder()
+                .result(therapists)
+                .build();
     }
 }

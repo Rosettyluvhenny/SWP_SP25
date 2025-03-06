@@ -58,12 +58,16 @@ public class UserService {
         return userMapper.toResponse(user);
     }
 
-    public Page<UserResponse> getAll(Pageable pageable) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
+    public Page<UserResponse> getAllActive(Pageable pageable) {
+
         return userRepository.findAllByIsActiveTrue(pageable)
+                .map(userMapper::toResponse);
+    }
+
+
+    public Page<UserResponse> getAllUnactive(Pageable pageable) {
+
+        return userRepository.findAllByIsActiveFalse(pageable)
                 .map(userMapper::toResponse);
     }
 
@@ -84,6 +88,7 @@ public class UserService {
     }
 
     @Transactional
+    @PostAuthorize("returnObject.id == authentication.id")
     public UserResponse update(UserUpdateRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUsername(authentication.getName())

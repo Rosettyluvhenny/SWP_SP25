@@ -6,7 +6,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-
+import java.util.ArrayList;
+import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,4 +34,6 @@ public class TherapistRequest {
     int  experienceYears;
 
     String bio;
+
+    List<Integer> serviceId = new ArrayList<>();
 }

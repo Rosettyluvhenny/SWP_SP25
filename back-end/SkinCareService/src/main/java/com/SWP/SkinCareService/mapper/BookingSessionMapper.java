@@ -1,8 +1,8 @@
 package com.SWP.SkinCareService.mapper;
 
-import com.SWP.SkinCareService.dto.request.BookingSession.BookingSessionRequest;
-import com.SWP.SkinCareService.dto.request.BookingSession.SessionUpdateRequest;
-import com.SWP.SkinCareService.dto.response.BookingSession.BookingSessionResponse;
+import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
+import com.SWP.SkinCareService.dto.request.Booking.SessionUpdateRequest;
+import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.entity.BookingSession;
 import com.SWP.SkinCareService.enums.BookingStatus;
 import org.mapstruct.*;

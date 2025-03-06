@@ -43,7 +43,7 @@ public class BookingController {
 
     @Operation(summary = "Get a booking by ID")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'STAFF')")
+    @PreAuthorize("hasAnyRole('STAFF')")
     public ResponseEntity<ApiResponse<BookingResponse>> getById(@PathVariable int id) {
         var result = bookingService.getById(id);
         return ResponseEntity.ok(

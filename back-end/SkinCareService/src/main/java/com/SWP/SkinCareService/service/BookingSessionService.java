@@ -1,13 +1,11 @@
 package com.SWP.SkinCareService.service;
 
-import com.SWP.SkinCareService.dto.request.BookingSession.BookingSessionRequest;
-import com.SWP.SkinCareService.dto.request.BookingSession.SessionUpdateRequest;
-import com.SWP.SkinCareService.dto.response.BookingSession.BookingSessionResponse;
+import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
+import com.SWP.SkinCareService.dto.request.Booking.SessionUpdateRequest;
+import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.entity.Booking;
 import com.SWP.SkinCareService.entity.BookingSession;
 import com.SWP.SkinCareService.entity.Therapist;
-import com.SWP.SkinCareService.entity.User;
-import com.SWP.SkinCareService.enums.BookingStatus;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BookingSessionMapper;

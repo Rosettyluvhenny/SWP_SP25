@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,6 +10,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name="services")
@@ -54,4 +59,14 @@ public class Services {
     boolean active = false;
 
     String img;
+
+    @ManyToMany(mappedBy = "services")
+    @JsonBackReference
+    @Builder.Default
+    List<Room> rooms = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "services")
+    @JsonBackReference
+    @Builder.Default
+    List<Therapist> therapists = new ArrayList<>();
 }
