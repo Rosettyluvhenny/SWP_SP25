@@ -46,7 +46,7 @@ public class ServicesService {
 
         ServiceCategory category = serviceCategoryRepository.findById(request.getServiceCategoryId())
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
-        
+
         Services service = servicesMapper.toServices(request);
         service.setServiceCategory(category);
         service = servicesRepository.save(service);
@@ -63,8 +63,21 @@ public class ServicesService {
         return result;
     }
 
-    public Page<ServicesResponse> getAll(Pageable pageable) throws IOException {
+    public Page<ServicesResponse> getAllActive(Pageable pageable) throws IOException {
         return servicesRepository.findAllByActiveTrue(pageable)
+                .map(service -> {
+                    try {
+                        var response = servicesMapper.toResponse(service);
+                        response.setImg(supabaseService.getImage(response.getImg()));
+                        return response;
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
+
+    public Page<ServicesResponse> getAll(Pageable pageable) throws IOException {
+        return servicesRepository.findAll(pageable)
                 .map(service -> {
                     try {
                         var response = servicesMapper.toResponse(service);

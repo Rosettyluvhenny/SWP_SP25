@@ -12,6 +12,7 @@ public interface ServicesMapper {
     Services toServices(ServicesRequest request);
 
     @Mapping(target = "categoryName", source = "serviceCategory.name")
+    @Mapping(target = "categoryId", source="serviceCategory.id")
     ServicesResponse toResponse(Services service);
 
     @Mapping(target = "serviceCategory", ignore = true)

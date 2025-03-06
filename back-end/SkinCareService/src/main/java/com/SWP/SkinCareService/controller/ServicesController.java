@@ -77,10 +77,10 @@ public class ServicesController {
         description = "Retrieve a paginated list of all active services. Use page, size, and sort parameters for pagination and sorting."
     )
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<ServicesResponse>>> getAll(
-            @Parameter(description = "Page number (0-based)")
-            @PageableDefault(size = 10, sort = "id") Pageable pageable) throws IOException {
-        var result = servicesService.getAll(pageable);
+    public ResponseEntity<ApiResponse<Page<ServicesResponse>>> getAll( @RequestParam(defaultValue = "false") boolean isActive
+            ,@Parameter(description = "Page number (0-based)")
+           @PageableDefault(size = 10, sort = "id") Pageable pageable) throws IOException {
+        var result = isActive ? servicesService.getAllActive(pageable): servicesService.getAll(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<Page<ServicesResponse>>builder()
                         .result(result)

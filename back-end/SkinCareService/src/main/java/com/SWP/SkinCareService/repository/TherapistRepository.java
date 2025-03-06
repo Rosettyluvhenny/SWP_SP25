@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TherapistRepository extends JpaRepository<Therapist, String> {
     Therapist findByUserId(String userId);
-    Page<Therapist> findAllTherapist(Pageable pageable);
+    Page<Therapist> findAll(Pageable pageable);
 }
