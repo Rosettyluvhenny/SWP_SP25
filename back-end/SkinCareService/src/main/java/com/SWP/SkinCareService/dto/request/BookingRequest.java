@@ -17,7 +17,7 @@ public class BookingRequest {
     int paymentId;
     String notes;
     //int sessionRemain;
-    String staffId; //null luc tao
+    //String staffId; //null luc tao
     //int price;
     LocalDateTime bookingTime;
     String therapistId;

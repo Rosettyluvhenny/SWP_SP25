@@ -41,7 +41,7 @@ public class BookingService {
         //Check user
         User user = getUserById(request.getUserId());
         //Check staff
-        User staff = getUserById(request.getStaffId());
+        //User staff = getUserById(request.getStaffId());
         //Check Service
         Services service = getServiceById(request.getServiceId());
         //Check payment method
@@ -63,12 +63,12 @@ public class BookingService {
         LocalDateTime time = request.getBookingTime();
 
         //Check time available or not
-        if (!checkTherapistAvailable(therapist.getId(),request.getBookingTime(),service.getDuration())) {
+        if (!checkTherapistAvailable(therapist.getId(),time,service.getDuration())) {
             throw new AppException(ErrorCode.THERAPIST_NOT_AVAILABLE);
         }
 
         booking.setUser(user);
-        booking.setStaff(staff);
+        //booking.setStaff(staff);
         booking.setService(service);
         booking.setPayment(payment);
         booking.setSessionRemain(service.getSession());
@@ -110,7 +110,7 @@ public class BookingService {
         Payment payment = getPaymentById(request.getPaymentId());
 
         bookingMapper.updateBooking(request, booking);
-        
+
         booking.setUser(user);
         booking.setStaff(staff);
 
@@ -172,10 +172,22 @@ public class BookingService {
                 endOfDay,
                 excludeStatus
         );
+
         for (BookingSession existing : existingBookings) {
+            //System.out.println(existing);
+            LocalDateTime requestEndtime = requestTime.plusMinutes(requestDuration);
             LocalDateTime existingStartTime = existing.getBookingTime();
             LocalDateTime existingEndTime = existingStartTime.plusMinutes(existing.getBooking().getService().getDuration());
-            if (!(requestTime.compareTo(existingStartTime) <= 0 || requestTime.compareTo(existingEndTime) >= 0)) {
+
+
+            if ((requestTime.isAfter(existingStartTime) && requestTime.isBefore(existingEndTime))
+                || ((requestEndtime.isAfter(existingStartTime) && requestEndtime.isBefore(existingEndTime))
+                || (requestTime.isBefore(existingStartTime) && requestEndtime.isAfter(existingEndTime))))
+            {
+                System.out.println(existingStartTime);
+                System.out.println(existingEndTime);
+                System.out.println(requestTime);
+                System.out.println("------------");
                 return false;
             }
         }

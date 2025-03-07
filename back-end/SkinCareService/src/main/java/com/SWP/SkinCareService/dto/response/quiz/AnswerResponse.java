@@ -27,7 +27,6 @@ public class AnswerResponse {
     //Question question;
     int questionId;
     String questionText;
-
     String text;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
