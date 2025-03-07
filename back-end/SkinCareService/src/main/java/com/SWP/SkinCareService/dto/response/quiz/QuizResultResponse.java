@@ -22,6 +22,6 @@ public class QuizResultResponse {
     int quizId;
     String quizName;
 
-    List<UserDTO> users;
-    List<ServiceDTO> services;
+    //List<UserDTO> users;
+    //List<ServiceDTO> services;
 }

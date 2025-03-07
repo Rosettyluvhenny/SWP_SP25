@@ -21,12 +21,12 @@ public interface QuizResultMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "users", ignore = true)
-    @Mapping(target = "services", ignore = true)
+    //@Mapping(target = "services", ignore = true)
     @Mapping(target = "quiz", ignore = true)
     void updateQuizResult(@MappingTarget QuizResult quizResult, QuizResultRequest quizResultRequest);
 
-    @Mapping(target = "services", expression = "java(toServiceDTOList(quizResult.getServices()))")
-    @Mapping(target = "users", expression = "java(toUserDTOList(quizResult.getUsers()))")
+    //@Mapping(target = "services", expression = "java(toServiceDTOList(quizResult.getServices()))")
+    //@Mapping(target = "users", expression = "java(toUserDTOList(quizResult.getUsers()))")
     @Mapping(target = "quizId", source = "quiz.id")
     @Mapping(target = "quizName", source = "quiz.name")
     QuizResultResponse toQuizResultResponse(QuizResult quizResult);
