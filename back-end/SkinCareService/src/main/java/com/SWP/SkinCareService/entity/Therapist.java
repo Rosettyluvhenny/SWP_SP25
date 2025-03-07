@@ -16,7 +16,10 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString(exclude = "user")
 public class Therapist {
 
     @Id

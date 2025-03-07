@@ -43,7 +43,12 @@ public enum ErrorCode {
     PAYMENT_NOT_EXISTED(1026,"Payment method not existed" , HttpStatus.BAD_REQUEST ),
     BOOKING_NOT_EXISTED(1027, "Booking not existed", HttpStatus.BAD_REQUEST ),
     USERNAME_EXISTED(1028, "User name is existed" , HttpStatus.BAD_REQUEST ),
-    EMAIL_EXISTED(1029,"Email is existed", HttpStatus.BAD_REQUEST);
+    EMAIL_EXISTED(1029,"Email is existed", HttpStatus.BAD_REQUEST),
+    BLOGPOST_NOT_EXISTED(1030, "Blog post does not exist", HttpStatus.NOT_FOUND),
+    BLOGPOST_ALREADY_APPROVED(1033, "Blog post is already approved", HttpStatus.BAD_REQUEST),
+    ROOM_NOT_EXISTED(1031, "Room does not exist", HttpStatus.NOT_FOUND),
+    IMAGE_UPLOAD_FAILED(1032, "Failed to upload image", HttpStatus.BAD_REQUEST);
+
     int code;
     String message;
     HttpStatusCode httpStatusCode;

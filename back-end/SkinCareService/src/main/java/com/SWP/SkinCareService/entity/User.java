@@ -12,7 +12,10 @@ import java.util.Set;
 import java.util.List;
 @Entity
 @Table(name="user")
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString(exclude = {"therapist", "bookings"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
