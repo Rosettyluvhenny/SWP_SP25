@@ -1,15 +1,16 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.BookingRequest;
+import com.SWP.SkinCareService.dto.request.BookingUpdateRequest;
 import com.SWP.SkinCareService.dto.response.BookingResponse;
 import com.SWP.SkinCareService.entity.*;
+import com.SWP.SkinCareService.enums.BookingSessionStatus;
+import com.SWP.SkinCareService.enums.BookingStatus;
+import com.SWP.SkinCareService.enums.PaymentStatus;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BookingMapper;
-import com.SWP.SkinCareService.repository.BookingRepository;
-import com.SWP.SkinCareService.repository.PaymentRepository;
-import com.SWP.SkinCareService.repository.ServicesRepository;
-import com.SWP.SkinCareService.repository.UserRepository;
+import com.SWP.SkinCareService.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 
@@ -30,7 +33,8 @@ public class BookingService {
     private UserRepository userRepository;
     private ServicesRepository servicesRepository;
     private PaymentRepository paymentRepository;
-
+    private BookingSessionRepository bookingSessionRepository;
+    private TherapistRepository therapistRepository;
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
@@ -42,15 +46,40 @@ public class BookingService {
         Services service = getServiceById(request.getServiceId());
         //Check payment method
         Payment payment = getPaymentById(request.getPaymentId());
+        //Check therapist
+        Therapist therapist = getTherapistById(request.getTherapistId());
+        //Get all booking of user
+        Set<Booking> bookingList = user.getBooking();
+        //Check duplicate booking in one service
+        for (Booking booking : bookingList) {
+            if (booking.getService().equals(service)) {
+                if (booking.getStatus() == BookingStatus.ON_GOING) {
+                    throw new AppException(ErrorCode.BOOKING_ON_GOING);
+                }
+            }
+        }
 
         Booking booking = bookingMapper.toBooking(request);
+        LocalDateTime time = request.getBookingTime();
+
+        //Check time available or not
+        if (!checkTherapistAvailable(therapist.getId(),request.getBookingTime(),service.getDuration())) {
+            throw new AppException(ErrorCode.THERAPIST_NOT_AVAILABLE);
+        }
 
         booking.setUser(user);
         booking.setStaff(staff);
         booking.setService(service);
         booking.setPayment(payment);
-
+        booking.setSessionRemain(service.getSession());
         bookingRepository.save(booking);
+        //Create first session
+        BookingSession bookingSession = new BookingSession();
+        bookingSession.setBooking(booking);
+        bookingSession.setBookingTime(request.getBookingTime());
+        bookingSession.setNote(request.getNotes());
+        bookingSession.setTherapist(therapist);
+        bookingSessionRepository.save(bookingSession);
 
         return bookingMapper.toBookingResponse(booking);
     }
@@ -69,9 +98,8 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingResponse updateBooking(int id, BookingRequest request) {
+    public BookingResponse updateBooking(int id, BookingUpdateRequest request) {
         Booking booking = checkBooking(id);
-
         //Check user
         User user = getUserById(request.getUserId());
         //Check staff
@@ -85,13 +113,18 @@ public class BookingService {
         
         booking.setUser(user);
         booking.setStaff(staff);
-        booking.setService(service);
+
         booking.setPayment(payment);
-        booking.setStatus(request.getStatus());
-        booking.setPaymentStatus(request.getPaymentStatus());
+        booking.setPaymentStatus(PaymentStatus.valueOf(request.getPaymentStatus().toUpperCase()));
         booking.setNotes(request.getNotes());
-        booking.setSessionRemain(request.getSessionRemain());
-        booking.setPrice(request.getPrice());
+        if (booking.getService().equals(service)) {
+            booking.setSessionRemain(request.getSessionRemain());
+        } else {
+            booking.setSessionRemain(service.getSession());
+        }
+
+        booking.setService(service);
+        booking.setPrice(service.getPrice());
 
         bookingRepository.save(booking);
 
@@ -121,6 +154,32 @@ public class BookingService {
     Payment getPaymentById(long id) {
         return paymentRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.PAYMENT_METHOD_NOT_EXISTED));
+    }
+
+    Therapist getTherapistById(String id) {
+        return therapistRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+    }
+
+    boolean checkTherapistAvailable(String therapistId, LocalDateTime requestTime, int requestDuration) {
+        LocalDateTime startOfDay = requestTime.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+        //Get all active booking in day
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSession> existingBookings = bookingSessionRepository.findByTherapistIdAndBookingTimeBetweenAndStatusNotIn(
+                therapistId,
+                startOfDay,
+                endOfDay,
+                excludeStatus
+        );
+        for (BookingSession existing : existingBookings) {
+            LocalDateTime existingStartTime = existing.getBookingTime();
+            LocalDateTime existingEndTime = existingStartTime.plusMinutes(existing.getBooking().getService().getDuration());
+            if (!(requestTime.compareTo(existingStartTime) <= 0 || requestTime.compareTo(existingEndTime) >= 0)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

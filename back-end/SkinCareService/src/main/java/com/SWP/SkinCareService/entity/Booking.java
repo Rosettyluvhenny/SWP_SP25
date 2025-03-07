@@ -1,5 +1,7 @@
 package com.SWP.SkinCareService.entity;
 
+import com.SWP.SkinCareService.enums.BookingStatus;
+import com.SWP.SkinCareService.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -9,6 +11,8 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -36,8 +40,10 @@ public class Booking {
     @JsonBackReference
     private Services service;
 
-    String status;
-    String paymentStatus;
+    @Enumerated(EnumType.STRING)
+    BookingStatus status = BookingStatus.PENDING;
+    @Enumerated(EnumType.STRING)
+    PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
     //Many To One - Payment
     @ManyToOne()
@@ -48,12 +54,12 @@ public class Booking {
     String notes;
 
     @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    Date createAt;
+    //@Temporal(TemporalType.TIMESTAMP)
+    LocalDateTime createAt;
 
     @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    Date updateAt;
+    //@Temporal(TemporalType.TIMESTAMP)
+    LocalDateTime updateAt;
 
     int sessionRemain;
 
@@ -68,6 +74,6 @@ public class Booking {
     @JsonManagedReference
     List<BookingSession> bookingSessions;
 
-    int price;
+    BigDecimal price;
 
 }

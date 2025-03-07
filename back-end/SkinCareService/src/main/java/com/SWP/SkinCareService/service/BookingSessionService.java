@@ -18,7 +18,7 @@ import java.util.List;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-public class BookingSessionService {
+public class  BookingSessionService {
     BookingSessionRepository bookingSessionRepository;
     BookingSessionMapper bookingSessionMapper;
     BookingRepository bookingRepository;
@@ -69,11 +69,13 @@ public class BookingSessionService {
         session.setCancelBy(user);
         session.setBooking(booking);
         session.setRoom(room);
-        session.setStatus(request.getStatus());
+        //session.setStatus(request.getStatus());
         session.setNote(request.getNote());
         session.setImgBefore(request.getImgBefore());
         session.setImgAfter(request.getImgAfter());
         session.setTherapist(therapist);
+
+
 
         bookingSessionRepository.save(session);
         return bookingSessionMapper.toBookingSessionResponse(session);

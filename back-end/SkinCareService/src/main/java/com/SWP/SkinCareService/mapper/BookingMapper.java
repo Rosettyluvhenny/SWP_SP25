@@ -1,12 +1,11 @@
 package com.SWP.SkinCareService.mapper;
 
 import com.SWP.SkinCareService.dto.request.BookingRequest;
+import com.SWP.SkinCareService.dto.request.BookingUpdateRequest;
 import com.SWP.SkinCareService.dto.response.BookingResponse;
 import com.SWP.SkinCareService.entity.Booking;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import com.SWP.SkinCareService.enums.PaymentStatus;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface BookingMapper {
@@ -24,7 +23,8 @@ public interface BookingMapper {
     @Mapping(target = "staff", ignore = true)
     @Mapping(target = "bookingSessions", ignore = true)
     @Mapping(target = "createAt", ignore = true)
-    void updateBooking(BookingRequest request, @MappingTarget Booking booking);
+    //@Mapping(target = "paymentStatus", source = "paymentStatus", qualifiedByName = "stringToEnum")
+    void updateBooking(BookingUpdateRequest request, @MappingTarget Booking booking);
 
     //@Mapping(target = "bookingSessions", ignore = true)
     @Mapping(target = "user.booking", ignore = true)
@@ -45,5 +45,12 @@ public interface BookingMapper {
     @Mapping(target = "staffId", source = "staff.id")
     @Mapping(target = "staffName", source = "staff.fullName")
     BookingResponse toBookingResponse(Booking booking);
+
+    /*
+    @Named("stringToEnum")
+    default PaymentStatus stringToEnum(String status) {
+        return status != null ? PaymentStatus.valueOf(status.toUpperCase()) : null;
+    }
+     */
 
 }

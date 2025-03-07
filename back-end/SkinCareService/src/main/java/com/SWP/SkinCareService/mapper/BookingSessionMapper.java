@@ -20,7 +20,7 @@ public interface BookingSessionMapper {
     @Mapping(target = "booking", ignore = true)
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "cancelBy", ignore = true)
-    @Mapping(target = "bookingDate", ignore = true)
+    //@Mapping(target = "bookingDate", ignore = true)
     void updateBookingSession(@MappingTarget BookingSession bookingSession, BookingSessionUpdateRequest request);
 
     @Mapping(target = "bookingId", source = "booking.id")

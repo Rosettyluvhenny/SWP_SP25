@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
@@ -7,6 +8,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 
@@ -30,13 +33,13 @@ public class BookingSession {
     private Booking booking;
 
     @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    Date bookingDate;
+    //@Temporal(TemporalType.TIMESTAMP)
+    LocalDate bookingDate;
 
-    @Column(columnDefinition = "TIME")
-    LocalTime bookingTime;
+    @Column(columnDefinition = "DATETIME")
+    LocalDateTime bookingTime;
 
-    String status;
+    BookingSessionStatus status = BookingSessionStatus.PENDING;
     String note;
     String imgBefore;
     String imgAfter;

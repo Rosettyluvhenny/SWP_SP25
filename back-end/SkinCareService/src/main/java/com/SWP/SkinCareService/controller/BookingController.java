@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.BookingRequest;
+import com.SWP.SkinCareService.dto.request.BookingUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.BookingResponse;
 import com.SWP.SkinCareService.entity.Booking;
@@ -47,7 +48,7 @@ public class BookingController {
     }
 
     @PutMapping("/{bookingId}")
-    ResponseEntity<ApiResponse<BookingResponse>> updateBooking(@PathVariable int bookingId, @RequestBody BookingRequest bookingRequest) {
+    ResponseEntity<ApiResponse<BookingResponse>> updateBooking(@PathVariable int bookingId, @RequestBody BookingUpdateRequest bookingRequest) {
         var result = bookingService.updateBooking(bookingId, bookingRequest);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingResponse>builder().result(result).build()

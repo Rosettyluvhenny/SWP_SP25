@@ -37,16 +37,19 @@ public class ServicesService {
         if(servicesRepository.existsByName(request.getName())){
             throw new AppException(ErrorCode.SERVICE_EXIST);
         }
-        Room newRoom = checkRoom(request.getRoomId());
+        //Room newRoom = checkRoom(request.getRoomId());
         ServiceCategory category = checkServiceCategory(request.getServiceCategoryId());
         Therapist therapist = checkTherapist(request.getTherapistId());
         //Get therapist
         List<Therapist> therapistsList = new ArrayList<>();
         therapistsList.add(therapist);
 
+
         //Get Room
-        List<Room> rooms = new ArrayList<>();
-        rooms.add(newRoom);
+        //List<Room> rooms = new ArrayList<>();
+        //rooms.add(newRoom);
+
+
 
         //Convert request to entity
         Services service = servicesMapper.toServices(request);
@@ -54,7 +57,7 @@ public class ServicesService {
         service.setTherapists(therapistsList);
 
         //------------------------------
-        service.setRooms(rooms);
+        //service.setRooms(rooms);
         //------------------------------
 
         service.setServiceCategory(category);
@@ -65,8 +68,8 @@ public class ServicesService {
 
         //Save service to room - save
         //------------------------------
-        newRoom.getServices().add(service);
-        roomRepository.save(newRoom);
+        //newRoom.getServices().add(service);
+        //roomRepository.save(newRoom);
 
         serviceCategoryRepository.flush();
         return servicesMapper.toResponse(service);
