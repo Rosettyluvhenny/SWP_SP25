@@ -104,7 +104,7 @@ export default function Header() {
         <motion.header 
             className={`fixed top-0 left-0 w-full flex justify-between items-center p-4 transition-all duration-300 z-50 ${
                 isScrolled 
-                    ? "bg-opacity-90 backdrop-blur-md shadow-lg" 
+                    ? "bg-opacity-90 backdrop-blur-md bg-gradient-to-r from-white to-pink-200 shadow-lg" 
                     : "bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat"
             }`}
             initial={{ y: -100 }}
@@ -143,7 +143,7 @@ export default function Header() {
                                 className={`relative px-3 py-2 transition-colors duration-300 ${
                                     location.pathname === item.path
                                         ? "text-[#f398d0] font-semibold"
-                                        : isScrolled ? "text-white" : "text-white"
+                                        : isScrolled ? "text-black" : "text-white"
                                 }`}
                             >
                                 {item.label}
@@ -255,7 +255,7 @@ export default function Header() {
                             onClick={() => setIsLoginOpen(true)}
                             className={`px-4 py-2 rounded-full ${
                                 isScrolled 
-                                    ? "text-white hover:text-[#f398d0]" 
+                                    ? "text-black hover:text-[#f398d0]" 
                                     : "text-white hover:text-[#f398d0]"
                             } transition-colors`}
                             whileHover={{ scale: 1.1 }}
@@ -268,7 +268,7 @@ export default function Header() {
                             onClick={() => setIsRegisterOpen(true)}
                             className={`px-4 py-2 rounded-full ${
                                 isScrolled 
-                                    ? "text-white hover:text-[#f398d0]" 
+                                    ? "text-black hover:text-[#f398d0]" 
                                     : "text-white hover:text-[#f398d0]"
                             } transition-colors`}
                             whileHover={{ scale: 1.1 }}
