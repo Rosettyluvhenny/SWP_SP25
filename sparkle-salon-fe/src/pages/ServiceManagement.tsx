@@ -284,7 +284,6 @@ export default function ServiceManagement() {
                     {/* Services Tab Content */}
                     {activeTab === "services" && (
                         <div>
-                            <button className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2" onClick={() => handleOpenServiceForm("49")}>Test PUT button</button>
                             <div className="flex justify-end mb-4">
                                 <motion.button
                                     onClick={() => handleOpenServiceForm(null)}
@@ -398,7 +397,7 @@ export default function ServiceManagement() {
                                                                 {service.name}
                                                             </td>
                                                             <td className="p-3 font-medium">
-                                                                {service.image}
+                                                                <img src={service.image} alt={service.name} className="w-auto h-16" />
                                                             </td>
                                                             <td className="p-3">
                                                                 {service.price}
@@ -432,16 +431,9 @@ export default function ServiceManagement() {
                                                             </td>
                                                             <td className="p-3 flex space-x-2">
                                                                 <motion.button
-                                                                    // onClick={() =>
-                                                                    //     setSelectedService(
-                                                                    //         {
-                                                                    //             active: true,
-                                                                    //             description: "123",
-                                                                    //             id: service.id,
-                                                                    //         }
-
-                                                                    //     )
-                                                                    // }
+                                                                    onClick={() =>
+                                                                        handleOpenServiceForm(service.id.toString())
+                                                                    }
                                                                     className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
                                                                     whileHover={{
                                                                         scale: 1.05,
@@ -602,10 +594,6 @@ export default function ServiceManagement() {
                                                     {new Date(
                                                         category.updatedAt
                                                     ).toLocaleDateString()}
-                                                </p>
-                                                <p className="mt-2">
-                                                    Services:{" "}
-                                                    {category.services.length}
                                                 </p>
                                             </div>
                                         </div>

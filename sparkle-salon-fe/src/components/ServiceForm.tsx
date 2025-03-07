@@ -58,6 +58,7 @@ const ServiceInfoForm = ({
         const fetchService = async (serviceId: string) => {
             if (selectedService) {
                 const service = await serviceDataById(serviceId);
+                console.log(service, "service")
                 if (service) {
                     setServiceName(service.name);
                     setServicePrice(service.price);
@@ -66,7 +67,7 @@ const ServiceInfoForm = ({
                     setServiceDescriptionDefault(service.description);
                     setServiceDescription(service.description);
                     setServiceImgUrl(service.img);
-                    setSelectedCategory(service?.serviceCategoryId || "0");
+                    setSelectedCategory(service?.categoryId || "0");
                 }
             }
         };
@@ -79,7 +80,9 @@ const ServiceInfoForm = ({
     
     const handleSaveService = async () => {
         const formData = new FormData();
-        formData.append("img", serviceImage);
+        if (serviceImage) { 
+            formData.append("img", serviceImage);
+        }
         const data = {
             active: true,
             name: serviceName,
@@ -238,7 +241,7 @@ const ServiceInfoForm = ({
                     >
                         <option value="0">Chọn Danh Mục</option>
                         {categories.map((category) => (
-                            <option key={category.id} value={category.id}>
+                            <option key={category.id} id={category.id.toString()} value={category.id.toString()}>
                                 {category.name}
                             </option>
                         ))}

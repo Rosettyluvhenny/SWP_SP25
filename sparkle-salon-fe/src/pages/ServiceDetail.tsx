@@ -21,8 +21,14 @@ export default function ServiceDetail() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [feedbacks, setFeedbacks] = useState<Feedback[]>(feedbacksData);
+    const [relatedServices, setRelatedServices] = useState<Service[]>([]);
 
     useEffect(() => {
+        const fetchRelatedServices = async () => {
+            const services = await servicesData();
+            setRelatedServices(services);
+        }
+        fetchRelatedServices();
         const fetchService = async () => {
             try {
                 setIsLoading(true);
@@ -239,7 +245,7 @@ export default function ServiceDetail() {
                             <h3 className="text-lg font-bold border-b pb-2 mb-4">
                                 Dịch vụ khác
                             </h3>
-                            {servicesData
+                            {relatedServices
                                 .filter((related) => related.id !== service.id)
                                 .slice(0, 5)
                                 .map((related, index) => {

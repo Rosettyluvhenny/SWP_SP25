@@ -16,7 +16,7 @@ export interface Service {
 const servicesData = async (): Promise<Service[]> =>{
     const servicesResponse = await axios.get("http://localhost:8081/swp/services");
     if (servicesResponse.status === 200) {
-        return servicesResponse.data.result;
+        return servicesResponse.data.result.content;
     }
     return [];
 };
