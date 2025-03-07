@@ -76,7 +76,7 @@ public class QuizController {
         );
     }
     
-    @GetMapping("/result")
+    @PostMapping("/result")
     public ResponseEntity<ApiResponse<ResultResponse>> getResult(@RequestBody UserResultRequest request) {
         var result = quizService.getResult(request);
         return ResponseEntity.status(HttpStatus.OK).body(

@@ -184,10 +184,6 @@ public class BookingService {
                 || ((requestEndtime.isAfter(existingStartTime) && requestEndtime.isBefore(existingEndTime))
                 || (requestTime.isBefore(existingStartTime) && requestEndtime.isAfter(existingEndTime))))
             {
-                System.out.println(existingStartTime);
-                System.out.println(existingEndTime);
-                System.out.println(requestTime);
-                System.out.println("------------");
                 return false;
             }
         }
