@@ -180,10 +180,12 @@ public class BookingService {
             LocalDateTime existingEndTime = existingStartTime.plusMinutes(existing.getBooking().getService().getDuration());
 
 
-            if ((requestTime.isAfter(existingStartTime) && requestTime.isBefore(existingEndTime))
-                || ((requestEndtime.isAfter(existingStartTime) && requestEndtime.isBefore(existingEndTime))
-                || (requestTime.isBefore(existingStartTime) && requestEndtime.isAfter(existingEndTime))))
+            if (((requestTime.isAfter(existingStartTime) && requestTime.isBefore(existingEndTime)) || ((requestEndtime.isAfter(existingStartTime) && requestEndtime.isBefore(existingEndTime)) || (requestTime.isBefore(existingStartTime) && requestEndtime.isAfter(existingEndTime)))) || (requestTime.isEqual(existingStartTime) && requestEndtime.isEqual(existingEndTime)))
             {
+                System.out.println(existingStartTime);
+                System.out.println(existingEndTime);
+                System.out.println(requestTime);
+                System.out.println("------------");
                 return false;
             }
         }
