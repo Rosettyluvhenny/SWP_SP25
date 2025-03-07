@@ -1,10 +1,11 @@
 package com.SWP.SkinCareService.dto.response.Quiz;
 
-import com.SWP.SkinCareService.entity.Answer;
+import com.SWP.SkinCareService.dto.response.basicDTO.AnswerDTO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -14,9 +15,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuestionResponse {
     int id;
-    String questionText;
-    String questionType;
-    Date createdAt;
-    Date updatedAt;
-    List<Answer> answers;
+    String text;
+    String type;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime updatedAt;
+    List<AnswerDTO> answers;
 }

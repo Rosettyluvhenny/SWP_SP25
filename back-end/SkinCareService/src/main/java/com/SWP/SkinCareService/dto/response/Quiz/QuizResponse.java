@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.dto.response.Quiz;
 
-import com.SWP.SkinCareService.entity.Question;
+import com.SWP.SkinCareService.dto.response.basicDTO.QuestionDTO;
+import com.SWP.SkinCareService.dto.response.basicDTO.QuizResultDTO;
 import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.entity.ServiceCategory;
 import lombok.*;
@@ -15,8 +16,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuizResponse {
     int id;
-    String quizName;
-    ServiceCategory serviceCategory;
-    List<Question> questions;
-    List<QuizResult> quizResults;
+    String name;
+    //ServiceCategory serviceCategory;
+    int categoryId;
+    String categoryName;
+
+    List<QuestionDTO> questions;
+    //List<QuizResultDTO> quizResults;
 }

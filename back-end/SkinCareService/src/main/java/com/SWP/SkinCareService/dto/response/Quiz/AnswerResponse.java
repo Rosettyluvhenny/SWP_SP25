@@ -24,8 +24,9 @@ import java.util.Date;
 public class AnswerResponse {
     int id;
 
-    Question question;
-
+    //Question question;
+    int questionId;
+    String questionText;
     String text;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
