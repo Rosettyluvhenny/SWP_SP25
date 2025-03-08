@@ -1,10 +1,12 @@
 package com.SWP.SkinCareService.dto.response.Room;
 
+import com.SWP.SkinCareService.dto.response.Services.ServiceSummaryResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -16,8 +18,7 @@ public class RoomResponse {
     String name;
     int capacity;
     int inUse;
-    List<Integer> serviceIds;
-    List<String> serviceNames;
+    List<ServiceSummaryResponse>  services;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 } 

@@ -56,7 +56,8 @@ public enum ErrorCode {
     ROOM_SERVICE_EXISTED(1040, "Room service already exists", HttpStatus.BAD_REQUEST),
     ROOM_SERVICE_NOT_EXISTED(1041, "Room service not found", HttpStatus.NOT_FOUND),
     ROOM_SERVICE_IN_USE(1042, "Room service is in use and cannot be deleted", HttpStatus.BAD_REQUEST),
-    SERVICE_ALREADY_EXISTS(1043,"Service is assign to the room already" ,HttpStatus.BAD_REQUEST );
+    SERVICE_ALREADY_EXISTS(1043,"Service is assign to the room already" ,HttpStatus.BAD_REQUEST ),
+    LETTER_ONLY(1044, "Fullname only contains letter", HttpStatus.BAD_REQUEST);
     int code;
     String message;
     HttpStatusCode httpStatusCode;

@@ -77,11 +77,8 @@ public class BookingService {
 
         return bookings.map(booking -> {
             BookingResponse result = bookingMapper.toResponse(booking);
-            try {
                 result.setImg(supabaseService.getImage(result.getImg()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+
             return result;
         });
     }

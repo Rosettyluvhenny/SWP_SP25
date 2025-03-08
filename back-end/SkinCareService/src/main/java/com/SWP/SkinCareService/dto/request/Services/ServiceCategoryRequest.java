@@ -14,4 +14,7 @@ import lombok.experimental.FieldDefaults;
 public class ServiceCategoryRequest {
     @NotBlank(message = "NOT_EMPTY")
     String name;
+
+    @NotBlank(message = "NOT_EMPTY")
+    String description;
 }

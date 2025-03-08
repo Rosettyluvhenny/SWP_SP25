@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.mapper;
 
 import com.SWP.SkinCareService.dto.request.Room.RoomRequest;
+import com.SWP.SkinCareService.dto.request.Room.RoomUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Room.RoomResponse;
 import com.SWP.SkinCareService.entity.Room;
 import com.SWP.SkinCareService.entity.Services;
@@ -31,12 +32,9 @@ public interface RoomMapper {
                 .collect(Collectors.toList());
     }
 
-    @Mappings({
-        @Mapping(target = "serviceIds", source = "services", qualifiedByName = "servicesToIds"),
-        @Mapping(target = "serviceNames", source = "services", qualifiedByName = "servicesToNames")
-    })
+    @Mapping(target = "services", ignore = true)
     RoomResponse toResponse(Room room);
 
-    @Mapping(target = "services", ignore = true)
-    void update(@MappingTarget Room room, RoomRequest request);
+//    @Mapping(target = "services", ignore = true)
+    void update(@MappingTarget Room room, RoomUpdateRequest request);
 } 

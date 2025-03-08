@@ -62,11 +62,11 @@ public class Services {
 
     @ManyToMany(mappedBy = "services")
     @JsonBackReference
-    @Builder.Default
     List<Room> rooms = new ArrayList<>();
 
     @ManyToMany(mappedBy = "services")
     @JsonBackReference
-    @Builder.Default
     List<Therapist> therapists = new ArrayList<>();
+
+
 }

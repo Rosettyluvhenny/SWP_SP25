@@ -1,18 +1,15 @@
 package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "rooms")
@@ -42,8 +39,7 @@ public class Room {
             inverseJoinColumns = @JoinColumn(name = "service_id")
     )
     @JsonBackReference
-    @Builder.Default
-    List<Services> services = new ArrayList<>();
+    Set<Services> services;
 
     public void addService(Services service) {
         services.add(service);

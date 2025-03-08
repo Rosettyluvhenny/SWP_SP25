@@ -42,7 +42,7 @@ public class ApplicationInitCofig {
                 User user = User.builder()
                         .username("admin")
                         .roles(roles)
-                        .isActive(true)
+                        .active(true)
                         .password(passwordEncoder.encode("admin"))
                         .build();
                 userRepository.save(user);

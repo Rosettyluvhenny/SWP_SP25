@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.Room.RoomRequest;
+import com.SWP.SkinCareService.dto.request.Room.RoomUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Room.RoomResponse;
 import com.SWP.SkinCareService.service.RoomService;
@@ -30,7 +31,7 @@ public class RoomController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<RoomResponse> update(@PathVariable int id, @Valid @RequestBody RoomRequest request) {
+    public ApiResponse<RoomResponse> update(@PathVariable int id, @Valid @RequestBody RoomUpdateRequest request) {
         return ApiResponse.<RoomResponse>builder()
                 .result(roomService.update(id, request))
                 .build();

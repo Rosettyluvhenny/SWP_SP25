@@ -7,11 +7,13 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.service.spi.ServiceException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "therapist")
@@ -43,8 +45,7 @@ public class Therapist {
             inverseJoinColumns = @JoinColumn(name = "service_id")
     )
     @JsonBackReference
-    @Builder.Default
-    List<Services> services = new ArrayList<>();
+    Set<Services> services ;
 
     public void addService(Services service) {
         services.add(service);
@@ -67,4 +68,10 @@ public class Therapist {
     LocalDateTime updatedAt;
 
     String img;
+
+    public void removeAllService(){
+        for (Services service : this.services){
+            service.getTherapists().remove(this);
+        }
+    }
 }

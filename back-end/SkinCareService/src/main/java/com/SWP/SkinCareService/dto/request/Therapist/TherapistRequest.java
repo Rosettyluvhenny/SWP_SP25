@@ -16,23 +16,29 @@ import java.util.List;
 public class TherapistRequest {
     @Size(min=5, message = "USERNAME_INVALID")
     String username;
+
     @Size(min=8, message = "PASSWORD_INVALID")
     String password;
-    @NotBlank
+    @NotBlank(message = "NOT_EMPTY")
+    @Pattern(regexp = "^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơĂẸẻẽềếểưỲÝỶỸỳýỷỹƯỨỪễ ]+$",
+            message = "LETTER_ONLY")
     String fullName;
 
-    @NotBlank
+    @NotBlank(message = "NOT_EMPTY")
     @Email(message = "EMAIL_INVALID")
     String email;
 
     @Pattern(regexp = "^\\d{10}$",message = "PHONE_NO_INVALID")
     String phone;
 
+    @NotNull(message = "NOT_EMPTY")
     @DobConstraint(min = 22, message ="INVALID_DOB")
     LocalDate dob;
-    @NotNull
+
+    @Min(value = 1, message = "MIN")
     int  experienceYears;
 
+    @NotBlank(message = "NOT_EMPTY")
     String bio;
 
     List<Integer> serviceId = new ArrayList<>();

@@ -1,12 +1,14 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Room.RoomRequest;
+import com.SWP.SkinCareService.dto.request.Room.RoomUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Room.RoomResponse;
 import com.SWP.SkinCareService.entity.Room;
 import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.RoomMapper;
+import com.SWP.SkinCareService.mapper.ServicesMapper;
 import com.SWP.SkinCareService.repository.RoomRepository;
 import com.SWP.SkinCareService.repository.ServicesRepository;
 import lombok.AccessLevel;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,48 +29,54 @@ public class RoomService {
     RoomRepository roomRepository;
     ServicesRepository servicesRepository;
     RoomMapper roomMapper;
-
+    ServicesMapper servicesMapper;
     @Transactional
     public RoomResponse create(RoomRequest request) {
         if (roomRepository.existsByName(request.getName())) {
             throw new AppException(ErrorCode.ROOM_EXISTED);
         }
         Room room = roomMapper.toRoom(request);
-        
-        List<Services> services = new ArrayList<>();
-        if (request.getServiceIds() != null && !request.getServiceIds().isEmpty()) {
-            List<Services> servicesList = servicesRepository.findAllById(request.getServiceIds());
-            if (servicesList.size() != request.getServiceIds().size()) {
+
+        if(request.getServiceIds() == null && request.getServiceIds().isEmpty()){
+
+        }else {
+            Set<Integer> serviceId = new HashSet<>(request.getServiceIds());
+            Set<Services> services = new HashSet<>(servicesRepository.findAllById(serviceId));
+            if (services.size() != request.getServiceIds().size()) {
                 throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
             }
-            services.addAll(servicesList);
+            room.setServices(services);
         }
-        room.setServices(services);
         roomRepository.save(room);
-        return roomMapper.toResponse(room);
+        RoomResponse response =  roomMapper.toResponse(room);
+        response.setServices(room.getServices().stream().map(servicesMapper::toSummaryResponse).toList());
+        return response;
     }
 
     @Transactional
-    public RoomResponse update(int id, RoomRequest request) {
+    public RoomResponse update(int id, RoomUpdateRequest request) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
 
-        if (!room.getName().equals(request.getName()) && roomRepository.existsByName(request.getName())) {
+        if (roomRepository.existsByName(request.getName())) {
             throw new AppException(ErrorCode.ROOM_EXISTED);
         }
-        roomMapper.update(room, request);
 
-        List<Services> services = new ArrayList<>();
-        if (request.getServiceIds() != null && !request.getServiceIds().isEmpty()) {
-            List<Services> servicesList = servicesRepository.findAllById(request.getServiceIds());
-            if (servicesList.size() != request.getServiceIds().size()) {
+        roomMapper.update(room, request);
+        if(request.getServiceIds() == null || request.getServiceIds().isEmpty()){
+
+        }else {
+            Set<Integer> serviceId = new HashSet<>(request.getServiceIds());
+            Set<Services> services = new HashSet<>(servicesRepository.findAllById(serviceId));
+            if (services.size() != request.getServiceIds().size()) {
                 throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
             }
-            services.addAll(servicesList);
+            room.setServices(services);
         }
-        room.setServices(services);
         roomRepository.save(room);
-        return roomMapper.toResponse(room);
+        RoomResponse response =  roomMapper.toResponse(room);
+        response.setServices(room.getServices().stream().map(servicesMapper::toSummaryResponse).toList());
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -75,16 +84,9 @@ public class RoomService {
         return roomRepository.findAll(pageable)
                 .map(room -> {
                     List<Services> services = new ArrayList<>(room.getServices());
-                    Room roomCopy = Room.builder()
-                            .id(room.getId())
-                            .name(room.getName())
-                            .capacity(room.getCapacity())
-                            .inUse(room.getInUse())
-                            .services(services)
-                            .createdAt(room.getCreatedAt())
-                            .updatedAt(room.getUpdatedAt())
-                            .build();
-                    return roomMapper.toResponse(roomCopy);
+                    RoomResponse roomCopy = roomMapper.toResponse(room);
+                    roomCopy.setServices(services.stream().map(servicesMapper::toSummaryResponse).toList());
+                    return roomCopy;
                 });
     }
 
@@ -93,16 +95,9 @@ public class RoomService {
         return roomRepository.findAllByServicesId(serviceId, pageable)
                 .map(room -> {
                     List<Services> services = new ArrayList<>(room.getServices());
-                    Room roomCopy = Room.builder()
-                            .id(room.getId())
-                            .name(room.getName())
-                            .capacity(room.getCapacity())
-                            .inUse(room.getInUse())
-                            .services(services)
-                            .createdAt(room.getCreatedAt())
-                            .updatedAt(room.getUpdatedAt())
-                            .build();
-                    return roomMapper.toResponse(roomCopy);
+                    RoomResponse roomCopy = roomMapper.toResponse(room);
+                    roomCopy.setServices(services.stream().map(servicesMapper::toSummaryResponse).toList());
+                    return roomCopy;
                 });
     }
 
@@ -111,16 +106,9 @@ public class RoomService {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
         List<Services> services = new ArrayList<>(room.getServices());
-        Room roomCopy = Room.builder()
-                .id(room.getId())
-                .name(room.getName())
-                .capacity(room.getCapacity())
-                .inUse(room.getInUse())
-                .services(services)
-                .createdAt(room.getCreatedAt())
-                .updatedAt(room.getUpdatedAt())
-                .build();
-        return roomMapper.toResponse(roomCopy);
+        RoomResponse roomCopy = roomMapper.toResponse(room);
+        roomCopy.setServices(services.stream().map(servicesMapper::toSummaryResponse).toList());
+        return roomCopy;
     }
 
     @Transactional
@@ -130,8 +118,9 @@ public class RoomService {
 
         if (room.getInUse() > 0) {
             throw new AppException(ErrorCode.ROOM_IN_USE);
+        }else{
+            room.getServices().clear();
         }
-
         roomRepository.delete(room);
     }
 
@@ -143,15 +132,17 @@ public class RoomService {
         Services service = servicesRepository.findById(serviceId)
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
 
-        List<Services> services = new ArrayList<>(room.getServices());
+        Set<Services> services = new HashSet<>(room.getServices());
         if (services.contains(service)) {
             throw new AppException(ErrorCode.SERVICE_ALREADY_EXISTS);
         }
 
         services.add(service);
-        room.setServices(services);
+        room.setServices(new HashSet<>(services));
         roomRepository.save(room);
-        return roomMapper.toResponse(room);
+        RoomResponse response = roomMapper.toResponse(room);
+        response.setServices(services.stream().map(servicesMapper::toSummaryResponse).toList());
+        return response;
     }
 
     @Transactional
@@ -162,7 +153,7 @@ public class RoomService {
         Services service = servicesRepository.findById(serviceId)
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
 
-        List<Services> services = new ArrayList<>(room.getServices());
+        Set<Services> services = new HashSet<>(room.getServices());
         if (!services.contains(service)) {
             throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
         }
@@ -170,7 +161,9 @@ public class RoomService {
         services.remove(service);
         room.setServices(services);
         roomRepository.save(room);
-        return roomMapper.toResponse(room);
+        RoomResponse response = roomMapper.toResponse(room);
+        response.setServices(services.stream().map(servicesMapper::toSummaryResponse).toList());
+        return response;
     }
 
     @Transactional

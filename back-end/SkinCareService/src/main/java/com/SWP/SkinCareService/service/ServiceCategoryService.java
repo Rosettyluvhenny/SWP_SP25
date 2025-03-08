@@ -25,22 +25,18 @@ public class ServiceCategoryService {
         if(serviceCategoryRepository.existsByName(request.getName())){
             throw new AppException(ErrorCode.CATEGORY_EXIST);
         }
-        ServiceCategory category = ServiceCategory.builder()
-                .name(request.getName())
-                .build();
+        ServiceCategory category = serviceCategoryMapper.toCategory(request);
         category = serviceCategoryRepository.save(category);
         serviceCategoryRepository.flush();
-        return serviceCategoryMapper.toReponse(category);
+        return serviceCategoryMapper.toResponse(category);
     }
     @Transactional
     public ServiceCategoryResponse update(int id,ServiceCategoryRequest request){
         ServiceCategory category = checkServiceCategory(id);
-
-        category.setName(request.getName());
-
+        serviceCategoryMapper.update(category, request);
         category = serviceCategoryRepository.save(category);
         serviceCategoryRepository.flush();
-        return serviceCategoryMapper.toReponse(category);
+        return serviceCategoryMapper.toResponse(category);
     }
     @Transactional
     public void delete(int id){
@@ -48,12 +44,13 @@ public class ServiceCategoryService {
         serviceCategoryRepository.delete(category);
     }
     public List<ServiceCategoryResponse> getAll(){
-        return serviceCategoryRepository.findAll().stream().map(serviceCategoryMapper::toReponse).toList();
+        return serviceCategoryRepository.findAll().stream().map(serviceCategoryMapper::toResponse).toList();
     }
 
     public ServiceCategoryResponse getById(int id){
-        return serviceCategoryMapper.toReponse(checkServiceCategory(id));
+        return serviceCategoryMapper.toResponse(checkServiceCategory(id));
     }
+
     private ServiceCategory checkServiceCategory(int id){
         return serviceCategoryRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
     }

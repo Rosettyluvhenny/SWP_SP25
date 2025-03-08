@@ -63,16 +63,14 @@ public class ServicesService {
         return result;
     }
 
-    public Page<ServicesResponse> getAll(Pageable pageable) throws IOException {
-        return servicesRepository.findAllByActiveTrue(pageable)
+    public Page<ServicesResponse> getAll(boolean isActive,Pageable pageable) {
+        Page<Services> services = isActive ? servicesRepository.findAllByActiveTrue(pageable) : servicesRepository.findAll(pageable);
+        return services
                 .map(service -> {
-                    try {
                         var response = servicesMapper.toResponse(service);
                         response.setImg(supabaseService.getImage(response.getImg()));
                         return response;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+
                 });
     }
 
@@ -80,8 +78,9 @@ public class ServicesService {
     public ServicesResponse update(int id, ServicesUpdateRequest request, MultipartFile img) throws IOException {
         Services service = checkService(id);
         servicesMapper.update(request, service);
-        if(img == null || img.isEmpty())
-            throw new MultipleParameterValidationException(Collections.singletonList("img"));
+        if(img == null || img.isEmpty()){
+
+        }
         else {
             supabaseService.deleteImage(service.getImg());
             String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());

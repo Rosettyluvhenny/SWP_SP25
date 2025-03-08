@@ -28,6 +28,9 @@ public class ServiceCategory {
     @Column(nullable = false, unique = true)
     String name;
 
+    @Column(nullable = false, unique = true)
+    String description;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;

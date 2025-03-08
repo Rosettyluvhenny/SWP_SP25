@@ -2,22 +2,22 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
-import com.SWP.SkinCareService.dto.response.TherapistResponse;
-import com.SWP.SkinCareService.entity.Role;
-import com.SWP.SkinCareService.entity.Therapist;
-import com.SWP.SkinCareService.entity.User;
-import com.SWP.SkinCareService.entity.Services;
+import com.SWP.SkinCareService.dto.response.Room.RoomResponse;
+import com.SWP.SkinCareService.dto.response.Therapist.TherapistResponse;
+import com.SWP.SkinCareService.dto.response.Therapist.TherapistSummaryResponse;
+import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
-import com.SWP.SkinCareService.exception.MultipleParameterValidationException;
+import com.SWP.SkinCareService.mapper.ServicesMapper;
 import com.SWP.SkinCareService.mapper.TherapistMapper;
 import com.SWP.SkinCareService.repository.RoleRepository;
+import com.SWP.SkinCareService.repository.ServicesRepository;
 import com.SWP.SkinCareService.repository.TherapistRepository;
 import com.SWP.SkinCareService.repository.UserRepository;
-import com.SWP.SkinCareService.repository.ServicesRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,8 +25,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.List;
 
+@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -37,57 +42,103 @@ public class TherapistService {
     TherapistMapper therapistMapper;
     ServicesRepository servicesRepository;
     SupabaseService supabaseService;
+    ServicesMapper servicesMapper;
 
     @Transactional
     public TherapistResponse create(TherapistRequest request, MultipartFile img) throws IOException {
-            if(userRepository.existsByUsername(request.getUsername())||userRepository.existsByEmail(request.getEmail())){
-                throw new AppException(ErrorCode.USER_EXISTED);
-            }
-            User account = therapistMapper.toUser(request);
-            Role roleTherapist = roleRepository.findById("THERAPIST").orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+        // Validate user existence first
+        if(userRepository.existsByUsername(request.getUsername()) || userRepository.existsByEmail(request.getEmail())){
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
+        User account = therapistMapper.toUser(request);
+            Role roleTherapist = roleRepository.findById("THERAPIST")
+                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
             Set<Role> roles = new HashSet<>();
             roles.add(roleTherapist);
             account.setRoles(roles);
             account.setActive(true);
             account = userRepository.save(account);
-
-            Therapist therapist = therapistMapper.toTherapist(request);
+           Therapist therapist = therapistMapper.toTherapist(request);
             therapist.setUser(account);
+            List<Integer> serviceIds = request.getServiceId();
+            if(serviceIds == null || serviceIds.isEmpty()){
+
+            }else{
+                Set<Services> services =  new HashSet<>(servicesRepository.findAllById(serviceIds));
+                if(services.size()!= serviceIds.size())
+                    throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
+                therapist.setServices(services);
+            }
+
             therapist = therapistRepository.save(therapist);
+            String imageUrl = supabaseService.uploadImage(img, "therapist_" + therapist.getId());
+            therapist.setImg(imageUrl);
+            therapist = therapistRepository.save(therapist);
+            therapistRepository.flush();
+            return therapistMapper.toResponse(therapist);
 
-            therapist.setImg(supabaseService.uploadImage(img,"therapist_"+therapist.getId()));
 
-            return therapistMapper.toTherapistResponse(therapist);
 
-    }
+        }
 
-    public List<TherapistResponse> findAll(){
-        return therapistRepository.findAll().stream().map(therapistMapper::toTherapistResponse).toList();
+    public Page<TherapistResponse> findAll(boolean isActive, Pageable pageable){
+        Page<Therapist> therapists = isActive ? therapistRepository.findAll(pageable): therapistRepository.findInactiveTherapists(pageable);
+
+        return therapists
+            .map(therapist -> {
+                    List<Services> services = new ArrayList<>(therapist.getServices());
+                    TherapistResponse response = therapistMapper.toResponse(therapist);
+                    response.setServices(services.stream().map(servicesMapper::toSummaryResponse).toList());
+                    response.setImg(supabaseService.getImage(response.getImg()));
+                    return response;
+            });
     }
 
     public TherapistResponse findById(String id){
-        return therapistMapper.toTherapistResponse(therapistCheck(id));
+        Therapist therapist = therapistRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+        List<Services> services = new ArrayList<>(therapist.getServices());
+        TherapistResponse response = therapistMapper.toResponse(therapist);
+        response.setServices(services.stream().map(servicesMapper::toSummaryResponse).toList());
+        return response;
     }
 
     private Therapist therapistCheck (String id){
         return therapistRepository.findById(id).orElseThrow((
                 ()->new AppException(ErrorCode.THERAPIST_NOT_EXISTED)));
     }
-    public TherapistResponse update (String id, TherapistUpdateRequest request
-            ,MultipartFile img) throws IOException {
-        Therapist therapist = therapistCheck(id);
-        therapistMapper.update(request, therapist);
-        if(img == null || img.isEmpty())
-            throw new MultipleParameterValidationException(Collections.singletonList("img"));
-        else {
-            supabaseService.deleteImage(therapist.getImg());
-            String serviceImg = supabaseService.uploadImage(img, "service_" + therapist.getId());
-            therapist.setImg(serviceImg);
+
+    @Transactional
+    public TherapistResponse update (String id, TherapistUpdateRequest request, MultipartFile img) throws IOException {
+        Therapist therapist = therapistRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+
+        therapistMapper.update(therapist, request);
+        if(request.getServiceIds() == null || request.getServiceIds().isEmpty()){
+
+        }else {
+            Set<Integer> serviceId = new HashSet<>(request.getServiceIds());
+            Set<Services> services = new HashSet<>(servicesRepository.findAllById(serviceId));
+            if (services.size() != request.getServiceIds().size()) {
+                throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
+            }
+            therapist.setServices(services);
+        }
+        if(img!=null){
+            try {
+                supabaseService.deleteImage(therapist.getImg());
+                String imgUrl = supabaseService.uploadImage(img,"therapist_" + therapist.getId());
+            }catch(IOException e){
+                log.info(e.getMessage());
+            }
         }
         therapistRepository.save(therapist);
-        return therapistMapper.toTherapistResponse(therapist);
+        TherapistResponse response =  therapistMapper.toResponse(therapist);
+        response.setServices(therapist.getServices().stream().map(servicesMapper::toSummaryResponse).toList());
+        return response;
     }
 
+    @Transactional
     public void disable (String id){
         Therapist therapist = therapistCheck(id);
         User user = therapist.getUser();
@@ -95,6 +146,7 @@ public class TherapistService {
         userRepository.save(user);
     }
 
+    @Transactional
     public void delete (String id) {
         Therapist therapist = therapistCheck(id);
         User user = therapist.getUser();
@@ -102,49 +154,19 @@ public class TherapistService {
             throw new AppException(ErrorCode.STILL_ACTIVE);
         } else {
             userRepository.delete(user);
+            therapist.getServices().clear();
             therapistRepository.delete(therapist);
         }
     }
 
-    @Transactional
-    public Therapist addService(String therapistId, int serviceId) {
-        Therapist therapist = therapistRepository.findById(therapistId)
-                .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
-
-        Services service = servicesRepository.findById(serviceId)
-                .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
-
-        List<Services> services = new ArrayList<>(therapist.getServices());
-        if (services.contains(service)) {
-            throw new AppException(ErrorCode.SERVICE_ALREADY_EXISTS);
-        }
-
-        therapist.addService(service);
-        return therapistRepository.save(therapist);
-    }
-
-    @Transactional
-    public Therapist removeService(String therapistId, int serviceId) {
-        Therapist therapist = therapistRepository.findById(therapistId)
-                .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
-
-        Services service = servicesRepository.findById(serviceId)
-                .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
-
-        List<Services> services = new ArrayList<>(therapist.getServices());
-        if (!services.contains(service)) {
-            throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
-        }
-
-        therapist.removeService(service);
-        return therapistRepository.save(therapist);
-    }
-
     @Transactional(readOnly = true)
-    public Page<Therapist> findTherapistsByService(int serviceId, Pageable pageable) {
-        if (!servicesRepository.existsById(serviceId)) {
-            throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
-        }
-        return therapistRepository.findAllByServicesId(serviceId, pageable);
+    public Page<TherapistSummaryResponse> getAllByServiceId(int therapistId, Pageable pageable) {
+        return therapistRepository.findAllByServicesId(therapistId, pageable)
+                .map(therapist -> {
+                    List<Services> services = new ArrayList<>(therapist.getServices());
+                    TherapistSummaryResponse response = therapistMapper.toTherapistSummary(therapist);
+                    response.setImg(supabaseService.getImage(therapist.getImg()));
+                    return response;
+                });
     }
 }

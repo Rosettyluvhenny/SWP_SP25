@@ -1,6 +1,6 @@
 package com.SWP.SkinCareService.dto.response.Services;
 
-import com.SWP.SkinCareService.dto.response.TherapistResponse;
+import com.SWP.SkinCareService.dto.response.Therapist.TherapistSummaryResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -28,9 +28,8 @@ public class ServicesResponse {
 
     String categoryName;
 
-    List<String> therapistIds;
+    String categoryId;
+//    List<TherapistSummaryResponse> therapists;
+    boolean active;
 
-    List<String> therapistNames;
-
-    List<String> imgUrl;
 }

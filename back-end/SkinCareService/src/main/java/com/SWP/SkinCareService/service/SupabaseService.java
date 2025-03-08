@@ -62,7 +62,7 @@ public class SupabaseService {
             return true;
         }
     }
-    public String getImage(String fileName) throws IOException {
+    public String getImage(String fileName) {
         String imageUrl = supabaseConfig.getUrl() + "/storage/v1/object/public/"
                 + supabaseConfig.getBucket() + "/" + fileName;
 
@@ -76,6 +76,7 @@ public class SupabaseService {
             if (response.isSuccessful()) {
                 return imageUrl;  // File exists, return the URL
             } else {
+                log.info("Image not exis " + fileName);
                 throw new IOException("Image not exist");
             }
         }catch (IOException e){

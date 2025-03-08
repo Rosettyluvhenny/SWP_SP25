@@ -60,14 +60,14 @@ public class UserService {
 
     public Page<UserResponse> getAllActive(Pageable pageable) {
 
-        return userRepository.findAllByIsActiveTrue(pageable)
+        return userRepository.findAllByActiveTrue(pageable)
                 .map(userMapper::toResponse);
     }
 
 
     public Page<UserResponse> getAllUnactive(Pageable pageable) {
 
-        return userRepository.findAllByIsActiveFalse(pageable)
+        return userRepository.findAllByActiveFalse(pageable)
                 .map(userMapper::toResponse);
     }
 

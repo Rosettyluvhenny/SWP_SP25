@@ -28,6 +28,8 @@ public class User {
     String username;
 
     @Column(name = "full_name")
+    @Pattern(regexp = "^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơĂẸẻẽềếểưỲÝỶỸỳýỷỹƯỨỪễ ]+$",
+            message = "LETTER_ONLY")
     String fullName;
 
     @Email
@@ -47,18 +49,18 @@ public class User {
     String phone;
 
     @Column(name = "is_active")
-    boolean isActive = true;
+    boolean active = true;
 
 
     LocalDate dob;
     @ManyToMany()
     Set<Role> roles;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonBackReference
     Therapist therapist;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
     @JsonBackReference
     List<Booking> bookings;
 }
