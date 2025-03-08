@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBars, FaTimes } from "react-icons/fa";
-import {getUser, login, register} from "../data/authData";
+import { getUser, login, register } from "../data/authData";
 
 export default function Header() {
     const [loginData, setLoginData] = useState({ username: "", password: "" });
@@ -20,7 +20,9 @@ export default function Header() {
     });
     const [error, setError] = useState<string | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [user, setUser] = useState<{ name: string; avatar: string } | null>(null);
+    const [user, setUser] = useState<{ name: string; avatar: string } | null>(
+        null
+    );
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
@@ -64,7 +66,7 @@ export default function Header() {
             if (user.roles[0].name === "ADMIN") {
                 setUser(user);
                 setIsLoggedIn(true);
-                alert("chào mừng admin " + user.fullName)
+                alert("chào mừng admin " + user.fullName);
                 navigate("/manager");
             } else {
                 alert("Login bằng user");
@@ -96,12 +98,30 @@ export default function Header() {
         e.preventDefault();
         setError(null);
 
-        const registerResult = await register(registerData.username, registerData.fullName, registerData.email, registerData.password, registerData.phone, registerData.dob );
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        if (
+            !registerData.email ||
+            !emailRegex.test(registerData.email.trim())
+        ) {
+            setError(
+                "Email không đúng định dạng! Vui lòng nhập đúng định dạng email (vd: example@gmail.com)"
+            );
+            return;
+        }
+
+        const registerResult = await register(
+            registerData.username,
+            registerData.fullName,
+            registerData.email.trim(),
+            registerData.password,
+            registerData.phone,
+            registerData.dob
+        );
         if (registerResult) {
-            alert("Đăng ký thành công");
             setIsRegisterOpen(false);
+            alert("Đăng ký thành công");
         } else {
-            alert("Đăng ký không thành công");
+            setError("Đăng ký tài khoản không thành công!");
         }
 
         // try {
@@ -130,17 +150,20 @@ export default function Header() {
     ];
 
     return (
-        <motion.header 
+        <motion.header
             className={`fixed top-0 left-0 w-full flex justify-between items-center p-4 transition-all duration-300 z-50 ${
-                isScrolled 
-                    ? "bg-opacity-90 backdrop-blur-md bg-gradient-to-r from-white to-pink-200 shadow-lg" 
+                isScrolled
+                    ? "bg-opacity-90 backdrop-blur-md bg-gradient-to-r from-white to-pink-200 shadow-lg"
                     : "bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat"
             }`}
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <Link to="/" className="text-2xl font-serif text-[#f398d0] flex items-center z-20">
+            <Link
+                to="/"
+                className="text-2xl font-serif text-[#f398d0] flex items-center z-20"
+            >
                 <motion.img
                     src="/assets/logo1.jpg"
                     alt="logo"
@@ -156,9 +179,13 @@ export default function Header() {
                 className="lg:hidden z-20 text-2xl p-2"
             >
                 {isMobileMenuOpen ? (
-                    <FaTimes className={isScrolled ? "text-white" : "text-white"} />
+                    <FaTimes
+                        className={isScrolled ? "text-white" : "text-white"}
+                    />
                 ) : (
-                    <FaBars className={isScrolled ? "text-white" : "text-white"} />
+                    <FaBars
+                        className={isScrolled ? "text-white" : "text-white"}
+                    />
                 )}
             </button>
 
@@ -172,7 +199,9 @@ export default function Header() {
                                 className={`relative px-3 py-2 transition-colors duration-300 ${
                                     location.pathname === item.path
                                         ? "text-[#f398d0] font-semibold"
-                                        : isScrolled ? "text-black" : "text-white"
+                                        : isScrolled
+                                        ? "text-black"
+                                        : "text-white"
                                 }`}
                             >
                                 {item.label}
@@ -201,7 +230,7 @@ export default function Header() {
                         <nav className="container mx-auto px-4">
                             <ul className="space-y-4">
                                 {navItems.map((item) => (
-                                    <motion.li 
+                                    <motion.li
                                         key={item.path}
                                         whileHover={{ x: 10 }}
                                         className="border-b border-gray-100 py-2"
@@ -220,7 +249,10 @@ export default function Header() {
                                 ))}
                                 {!isLoggedIn && (
                                     <>
-                                        <motion.li whileHover={{ x: 10 }} className="border-b border-gray-100 py-2">
+                                        <motion.li
+                                            whileHover={{ x: 10 }}
+                                            className="border-b border-gray-100 py-2"
+                                        >
                                             <button
                                                 onClick={() => {
                                                     setIsLoginOpen(true);
@@ -231,7 +263,10 @@ export default function Header() {
                                                 Đăng nhập
                                             </button>
                                         </motion.li>
-                                        <motion.li whileHover={{ x: 10 }} className="border-b border-gray-100 py-2">
+                                        <motion.li
+                                            whileHover={{ x: 10 }}
+                                            className="border-b border-gray-100 py-2"
+                                        >
                                             <button
                                                 onClick={() => {
                                                     setIsRegisterOpen(true);
@@ -253,19 +288,28 @@ export default function Header() {
             {/* Desktop Auth Buttons */}
             <div className="hidden lg:flex items-center space-x-6 mr-10">
                 {isLoggedIn ? (
-                    <motion.div 
+                    <motion.div
                         className="flex items-center space-x-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                     >
-                        <Link to="/profile" className="flex items-center space-x-2 group">
+                        <Link
+                            to="/profile"
+                            className="flex items-center space-x-2 group"
+                        >
                             <motion.img
-                                src={user?.avatar || "/assets/default-avatar.jpg"}
+                                src={
+                                    user?.avatar || "/assets/default-avatar.jpg"
+                                }
                                 alt="Profile"
                                 className="w-10 h-10 rounded-full border-2 border-[#f398d0]"
                                 whileHover={{ scale: 1.1 }}
                             />
-                            <span className={`${isScrolled ? "text-white" : "text-white"} group-hover:text-[#f398d0] transition-colors`}>
+                            <span
+                                className={`${
+                                    isScrolled ? "text-white" : "text-white"
+                                } group-hover:text-[#f398d0] transition-colors`}
+                            >
                                 {user?.name}
                             </span>
                         </Link>
@@ -283,8 +327,8 @@ export default function Header() {
                         <motion.button
                             onClick={() => setIsLoginOpen(true)}
                             className={`px-4 py-2 rounded-full ${
-                                isScrolled 
-                                    ? "text-black hover:text-[#f398d0]" 
+                                isScrolled
+                                    ? "text-black hover:text-[#f398d0]"
                                     : "text-white hover:text-[#f398d0]"
                             } transition-colors`}
                             whileHover={{ scale: 1.1 }}
@@ -296,8 +340,8 @@ export default function Header() {
                         <motion.button
                             onClick={() => setIsRegisterOpen(true)}
                             className={`px-4 py-2 rounded-full ${
-                                isScrolled 
-                                    ? "text-black hover:text-[#f398d0]" 
+                                isScrolled
+                                    ? "text-black hover:text-[#f398d0]"
                                     : "text-white hover:text-[#f398d0]"
                             } transition-colors`}
                             whileHover={{ scale: 1.1 }}
@@ -312,13 +356,13 @@ export default function Header() {
             <AnimatePresence>
                 {/* Login Modal */}
                 {isLoginOpen && (
-                    <motion.div 
+                    <motion.div
                         className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50 p-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        <motion.div 
+                        <motion.div
                             className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
                             initial={{ scale: 0.9, y: 20 }}
                             animate={{ scale: 1, y: 0 }}
@@ -330,9 +374,12 @@ export default function Header() {
                                 </h2>
                             </div>
                             <div className="p-8">
-                                <form onSubmit={handleLogin} className="space-y-6">
+                                <form
+                                    onSubmit={handleLogin}
+                                    className="space-y-6"
+                                >
                                     {error && (
-                                        <motion.p 
+                                        <motion.p
                                             className="text-red-500 text-center bg-red-50 p-3 rounded-lg"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
@@ -369,7 +416,9 @@ export default function Header() {
                                     <div className="flex justify-end">
                                         <Link
                                             to="/forgot-password"
-                                            onClick={() => setIsLoginOpen(false)}
+                                            onClick={() =>
+                                                setIsLoginOpen(false)
+                                            }
                                             className="text-[#f398d0] hover:text-[#ee8874] transition-colors"
                                         >
                                             Quên mật khẩu?
@@ -440,13 +489,13 @@ export default function Header() {
 
                 {/* Register Modal */}
                 {isRegisterOpen && (
-                    <motion.div 
+                    <motion.div
                         className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50 p-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        <motion.div 
+                        <motion.div
                             className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
                             initial={{ scale: 0.9, y: 20 }}
                             animate={{ scale: 1, y: 0 }}
@@ -458,9 +507,12 @@ export default function Header() {
                                 </h2>
                             </div>
                             <div className="p-8">
-                                <form onSubmit={handleRegister} className="space-y-6">
+                                <form
+                                    onSubmit={handleRegister}
+                                    className="space-y-6"
+                                >
                                     {error && (
-                                        <motion.p 
+                                        <motion.p
                                             className="text-red-500 text-center bg-red-50 p-3 rounded-lg"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
@@ -504,7 +556,7 @@ export default function Header() {
                                             value={registerData.email}
                                             onChange={handleRegisterChange}
                                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#f398d0] focus:ring-2 focus:ring-[#f398d0] focus:ring-opacity-50 transition-colors"
-                                            placeholder="example@email.com"
+                                            placeholder="example@gmail.com"
                                         />
                                     </div>
                                     <div>
@@ -543,7 +595,6 @@ export default function Header() {
                                             value={registerData.dob}
                                             onChange={handleRegisterChange}
                                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#f398d0] focus:ring-2 focus:ring-[#f398d0] focus:ring-opacity-50 transition-colors"
-                                            
                                         />
                                     </div>
 
