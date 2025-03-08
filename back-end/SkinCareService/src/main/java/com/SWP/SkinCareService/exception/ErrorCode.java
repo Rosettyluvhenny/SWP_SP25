@@ -46,6 +46,7 @@ public enum ErrorCode {
     EMAIL_EXISTED(1029,"Email is existed", HttpStatus.BAD_REQUEST),
     BLOGPOST_NOT_EXISTED(1030, "Blog post does not exist", HttpStatus.NOT_FOUND),
     BLOGPOST_ALREADY_APPROVED(1033, "Blog post is already approved", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_ACCESS(1034, "You are not authorized to modify this blog post", HttpStatus.FORBIDDEN),
     ROOM_NOT_EXISTED(1031, "Room does not exist", HttpStatus.NOT_FOUND),
     IMAGE_UPLOAD_FAILED(1032, "Failed to upload image", HttpStatus.BAD_REQUEST);
 

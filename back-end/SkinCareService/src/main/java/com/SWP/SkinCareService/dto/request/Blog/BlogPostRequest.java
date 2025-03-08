@@ -38,12 +38,4 @@ public class BlogPostRequest {
     )
     @NotBlank(message = "Content cannot be empty")
     String content;
-
-    @Schema(
-        description = "Therapist ID",
-        example = "T123",
-        defaultValue = "T123"
-    )
-    @NotBlank(message = "Therapist ID cannot be empty")
-    String therapistId;
 } 

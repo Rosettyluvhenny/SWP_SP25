@@ -6,16 +6,19 @@ import com.SWP.SkinCareService.dto.response.Blog.BlogPostResponse;
 import com.SWP.SkinCareService.entity.BlogPost;
 import com.SWP.SkinCareService.entity.ServiceCategory;
 import com.SWP.SkinCareService.entity.Therapist;
+import com.SWP.SkinCareService.entity.User;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BlogPostMapper;
 import com.SWP.SkinCareService.repository.BlogPostRepository;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
 import com.SWP.SkinCareService.repository.TherapistRepository;
+import com.SWP.SkinCareService.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,17 +33,26 @@ public class BlogPostService {
     BlogPostRepository blogPostRepository;
     TherapistRepository therapistRepository;
     ServiceCategoryRepository serviceCategoryRepository;
+    UserRepository userRepository;
     BlogPostMapper blogPostMapper;
     SupabaseService supabaseService;
     ObjectMapper objectMapper;
 
     @Transactional
     public BlogPostResponse createBlogPost(BlogPostRequest request, MultipartFile img) throws IOException {
-        System.out.println("Creating blog post with request: " + request);
-        Therapist therapist = getTherapistById(request.getTherapistId());
-        System.out.println("Found therapist: " + therapist);
+        // Lấy thông tin user hiện tại từ SecurityContextHolder
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName(); // Lấy username từ authentication
+        
+        // Tìm user theo username
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        
+        // Lấy therapist từ user ID
+        Therapist therapist = therapistRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+        
         ServiceCategory category = getServiceCategoryById(request.getCategoryId());
-        System.out.println("Found category: " + category);
         
         BlogPost blogPost = blogPostMapper.toBlogPost(request);
         blogPost.setTherapist(therapist);
@@ -48,7 +60,6 @@ public class BlogPostService {
         
         // Save first to get the ID
         blogPostRepository.save(blogPost);
-        System.out.println("Saved blog post: " + blogPost);
         
         // Handle image upload if present
         if (img != null && !img.isEmpty()) {
@@ -57,7 +68,6 @@ public class BlogPostService {
                 supabaseService.uploadImage(img, fileName);
                 blogPost.setImg(fileName);
             } catch (IOException e) {
-                System.err.println("Failed to upload image: " + e.getMessage());
                 throw new AppException(ErrorCode.IMAGE_UPLOAD_FAILED);
             }
         }
@@ -78,10 +88,21 @@ public class BlogPostService {
     @Transactional
     public BlogPostResponse updateBlogPost(Integer id, BlogPostRequest request, MultipartFile img) throws IOException {
         BlogPost blogPost = checkBlogPost(id);
-
-        if (request.getTherapistId() != null) {
-            Therapist therapist = getTherapistById(request.getTherapistId());
-            blogPost.setTherapist(therapist);
+        
+        // Kiểm tra xem người đang đăng nhập có phải là therapist của blog này không
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        
+        // Tìm user theo username
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        
+        // Lấy therapist từ user ID
+        Therapist currentTherapist = therapistRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+                
+        if (!blogPost.getTherapist().getId().equals(currentTherapist.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
 
         if (request.getCategoryId() != null) {
@@ -120,6 +141,22 @@ public class BlogPostService {
     @Transactional
     public ApiResponse<Void> deleteBlogPost(Integer id) {
         BlogPost blogPost = checkBlogPost(id);
+        
+        // Kiểm tra xem người đang đăng nhập có phải là therapist của blog này không
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        
+        // Tìm user theo username
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        
+        // Lấy therapist từ user ID
+        Therapist currentTherapist = therapistRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+                
+        if (!blogPost.getTherapist().getId().equals(currentTherapist.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
         
         // Delete image from Supabase if exists
         if (blogPost.getImg() != null) {

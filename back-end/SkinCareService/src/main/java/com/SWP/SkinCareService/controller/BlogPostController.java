@@ -3,21 +3,16 @@ package com.SWP.SkinCareService.controller;
 import com.SWP.SkinCareService.dto.request.Blog.BlogPostRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Blog.BlogPostResponse;
-import com.SWP.SkinCareService.exception.AppException;
-import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.service.BlogPostService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +26,8 @@ import java.util.List;
 public class BlogPostController {
     BlogPostService blogPostService;
 
+    @Operation(summary = "Create a new blog post", description = "Create a new blog post with optional image")
+    @PreAuthorize("hasRole('THERAPIST')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BlogPostResponse>> createBlogPost(
             @RequestPart("data") @Valid BlogPostRequest request,
@@ -49,6 +46,8 @@ public class BlogPostController {
         );
     }
 
+    @Operation(summary = "Update a blog post", description = "Update a blog post by ID")
+    @PreAuthorize("hasRole('THERAPIST')")
     @PutMapping(value = "/{blogPostId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BlogPostResponse>> updateBlogPost(
             @PathVariable Integer blogPostId,
@@ -59,7 +58,7 @@ public class BlogPostController {
 
 
         var result = blogPostService.updateBlogPost(blogPostId, request, img);
-        return ResponseEntity.status(HttpStatus.OK).body(
+        return ResponseEntity.ok(
                 ApiResponse.<BlogPostResponse>builder()
                         .code(200)
                         .result(result)
@@ -69,6 +68,7 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Delete a blog post", description = "Delete a blog post by ID")
+    @PreAuthorize("hasRole('THERAPIST')")
     @DeleteMapping("/{blogPostId}")
     public ResponseEntity<ApiResponse<Void>> deleteBlogPost(@PathVariable Integer blogPostId) {
         var response = blogPostService.deleteBlogPost(blogPostId);
@@ -76,6 +76,7 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Approve a blog post", description = "Approve a blog post by ID")
+    @PreAuthorize("hasRole('THERAPIST')")
     @PutMapping("/approve/{id}")
     public ResponseEntity<ApiResponse<BlogPostResponse>> approveBlogPost(@PathVariable Integer id) {
         var result = blogPostService.approveBlogPost(id);
@@ -84,6 +85,34 @@ public class BlogPostController {
                         .code(200)
                         .result(result)
                         .message("Blog post approved successfully")
+                        .build()
+        );
+    }
+
+    @Operation(summary = "Get all blog posts", description = "Get all blog posts")
+    @PreAuthorize("hasRole('THERAPIST')")
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<BlogPostResponse>>> getAllBlogPosts() {
+        var result = blogPostService.getAllBlogPosts();
+        return ResponseEntity.ok(
+                ApiResponse.<List<BlogPostResponse>>builder()
+                        .code(200)
+                        .result(result)
+                        .message("Blog posts retrieved successfully")
+                        .build()
+        );
+    }
+
+    @Operation(summary = "Get blog post by ID", description = "Get blog post by ID")
+    @PreAuthorize("hasRole('THERAPIST')")
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<BlogPostResponse>> getBlogPostById(@PathVariable Integer id) {
+        var result = blogPostService.getBlogPostById(id);
+        return ResponseEntity.ok(
+                ApiResponse.<BlogPostResponse>builder()
+                        .code(200)
+                        .result(result)
+                        .message("Blog post retrieved successfully")
                         .build()
         );
     }

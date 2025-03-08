@@ -15,6 +15,7 @@ import com.SWP.SkinCareService.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ public class TherapistService {
     TherapistRepository therapistRepository;
     RoleRepository roleRepository;
     TherapistMapper therapistMapper;
+    PasswordEncoder passwordEncoder;
 
     @Transactional
     public TherapistResponse create(TherapistRequest request) {
@@ -37,6 +39,7 @@ public class TherapistService {
                 throw new AppException(ErrorCode.USER_EXISTED);
             }
             User account = therapistMapper.toUser(request);
+            account.setPassword(passwordEncoder.encode(request.getPassword()));
             Role roleTherapist = roleRepository.findById("THERAPIST").orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
             Set<Role> roles = new HashSet<>();
             roles.add(roleTherapist);
@@ -47,7 +50,6 @@ public class TherapistService {
             therapist.setUser(account);
             therapist = therapistRepository.save(therapist);
             return therapistMapper.toTheRapistResponse(therapist);
-
     }
 
     public List<TherapistResponse> findAll(){
