@@ -23,6 +23,7 @@ export default function Reports() {
         { date: "Feb 14", revenue: 1100000 },
         { date: "Feb 15", revenue: 1200000 },
         { date: "Feb 16", revenue: 1254000 },
+        
     ];
 
     // Order Data for Bar Chart

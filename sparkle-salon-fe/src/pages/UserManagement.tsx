@@ -4,26 +4,28 @@ import ManagementModal from "../components/ManagementModal";
 
 type User = {
     id: number;
-    name: string;
+    username: string;
+    fullname: string;
     email: string;
+    phone: string;
+    dob: string;
     role: string;
-    status: string;
 };
 
 export default function UserManagement() {
     const [searchTerm, setSearchTerm] = useState("");
     const [users, setUsers] = useState<User[]>([
-        { id: 1, name: "Nguyễn Văn A", email: "a@email.com", role: "Admin", status: "Hoạt Động" },
-        { id: 2, name: "Trần Thị B", email: "b@email.com", role: "Staff", status: "Không Hoạt Động" },
-        { id: 3, name: "Lê Văn C", email: "c@email.com", role: "Skin Therapist", status: "Hoạt Động" },
-        { id: 4, name: "Hoàng D", email: "d@email.com", role: "Customer", status: "Bị Xoá" },
+        { id: 1, username: "Văn A", email: "a@email.com", role: "Admin", fullname: "Nguyễn Văn A", phone: "0909090909", dob: "1990-01-01" },
+        { id: 2, username: "Thị B", email: "b@email.com", role: "Staff", fullname: "Trần Thị B", phone: "0909090909", dob: "1990-01-01" },
+        { id: 3, username: "Văn C", email: "c@email.com", role: "Skin Therapist", fullname: "Lê Văn C", phone: "0909090909", dob: "1990-01-01" },
+        { id: 4, username: "Hoàng D", email: "d@email.com", role: "Customer", fullname: "Hoàng Văn D", phone: "0909090909", dob: "1990-01-01" },
     ]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
 
     const openModal = (user: User | null = null) => {
-        setEditingUser(user ?? { id: users.length + 1, name: "", email: "", role: "Customer", status: "Hoạt Động" });
+        setEditingUser(user ?? { id: users.length + 1, username: "", email: "", role: "User", fullname: "", phone: "", dob: "" });
         setIsModalOpen(true);
     };
 
@@ -80,23 +82,27 @@ export default function UserManagement() {
                         <thead>
                             <tr className="bg-white text-black">
                                 <th className="p-3 text-left">ID</th>
+                                <th className="p-3 text-left">Tên Người Dùng</th>
                                 <th className="p-3 text-left">Họ Tên</th>
                                 <th className="p-3 text-left">Email</th>
                                 <th className="p-3 text-left">Vai Trò</th>
-                                <th className="p-3 text-left">Trạng Thái</th>
+                                <th className="p-3 text-left">Số Điện Thoại</th>
+                                <th className="p-3 text-left">Ngày Sinh</th>
                                 <th className="p-3 text-left">Hành Động</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white">
                             {users
-                                .filter((user) => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                                .filter((user) => user.username.toLowerCase().includes(searchTerm.toLowerCase()))
                                 .map((user) => (
                                     <tr key={user.id} className="border-t">
                                         <td className="p-3">{user.id}</td>
-                                        <td className="p-3">{user.name}</td>
+                                        <td className="p-3">{user.username}</td>
+                                        <td className="p-3">{user.fullname}</td>
                                         <td className="p-3">{user.email}</td>
                                         <td className="p-3">{user.role}</td>
-                                        <td className={`p-3 ${user.status === "Hoạt Động" ? "text-green-600" : "text-red-600"}`}>{user.status}</td>
+                                        <td className="p-3">{user.phone}</td>
+                                        <td className="p-3">{user.dob}</td>
                                         <td className="p-3 flex space-x-2">
                                             <button onClick={() => openModal(user)} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
                                                 Chỉnh Sửa
@@ -120,8 +126,8 @@ export default function UserManagement() {
                         <label className="font-semibold">Họ Tên</label>
                         <input
                             type="text"
-                            value={editingUser?.name || ""}
-                            onChange={(e) => setEditingUser((prev) => (prev ? { ...prev, name: e.target.value } : null))}
+                            value={editingUser?.username || ""}
+                            onChange={(e) => setEditingUser((prev) => (prev ? { ...prev, username: e.target.value } : null))}
                             className="p-2 border rounded"
                         />
 
@@ -135,25 +141,30 @@ export default function UserManagement() {
 
                         <label className="font-semibold">Vai Trò</label>
                         <select
-                            value={editingUser?.role || "Member"}
+                            value={editingUser?.role || "User"}
                             onChange={(e) => setEditingUser((prev) => (prev ? { ...prev, role: e.target.value } : null))}
                             className="p-2 border rounded"
                         >
                             <option value="Admin">Admin</option>
-                            <option value="Member">Member</option>
-                            <option value="Shop Owner">Shop Owner</option>
+                            <option value="Therapist">Therapist</option>
+                            <option value="User">User</option>
                         </select>
 
-                        <label className="font-semibold">Trạng Thái</label>
-                        <select
-                            value={editingUser?.status || "Hoạt Động"}
-                            onChange={(e) => setEditingUser((prev) => (prev ? { ...prev, status: e.target.value } : null))}
+                        <label className="font-semibold">Ngày Sinh</label>
+                        <input
+                            type="date"
+                            value={editingUser?.dob || ""}
+                            onChange={(e) => setEditingUser((prev) => (prev ? { ...prev, dob: e.target.value } : null))}
                             className="p-2 border rounded"
-                        >
-                            <option value="Hoạt Động">Hoạt Động</option>
-                            <option value="Không Hoạt Động">Không Hoạt Động</option>
-                            <option value="Bị Xoá">Bị Xoá</option>
-                        </select>
+                        />
+
+                        <label className="font-semibold">Số Điện Thoại</label>
+                        <input
+                            type="text"
+                            value={editingUser?.phone || ""}
+                            onChange={(e) => setEditingUser((prev) => (prev ? { ...prev, phone: e.target.value } : null))}
+                        />
+
                     </div>
                 </ManagementModal>
             </main>

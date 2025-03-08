@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import axios from "axios";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBars, FaTimes } from "react-icons/fa";
+import {getUser, login, register} from "../data/authData";
 
 export default function Header() {
     const [loginData, setLoginData] = useState({ username: "", password: "" });
@@ -11,15 +11,19 @@ export default function Header() {
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [registerData, setRegisterData] = useState({
-        name: "",
+        username: "",
+        fullName: "",
         email: "",
         password: "",
+        phone: "",
+        dob: "",
     });
     const [error, setError] = useState<string | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState<{ name: string; avatar: string } | null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -52,44 +56,69 @@ export default function Header() {
         e.preventDefault();
         setError(null);
 
-        try {
-            const response = await axios.post(
-                "http://localhost:8081/swp/auth/authenticate",
-                loginData
-            );
-            setUser(response.data.user);
-            setIsLoggedIn(true);
+        const token = await login(loginData.username, loginData.password);
+        if (token) {
+            localStorage.setItem("token", token);
             setIsLoginOpen(false);
-        } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-                setError(
-                    error.response?.data?.message || "Đăng nhập không thành công!"
-                );
+            const user = await getUser();
+            if (user.roles[0].name === "ADMIN") {
+                setUser(user);
+                setIsLoggedIn(true);
+                alert("chào mừng admin " + user.fullName)
+                navigate("/manager");
             } else {
-                setError("Có lỗi xảy ra!");
+                alert("Login bằng user");
             }
+        } else {
+            setError("Đăng nhập không thành công!");
         }
+
+        // try {
+        //     const response = await axios.post(
+        //         "http://localhost:8081/swp/auth/authenticate",
+        //         loginData
+        //     );
+        //     setUser(response.data.user);
+        //     setIsLoggedIn(true);
+        //     setIsLoginOpen(false);
+        // } catch (error: unknown) {
+        //     if (axios.isAxiosError(error)) {
+        //         setError(
+        //             error.response?.data?.message || "Đăng nhập không thành công!"
+        //         );
+        //     } else {
+        //         setError("Có lỗi xảy ra!");
+        //     }
+        // }
     };
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
 
-        try {
-            const response = await axios.post(
-                "http://localhost:5000/api/auth/register",
-                registerData
-            );
-            setUser(response.data.user);
-            setIsLoggedIn(true);
+        const registerResult = await register(registerData.username, registerData.fullName, registerData.email, registerData.password, registerData.phone, registerData.dob );
+        if (registerResult) {
+            alert("Đăng ký thành công");
             setIsRegisterOpen(false);
-        } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-                setError(error.response?.data?.message || "Đăng ký không thành công!");
-            } else {
-                setError("Có lỗi xảy ra!");
-            }
+        } else {
+            alert("Đăng ký không thành công");
         }
+
+        // try {
+        //     const response = await axios.post(
+        //         "http://localhost:5000/api/auth/register",
+        //         registerData
+        //     );
+        //     setUser(response.data.user);
+        //     setIsLoggedIn(true);
+        //     setIsRegisterOpen(false);
+        // } catch (error: unknown) {
+        //     if (axios.isAxiosError(error)) {
+        //         setError(error.response?.data?.message || "Đăng ký không thành công!");
+        //     } else {
+        //         setError("Có lỗi xảy ra!");
+        //     }
+        // }
     };
 
     const navItems = [
@@ -441,12 +470,25 @@ export default function Header() {
                                     )}
                                     <div>
                                         <label className="block text-gray-700 mb-2">
+                                            Tên người dùng
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="username"
+                                            value={registerData.username}
+                                            onChange={handleRegisterChange}
+                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#f398d0] focus:ring-2 focus:ring-[#f398d0] focus:ring-opacity-50 transition-colors"
+                                            placeholder="Nhập tên đăng nhập"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-700 mb-2">
                                             Họ và tên
                                         </label>
                                         <input
                                             type="text"
-                                            name="name"
-                                            value={registerData.name}
+                                            name="fullName"
+                                            value={registerData.fullName}
                                             onChange={handleRegisterChange}
                                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#f398d0] focus:ring-2 focus:ring-[#f398d0] focus:ring-opacity-50 transition-colors"
                                             placeholder="Nhập họ và tên"
@@ -478,6 +520,33 @@ export default function Header() {
                                             placeholder="••••••••"
                                         />
                                     </div>
+                                    <div>
+                                        <label className="block text-gray-700 mb-2">
+                                            Số điện thoại
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="phone"
+                                            value={registerData.phone}
+                                            onChange={handleRegisterChange}
+                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#f398d0] focus:ring-2 focus:ring-[#f398d0] focus:ring-opacity-50 transition-colors"
+                                            placeholder="nhập số điện thoại"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-700 mb-2">
+                                            Ngày Tháng Năm Sinh
+                                        </label>
+                                        <input
+                                            type="date"
+                                            name="dob"
+                                            value={registerData.dob}
+                                            onChange={handleRegisterChange}
+                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#f398d0] focus:ring-2 focus:ring-[#f398d0] focus:ring-opacity-50 transition-colors"
+                                            
+                                        />
+                                    </div>
+
                                     <motion.button
                                         type="submit"
                                         className="w-full bg-gradient-to-r from-[#f398d0] to-[#ee8874] text-white py-3 rounded-lg font-semibold"
