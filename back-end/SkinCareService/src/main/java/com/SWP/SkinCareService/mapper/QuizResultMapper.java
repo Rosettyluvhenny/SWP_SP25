@@ -2,7 +2,7 @@ package com.SWP.SkinCareService.mapper;
 
 import com.SWP.SkinCareService.dto.request.Quiz.QuizResultRequest;
 import com.SWP.SkinCareService.dto.response.Quiz.QuizResultResponse;
-import com.SWP.SkinCareService.dto.response.Quiz.ResultResponse;
+import com.SWP.SkinCareService.dto.response.Skin.ResultResponse;
 import com.SWP.SkinCareService.dto.response.basicDTO.ServiceDTO;
 import com.SWP.SkinCareService.dto.response.basicDTO.UserDTO;
 import com.SWP.SkinCareService.entity.QuizResult;

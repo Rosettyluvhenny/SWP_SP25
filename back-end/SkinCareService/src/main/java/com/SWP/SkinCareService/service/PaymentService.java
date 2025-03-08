@@ -1,72 +1,60 @@
 package com.SWP.SkinCareService.service;
 
-import com.SWP.SkinCareService.dto.request.PaymentRequest;
-import com.SWP.SkinCareService.dto.response.PaymentResponse;
+import com.SWP.SkinCareService.dto.request.Payment.PaymentRequest;
+import com.SWP.SkinCareService.dto.response.Payment.PaymentResponse;
 import com.SWP.SkinCareService.entity.Payment;
+import com.SWP.SkinCareService.exception.AppException;
+import com.SWP.SkinCareService.exception.ErrorCode;
+import com.SWP.SkinCareService.mapper.PaymentMapper;
 import com.SWP.SkinCareService.repository.PaymentRepository;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class PaymentService {
-    private final PaymentRepository paymentRepository;
-    public boolean existsByPaymentName(String paymentName) {
-        return paymentRepository.existsByPaymentName(paymentName);
+    PaymentRepository paymentRepository;
+    PaymentMapper paymentMapper;
+
+    @Transactional
+    public PaymentResponse createPayment(PaymentRequest request) {
+        Payment payment = paymentMapper.toPayment(request);
+        paymentRepository.save(payment);
+        return paymentMapper.toPaymentResponse(payment);
     }
 
     public List<PaymentResponse> getAllPayments() {
         return paymentRepository.findAll().stream()
-                .map(this::convertToResponse)
-                .collect(Collectors.toList());
+                .map(paymentMapper::toPaymentResponse)
+                .toList();
     }
 
-    public PaymentResponse getPaymentById(Long id) {
-        return paymentRepository.findById(id)
-                .map(this::convertToResponse)
-                .orElse(null);
+    public PaymentResponse getPaymentById(Integer id) {
+        return paymentMapper.toPaymentResponse(checkPayment(id));
     }
 
-    public PaymentResponse createPayment(PaymentRequest request) {
-        if (paymentRepository.existsByPaymentName(request.getPaymentName())) {
-            throw new IllegalArgumentException("Phương thức thanh toán đã tồn tại!");
-        }
-        Payment payment = convertToEntity(request);
-        return convertToResponse(paymentRepository.save(payment));
+    @Transactional
+    public PaymentResponse updatePayment(Integer id, PaymentRequest request) {
+        Payment payment = checkPayment(id);
+        paymentMapper.updatePayment(payment, request);
+        paymentRepository.save(payment);
+        return paymentMapper.toPaymentResponse(payment);
     }
 
-    public PaymentResponse updatePaymentById(Long id, PaymentRequest request) {
-        Optional<Payment> existingPayment = paymentRepository.findById(id);
-        if (existingPayment.isPresent()) {
-            Payment payment = existingPayment.get();
-            payment.setPaymentName(request.getPaymentName());
-            return convertToResponse(paymentRepository.save(payment));
-        }
-        return null;
+    @Transactional
+    public void deletePayment(Integer id) {
+        Payment payment = checkPayment(id);
+        paymentRepository.delete(payment);
     }
 
-    public boolean deletePaymentById(Long id) {
-        if (paymentRepository.existsById(id)) {
-            paymentRepository.deleteById(id);
-            return true;
-        }
-        return false;
-    }
-
-    private PaymentResponse convertToResponse(Payment payment) {
-        return PaymentResponse.builder()
-                .paymentId(payment.getPaymentId())
-                .paymentName(payment.getPaymentName())
-                .build();
-    }
-
-    private Payment convertToEntity(PaymentRequest request) {
-        return Payment.builder()
-                .paymentName(request.getPaymentName())
-                .build();
+    private Payment checkPayment(Integer id) {
+        return paymentRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.PAYMENT_NOT_EXISTED));
     }
 }

@@ -1,8 +1,8 @@
 package com.SWP.SkinCareService.service;
 
-import com.SWP.SkinCareService.dto.request.BookingSessionRequest;
-import com.SWP.SkinCareService.dto.request.BookingSessionUpdateRequest;
-import com.SWP.SkinCareService.dto.response.BookingSessionResponse;
+import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
+import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
+import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
@@ -38,7 +38,6 @@ public class  BookingSessionService {
 
 
         BookingSession session = bookingSessionMapper.toBookingSession(request);
-        session.setCancelBy(user);
         session.setBooking(booking);
         session.setRoom(room);
         session.setTherapist(therapist);
@@ -65,8 +64,7 @@ public class  BookingSessionService {
         Therapist therapist = getTherapistById(request.getTherapistId());
 
         bookingSessionMapper.updateBookingSession(session, request);
-        
-        session.setCancelBy(user);
+
         session.setBooking(booking);
         session.setRoom(room);
         //session.setStatus(request.getStatus());

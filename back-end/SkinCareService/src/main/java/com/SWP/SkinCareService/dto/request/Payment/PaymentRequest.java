@@ -1,4 +1,4 @@
-package com.SWP.SkinCareService.dto.request;
+package com.SWP.SkinCareService.dto.request.Payment;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -10,7 +10,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentRequest {
-
-    @NotBlank(message = "Tên phương thức thanh toán không được để trống!")
+    @NotBlank(message = "Payment name cannot be empty")
     String paymentName;
-}
+} 

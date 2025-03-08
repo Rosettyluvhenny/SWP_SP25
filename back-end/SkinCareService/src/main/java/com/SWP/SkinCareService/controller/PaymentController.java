@@ -1,11 +1,14 @@
 package com.SWP.SkinCareService.controller;
 
-import com.SWP.SkinCareService.dto.request.PaymentRequest;
+import com.SWP.SkinCareService.dto.request.Payment.PaymentRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
-import com.SWP.SkinCareService.dto.response.PaymentResponse;
+import com.SWP.SkinCareService.dto.response.Payment.PaymentResponse;
 import com.SWP.SkinCareService.service.PaymentService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,49 +16,71 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/payments")
+@RequestMapping("/payment")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class PaymentController {
-    private final PaymentService paymentService;
+    PaymentService paymentService;
 
-    @PostMapping()
-    public ResponseEntity<ApiResponse<PaymentResponse>> createPayment(@Valid @RequestBody PaymentRequest request) {
+    @Operation(
+        summary = "Create a new payment method",
+        description = "Create a new payment method with name"
+    )
+    @PostMapping
+    ResponseEntity<ApiResponse<PaymentResponse>> createPayment(@RequestBody @Valid PaymentRequest request) {
         var result = paymentService.createPayment(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 ApiResponse.<PaymentResponse>builder().result(result).build()
         );
     }
 
-    @GetMapping()
-    public ResponseEntity<ApiResponse<List<PaymentResponse>>> getAllPayments() {
+    @Operation(
+        summary = "Get all payment methods",
+        description = "Retrieve all available payment methods"
+    )
+    @GetMapping
+    ResponseEntity<ApiResponse<List<PaymentResponse>>> getAllPayments() {
         var result = paymentService.getAllPayments();
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<List<PaymentResponse>>builder().result(result).build()
         );
     }
 
+    @Operation(
+        summary = "Get payment method by ID",
+        description = "Retrieve a specific payment method by its ID"
+    )
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<PaymentResponse>> getPaymentById(@PathVariable Long id) {
+    ResponseEntity<ApiResponse<PaymentResponse>> getPaymentById(@PathVariable Integer id) {
         var result = paymentService.getPaymentById(id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<PaymentResponse>builder().result(result).build()
         );
     }
 
+    @Operation(
+        summary = "Update payment method",
+        description = "Update an existing payment method by its ID"
+    )
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<PaymentResponse>> updatePayment(@PathVariable Long id, @RequestBody PaymentRequest request) {
-        var result = paymentService.updatePaymentById(id, request);
+    ResponseEntity<ApiResponse<PaymentResponse>> updatePayment(
+            @PathVariable Integer id,
+            @RequestBody @Valid PaymentRequest request) {
+        var result = paymentService.updatePayment(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<PaymentResponse>builder().result(result).build()
         );
     }
 
+    @Operation(
+        summary = "Delete payment method",
+        description = "Delete an existing payment method by its ID"
+    )
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletePayment(@PathVariable Long id) {
-        boolean deleted = paymentService.deletePaymentById(id);
-        if (deleted) {
-            return ResponseEntity.ok(new ApiResponse<>(200, "Payment deleted successfully", null));
-        }
-        return ResponseEntity.status(404).body(new ApiResponse<>(404, "Payment not found", null));
+    ResponseEntity<ApiResponse> deletePayment(@PathVariable Integer id) {
+        paymentService.deletePayment(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.builder().message("Payment deleted successfully").build()
+        );
     }
-}
+} 

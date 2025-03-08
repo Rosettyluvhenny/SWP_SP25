@@ -1,9 +1,6 @@
-package com.SWP.SkinCareService.dto.response;
+package com.SWP.SkinCareService.dto.response.Booking;
 
 import com.SWP.SkinCareService.entity.BookingSession;
-import com.SWP.SkinCareService.entity.Payment;
-import com.SWP.SkinCareService.entity.Services;
-import com.SWP.SkinCareService.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

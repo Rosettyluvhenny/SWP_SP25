@@ -1,4 +1,4 @@
-package com.SWP.SkinCareService.dto.request;
+package com.SWP.SkinCareService.dto.request.Booking;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,13 +8,13 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BookingSessionUpdateRequest {
+public class BookingSessionRequest {
     String userId;
     int bookingId;
     String status;
     String note;
     String imgBefore;
-    String imgAfter;
+    //String imgAfter;
     int roomId;
     String therapistId;
 

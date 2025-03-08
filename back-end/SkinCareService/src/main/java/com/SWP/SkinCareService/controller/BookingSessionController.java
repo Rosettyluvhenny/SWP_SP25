@@ -1,10 +1,9 @@
 package com.SWP.SkinCareService.controller;
 
-import com.SWP.SkinCareService.dto.request.BookingSessionRequest;
-import com.SWP.SkinCareService.dto.request.BookingSessionUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
+import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
-import com.SWP.SkinCareService.dto.response.BookingSessionResponse;
-import com.SWP.SkinCareService.entity.BookingSession;
+import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.service.BookingSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

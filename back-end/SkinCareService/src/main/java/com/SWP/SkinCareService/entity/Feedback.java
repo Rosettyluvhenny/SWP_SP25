@@ -37,4 +37,14 @@ public class Feedback {
     @JsonBackReference
     User user;
 
+    //Many To One - Session
+    @ManyToOne
+    @JoinColumn(name = "bookingSessionId")
+    @JsonBackReference
+    BookingSession bookingSession;
+
+    String therapistId;
+    int serviceId;
+    boolean isRated;
+
 }

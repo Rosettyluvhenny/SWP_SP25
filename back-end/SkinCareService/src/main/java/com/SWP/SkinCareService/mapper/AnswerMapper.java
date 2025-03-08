@@ -15,9 +15,6 @@ public interface AnswerMapper {
 
 
     @Mapping(target = "questionId", source = "question.id")
-    @Mapping(target = "questionText", source = "question.text")
-    @Mapping(target = "createdAt", source = "createdAt")
-    @Mapping(target = "updatedAt", source = "updatedAt")
     AnswerResponse ToAnswerResponse(Answer answer);
 
     @Mapping(target = "id", ignore = true)

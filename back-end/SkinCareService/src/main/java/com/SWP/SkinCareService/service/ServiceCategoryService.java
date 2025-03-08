@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.request.Services.CategoryUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServiceCategoryRequest;
 import com.SWP.SkinCareService.dto.response.Services.ServiceCategoryResponse;
 import com.SWP.SkinCareService.entity.ServiceCategory;
@@ -7,12 +8,11 @@ import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.ServiceCategoryMapper;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 @Service
@@ -24,21 +24,23 @@ public class ServiceCategoryService {
     @Transactional
     public ServiceCategoryResponse create(ServiceCategoryRequest request){
         if(serviceCategoryRepository.existsByName(request.getName())){
-            throw new AppException(ErrorCode.CATEGORY_EXIST);
+            throw new AppException(ErrorCode.CATEGORY_EXISTED);
         }
         ServiceCategory category = ServiceCategory.builder()
                 .name(request.getName())
+                .description(request.getDescription())
                 .build();
         category = serviceCategoryRepository.save(category);
         serviceCategoryRepository.flush();
         return serviceCategoryMapper.toResponse(category);
     }
     @Transactional
-    public ServiceCategoryResponse update(int id,ServiceCategoryRequest request){
+    public ServiceCategoryResponse update(int id, CategoryUpdateRequest request){
         ServiceCategory category = checkServiceCategory(id);
-
-        category.setName(request.getName());
-
+        if(!request.getName().isBlank())
+            category.setName(request.getName());
+        if(!request.getDescription().isBlank())
+            category.setDescription(request.getDescription());
         category = serviceCategoryRepository.save(category);
         serviceCategoryRepository.flush();
         return serviceCategoryMapper.toResponse(category);

@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.entity;
 
 
+import com.SWP.SkinCareService.enums.ServiceType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -55,10 +56,13 @@ public class Services {
 
     int session;
 
-    boolean active = false;
+    boolean active = true;
 
     String img;
 
+    ServiceType type;
+
+    float rating;
 
     //Many to many with Quiz result
     @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)

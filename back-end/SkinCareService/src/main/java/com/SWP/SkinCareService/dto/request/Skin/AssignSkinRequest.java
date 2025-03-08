@@ -1,4 +1,4 @@
-package com.SWP.SkinCareService.dto.request.Services;
+package com.SWP.SkinCareService.dto.request.Skin;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

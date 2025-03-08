@@ -3,6 +3,7 @@ package com.SWP.SkinCareService.entity;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table
@@ -49,18 +51,25 @@ public class BookingSession {
     @JsonBackReference
     Room room;
 
-    //Therapist id
+    //Many To One - Therapist
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "therapistId")
     @JsonBackReference
     Therapist therapist;
 
 
-    //Many to One - User
+    //Many to One - staff
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "isCancelBy")
+    @JoinColumn(name = "staffid")
     @JsonBackReference
-    private User cancelBy;
+    private User staff;
+
+    //One To Many - Feedback
+    @OneToMany(mappedBy = "bookingSession", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    List<Feedback> feedbackList;
+
+    //Notification
 
     @Override
     public boolean equals(Object o) {

@@ -1,4 +1,4 @@
-package com.SWP.SkinCareService.dto.request;
+package com.SWP.SkinCareService.dto.request.Booking;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,13 +9,5 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingUpdateRequest {
-    String userId;
-    int serviceId;
     String status;
-    String paymentStatus;
-    int paymentId;
-    String notes;
-    int sessionRemain;
-    String staffId;
-    //int price;
 }

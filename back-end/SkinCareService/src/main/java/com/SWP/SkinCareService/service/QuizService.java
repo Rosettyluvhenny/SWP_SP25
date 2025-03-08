@@ -3,7 +3,7 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.dto.request.Quiz.QuizRequest;
 import com.SWP.SkinCareService.dto.request.Quiz.UserResultRequest;
 import com.SWP.SkinCareService.dto.response.Quiz.QuizResponse;
-import com.SWP.SkinCareService.dto.response.Quiz.ResultResponse;
+import com.SWP.SkinCareService.dto.response.Skin.ResultResponse;
 import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;

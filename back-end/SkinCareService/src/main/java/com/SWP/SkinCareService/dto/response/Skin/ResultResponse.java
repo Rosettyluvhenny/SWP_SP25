@@ -1,7 +1,6 @@
-package com.SWP.SkinCareService.dto.response.Quiz;
+package com.SWP.SkinCareService.dto.response.Skin;
 
 import com.SWP.SkinCareService.dto.response.basicDTO.ServiceDTO;
-import com.SWP.SkinCareService.entity.Services;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

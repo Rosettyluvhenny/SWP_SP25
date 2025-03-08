@@ -63,16 +63,12 @@ public class Booking {
 
     int sessionRemain;
 
-    //Many To One - staff
-    @ManyToOne()
-    @JoinColumn(name = "staffid", referencedColumnName = "id")
-    @JsonBackReference
-    private User staff;
-
     //One To Many - Session
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     List<BookingSession> bookingSessions;
+
+    //Notification
 
     BigDecimal price;
 

@@ -49,30 +49,30 @@ public class User {
 
     @Column(name = "is_active")
     private boolean isActive = true;
-
+    //
     LocalDate dob;
     @ManyToMany
     Set<Role> roles;
-
+    //
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     Therapist therapist;
-
+    //
     @ManyToOne
     @JoinColumn(name = "skin_type", referencedColumnName = "id")
     @JsonBackReference
     QuizResult quizResult;
-
+    //
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
     Set<Booking> booking;
-
+    //
     @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
     @JsonManagedReference
-    Set<Booking> bookingServicesStaff;
-
-    @OneToMany(mappedBy = "cancelBy", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    Set<BookingSession> bookingSessionStaff;
+    //
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
-    Set<BookingSession> bookingSessions;
+    Set<Feedback> feedback;
 
     @Override
     public boolean equals(Object o) {

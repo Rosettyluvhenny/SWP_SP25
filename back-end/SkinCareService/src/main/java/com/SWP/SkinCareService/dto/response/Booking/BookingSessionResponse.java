@@ -1,10 +1,9 @@
-package com.SWP.SkinCareService.dto.response;
+package com.SWP.SkinCareService.dto.response.Booking;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Date;
 
 @Data

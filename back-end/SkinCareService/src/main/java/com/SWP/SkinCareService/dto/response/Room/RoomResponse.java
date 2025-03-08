@@ -1,10 +1,7 @@
-package com.SWP.SkinCareService.dto.response;
+package com.SWP.SkinCareService.dto.response.Room;
 
-import com.SWP.SkinCareService.entity.Services;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -12,9 +9,8 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RoomResponse {
-    Long roomId;
+    int roomId;
     String roomName;
-    Integer capacity;
-    Integer inUse;
-    List<Services> services;
-}
+    int capacity;
+    int inUse;
+} 

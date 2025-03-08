@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.controller;
 
+import com.SWP.SkinCareService.dto.request.Services.CategoryUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServiceCategoryRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Services.ServiceCategoryResponse;
@@ -31,7 +32,7 @@ public class ServiceCategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ServiceCategoryResponse>> getServiceCategoryById(@PathVariable int id){
+    public ResponseEntity<ApiResponse<ServiceCategoryResponse>> getById(@PathVariable int id){
         var result = serviceCategoryService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<ServiceCategoryResponse>builder()
@@ -40,8 +41,8 @@ public class ServiceCategoryController {
         );
     }
 
-    @GetMapping()
-    ResponseEntity<ApiResponse<List<ServiceCategoryResponse>>> getAllServiceCategory() {
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ServiceCategoryResponse>>> getAll(){
         var result = serviceCategoryService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<List<ServiceCategoryResponse>>builder()
@@ -51,7 +52,7 @@ public class ServiceCategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ServiceCategoryResponse>> updateServiceCategory(@PathVariable int id, @RequestBody @Valid ServiceCategoryRequest request){
+    public ResponseEntity<ApiResponse<ServiceCategoryResponse>> updateServiceCategory(@PathVariable int id, @RequestBody CategoryUpdateRequest request){
         var result = serviceCategoryService.update(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<ServiceCategoryResponse>builder()
@@ -59,7 +60,6 @@ public class ServiceCategoryController {
                         .build()
         );
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteServiceCategory(@PathVariable int id){
