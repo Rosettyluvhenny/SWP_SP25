@@ -63,6 +63,7 @@ public enum ErrorCode {
     UPDATE_NOT_ALLOWED(1032,"Update is not allowed", HttpStatus.BAD_REQUEST),
     //---------- ADD
     FEEDBACK_NOT_FOUND(1033,"Feedback not found", HttpStatus.NOT_FOUND),
+    OUT_OF_THERAPIST(1034,"There are no available therapists at the moment.", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

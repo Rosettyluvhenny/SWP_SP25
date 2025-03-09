@@ -29,24 +29,20 @@ public class  BookingSessionService {
     BookingSessionRepository bookingSessionRepository;
     BookingSessionMapper bookingSessionMapper;
     BookingRepository bookingRepository;
-    UserRepository userRepository;
     RoomRepository roomRepository;
     TherapistRepository therapistRepository;
     SupabaseService supabaseService;
     FeedbackRepository feedbackRepository;
 
     public BookingSessionResponse createBookingSession(BookingSessionRequest request) {
-        //Check room
-        Room room = getRoomById(request.getRoomId());
         //Check booking
         Booking booking = getBookingById(request.getBookingId());
         //Check therapist
         Therapist therapist = getTherapistById(request.getTherapistId());
 
-
+        //Create session
         BookingSession session = bookingSessionMapper.toBookingSession(request);
         session.setBooking(booking);
-        session.setRoom(room);
         session.setTherapist(therapist);
 
         bookingSessionRepository.save(session);
@@ -54,6 +50,20 @@ public class  BookingSessionService {
     }
     public List<BookingSessionResponse> getAllBookingSessions() {
         return bookingSessionRepository.findAll().stream().map(bookingSessionMapper::toBookingSessionResponse).toList();
+    }
+    public List<BookingSessionResponse> getAllBookingNullTherapist() {
+        List<BookingSession> list = bookingSessionRepository.findAll();
+        for (BookingSession bookingSession : list)
+            if (bookingSession.getTherapist() != null) {
+                list.remove(bookingSession);
+            }
+        list.removeIf(bookingSession -> bookingSession.getTherapist() != null);
+
+        if (list.isEmpty()) {
+            return List.of();
+        } else {
+            return list.stream().map(bookingSessionMapper::toBookingSessionResponse).toList();
+        }
     }
     public BookingSessionResponse getBookingSessionById(int id) {
         return bookingSessionMapper.toBookingSessionResponse(checkSession(id));
@@ -135,6 +145,13 @@ public class  BookingSessionService {
         bookingSessionRepository.save(session);
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
+    public BookingSessionResponse assignTherapistToSession(int id, SessionUpdateRequest request) {
+        BookingSession session = checkSession(id);
+        Therapist therapist = getTherapistById(request.getTherapistId());
+        session.setTherapist(therapist);
+        bookingSessionRepository.save(session);
+        return bookingSessionMapper.toBookingSessionResponse(session);
+    }
 
 
     public void deleteBookingSession(int id) {
@@ -145,10 +162,6 @@ public class  BookingSessionService {
     BookingSession checkSession(int id) {
         return bookingSessionRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.SESSION_NOT_EXISTED));
-    }
-    User getUserById(String id) {
-        return userRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
     Booking getBookingById(int id) {
         return bookingRepository.findById(id).orElseThrow(()

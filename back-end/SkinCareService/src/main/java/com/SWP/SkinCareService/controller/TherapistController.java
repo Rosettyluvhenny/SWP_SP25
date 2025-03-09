@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.controller;
 
+import com.SWP.SkinCareService.dto.request.Therapist.GetScheduleRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
@@ -12,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -77,6 +79,14 @@ class TherapistController {
                 ApiResponse.builder()
                         .message("Delete successfully")
                         .build()
+        );
+    }
+
+    @PostMapping("/schedule")
+    ResponseEntity<ApiResponse<List<TherapistResponse>>> getSchedule(@RequestBody GetScheduleRequest request){
+        var result = therapistService.getTherapistAvailable(request);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<List<TherapistResponse>>builder().result(result).build()
         );
     }
 }

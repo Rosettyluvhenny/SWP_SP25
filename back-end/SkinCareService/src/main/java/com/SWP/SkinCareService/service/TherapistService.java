@@ -1,14 +1,18 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.request.Therapist.GetScheduleRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
 import com.SWP.SkinCareService.dto.response.TherapistResponse;
+import com.SWP.SkinCareService.entity.BookingSession;
 import com.SWP.SkinCareService.entity.Role;
 import com.SWP.SkinCareService.entity.Therapist;
 import com.SWP.SkinCareService.entity.User;
+import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.TherapistMapper;
+import com.SWP.SkinCareService.repository.BookingSessionRepository;
 import com.SWP.SkinCareService.repository.RoleRepository;
 import com.SWP.SkinCareService.repository.TherapistRepository;
 import com.SWP.SkinCareService.repository.UserRepository;
@@ -19,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
@@ -32,6 +37,7 @@ public class TherapistService {
     RoleRepository roleRepository;
     TherapistMapper therapistMapper;
     PasswordEncoder passwordEncoder;
+    BookingSessionRepository bookingSessionRepository;
 
     @Transactional
     public TherapistResponse create(TherapistRequest request) {
@@ -87,5 +93,67 @@ public class TherapistService {
             userRepository.delete(user);
             therapistRepository.delete(therapist);
         }
+    }
+
+    public List<Therapist> getTherapistAvailableForService(int serviceId, LocalDateTime startTime) {
+        BookingSession session = bookingSessionRepository.findById(serviceId).orElseThrow(()
+                -> new AppException(ErrorCode.SESSION_NOT_EXISTED));
+        int duration = session.getBooking().getService().getDuration();
+        LocalDateTime endTime = startTime.plusMinutes(duration);
+
+        LocalDateTime startOfDay = startTime.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSession> bookingSessionList = bookingSessionRepository.findAllByBookingTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
+        List<Therapist> therapistList = therapistRepository.findAll();
+        Set<Therapist> therapistsNotAvailable = new HashSet<>();
+
+        for (BookingSession bookingSession : bookingSessionList) {
+            LocalDateTime existingStartTime = bookingSession.getBookingTime();
+            LocalDateTime existingEndTime = existingStartTime.plusMinutes(bookingSession.getBooking().getService().getDuration());
+
+
+            if (!(endTime.isBefore(existingStartTime) || startTime.isAfter(existingEndTime))) {
+                therapistsNotAvailable.add(bookingSession.getTherapist());
+            }
+        }
+
+        therapistList.removeAll(therapistsNotAvailable);
+
+        if (therapistList.isEmpty()) {
+            return List.of();
+        }
+        return therapistList;
+    }
+
+    public List<TherapistResponse> getTherapistAvailable(GetScheduleRequest request) {
+
+        LocalDateTime time = request.getTime();
+        LocalDateTime endTime = time.plusMinutes(59);
+        endTime = endTime.plusSeconds(59);
+
+        LocalDateTime startOfDay = time.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSession> bookingSessionList = bookingSessionRepository.findAllByBookingTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
+        List<Therapist> therapistList = therapistRepository.findAll();
+        Set<Therapist> therapistsNotAvailable = new HashSet<>();
+
+        for (BookingSession bookingSession : bookingSessionList) {
+            LocalDateTime existingStartTime = bookingSession.getBookingTime();
+            LocalDateTime existingEndTime = existingStartTime.plusMinutes(bookingSession.getBooking().getService().getDuration());
+
+
+            if (!(endTime.isBefore(existingStartTime) || time.isAfter(existingEndTime))) {
+                therapistsNotAvailable.add(bookingSession.getTherapist());
+            }
+        }
+
+        therapistList.removeAll(therapistsNotAvailable);
+
+        if (therapistList.isEmpty()) {
+            return List.of();
+        }
+        return therapistList.stream().map(therapistMapper::toTheRapistResponse).toList();
     }
 }

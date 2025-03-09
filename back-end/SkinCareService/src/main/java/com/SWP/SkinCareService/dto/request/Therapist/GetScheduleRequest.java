@@ -1,14 +1,15 @@
-package com.SWP.SkinCareService.dto.request.Booking;
+package com.SWP.SkinCareService.dto.request.Therapist;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDateTime;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SessionUpdateRequest {
-    int roomId;
-    String therapistId;
+public class GetScheduleRequest {
+    LocalDateTime time;
 }

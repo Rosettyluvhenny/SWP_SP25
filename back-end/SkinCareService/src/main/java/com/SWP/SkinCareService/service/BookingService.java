@@ -38,6 +38,7 @@ public class BookingService {
     private BookingSessionRepository bookingSessionRepository;
     private TherapistRepository therapistRepository;
     private RoomRepository roomRepository;
+    private TherapistService therapistService;
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
@@ -47,32 +48,41 @@ public class BookingService {
         Services service = getServiceById(request.getServiceId());
         //Check payment method
         Payment payment = getPaymentById(request.getPaymentId());
+        //Create first session
+        BookingSession bookingSession = new BookingSession();
+        //Get time booking
+        LocalDateTime time = request.getBookingTime();
         //Check therapist
-        Therapist therapist = getTherapistById(request.getTherapistId());
+        if (request.getTherapistId() != null) {
+            Therapist therapist = getTherapistById(request.getTherapistId());
+            //Check time available or not
+            if (!checkTherapistAvailable(therapist.getId(),time,service.getDuration())) {
+                throw new AppException(ErrorCode.THERAPIST_NOT_AVAILABLE);
+            }
+            //Set therapist if available
+            bookingSession.setTherapist(therapist);
+        } else {
+            //If user doesn't assign the therapist, system will auto set therapist
+            List<Therapist> therapists = therapistService.getTherapistAvailableForService(request.getServiceId(), time);
+            if (therapists.isEmpty()) {
+                throw new AppException(ErrorCode.OUT_OF_THERAPIST);
+            }
+            Therapist therapist = therapists.getFirst();
+            bookingSession.setTherapist(therapist);
+        }
         //Get all booking of user
         Set<Booking> bookingList = user.getBooking();
-
         for (Booking booking : bookingList) {
             if ((booking.getService().getType() == ServiceType.DIEU_TRI) && (booking.getService().getType() == service.getType()))  {
-
                 BookingSession session = booking.getBookingSessions().getLast();
                 LocalDate lastSessionDateValid = session.getBookingDate().plusDays(7);
                 LocalDate currentDate = request.getBookingTime().toLocalDate();
-
                 if (currentDate.isBefore(lastSessionDateValid) || session.getBooking().getStatus() != BookingStatus.COMPLETED) {
                     throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
                 }
             }
         }
-
         Booking booking = bookingMapper.toBooking(request);
-        LocalDateTime time = request.getBookingTime();
-
-        //Check time available or not
-        if (!checkTherapistAvailable(therapist.getId(),time,service.getDuration())) {
-            throw new AppException(ErrorCode.THERAPIST_NOT_AVAILABLE);
-        }
-
         booking.setUser(user);
         booking.setService(service);
         booking.setPayment(payment);
@@ -81,13 +91,10 @@ public class BookingService {
         booking.setSessionRemain(service.getSession());
         bookingRepository.save(booking);
 
-        //Create first session
-        BookingSession bookingSession = new BookingSession();
         bookingSession.setBooking(booking);
         bookingSession.setBookingDate(request.getBookingTime().toLocalDate());
         bookingSession.setBookingTime(request.getBookingTime());
         bookingSession.setNote(request.getNotes());
-        bookingSession.setTherapist(therapist);
         bookingSessionRepository.save(bookingSession);
 
         return bookingMapper.toBookingResponse(booking);
@@ -145,29 +152,28 @@ public class BookingService {
         LocalDateTime startOfDay = requestTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
         //Get all active booking in day
-        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED); //Them completed
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED); //Add completed status
         List<BookingSession> existingBookings = bookingSessionRepository.findByTherapistIdAndBookingTimeBetweenAndStatusNotIn(
                 therapistId,
                 startOfDay,
                 endOfDay,
                 excludeStatus
         );
-
+        LocalDateTime requestEndtime = requestTime.plusMinutes(requestDuration);
         for (BookingSession existing : existingBookings) {
-            LocalDateTime requestEndtime = requestTime.plusMinutes(requestDuration);
+
             LocalDateTime existingStartTime = existing.getBookingTime();
             LocalDateTime existingEndTime = existingStartTime.plusMinutes(existing.getBooking().getService().getDuration());
 
 
-            if (((requestTime.isAfter(existingStartTime) && requestTime.isBefore(existingEndTime))
-                    || ((requestEndtime.isAfter(existingStartTime) && requestEndtime.isBefore(existingEndTime))
-                    || (requestTime.isBefore(existingStartTime) && requestEndtime.isAfter(existingEndTime))))
-                    || (requestTime.isEqual(existingStartTime) && requestEndtime.isEqual(existingEndTime)))
+            if (!(requestEndtime.isBefore(existingStartTime) || requestTime.isAfter(existingEndTime)))
             {
                 return false;
             }
         }
         return true;
     }
+
+
 
 }

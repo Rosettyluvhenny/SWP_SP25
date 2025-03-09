@@ -17,4 +17,7 @@ public interface BookingSessionRepository extends JpaRepository<BookingSession, 
         LocalDateTime endTime,
         List<BookingSessionStatus> status
     );
+
+
+    List<BookingSession> findAllByBookingTimeBetweenAndStatusNotIn(LocalDateTime startTime, LocalDateTime endTime, List<BookingSessionStatus> status);
 }
