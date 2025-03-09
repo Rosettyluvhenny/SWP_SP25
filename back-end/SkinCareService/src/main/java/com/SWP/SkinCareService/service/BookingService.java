@@ -59,7 +59,7 @@ public class BookingService {
                 LocalDate lastSessionDateValid = session.getBookingDate().plusDays(7);
                 LocalDate currentDate = request.getBookingTime().toLocalDate();
 
-                if (currentDate.isBefore(lastSessionDateValid)) {
+                if (currentDate.isBefore(lastSessionDateValid) || session.getBooking().getStatus() != BookingStatus.COMPLETED) {
                     throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
                 }
             }
