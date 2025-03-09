@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.dto.response.Services;
 
+import com.SWP.SkinCareService.enums.ServiceType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -29,4 +30,5 @@ public class ServicesResponse {
 
     int categoryId;
 
+    ServiceType type;
 }

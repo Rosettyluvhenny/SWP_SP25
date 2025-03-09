@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.dto.request.Services;
 
+import com.SWP.SkinCareService.enums.ServiceType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -84,6 +85,6 @@ public class ServicesRequest {
             example = "CHAM_SOC",
             defaultValue = "CHAM_SOC"
     )
-    @NotBlank(message = "NOT_EMPTY")
-    String type;
+    @NotNull(message = "NOT_EMPTY")
+    ServiceType type;
 }

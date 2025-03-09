@@ -1,6 +1,8 @@
 package com.SWP.SkinCareService.dto.response.Booking;
 
 import com.SWP.SkinCareService.entity.BookingSession;
+import com.SWP.SkinCareService.enums.BookingStatus;
+import com.SWP.SkinCareService.enums.PaymentStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,8 +24,8 @@ public class BookingResponse {
     int serviceId;
     String serviceName;
 
-    String status;
-    String paymentStatus;
+    BookingStatus status;
+    PaymentStatus paymentStatus;
     //Payment payment;
     String paymentMethod;
 
@@ -31,9 +33,6 @@ public class BookingResponse {
     Date createAt;
     Date updateAt;
     int sessionRemain;
-    //private User staff;
-    String staffId;
-    String staffName;
 
     List<BookingSession> bookingSessions;
     int price;

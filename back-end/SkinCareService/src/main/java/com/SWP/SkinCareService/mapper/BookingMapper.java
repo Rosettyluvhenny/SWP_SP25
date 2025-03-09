@@ -12,6 +12,8 @@ public interface BookingMapper {
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "service", ignore = true)
     @Mapping(target = "payment", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "paymentStatus", ignore = true)
     Booking toBooking(BookingRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -36,6 +38,8 @@ public interface BookingMapper {
     @Mapping(target = "serviceId", source = "service.id")
     @Mapping(target = "serviceName", source = "service.name")
     @Mapping(target = "paymentMethod", source = "payment.paymentName")
+    @Mapping(target = "status", source = "booking.status")
+    @Mapping(target = "paymentStatus", source = "booking.paymentStatus")
     BookingResponse toBookingResponse(Booking booking);
 
     /*

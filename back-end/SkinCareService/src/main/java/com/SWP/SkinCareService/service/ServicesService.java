@@ -5,6 +5,7 @@ import com.SWP.SkinCareService.dto.request.Services.ServicesUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Services.ServicesResponse;
 import com.SWP.SkinCareService.entity.ServiceCategory;
 import com.SWP.SkinCareService.entity.Services;
+import com.SWP.SkinCareService.enums.ServiceType;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.exception.MultipleParameterValidationException;
@@ -49,6 +50,8 @@ public class ServicesService {
 
         Services service = servicesMapper.toServices(request);
         service.setServiceCategory(category);
+        //ServiceType type = Enum.valueOf(ServiceType.class, request.getType());
+        service.setType(request.getType());
         service = servicesRepository.save(service);
         String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());
         service.setImg(serviceImg);

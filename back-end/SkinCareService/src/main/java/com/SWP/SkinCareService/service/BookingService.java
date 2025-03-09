@@ -37,6 +37,7 @@ public class BookingService {
     private PaymentRepository paymentRepository;
     private BookingSessionRepository bookingSessionRepository;
     private TherapistRepository therapistRepository;
+    private RoomRepository roomRepository;
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
@@ -52,26 +53,17 @@ public class BookingService {
         Set<Booking> bookingList = user.getBooking();
 
         for (Booking booking : bookingList) {
-            if (booking.getService().getType() == ServiceType.DIEU_TRI) {
+            if ((booking.getService().getType() == ServiceType.DIEU_TRI) && (booking.getService().getType() == service.getType()))  {
+
                 BookingSession session = booking.getBookingSessions().getLast();
                 LocalDate lastSessionDateValid = session.getBookingDate().plusDays(7);
                 LocalDate currentDate = request.getBookingTime().toLocalDate();
+
                 if (currentDate.isBefore(lastSessionDateValid)) {
                     throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
                 }
             }
         }
-
-        /*
-        //Check duplicate booking in one service
-        for (Booking booking : bookingList) {
-            if (booking.getService().equals(service)) {
-                if (booking.getStatus() == BookingStatus.ON_GOING) {
-                    throw new AppException(ErrorCode.BOOKING_ON_GOING);
-                }
-            }
-        }
-         */
 
         Booking booking = bookingMapper.toBooking(request);
         LocalDateTime time = request.getBookingTime();
@@ -84,8 +76,11 @@ public class BookingService {
         booking.setUser(user);
         booking.setService(service);
         booking.setPayment(payment);
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setPaymentStatus(PaymentStatus.PENDING);
         booking.setSessionRemain(service.getSession());
         bookingRepository.save(booking);
+
         //Create first session
         BookingSession bookingSession = new BookingSession();
         bookingSession.setBooking(booking);
@@ -104,10 +99,6 @@ public class BookingService {
     }
 
     public BookingResponse getBookingById(int id) {
-        /*
-        return bookingMapper.toBookingResponse(bookingRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.BOOKING_NOT_EXISTED)));
-         */
         return bookingMapper.toBookingResponse(checkBooking(id));
     }
 

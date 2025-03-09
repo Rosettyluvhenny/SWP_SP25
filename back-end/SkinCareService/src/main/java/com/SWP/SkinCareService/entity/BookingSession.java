@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Entity
 @Table
@@ -34,7 +36,7 @@ public class BookingSession {
     @JsonBackReference
     private Booking booking;
 
-    @CreationTimestamp
+    //@CreationTimestamp
     //@Temporal(TemporalType.TIMESTAMP)
     LocalDate bookingDate;
 
@@ -68,6 +70,10 @@ public class BookingSession {
     @OneToMany(mappedBy = "bookingSession", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     List<Feedback> feedbackList;
+
+    public boolean isFinished() {
+        return Stream.of(booking, note, imgBefore, imgAfter, room, therapist).allMatch(Objects::nonNull);
+    }
 
     //Notification
 

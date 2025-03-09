@@ -1,19 +1,26 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
-import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Booking.SessionUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.entity.*;
+import com.SWP.SkinCareService.enums.BookingSessionStatus;
+import com.SWP.SkinCareService.enums.BookingStatus;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
+import com.SWP.SkinCareService.exception.MultipleParameterValidationException;
 import com.SWP.SkinCareService.mapper.BookingSessionMapper;
 import com.SWP.SkinCareService.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -25,10 +32,9 @@ public class  BookingSessionService {
     UserRepository userRepository;
     RoomRepository roomRepository;
     TherapistRepository therapistRepository;
+    SupabaseService supabaseService;
 
     public BookingSessionResponse createBookingSession(BookingSessionRequest request) {
-        //Check user
-        User user = getUserById(request.getUserId());
         //Check room
         Room room = getRoomById(request.getRoomId());
         //Check booking
@@ -51,33 +57,72 @@ public class  BookingSessionService {
     public BookingSessionResponse getBookingSessionById(int id) {
         return bookingSessionMapper.toBookingSessionResponse(checkSession(id));
     }
-    public BookingSessionResponse updateBookingSession(int id, BookingSessionUpdateRequest request) {
-        //Check user
-        User user = getUserById(request.getUserId());
-        //Check room
-        Room room = getRoomById(request.getRoomId());
-        //Check booking
-        Booking booking = getBookingById(request.getBookingId());
-        //Check session
+    public BookingSessionResponse updateBefore(int id, SessionUpdateRequest request, MultipartFile img) throws IOException {
         BookingSession session = checkSession(id);
-        //Check therapist
-        Therapist therapist = getTherapistById(request.getTherapistId());
-
-        bookingSessionMapper.updateBookingSession(session, request);
-
-        session.setBooking(booking);
+        //Check room existed or not
+        Room room = getRoomById(request.getRoomId());
+        //Condition check room available
+        //-----------------------------
         session.setRoom(room);
-        //session.setStatus(request.getStatus());
-        session.setNote(request.getNote());
-        session.setImgBefore(request.getImgBefore());
-        session.setImgAfter(request.getImgAfter());
-        session.setTherapist(therapist);
 
+        //Assign staffID
 
-
+        //Ordinal number of the session in the booking
+        int sessionNum = 0;
+        Booking booking = session.getBooking();
+        List<BookingSession> list = booking.getBookingSessions();
+        for (BookingSession bookingSession : list) {
+            if (session.getId() == bookingSession.getId()) {
+                sessionNum = list.indexOf(bookingSession)+1;
+            }
+        }
+        //Set the image before session start
+        if (img == null || img.isEmpty()) {
+            throw new MultipleParameterValidationException(Collections.singletonList("img"));
+        }
+        String imgBefore = supabaseService.uploadImage(img,"Before_session_"+sessionNum+"_booking_"+booking.getId());
+        session.setImgBefore(imgBefore);
+        //Save and response
         bookingSessionRepository.save(session);
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
+    public BookingSessionResponse updateAfter(int id, MultipartFile img) throws IOException {
+        BookingSession session = checkSession(id);
+        if (session.getImgBefore() == null) {
+            throw new AppException(ErrorCode.UPDATE_NOT_ALLOWED);
+        }
+        //Ordinal number of the session in the booking
+        int sessionNum = 0;
+        Booking booking = session.getBooking();
+        List<BookingSession> list = booking.getBookingSessions();
+        for (BookingSession bookingSession : list) {
+            if (session.getId() == bookingSession.getId()) {
+                sessionNum = list.indexOf(bookingSession)+1;
+            }
+        }
+        //Set the image after session finish
+        if (img == null || img.isEmpty()) {
+            throw new MultipleParameterValidationException(Collections.singletonList("img"));
+        }
+        String imgAfter = supabaseService.uploadImage(img,"After_session"+sessionNum+"_booking"+booking.getId());
+        session.setImgAfter(imgAfter);
+
+        if (session.isFinished()) {
+            session.setStatus(BookingSessionStatus.COMPLETED);
+            booking.setSessionRemain(booking.getSessionRemain()-1);
+            if (booking.getSessionRemain() == 0) {
+                booking.setStatus(BookingStatus.COMPLETED);
+            }
+            bookingRepository.save(booking);
+        }
+
+
+        //Save and response
+        bookingSessionRepository.save(session);
+        return bookingSessionMapper.toBookingSessionResponse(session);
+    }
+
+
     public void deleteBookingSession(int id) {
         BookingSession session = checkSession(id);
         bookingSessionRepository.delete(session);
@@ -103,4 +148,5 @@ public class  BookingSessionService {
         return therapistRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
     }
+
 }
