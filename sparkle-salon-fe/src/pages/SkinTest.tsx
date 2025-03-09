@@ -1,185 +1,193 @@
-import { useState } from "react";
-import { Question } from "../data/tracnghiemdata";
-import { tracnghiemdata } from "../data/tracnghiemdata";
-import { tracnghiemmun } from "../data/tracnghiemmun";
-import { tracnghiemseodata } from "../data/tracnghiemseodata";
-import { tracnghiemvedadata } from "../data/tracnghiemvedaData";
+import { useState, useEffect } from "react";
+import quizData, { Quiz } from "../data/quizData";
+import QuizInterface from "../components/QuizInterface";
+import axios from "axios";
 
-export default function SkinTest() {
-  const questionSets: { [key: string]: Question[] } = {
-    "Trắc nghiệm da": tracnghiemdata,
-    "Trắc nghiệm về sẹo": tracnghiemmun,
-    "Trắc nghiệm đồi mồi": tracnghiemseodata,
-    "Trắc nghiệm về da": tracnghiemvedadata,
-  };
+// Interface cho state
+interface QuizState {
+  quizzes: Quiz[];
+  selectedQuiz: string;
+  showResults: boolean;
+  loading: boolean;
+  answers: { [key: number]: number };
+  isQuizStarted: boolean;
+  result: string;
+  error: string | null;
+}
 
-  const [selectedTest, setSelectedTest] = useState<string>("");
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [answers, setAnswers] = useState<{ [key: number]: number }>({});
-  const [hasStarted, setHasStarted] = useState<boolean>(false);
-  const [showResults, setShowResults] = useState<boolean>(false);
+// Initial state
+const initialState: QuizState = {
+  quizzes: [],
+  selectedQuiz: "",
+  showResults: false,
+  loading: true,
+  answers: {},
+  isQuizStarted: false,
+  result: "",
+  error: null
+};
 
-  const handleStartTest = () => {
-    if (selectedTest && questionSets[selectedTest]) {
-      setQuestions(questionSets[selectedTest]);
-      setAnswers({});
-      setHasStarted(true);
-      setShowResults(false);
+export default function KiemTraDa() {
+  const [state, setState] = useState<QuizState>(initialState);
+
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const data = await quizData();
+        setState((prev) => ({
+          ...prev,
+          quizzes: Array.isArray(data) ? data : [],
+          error: null
+        }));
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error: "Không thể tải dữ liệu bài kiểm tra. Vui lòng thử lại sau.",
+          quizzes: []
+        }));
+        console.error("Lỗi khi tải dữ liệu:", error);
+      } finally {
+        setState((prev) => ({ ...prev, loading: false }));
+      }
+    };
+    fetchQuizzes();
+  }, []);
+
+  const handleStartQuiz = () => {
+    if (state.selectedQuiz) {
+      setState((prev) => ({
+        ...prev,
+        isQuizStarted: true,
+        showResults: false,
+        result: "",
+        error: null
+      }));
     }
   };
 
-  const handleGoBack = () => {
-    setHasStarted(false);
-    setSelectedTest("");
-    setQuestions([]);
-    setAnswers({});
-    setShowResults(false);
-  };
-
-  const handleAnswerChange = (questionId: number, points: number) => {
-    setAnswers((prev) => ({
+  const handleBack = () => {
+    setState((prev) => ({
       ...prev,
-      [questionId]: points,
+      isQuizStarted: false,
+      selectedQuiz: "",
+      answers: {},
+      showResults: false,
+      result: "",
+      error: null
     }));
   };
 
-  const handleSubmit = () => {
-    setShowResults(true);
+  const fetchResultFromBackend = async (total: number, quizId: number) => {
+    try {
+      console.log("Gửi yêu cầu tới:", "/swp/quiz/result");
+      console.log("Dữ liệu gửi:", { totalPoints: total, quizId });
+      const response = await axios.post("/swp/quiz/result", {
+        totalPoints: total,
+        quizId
+      });
+      console.log("Phản hồi từ server:", response.data);
+      // ...
+    } catch (error) {
+      console.error("Lỗi chi tiết:", error.response);
+      // ...
+    }
+  };
+  const calculateTotalPoints = () => {
+    return Object.values(state.answers).reduce((sum, value) => sum + value, 0);
+  };
+
+  const handleQuizComplete = (quizAnswers: { [key: number]: number }) => {
+    const total = Object.values(quizAnswers).reduce((sum, value) => sum + value, 0);
+    const quiz = state.quizzes.find((q) => q.name === state.selectedQuiz);
+    
+    if (!quiz) {
+      setState(prev => ({
+        ...prev,
+        error: "Không tìm thấy thông tin bài kiểm tra",
+        loading: false
+      }));
+      return;
+    }
+
+    setState((prev) => ({
+      ...prev,
+      answers: quizAnswers,
+      showResults: true,
+      error: null
+    }));
+
+    fetchResultFromBackend(total, quiz.id);
   };
 
   const handlePrint = () => {
     window.print();
   };
 
-  const totalScore = Object.values(answers).reduce(
-    (acc, points) => acc + points,
-    0
-  );
-  let resultMessage = "";
-  if (totalScore <= 5) resultMessage = "Tình trạng nhẹ, không đáng lo ngại.";
-  else if (totalScore <= 10)
-    resultMessage = "Tình trạng trung bình, cần chú ý chăm sóc.";
-  else if (totalScore <= 15)
-    resultMessage = "Tình trạng nghiêm trọng, nên tham khảo ý kiến bác sĩ.";
-  else
-    resultMessage =
-      "Tình trạng rất nghiêm trọng, cần được kiểm tra bởi chuyên gia.";
+  if (state.loading) {
+    return <div className="pt-16 text-center">Đang tải dữ liệu...</div>;
+  }
 
   return (
-    <div className="pt-16 flex flex-col">
+    <div className="pt-16 flex flex-col min-h-screen bg-gray-50">
       <div className="h-72 flex items-center justify-center bg-[url('/assets/skin-title.jpg')] bg-cover bg-no-repeat">
         <div className="text-start text-white">
-          <h1 className="text-7xl font-serif leading-tight">Skin Test</h1>
+          <h1 className="text-7xl font-serif leading-tight">Kiểm Tra Da</h1>
         </div>
       </div>
 
-      {!hasStarted && !showResults && (
-        <div className="flex flex-col items-center mt-6">
-          <h1 className="py-8 text-4xl font-bold text-center">
-            Chọn bài trắc nghiệm
-          </h1>
-          <div className="p-3 border rounded-lg text-2xl">
-            {Object.keys(questionSets).map((testName) => (
-              <div key={testName} className="mb-2">
-                <label className="cursor-pointer pl-2">
-                  <input
-                    type="radio"
-                    name="questionSet"
-                    value={testName}
-                    checked={selectedTest === testName}
-                    onChange={(e) => setSelectedTest(e.target.value)}
-                    className="mr-4 "
-                  />
-                  {testName}
-                </label>
+      {!state.isQuizStarted && !state.showResults && (
+        <div className="flex flex-col items-center mt-6 px-4">
+          <h1 className="py-8 text-4xl font-bold text-center">Chọn Bộ Câu Hỏi</h1>
+          <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+            {state.quizzes.length > 0 ? (
+              state.quizzes.map((quiz) => (
+                <div
+                  key={quiz.id}
+                  onClick={() => setState((prev) => ({ ...prev, selectedQuiz: quiz.name }))}
+                  className={`cursor-pointer group relative overflow-hidden rounded-2xl transition-all duration-300 ${
+                    state.selectedQuiz === quiz.name
+                      ? "ring-4 ring-blue-500 shadow-xl scale-105"
+                      : "hover:shadow-xl hover:scale-105"
+                  }`}
+                >
+                  <div className={`bg-white p-6 border-2 h-full transition-colors ${state.selectedQuiz === quiz.name ? "border-blue-500 bg-blue-50" : "border-gray-200 group-hover:border-blue-300 group-hover:bg-gray-50"}`}>
+                    <h3 className="text-2xl font-semibold mb-3">{quiz.name}</h3>
+                    <p>{quiz.questions.length} câu hỏi</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-2 text-center text-gray-500 py-8">
+                Không có bộ câu hỏi nào.
               </div>
-            ))}
+            )}
           </div>
-          <button
-            onClick={handleStartTest}
-            disabled={!selectedTest}
-            className={`mt-4 px-6 py-3 text-lg font-semibold rounded-lg transition ${
-              selectedTest
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-400 text-gray-200 cursor-not-allowed"
-            }`}
-          >
-            Bắt đầu trắc nghiệm
-          </button>
+          {state.selectedQuiz && (
+            <button onClick={handleStartQuiz} className="mt-8 px-8 py-4 text-lg font-semibold rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow-lg transition">
+              Bắt Đầu Kiểm Tra
+            </button>
+          )}
         </div>
       )}
 
-      {hasStarted && (
-        <div className="p-8 max-w-3xl mx-auto bg-white rounded-2xl shadow-lg space-y-8 mt-10">
-          <div className="flex flex-row items-center justify-start w-full bg-white text-left">
-          <button
-  onClick={handleGoBack}
-  className=" py-2 px-4 rounded-lg hover:bg-gray-300 transition"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    viewBox="0 0 24 24"
-    className="w-6 h-6"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M19 19l-7-7m0 0 7-7m-7"
- 
-      />
-  </svg>
-</button>
-
-            <div className="pl-16 font-bold text-4xl">{selectedTest}</div>
-          </div>
-
-          {questions.map((q) => (
-            <div
-              key={q.id}
-              className="p-6 border-2 rounded-2xl shadow-lg bg-gray-100 mb-6"
-            >
-              <p className="text-lg font-semibold mb-3">{q.question}</p>
-              {q.options.map((option) => (
-                <label key={option.text} className="block text-lg">
-                  <input
-                    type="radio"
-                    name={`question-${q.id}`}
-                    value={option.points}
-                    className="mr-3"
-                    onChange={() => handleAnswerChange(q.id, option.points)}
-                  />
-                  {option.text}
-                </label>
-              ))}
-            </div>
-          ))}
-
-          <button
-            onClick={handleSubmit}
-            className="w-full bg-blue-600 text-white py-3 text-lg font-semibold rounded-xl hover:bg-blue-700 transition"
-          >
-            Gửi kết quả
-          </button>
-        </div>
+      {state.isQuizStarted && !state.showResults && (
+        <QuizInterface
+          quiz={state.quizzes.find((q) => q.name === state.selectedQuiz)!}
+          onComplete={handleQuizComplete}
+          onBack={handleBack}
+        />
       )}
 
-      {showResults && (
+      {state.showResults && (
         <div className="p-8 max-w-3xl mx-auto bg-white rounded-2xl shadow-lg space-y-6 mt-10">
-          <h2 className="text-3xl font-bold text-center">
-            Kết quả trắc nghiệm
-          </h2>
-          <p className="text-xl font-semibold text-center">
-            Tổng điểm: {totalScore}
-          </p>
-          <p className="text-lg text-center">{resultMessage}</p>
-          <button
-            onClick={handlePrint}
-            className="w-full bg-green-600 text-white py-3 text-lg font-semibold rounded-xl hover:bg-green-700 transition"
-          >
-            In kết quả
+          <h2 className="text-3xl font-bold text-center">Kết Quả Kiểm Tra</h2>
+          <p className="text-xl font-semibold text-center">Tổng điểm: {calculateTotalPoints()}</p>
+          <p className="text-lg text-center">{state.result || "Đang tải kết quả..."}</p>
+          <button onClick={handlePrint} className="w-full bg-green-600 text-white py-3 text-lg font-semibold rounded-xl hover:bg-green-700 transition">
+            In Kết Quả
+          </button>
+          <button onClick={handleBack} className="w-full bg-gray-600 text-white py-3 text-lg font-semibold rounded-xl hover:bg-gray-700 transition">
+            Làm Lại Bài Kiểm Tra
           </button>
         </div>
       )}
