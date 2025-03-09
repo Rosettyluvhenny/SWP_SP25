@@ -61,6 +61,8 @@ public enum ErrorCode {
     EMAIL_EXISTED(1029,"Email is existed", HttpStatus.BAD_REQUEST),
     BOOKING_DATE_NOT_ALLOWED(1031,"Booking date is not allowed", HttpStatus.BAD_REQUEST),
     UPDATE_NOT_ALLOWED(1032,"Update is not allowed", HttpStatus.BAD_REQUEST),
+    //---------- ADD
+    FEEDBACK_NOT_FOUND(1033,"Feedback not found", HttpStatus.NOT_FOUND),
     ;
 
     int code;

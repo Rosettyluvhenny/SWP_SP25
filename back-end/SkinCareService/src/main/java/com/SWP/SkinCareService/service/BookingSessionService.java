@@ -33,6 +33,7 @@ public class  BookingSessionService {
     RoomRepository roomRepository;
     TherapistRepository therapistRepository;
     SupabaseService supabaseService;
+    FeedbackRepository feedbackRepository;
 
     public BookingSessionResponse createBookingSession(BookingSessionRequest request) {
         //Check room
@@ -109,10 +110,23 @@ public class  BookingSessionService {
 
         if (session.isFinished()) {
             session.setStatus(BookingSessionStatus.COMPLETED);
+            //Check status of bookingService
             booking.setSessionRemain(booking.getSessionRemain()-1);
             if (booking.getSessionRemain() == 0) {
                 booking.setStatus(BookingStatus.COMPLETED);
             }
+
+            //Create feedback
+            Feedback feedback = new Feedback();
+            //Set data
+            feedback.setServiceId(booking.getService().getId());
+            feedback.setBookingSession(session);
+            feedback.setUser(booking.getUser());
+            feedback.setTherapistId(session.getTherapist().getId());
+            feedback.setRated(false);
+            //Save
+            feedbackRepository.save(feedback);
+
             bookingRepository.save(booking);
         }
 

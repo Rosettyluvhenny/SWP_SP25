@@ -27,6 +27,7 @@ public class Feedback {
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     Date createdAt;
+
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     Date updatedAt;
@@ -45,6 +46,6 @@ public class Feedback {
 
     String therapistId;
     int serviceId;
-    boolean isRated;
+    boolean isRated = false;
 
 }

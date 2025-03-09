@@ -145,7 +145,7 @@ public class BookingService {
         LocalDateTime startOfDay = requestTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
         //Get all active booking in day
-        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED); //Them completed
         List<BookingSession> existingBookings = bookingSessionRepository.findByTherapistIdAndBookingTimeBetweenAndStatusNotIn(
                 therapistId,
                 startOfDay,
