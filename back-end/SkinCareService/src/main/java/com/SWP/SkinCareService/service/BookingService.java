@@ -82,6 +82,7 @@ public class BookingService {
                 }
             }
         }
+        //Set data and save
         Booking booking = bookingMapper.toBooking(request);
         booking.setUser(user);
         booking.setService(service);
@@ -90,7 +91,7 @@ public class BookingService {
         booking.setPaymentStatus(PaymentStatus.PENDING);
         booking.setSessionRemain(service.getSession());
         bookingRepository.save(booking);
-
+        //Set data and save
         bookingSession.setBooking(booking);
         bookingSession.setBookingDate(request.getBookingTime().toLocalDate());
         bookingSession.setBookingTime(request.getBookingTime());
@@ -147,7 +148,7 @@ public class BookingService {
         return therapistRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
     }
-
+    //Use in case user want assign therapist
     boolean checkTherapistAvailable(String therapistId, LocalDateTime requestTime, int requestDuration) {
         LocalDateTime startOfDay = requestTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);

@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.controller;
 
+import com.SWP.SkinCareService.dto.request.Services.AssignTherapistRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServicesRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServicesUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
@@ -125,6 +126,15 @@ public class ServicesController {
                         .build()
         );
     }
+
+    @PutMapping("/assign/{id}")
+    public ResponseEntity<ApiResponse> assignTherapist(@PathVariable int id, @RequestBody AssignTherapistRequest request) {
+        servicesService.assignTherapistToService(id, request);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.builder().message("Assigned").build()
+        );
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteServiceCategory(@PathVariable int id) throws IOException {

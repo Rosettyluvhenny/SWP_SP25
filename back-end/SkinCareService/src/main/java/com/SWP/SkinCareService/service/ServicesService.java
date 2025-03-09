@@ -1,10 +1,12 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.request.Services.AssignTherapistRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServicesRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServicesUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Services.ServicesResponse;
 import com.SWP.SkinCareService.entity.ServiceCategory;
 import com.SWP.SkinCareService.entity.Services;
+import com.SWP.SkinCareService.entity.Therapist;
 import com.SWP.SkinCareService.enums.ServiceType;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
@@ -12,6 +14,7 @@ import com.SWP.SkinCareService.exception.MultipleParameterValidationException;
 import com.SWP.SkinCareService.mapper.ServicesMapper;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
 import com.SWP.SkinCareService.repository.ServicesRepository;
+import com.SWP.SkinCareService.repository.TherapistRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -36,6 +39,7 @@ public class ServicesService {
     ServicesMapper servicesMapper;
     ServiceCategoryRepository serviceCategoryRepository;
     SupabaseService supabaseService;
+    TherapistRepository therapistRepository;
 
     @Transactional
     public ServicesResponse create(ServicesRequest request, MultipartFile img) throws IOException {
@@ -106,6 +110,19 @@ public class ServicesService {
         service.setServiceCategory(category);
         servicesRepository.save(service);
         return servicesMapper.toResponse(service);
+    }
+
+    @Transactional
+    public void assignTherapistToService(int id, AssignTherapistRequest request) {
+        Services service = checkService(id);
+        Therapist therapist = therapistRepository.findById(request.getTherapistId()).orElseThrow(()
+                -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+        //Add therapist to service
+        service.getTherapists().add(therapist);
+        servicesRepository.save(service);
+        //Add service to therapist
+        therapist.getServices().add(service);
+        therapistRepository.save(therapist);
     }
 
     @Transactional
