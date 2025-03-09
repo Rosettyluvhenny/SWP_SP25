@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.mapper;
 
+import com.SWP.SkinCareService.dto.request.Services.CategoryUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServiceCategoryRequest;
 import com.SWP.SkinCareService.dto.response.Services.ServiceCategoryResponse;
 import com.SWP.SkinCareService.entity.ServiceCategory;
@@ -14,5 +15,5 @@ public interface ServiceCategoryMapper {
 
     ServiceCategory toCategory(ServiceCategoryRequest request);
 
-    void update(@MappingTarget ServiceCategory category, ServiceCategoryRequest request);
+    void update(@MappingTarget ServiceCategory category, CategoryUpdateRequest request);
 }

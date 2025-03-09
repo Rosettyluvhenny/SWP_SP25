@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.request.Services.CategoryUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServiceCategoryRequest;
 import com.SWP.SkinCareService.dto.response.Services.ServiceCategoryResponse;
 import com.SWP.SkinCareService.entity.ServiceCategory;
@@ -31,7 +32,7 @@ public class ServiceCategoryService {
         return serviceCategoryMapper.toResponse(category);
     }
     @Transactional
-    public ServiceCategoryResponse update(int id,ServiceCategoryRequest request){
+    public ServiceCategoryResponse update(int id, CategoryUpdateRequest request){
         ServiceCategory category = checkServiceCategory(id);
         serviceCategoryMapper.update(category, request);
         category = serviceCategoryRepository.save(category);

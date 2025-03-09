@@ -10,6 +10,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentRequest {
-    @NotBlank(message = "Payment name cannot be empty")
-    String paymentName;
+    @NotBlank(message = "NOT_EMPTY")
+    String name;
 } 

@@ -52,7 +52,7 @@ public class BookingService {
         Set<Booking> bookingList = user.getBooking();
 
         for (Booking booking : bookingList) {
-            if (booking.getService().getType() == ServiceType.DIEU_TRI) {
+            if (booking.getService().getType() == ServiceType.TREATMENT) {
                 BookingSession session = booking.getBookingSessions().getLast();
                 LocalDate lastSessionDateValid = session.getBookingDate().plusDays(7);
                 LocalDate currentDate = request.getBookingTime().toLocalDate();
@@ -86,6 +86,7 @@ public class BookingService {
         booking.setPayment(payment);
         booking.setSessionRemain(service.getSession());
         bookingRepository.save(booking);
+
         //Create first session
         BookingSession bookingSession = new BookingSession();
         bookingSession.setBooking(booking);

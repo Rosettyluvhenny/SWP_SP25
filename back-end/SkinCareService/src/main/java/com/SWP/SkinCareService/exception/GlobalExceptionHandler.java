@@ -3,9 +3,11 @@ package com.SWP.SkinCareService.exception;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -100,7 +102,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = AppException.class)
-    ResponseEntity<ApiResponse> handlingAppHandling (AppException exception){
+    ResponseEntity<ApiResponse> handlingAppException (AppException exception){
         ErrorCode errorCode = exception.getErrorCode();
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setCode(errorCode.getCode());
@@ -108,7 +110,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getHttpStatusCode()).body(apiResponse);
     }
 
-
+    @ExceptionHandler(value = AuthenticationServiceException.class)
+    ResponseEntity<ApiResponse> AuthenticationExceptionHandling(AuthenticationServiceException exception){
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+        ApiResponse apiResponse = ApiResponse.builder()
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
+                .build();
+        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(apiResponse);
+    }
 }
 
 

@@ -76,14 +76,7 @@ public class Therapist {
     @JsonManagedReference
     List<BookingSession> bookingSessions;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    @JoinTable(
-            name = "TherapistService",
-            joinColumns = @JoinColumn(name = "therapistId"),
-            inverseJoinColumns = @JoinColumn(name = "serviceId")
-    )
-    List<Services> services;
+
     String img;
 
     @Override

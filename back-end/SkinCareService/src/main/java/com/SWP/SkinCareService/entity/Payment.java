@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,11 +20,9 @@ public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PaymentID")
-    Long paymentId;
+    int id;
 
-    @Column(name = "PaymentName", nullable = false, unique = true)
-    String paymentName;
+    String name;
 
     @OneToMany(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference

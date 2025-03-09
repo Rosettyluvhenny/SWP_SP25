@@ -1,7 +1,6 @@
 package com.SWP.SkinCareService.dto.response.Services;
 
 import com.SWP.SkinCareService.entity.ServiceCategory;
-import com.SWP.SkinCareService.entity.ServiceInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,9 +40,7 @@ public class ServicesResponse {
 
     int session;
 
-//    boolean active;
 
-//    ServiceInfo serviceInfo;
     String img;
 
     String description;
@@ -54,9 +51,5 @@ public class ServicesResponse {
 //    List<TherapistSummaryResponse> therapists;
     boolean active;
 
-
-    String categoryName;
-
-    int categoryId;
 
 }

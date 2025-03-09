@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.SWP.SkinCareService.enums.ServiceType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -72,7 +73,7 @@ public class Services {
     @OneToMany(mappedBy = "service", cascade = CascadeType.REMOVE)
     @JsonManagedReference
     List<Booking> bookings = new ArrayList<>();
-    
+
     @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinTable(
             name = "ServiceQuizResult",
@@ -82,4 +83,5 @@ public class Services {
     @JsonManagedReference
     List<QuizResult> quizResults = new ArrayList<>();
 
+    ServiceType type;
 }

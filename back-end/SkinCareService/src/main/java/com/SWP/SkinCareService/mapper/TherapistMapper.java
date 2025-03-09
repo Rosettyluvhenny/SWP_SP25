@@ -13,7 +13,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface TherapistMapper {
-
     Therapist toTherapist(TherapistRequest request);
 
     User toUser(TherapistRequest request);

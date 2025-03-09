@@ -35,7 +35,7 @@ public interface BookingMapper {
     @Mapping(target = "fullName", source = "user.fullName")
     @Mapping(target = "serviceId", source = "service.id")
     @Mapping(target = "serviceName", source = "service.name")
-    @Mapping(target = "paymentMethod", source = "payment.paymentName")
+    @Mapping(target = "paymentMethod", source = "payment.name")
     BookingResponse toBookingResponse(Booking booking);
 
     /*

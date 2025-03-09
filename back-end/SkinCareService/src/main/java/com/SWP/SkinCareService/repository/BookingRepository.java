@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Page<Booking> findAllByUserId(String userId, Pageable pageable);
-    Page<Booking> findAllByStaffId(String staffId, Pageable pageable);
+//    Page<Booking> findAllByStaffId(String staffId, Pageable pageable);
 }

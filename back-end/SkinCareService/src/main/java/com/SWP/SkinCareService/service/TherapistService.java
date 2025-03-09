@@ -20,6 +20,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,7 +44,7 @@ public class TherapistService {
     ServicesRepository servicesRepository;
     SupabaseService supabaseService;
     ServicesMapper servicesMapper;
-
+    PasswordEncoder passwordEncoder;
     @Transactional
     public TherapistResponse create(TherapistRequest request, MultipartFile img) throws IOException {
         // Validate user existence first
@@ -58,8 +59,10 @@ public class TherapistService {
             roles.add(roleTherapist);
             account.setRoles(roles);
             account.setActive(true);
+            account.setPassword(passwordEncoder.encode(account.getPassword()));
+            log.info(account.getPassword());
             account = userRepository.save(account);
-           Therapist therapist = therapistMapper.toTherapist(request);
+            Therapist therapist = therapistMapper.toTherapist(request);
             therapist.setUser(account);
             List<Integer> serviceIds = request.getServiceId();
             if(serviceIds == null || serviceIds.isEmpty()){
