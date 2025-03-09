@@ -67,12 +67,9 @@ public class ServicesRequest {
     @Min(value = 1, message = "MIN")
     Integer session;
 
-    @Schema(
-        description = "Whether the service is active",
-        example = "true",
-        defaultValue = "true"
-    )
-    @NotNull(message = "NOT_EMPTY")
-    @Builder.Default
-    Boolean active = true;
+    @NotNull(message ="NOT_EMPTY")
+    boolean active;
+
+    @NotBlank(message = "NOT_EMPTY")
+    String type;
 }

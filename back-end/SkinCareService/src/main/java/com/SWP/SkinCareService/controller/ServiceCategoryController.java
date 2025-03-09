@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.controller;
 
+import com.SWP.SkinCareService.dto.request.Services.CategoryUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServiceCategoryRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Services.ServiceCategoryResponse;
@@ -51,7 +52,7 @@ public class ServiceCategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ServiceCategoryResponse>> updateServiceCategory(@PathVariable int id, @RequestBody @Valid ServiceCategoryRequest request){
+    public ResponseEntity<ApiResponse<ServiceCategoryResponse>> updateServiceCategory(@PathVariable int id, @RequestBody CategoryUpdateRequest request){
         var result = serviceCategoryService.update(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<ServiceCategoryResponse>builder()

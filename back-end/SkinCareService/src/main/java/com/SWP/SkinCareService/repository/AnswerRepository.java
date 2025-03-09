@@ -8,5 +8,7 @@ import java.util.List;
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, Integer> {
     List<Answer> findAllByQuestion(Question question);
+
+    boolean existsByText(String text);
 }
 

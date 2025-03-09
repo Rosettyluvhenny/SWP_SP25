@@ -1,58 +1,86 @@
 package com.SWP.SkinCareService.entity;
 
-import com.SWP.SkinCareService.enums.BookingStatus;
+import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Date;
+import java.util.List;
 
 @Entity
-@Table(name = "sessions")
-@Data
-@Builder
-@NoArgsConstructor
+@Table
+@Getter
+@Setter
+@ToString(exclude = {"booking", "room", "therapist", "cancelBy"})
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
-
-    @ManyToOne
-    @JoinColumn(name = "booking_id", nullable = false)
+    //Many to One - Booking
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bookingId")
     @JsonBackReference
-    Booking booking;
+    private Booking booking;
 
-    @Column(nullable = false)
-    LocalDateTime sessionDateTime;
+    @CreationTimestamp
+    //@Temporal(TemporalType.TIMESTAMP)
+    LocalDate bookingDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    BookingStatus status = BookingStatus.PENDING;
+    @Column(columnDefinition = "DATETIME")
+    LocalDateTime bookingTime;
 
-    @Column(columnDefinition = "TEXT")
+    BookingSessionStatus status = BookingSessionStatus.PENDING;
     String note;
-
-    @Column(name = "img_before")
     String imgBefore;
-
-    @Column(name = "img_after")
     String imgAfter;
+    //Many to One - Room
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "roomId")
+    @JsonBackReference
+    Room room;
 
-    @ManyToOne
-    @JoinColumn(name = "therapist_id")
+    //Many To One - Therapist
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "therapistId")
     @JsonBackReference
     Therapist therapist;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    LocalDateTime updatedAt;
-} 
+    //Many to One - staff
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "staffid")
+    @JsonBackReference
+    private User staff;
+
+    //One To Many - Feedback
+    @OneToMany(mappedBy = "bookingSession", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    List<Feedback> feedbackList;
+
+    //Notification
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookingSession that = (BookingSession) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+}

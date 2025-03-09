@@ -13,7 +13,9 @@ import java.util.Set;
 import java.util.List;
 @Entity
 @Table(name="user")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"therapist", "quizResult", "booking", "bookingServicesStaff", "bookingSessions"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -62,5 +64,28 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
     @JsonBackReference
-    List<Booking> bookings;
+    Set<Booking> booking;
+
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    Set<BookingSession> bookingSessionStaff;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    Set<Feedback> feedback;
+    @ManyToOne
+    @JoinColumn(name = "skin_type", referencedColumnName = "id")
+    @JsonBackReference
+    QuizResult quizResult;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != null && id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

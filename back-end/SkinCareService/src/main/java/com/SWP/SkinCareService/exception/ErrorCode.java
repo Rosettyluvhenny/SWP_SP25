@@ -57,7 +57,23 @@ public enum ErrorCode {
     ROOM_SERVICE_NOT_EXISTED(1041, "Room service not found", HttpStatus.NOT_FOUND),
     ROOM_SERVICE_IN_USE(1042, "Room service is in use and cannot be deleted", HttpStatus.BAD_REQUEST),
     SERVICE_ALREADY_EXISTS(1043,"Service is assign to the room already" ,HttpStatus.BAD_REQUEST ),
-    LETTER_ONLY(1044, "Fullname only contains letter", HttpStatus.BAD_REQUEST);
+    LETTER_ONLY(1044, "Fullname only contains letter", HttpStatus.BAD_REQUEST),
+    RESULT_NOT_EXISTED(1045, "Result not found", HttpStatus.NOT_FOUND),
+    STAFF_NOT_EXISTED(1046, "Staff not found", HttpStatus.NOT_FOUND),
+    ANSWER_EXISTED(1047, "Answer existed", HttpStatus.BAD_REQUEST),
+    QUESTION_EXISTED(1048, "Question existed", HttpStatus.BAD_REQUEST),
+    QUIZ_EXISTED(1049, "Quiz existed", HttpStatus.BAD_REQUEST),
+    BOOKING_ON_GOING(1050, "Your booking are ongoing", HttpStatus.BAD_REQUEST),
+    THERAPIST_NOT_AVAILABLE(1051, "Therapist not available at this time", HttpStatus.BAD_REQUEST),
+    ROOM_NOT_AVAILABLE(1052, "Room not available at this time", HttpStatus.BAD_REQUEST),
+    RESULT_EXISTED(1053, "Result existed", HttpStatus.BAD_REQUEST),
+    IMAGE_UPLOAD_FAILED(1054, "Failed to upload image", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_ACCESS(1055, "You are not authorized to modify this blog post", HttpStatus.FORBIDDEN),
+    BLOGPOST_ALREADY_APPROVED(1056, "Blog post is already approved", HttpStatus.BAD_REQUEST),
+    BLOGPOST_NOT_EXISTED(1057, "Blog post does not exist", HttpStatus.NOT_FOUND),
+    BOOKING_DATE_NOT_ALLOWED(1058,"Booking date is not allowed", HttpStatus.BAD_REQUEST),
+    ;
+
     int code;
     String message;
     HttpStatusCode httpStatusCode;

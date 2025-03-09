@@ -2,12 +2,15 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Identity.UserRequest;
 import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Skin.AssignSkinRequest;
 import com.SWP.SkinCareService.dto.response.UserResponse;
+import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.entity.Role;
 import com.SWP.SkinCareService.entity.User;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.UserMapper;
+import com.SWP.SkinCareService.repository.QuizResultRepository;
 import com.SWP.SkinCareService.repository.RoleRepository;
 import com.SWP.SkinCareService.repository.UserRepository;
 import lombok.AccessLevel;
@@ -37,7 +40,7 @@ public class UserService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
-
+    QuizResultRepository quizResultRepository;
     @Transactional
     public UserResponse create(UserRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -159,6 +162,16 @@ public class UserService {
         roles.add(roleUser);
         user.setRoles(roles);
         user = userRepository.save(user);
+        return userMapper.toResponse(user);
+    }
+    @Transactional
+    public UserResponse updateSkin(String userId, AssignSkinRequest skinId){
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new RuntimeException("user can not be found"));
+        QuizResult quizResult = quizResultRepository.findById(skinId.getSkinId()).orElseThrow(()
+                -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
+        user.setQuizResult(quizResult);
+        userRepository.save(user);
         return userMapper.toResponse(user);
     }
 }

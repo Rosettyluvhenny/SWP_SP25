@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,14 +18,21 @@ import java.util.List;
 public class Quiz {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     int id;
-    //@ManyToMany
-     int serviceCategoryId;
+    int id;
 
+    @ManyToOne
+    @JoinColumn(name = "service_category_id")
+    @JsonBackReference
+
+    private ServiceCategory serviceCategory;
     String name;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     List<Question> questions;
 
+
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<QuizResult> quizResults;
 }

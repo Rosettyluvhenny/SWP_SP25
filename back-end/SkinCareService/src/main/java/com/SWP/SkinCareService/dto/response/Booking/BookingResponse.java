@@ -1,47 +1,41 @@
 package com.SWP.SkinCareService.dto.response.Booking;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.SWP.SkinCareService.entity.BookingSession;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingResponse {
+    int id;
+    //User user;
+    String userId;
+    String fullName;
 
-        int id;
+    //Services service;
+    int serviceId;
+    String serviceName;
 
-        String userId;
+    String status;
+    String paymentStatus;
+    //Payment payment;
+    String paymentMethod;
 
-        String username;
+    String notes;
+    Date createAt;
+    Date updateAt;
+    int sessionRemain;
+    //private User staff;
+    String staffId;
+    String staffName;
 
-        int serviceId;
+    List<BookingSession> bookingSessions;
+    int price;
 
-        String serviceName;
-
-        String paymentMethod;
-
-        String notes;
-
-        String status;
-
-        boolean paid;
-
-        String createdAt;
-
-        int sessionRemain;
-
-        BigDecimal price;
-
-        String staffId;
-
-        String staffName;
-
-        String img;
- }
-
+}

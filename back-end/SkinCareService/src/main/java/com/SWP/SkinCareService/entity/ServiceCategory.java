@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -42,4 +43,8 @@ public class ServiceCategory {
     @OneToMany(mappedBy = "serviceCategory", cascade = CascadeType.PERSIST, orphanRemoval = false)
     @JsonBackReference
     List<Services> services;
+
+    @OneToMany(mappedBy = "serviceCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    List<Quiz> quiz;
 }

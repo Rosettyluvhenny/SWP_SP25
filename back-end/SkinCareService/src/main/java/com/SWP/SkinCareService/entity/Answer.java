@@ -2,14 +2,14 @@ package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "quizAnswer")
@@ -31,10 +31,10 @@ public class Answer {
     String text;
 
     @CreationTimestamp
-    Date createdAt;
+    LocalDateTime createdAt;
 
     @UpdateTimestamp
-    Date updatedAt;
+    LocalDateTime updatedAt;
     int point;
 
 }

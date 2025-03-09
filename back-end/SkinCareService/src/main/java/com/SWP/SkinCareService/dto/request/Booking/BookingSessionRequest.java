@@ -1,7 +1,5 @@
 package com.SWP.SkinCareService.dto.request.Booking;
 
-import com.SWP.SkinCareService.enums.BookingStatus;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,19 +12,21 @@ import java.time.LocalDateTime;
 @Builder
 public class BookingSessionRequest {
     @NotNull(message = "NOT_EMPTY")
+    String userId;
     int bookingId;
 
     @NotNull(message = "NOT_EMPTY")
     LocalDateTime sessionDateTime;
 
-    BookingStatus status;
-
+    String status;
     String note;
 
     String imgBefore;
 
-    String imgAfter;
+//    String imgAfter;
 
     @NotNull(message = "NOT_EMPTY")
+    //String imgAfter;
+    int roomId;
     String therapistId;
 } 

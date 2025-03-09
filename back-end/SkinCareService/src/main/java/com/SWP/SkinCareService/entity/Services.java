@@ -68,5 +68,18 @@ public class Services {
     @JsonBackReference
     List<Therapist> therapists = new ArrayList<>();
 
+    //One to many with Booking service
+    @OneToMany(mappedBy = "service", cascade = CascadeType.REMOVE)
+    @JsonManagedReference
+    List<Booking> bookings = new ArrayList<>();
+    
+    @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "ServiceQuizResult",
+            joinColumns = @JoinColumn(name = "serviceId"),
+            inverseJoinColumns = @JoinColumn(name = "quizResultId")
+    )
+    @JsonManagedReference
+    List<QuizResult> quizResults = new ArrayList<>();
 
 }

@@ -1,13 +1,13 @@
 package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
+import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -58,4 +58,7 @@ public class Room {
     @UpdateTimestamp
     @Column(name = "updated_at")
     LocalDateTime updatedAt;
-} 
+    @OneToMany(mappedBy = "room", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonManagedReference
+    List<BookingSession> bookingSessions;
+}

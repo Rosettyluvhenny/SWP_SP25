@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -13,10 +14,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "therapist")
+@Getter
+@Setter
+@ToString(exclude = {"user", "bookingSessions", "services"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -67,8 +72,32 @@ public class Therapist {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "therapist", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    List<BookingSession> bookingSessions;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    @JoinTable(
+            name = "TherapistService",
+            joinColumns = @JoinColumn(name = "therapistId"),
+            inverseJoinColumns = @JoinColumn(name = "serviceId")
+    )
+    List<Services> services;
     String img;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Therapist therapist = (Therapist) o;
+        return id != null && id.equals(therapist.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
     public void removeAllService(){
         for (Services service : this.services){
             service.getTherapists().remove(this);
