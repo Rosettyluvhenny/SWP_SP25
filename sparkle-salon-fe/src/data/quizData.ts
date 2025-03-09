@@ -23,7 +23,7 @@ export interface Quiz {
 
 const quizData = async (): Promise<Quiz[]> => {
   
-    const response = await axios.get("/swp/quiz");
+    const response = await axios.get("http://localhost:8080/swp/quiz");
 
     const result = response.data?.result;
     if (response.status === 200 && Array.isArray(result)) {

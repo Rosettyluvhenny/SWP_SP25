@@ -1,35 +1,56 @@
-import React, { useState } from "react";
+// src/pages/QuizManagement.tsx
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBarDashboard";
-import { Question } from "../data/tracnghiemdata";
-import { tracnghiemdata } from "../data/tracnghiemdata";
-import { tracnghiemseodata } from "../data/tracnghiemseodata";
-import { tracnghiemmun } from "../data/tracnghiemmun";
-import { tracnghiemvedadata } from "../data/tracnghiemvedaData";
+import { Question } from "../data/quizData"; // Đảm bảo rằng Question type được định nghĩa đúng
 import { Link } from "react-router-dom";
+import { fetchQuizzes, deleteQuestion, updateQuestion, handleApiError } from "../api/quizApi";
 
 export default function QuizManagement() {
   const [selectedTest, setSelectedTest] = useState<string | null>(null);
-  const [questions, setQuestions] = useState<{ [key: string]: Question[] }>({
-    "Trắc nghiệm da": tracnghiemdata,
-    "Trắc nghiệm về sẹo": tracnghiemseodata,
-    "Trắc nghiệm đồi mồi": tracnghiemmun,
-    "Trắc nghiệm về da": tracnghiemvedadata,
-  });
-
+  const [questions, setQuestions] = useState<{ [key: string]: Question[] }>({});
   const [editing, setEditing] = useState<{
     test: string;
     index: number;
   } | null>(null);
   const [editData, setEditData] = useState<Question | null>(null);
+  const [loading, setLoading] = useState(true); // Trạng thái loading
+  const [error, setError] = useState<string | null>(null); // Trạng thái lỗi
+
+  // Hàm lấy danh sách bài kiểm tra từ API
+  const fetchQuizzesData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await fetchQuizzes();
+      setQuestions(data); // Giả sử API trả về dữ liệu dạng { "quizName1": [...], "quizName2": [...], ... }
+    } catch (err) {
+      setError(handleApiError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Gọi API khi component mount
+  useEffect(() => {
+    fetchQuizzesData();
+  }, []);
 
   const toggleTest = (test: string) =>
     setSelectedTest(selectedTest === test ? null : test);
 
-  const deleteQuestion = (test: string, index: number) => {
-    setQuestions((prev) => ({
-      ...prev,
-      [test]: prev[test].filter((_, idx) => idx !== index),
-    }));
+  // Xóa câu hỏi bằng cách gọi API
+  const handleDeleteQuestion = async (test: string, index: number) => {
+    try {
+      const questionId = questions[test][index].id; // Giả sử mỗi câu hỏi có thuộc tính id
+      await deleteQuestion(test, questionId);
+      setQuestions((prev) => ({
+        ...prev,
+        [test]: prev[test].filter((_, idx) => idx !== index),
+      }));
+      setError(null); // Xóa thông báo lỗi nếu thành công
+    } catch (err) {
+      setError(handleApiError(err));
+    }
   };
 
   const editQuestion = (test: string, index: number) => {
@@ -37,36 +58,61 @@ export default function QuizManagement() {
     setEditData({ ...questions[test][index] });
   };
 
-  const saveQuestion = () => {
+  // Lưu câu hỏi bằng cách gọi API
+  const saveQuestion = async () => {
     if (editing && editData) {
-      setQuestions((prev) => ({
-        ...prev,
-        [editing.test]: prev[editing.test].map((q, idx) =>
-          idx === editing.index ? editData : q
-        ),
-      }));
-      setEditing(null);
-      setEditData(null);
+      try {
+        const questionId = editData.id; // Giả sử mỗi câu hỏi có thuộc tính id
+        await updateQuestion(editing.test, questionId, editData);
+        setQuestions((prev) => ({
+          ...prev,
+          [editing.test]: prev[editing.test].map((q, idx) =>
+            idx === editing.index ? editData : q
+          ),
+        }));
+        setEditing(null);
+        setEditData(null);
+        setError(null); // Xóa thông báo lỗi nếu thành công
+      } catch (err) {
+        setError(handleApiError(err));
+      }
     }
   };
+
+  if (loading) {
+    return <div className="flex h-screen justify-center items-center">Đang tải...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen justify-center items-center text-red-500">
+        {error}
+        <button
+          onClick={fetchQuizzesData}
+          className="ml-4 bg-blue-500 text-white px-3 py-1 rounded-md"
+        >
+          Thử lại
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-white">
       <Sidebar />
       <main className="flex-1 p-6">
-      <div className="mb-6 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-800">
-                    Quản Lý Bài Kiểm Tra
-                    </h1>
-                   
-                        <button className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600">
-                        <Link to="/manager/createrquiz">+ Thêm Bài Kiểm Tra</Link>
-                    </button>
-                </div>
-     
+        <div className="mb-6 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-800">
+            Quản Lý Bài Kiểm Tra
+          </h1>
+          <button className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600">
+            <Link to="/manager/createrquiz">+ Thêm Bài Kiểm Tra</Link>
+          </button>
+        </div>
+
         <div className="bg-pink-100 shadow-lg rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Danh Sách Bài Kiểm Tra</h2>
-       
+
           {Object.keys(questions).map((test, index) => (
             <div key={index} className="mb-6">
               <div
@@ -90,7 +136,6 @@ export default function QuizManagement() {
                     d="M19 9l-7 7-7-7"
                   />
                 </svg>
-
               </div>
 
               {selectedTest === test && (
@@ -109,7 +154,7 @@ export default function QuizManagement() {
                         key={idx}
                         question={q}
                         onEdit={() => editQuestion(test, idx)}
-                        onDelete={() => deleteQuestion(test, idx)}
+                        onDelete={() => handleDeleteQuestion(test, idx)}
                       />
                     )
                   )}
@@ -123,6 +168,7 @@ export default function QuizManagement() {
   );
 }
 
+// Các component QuestionItem và QuestionEditor không thay đổi, giữ nguyên như cũ
 function QuestionItem({
   question,
   onEdit,
@@ -136,7 +182,6 @@ function QuestionItem({
     <div className="p-4 bg-gray-100 rounded-lg shadow-md">
       <p className="text-lg font-medium mb-2">{question.question}</p>
       <div className="pl-4">
-        
         {question.options.map((option, index) => (
           <p key={index} className="text-gray-700">
             - {option.text} (Điểm: {option.points})
