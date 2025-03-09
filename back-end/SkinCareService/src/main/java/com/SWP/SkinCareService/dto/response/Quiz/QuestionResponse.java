@@ -17,9 +17,5 @@ public class QuestionResponse {
     int id;
     String text;
     String type;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime createdAt;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime updatedAt;
     List<AnswerDTO> answers;
 }

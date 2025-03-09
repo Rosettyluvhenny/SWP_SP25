@@ -26,14 +26,7 @@ public class AnswerResponse {
 
     //Question question;
     int questionId;
-    String questionText;
     String text;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime createdAt;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime updatedAt;
 
     int point;
 }
