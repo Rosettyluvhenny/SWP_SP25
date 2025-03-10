@@ -98,25 +98,14 @@ export default function Header() {
         e.preventDefault();
         setError(null);
 
-        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-        if (
-            !registerData.email ||
-            !emailRegex.test(registerData.email.trim())
-        ) {
-            setError(
-                "Email không đúng định dạng! Vui lòng nhập đúng định dạng email (vd: example@gmail.com)"
-            );
-            return;
-        }
-
-        const registerResult = await register(
-            registerData.username,
-            registerData.fullName,
-            registerData.email.trim(),
-            registerData.password,
-            registerData.phone,
-            registerData.dob
-        );
+        const registerResult = await register({
+            username: registerData.username,
+            password: registerData.password,
+            fullName: registerData.fullName,
+            email: registerData.email,
+            phone: registerData.phone,
+            dob: registerData.dob,
+        });
         if (registerResult) {
             setIsRegisterOpen(false);
             alert("Đăng ký thành công");
@@ -556,7 +545,7 @@ export default function Header() {
                                             value={registerData.email}
                                             onChange={handleRegisterChange}
                                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#f398d0] focus:ring-2 focus:ring-[#f398d0] focus:ring-opacity-50 transition-colors"
-                                            placeholder="example@gmail.com"
+                                            placeholder="Nhập email"
                                         />
                                     </div>
                                     <div>

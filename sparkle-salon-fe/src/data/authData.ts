@@ -12,14 +12,14 @@ const login = async (username: string, password: string) => {
     }
 };
 
-const register = async (username: string, password: string, fullName: string, email: string, phone: string, dob: string) => {
+const register = async (data: {username: string, password: string, fullName: string, email: string, phone: string, dob: string}) => {
     const response = await axios.post(`http://localhost:8081/swp/users`, {
-        username,
-        password,
-        fullName,
-        email,
-        phone,
-        dob,
+        username: data.username,
+        password: data.password,
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        dob: data.dob,
     });
     if (response.status === 201) {
         return true;
