@@ -73,7 +73,8 @@ public enum ErrorCode {
     BLOGPOST_NOT_EXISTED(1057, "Blog post does not exist", HttpStatus.NOT_FOUND),
     BOOKING_DATE_NOT_ALLOWED(1058,"Booking date is not allowed", HttpStatus.BAD_REQUEST),
     SESSION_STATUS_INVALID(1059, "Session status not existed" , HttpStatus.BAD_REQUEST ),
-    BOOKING_STATUS_INVALID(1060, "Booking status not existed" , HttpStatus.BAD_REQUEST );
+    BOOKING_STATUS_INVALID(1060, "Booking status not existed" , HttpStatus.BAD_REQUEST ),
+    THERAPIST_SERVICE_INVALID(1061,"The therapist you chose is unable to serve this service" , HttpStatus.BAD_REQUEST);
 
     int code;
     String message;

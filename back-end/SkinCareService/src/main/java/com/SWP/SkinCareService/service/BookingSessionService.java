@@ -46,7 +46,7 @@ public class  BookingSessionService {
         BookingSession session = bookingSessionMapper.toBookingSession(request);
 
         if (request.getTherapistId() != null){
-            Therapist therapist = getTherapistById(request.getTherapistId());
+            Therapist therapist = getTherapistById(request.getTherapistId(),booking.getService().getId());
             boolean isValid = isTherapistAvailable(therapist.getId(), session.getSessionDateTime(), booking.getService().getDuration());
             if(!isValid)
                 throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
@@ -72,7 +72,7 @@ public class  BookingSessionService {
 
         Room room = getRoomById(request.getRoomId());
 
-        Therapist therapist = getTherapistById(request.getTherapistId());
+        Therapist therapist = getTherapistById(request.getTherapistId(),session.getBooking().getService().getId());
 
         bookingSessionMapper.updateBookingSession(session, request);
 
@@ -132,9 +132,13 @@ public class  BookingSessionService {
         return roomRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
     }
-    Therapist getTherapistById(String id) {
-        return therapistRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+    Therapist getTherapistById(String id, int serviceId) {
+        boolean isValid = therapistRepository.existsByIdAndServices_Id(id , serviceId);
+        if(isValid)
+            return therapistRepository.findById(id).orElseThrow(()
+                    -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+        else
+            throw new AppException(ErrorCode.THERAPIST_SERVICE_INVALID);
     }
 
     public List<LocalTime> generateTimeSlots() {
@@ -155,7 +159,7 @@ public class  BookingSessionService {
         if(bookingDate.isBefore(LocalDate.now()))
             throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
         // Check if therapist exists
-        Therapist therapist = getTherapistById(therapistId);
+        Therapist therapist = therapistRepository.findById(therapistId).orElseThrow(()-> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
 
         // Check if service exists and get its duration
         Services service = servicesRepository.findById(serviceId)
@@ -175,7 +179,7 @@ public class  BookingSessionService {
         LocalDateTime startOfDay = bookingDate.atTime(9, 0);
         LocalDateTime endOfDay = bookingDate.atTime(17, 0);
 
-        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED, BookingSessionStatus.WAITING);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED,BookingSessionStatus.PENDING);
         List<BookingSession> therapistBookings = bookingSessionRepository.findByTherapistIdAndSessionDateTimeBetweenAndStatusNotIn(
                 therapistId, startOfDay, endOfDay, excludeStatuses);
 
@@ -260,7 +264,7 @@ public class  BookingSessionService {
         LocalDateTime startOfDay = bookingDate.atTime(9, 0);
         LocalDateTime endOfDay = bookingDate.atTime(17, 0);
 
-        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED,BookingSessionStatus.PENDING);
         List<BookingSession> allBookings = bookingSessionRepository.findBySessionDateTimeBetweenAndStatusNotIn(
                 startOfDay, endOfDay, excludeStatuses);
 
