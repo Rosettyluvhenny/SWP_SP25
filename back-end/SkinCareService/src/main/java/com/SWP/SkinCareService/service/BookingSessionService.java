@@ -238,7 +238,7 @@ public class  BookingSessionService {
         }
         //session.setBookingDate(request.getSessionDateTime().toLocalDate());
         session.setBooking(booking);
-        session.setStatus(BookingSessionStatus.WAITING);
+        session.setStatus(BookingSessionStatus.PENDING);
         bookingSessionRepository.save(session);
         updateSessionRemain(request.getBookingId());
 
@@ -476,7 +476,7 @@ public class  BookingSessionService {
         LocalDateTime startOfDay = bookingDate.atTime(9, 0);
         LocalDateTime endOfDay = bookingDate.atTime(17, 0);
 
-        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED,BookingSessionStatus.WAITING,BookingSessionStatus.PENDING);
         List<BookingSession> allBookings = bookingSessionRepository.findBySessionDateTimeBetweenAndStatusNotIn(
                 startOfDay, endOfDay, excludeStatuses);
 
@@ -557,7 +557,7 @@ public class  BookingSessionService {
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
         // Define statuses to exclude from active bookings
-        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED,BookingSessionStatus.PENDING,BookingSessionStatus.WAITING);
 
         // Fetch all active bookings for the therapist within the day
         List<BookingSession> existingBookings = bookingSessionRepository
