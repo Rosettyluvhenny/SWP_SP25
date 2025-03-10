@@ -4,5 +4,6 @@ public enum BookingSessionStatus {
     PENDING,
     ON_GOING,
     IS_CANCELED,
+    WAITING,
     COMPLETED
 }

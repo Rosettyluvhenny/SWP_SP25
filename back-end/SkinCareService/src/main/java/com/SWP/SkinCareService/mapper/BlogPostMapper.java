@@ -10,7 +10,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface BlogPostMapper {
     @Mapping(target = "blogId", ignore = true)
-    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "quizResult", ignore = true)
     @Mapping(target = "therapist", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
@@ -20,7 +20,7 @@ public interface BlogPostMapper {
     void updateBlogPost(@MappingTarget BlogPost blogPost, BlogPostRequest request);
 
     @Mapping(source = "therapist.user.fullName", target = "therapistName")
-    @Mapping(source = "category.id", target = "categoryId")
-    @Mapping(source = "category.name", target = "categoryName")
+    @Mapping(source = "quizResult.id", target = "quizResultId")
+    @Mapping(source = "quizResult.resultText", target = "quizResultName")
     BlogPostResponse toBlogPostResponse(BlogPost blogPost);
 } 

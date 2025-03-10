@@ -20,7 +20,7 @@ public class BlogPostRequest {
         defaultValue = "1"
     )
     @NotNull(message = "Category ID cannot be empty")
-    Integer categoryId;
+    Integer quizResultId;
 
     @Schema(
         description = "Blog title",

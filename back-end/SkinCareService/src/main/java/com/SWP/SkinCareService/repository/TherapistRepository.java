@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-
+import java.util.List;
 @Repository
 public interface TherapistRepository extends JpaRepository<Therapist, String> {
     boolean existsByUserId(String userId);
@@ -18,4 +18,8 @@ public interface TherapistRepository extends JpaRepository<Therapist, String> {
     Page<Therapist> findInactiveTherapists(Pageable pageable);
 
     Optional<Therapist> findByUserId(String id);
+
+    boolean existsByIdAndServices_Id(String therapistId, int serviceId);
+
+    List<Therapist> findAllByServicesId(int serviceId);
 }

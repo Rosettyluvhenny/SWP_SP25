@@ -39,8 +39,8 @@ public class BookingSession {
     LocalDate bookingDate;
 
     @Column(columnDefinition = "DATETIME")
-    LocalDateTime bookingTime;
-
+    LocalDateTime sessionDateTime;
+    @Enumerated(EnumType.STRING)
     BookingSessionStatus status = BookingSessionStatus.PENDING;
     String note;
     String imgBefore;

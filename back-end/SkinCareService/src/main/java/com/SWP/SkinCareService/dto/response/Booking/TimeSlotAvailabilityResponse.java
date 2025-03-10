@@ -10,8 +10,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TherapistAvailabilityResponse {
-    String therapistId;
+public class TimeSlotAvailabilityResponse {
 
     LocalTime startTime;
 

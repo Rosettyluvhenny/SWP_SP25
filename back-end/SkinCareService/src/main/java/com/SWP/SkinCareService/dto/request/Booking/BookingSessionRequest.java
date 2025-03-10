@@ -12,22 +12,16 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class BookingSessionRequest {
+
     @NotNull(message = "NOT_EMPTY")
-    String userId;
     int bookingId;
 
     @NotNull(message = "NOT_EMPTY")
     LocalDateTime sessionDateTime;
 
-    String status;
+
     String note;
 
-    String imgBefore;
 
-//    String imgAfter;
-
-    @NotNull(message = "NOT_EMPTY")
-    //String imgAfter;
-    int roomId;
     String therapistId;
 } 

@@ -22,6 +22,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@ToString(exclude = {"bookingSessions"})
 @AllArgsConstructor
 @Builder
 public class Booking {
@@ -42,6 +43,7 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     BookingStatus status = BookingStatus.PENDING;
+
     @Enumerated(EnumType.STRING)
     PaymentStatus paymentStatus = PaymentStatus.PENDING;
 

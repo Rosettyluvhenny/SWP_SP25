@@ -19,6 +19,7 @@ import java.util.Set;
 @Entity
 @Table(name="services")
 @Data
+@ToString(exclude = {"serviceCategory","bookings"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor

@@ -10,8 +10,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BlogPostResponse {
     Integer blogId;
-    Integer categoryId;
-    String categoryName;
+    Integer quizResultId;
+    String quizResultName;
     String title;
     String content;
     String therapistName;

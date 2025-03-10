@@ -3,17 +3,11 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.dto.request.Blog.BlogPostRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Blog.BlogPostResponse;
-import com.SWP.SkinCareService.entity.BlogPost;
-import com.SWP.SkinCareService.entity.ServiceCategory;
-import com.SWP.SkinCareService.entity.Therapist;
-import com.SWP.SkinCareService.entity.User;
+import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BlogPostMapper;
-import com.SWP.SkinCareService.repository.BlogPostRepository;
-import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
-import com.SWP.SkinCareService.repository.TherapistRepository;
-import com.SWP.SkinCareService.repository.UserRepository;
+import com.SWP.SkinCareService.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +26,7 @@ import java.util.List;
 public class BlogPostService {
     BlogPostRepository blogPostRepository;
     TherapistRepository therapistRepository;
-    ServiceCategoryRepository serviceCategoryRepository;
+    QuizResultRepository quizResultRepository;
     UserRepository userRepository;
     BlogPostMapper blogPostMapper;
     SupabaseService supabaseService;
@@ -52,11 +46,11 @@ public class BlogPostService {
         Therapist therapist = therapistRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
         
-        ServiceCategory category = getServiceCategoryById(request.getCategoryId());
+        QuizResult category = getQuizResultById(request.getQuizResultId());
         
         BlogPost blogPost = blogPostMapper.toBlogPost(request);
         blogPost.setTherapist(therapist);
-        blogPost.setCategory(category);
+        blogPost.setQuizResult(category);
         
         // Save first to get the ID
         blogPostRepository.save(blogPost);
@@ -105,9 +99,9 @@ public class BlogPostService {
             throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
 
-        if (request.getCategoryId() != null) {
-            ServiceCategory category = getServiceCategoryById(request.getCategoryId());
-            blogPost.setCategory(category);
+        if (request.getQuizResultId() != null) {
+            QuizResult quizResult = getQuizResultById(request.getQuizResultId());
+            blogPost.setQuizResult(quizResult);
         }
 
         blogPostMapper.updateBlogPost(blogPost, request);
@@ -197,8 +191,8 @@ public class BlogPostService {
                 -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
     }
 
-    private ServiceCategory getServiceCategoryById(Integer id) {
-        return serviceCategoryRepository.findById(id).orElseThrow(()
+    private QuizResult getQuizResultById(Integer id) {
+        return quizResultRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
     }
 } 

@@ -72,7 +72,8 @@ public enum ErrorCode {
     BLOGPOST_ALREADY_APPROVED(1056, "Blog post is already approved", HttpStatus.BAD_REQUEST),
     BLOGPOST_NOT_EXISTED(1057, "Blog post does not exist", HttpStatus.NOT_FOUND),
     BOOKING_DATE_NOT_ALLOWED(1058,"Booking date is not allowed", HttpStatus.BAD_REQUEST),
-    ;
+    SESSION_STATUS_INVALID(1059, "Session status not existed" , HttpStatus.BAD_REQUEST ),
+    BOOKING_STATUS_INVALID(1060, "Booking status not existed" , HttpStatus.BAD_REQUEST );
 
     int code;
     String message;
