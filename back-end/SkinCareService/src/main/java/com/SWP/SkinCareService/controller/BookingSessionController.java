@@ -1,20 +1,26 @@
 package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
-import com.SWP.SkinCareService.dto.request.Booking.SessionUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Booking.StatusRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
+import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
+import com.SWP.SkinCareService.dto.response.BookingSession.TherapistAvailabilityResponse;
+import com.SWP.SkinCareService.dto.response.BookingSession.TimeSlotAvailabilityResponse;
 import com.SWP.SkinCareService.service.BookingSessionService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -25,7 +31,6 @@ public class BookingSessionController {
     BookingSessionService bookingSessionService;
 
     @PostMapping()
-
     ResponseEntity<ApiResponse<BookingSessionResponse>> createBookingSession(@RequestBody BookingSessionRequest bookingSessionRequest) {
         var result = bookingSessionService.createBookingSession(bookingSessionRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -49,61 +54,12 @@ public class BookingSessionController {
         );
     }
 
-    @GetMapping("/assign")
-    ResponseEntity<ApiResponse<List<BookingSessionResponse>>> getAllBookingSessionNullTherapist() {
-        var result = bookingSessionService.getAllBookingNullTherapist();
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<List<BookingSessionResponse>>builder().result(result).build()
-        );
-    }
-    //Update before Session start, update room and img
-    @PutMapping(value = "/before/{sessionId}")
-    ResponseEntity<ApiResponse<BookingSessionResponse>> updateBeforeBookingSession(
-            @PathVariable int sessionId,
-            @RequestPart("data") SessionUpdateRequest request,
-            @RequestParam("img") MultipartFile img) throws IOException {
-
-        if (img == null || img.isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.<BookingSessionResponse>builder()
-                            .code(400)
-                            .message("Image file is required")
-                            .build()
-            );
-        }
-
-
-        var result = bookingSessionService.updateBefore(sessionId, request, img);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<BookingSessionResponse>builder().result(result).build()
-        );
-    }
-
-    //Update after session finish
-    @PutMapping(value = "/after/{sessionId}")
-    ResponseEntity<ApiResponse<BookingSessionResponse>> updateAfterBookingSession(
-            @PathVariable int sessionId,
-            @RequestPart("data") SessionUpdateRequest request,
-            @RequestParam("img") MultipartFile img) throws IOException {
-
-        if (img == null || img.isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.<BookingSessionResponse>builder()
-                            .code(400)
-                            .message("Image file is required")
-                            .build()
-            );
-        }
-
-        var result = bookingSessionService.updateAfter(sessionId, request, img);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<BookingSessionResponse>builder().result(result).build()
-        );
-    }
-    //Assign therapist for session
-    @PutMapping("/therapist/{sessionId}")
-    ResponseEntity<ApiResponse<BookingSessionResponse>> updateTherapist(@PathVariable int sessionId, @RequestBody SessionUpdateRequest request) {
-        var result = bookingSessionService.assignTherapistToSession(sessionId, request);
+    @PutMapping("/{sessionId}")
+    ResponseEntity<ApiResponse<BookingSessionResponse>> updateBookingSession(@PathVariable int sessionId,
+                                                                             @RequestPart("data") BookingSessionUpdateRequest bookingSessionRequest,
+                                                                             @RequestPart("imgBefore")MultipartFile imgBefore,
+                                                                             @RequestPart("imgAfter") MultipartFile imgAfter) throws IOException {
+        var result = bookingSessionService.updateBookingSession(sessionId, bookingSessionRequest, imgBefore, imgAfter);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingSessionResponse>builder().result(result).build()
         );
@@ -115,5 +71,34 @@ public class BookingSessionController {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingSessionResponse>builder().message("Booking session deleted").build()
         );
+    }
+
+    @PutMapping("/{sessionId}/status")
+    ResponseEntity<ApiResponse<BookingResponse>> deleteBooking(@PathVariable int sessionId, @RequestBody StatusRequest status) {
+        bookingSessionService.updateStatus(sessionId, status);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<BookingResponse>builder().message("Updates successfull").build()
+        );
+    }
+
+    @GetMapping("/therapist/{therapistId}/service/{serviceId}/available-slots")
+    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
+    public ApiResponse<List<TimeSlotAvailabilityResponse>> getAvailableTimeSlotsForTherapist(
+            @PathVariable String therapistId,
+            @PathVariable int serviceId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ApiResponse.<List<TimeSlotAvailabilityResponse>>builder()
+                .result(bookingSessionService.getAvailableTimeSlotsForTherapist(therapistId, serviceId, date))
+                .build();
+    }
+
+    @GetMapping("/service/{serviceId}/available-slots")
+    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
+    public ApiResponse<List<TherapistAvailabilityResponse>> getAvailableTimeSlotsWithAvailableTherapists(
+            @PathVariable int serviceId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ApiResponse.<List<TherapistAvailabilityResponse>>builder()
+                .result(bookingSessionService.getAvailableTimeSlotsWithAvailableTherapists(serviceId, date))
+                .build();
     }
 }

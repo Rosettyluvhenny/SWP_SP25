@@ -31,18 +31,19 @@ public class BookingSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
     //Many to One - Booking
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "bookingId")
     @JsonBackReference
     private Booking booking;
 
-    //@CreationTimestamp
+    @CreationTimestamp
     //@Temporal(TemporalType.TIMESTAMP)
     LocalDate bookingDate;
 
     @Column(columnDefinition = "DATETIME")
-    LocalDateTime bookingTime;
+    LocalDateTime sessionDateTime;
 
+    @Enumerated(EnumType.STRING)
     BookingSessionStatus status = BookingSessionStatus.PENDING;
     String note;
     String imgBefore;

@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Booking.StatusRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.service.BookingService;
@@ -58,6 +59,14 @@ public class BookingController {
         bookingService.deleteBooking(bookingId);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingResponse>builder().message("Booking deleted").build()
+        );
+    }
+
+    @PutMapping("/{bookingId}/status")
+    ResponseEntity<ApiResponse<BookingResponse>> deleteBooking(@PathVariable int bookingId, @RequestBody StatusRequest status) {
+        bookingService.updateStatus(bookingId, status);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<BookingResponse>builder().message("Updates successfull").build()
         );
     }
 

@@ -15,7 +15,7 @@ public class BookingSessionResponse {
     int id;
     int bookingId;  // Instead of full Booking object
     Date bookingDate;
-    LocalDateTime bookingTime;
+    LocalDateTime sessionDateTime;
     String status;
     String note;
     String imgBefore;

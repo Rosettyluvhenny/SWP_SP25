@@ -121,13 +121,6 @@ public class ServicesController {
                         .build()
         );
     }
-    @PutMapping("/assign/{id}")
-    public ResponseEntity<ApiResponse> assignTherapist(@PathVariable int id, @RequestBody AssignTherapistRequest request) {
-        servicesService.assignTherapistToService(id, request);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.builder().message("Assigned").build()
-        );
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteServiceCategory(@PathVariable int id) throws IOException {
@@ -136,6 +129,14 @@ public class ServicesController {
                 ApiResponse.builder()
                         .message("Service deleted successfully")
                         .build()
+        );
+    }
+
+    @PutMapping("/assign/{id}")
+    public ResponseEntity<ApiResponse> assignTherapist(@PathVariable int id, @RequestBody AssignTherapistRequest request) {
+        servicesService.assignTherapistToService(id, request);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.builder().message("Assigned").build()
         );
     }
 }

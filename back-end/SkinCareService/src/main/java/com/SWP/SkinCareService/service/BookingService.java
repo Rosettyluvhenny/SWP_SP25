@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Booking.StatusRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +41,7 @@ public class BookingService {
     private TherapistRepository therapistRepository;
     private TherapistService therapistService;
     private RoomService roomService;
+    private BookingSessionService bookingSessionService;
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
@@ -55,8 +58,12 @@ public class BookingService {
         //Check therapist
         if (request.getTherapistId() != null) {
             Therapist therapist = getTherapistById(request.getTherapistId());
+            Set<Services> serviceSupport = therapist.getServices();
+            if (!serviceSupport.contains(service)) {
+                throw new AppException(ErrorCode.THERAPIST_NOT_SUPPORTED);
+            }
             //Check time available or not
-            if (!checkTherapistAvailable(therapist.getId(),time,service.getDuration())) {
+            if (!bookingSessionService.isTherapistAvailable(therapist.getId(), time, service.getDuration())) {
                 throw new AppException(ErrorCode.THERAPIST_NOT_AVAILABLE);
             }
             //Set therapist if available
@@ -64,6 +71,9 @@ public class BookingService {
         } else {
             //If user doesn't assign the therapist, system will auto set therapist
             List<Therapist> therapists = therapistService.getTherapistAvailableForService(request.getServiceId(), time);
+            List<Therapist> availableTherapists = therapistRepository.findAllByServicesId(request.getServiceId());
+            therapists.retainAll(availableTherapists);
+
             if (therapists.isEmpty()) {
                 throw new AppException(ErrorCode.OUT_OF_THERAPIST);
             }
@@ -103,7 +113,7 @@ public class BookingService {
         //Set data and save
         bookingSession.setBooking(booking);
         bookingSession.setBookingDate(request.getBookingTime().toLocalDate());
-        bookingSession.setBookingTime(request.getBookingTime());
+        bookingSession.setSessionDateTime(request.getBookingTime());
         bookingSessionRepository.save(bookingSession);
 
         return bookingMapper.toBookingResponse(booking);
@@ -156,32 +166,25 @@ public class BookingService {
         return therapistRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
     }
-    //Use in case user want assign therapist
-    boolean checkTherapistAvailable(String therapistId, LocalDateTime requestTime, int requestDuration) {
-        LocalDateTime startOfDay = requestTime.toLocalDate().atStartOfDay();
-        LocalDateTime endOfDay = startOfDay.plusDays(1);
-        //Get all active booking in day
-        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED); //Add completed status
-        List<BookingSession> existingBookings = bookingSessionRepository.findByTherapistIdAndBookingTimeBetweenAndStatusNotIn(
-                therapistId,
-                startOfDay,
-                endOfDay,
-                excludeStatus
-        );
-        LocalDateTime requestEndtime = requestTime.plusMinutes(requestDuration);
-        for (BookingSession existing : existingBookings) {
 
-            LocalDateTime existingStartTime = existing.getBookingTime();
-            LocalDateTime existingEndTime = existingStartTime.plusMinutes(existing.getBooking().getService().getDuration());
-
-
-            if (!(requestEndtime.isBefore(existingStartTime) || requestTime.isAfter(existingEndTime)))
-            {
-                return false;
-            }
+    public void updateStatus(int id, StatusRequest status){
+        Booking booking = bookingRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
+        try {
+            BookingStatus bookingStatus = BookingStatus.valueOf(status.getStatus().toUpperCase());
+            booking.setStatus(bookingStatus);
+            bookingRepository.save(booking);
+        }catch(IllegalArgumentException e){
+            throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
         }
-        return true;
     }
+
+    /**
+     * Method 1: Find available time slots for a specific therapist on a specific date
+     * @param therapistId The ID of the therapist
+     * @param serviceId The ID of the service
+     * @param bookingDate The date to check availability for
+     * @return List of available time slots for the specified therapist
+     */
 
 
 

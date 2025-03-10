@@ -121,6 +121,16 @@ public class ServicesService {
         servicesRepository.delete(service);
     }
 
+    private Services checkService(int id) {
+        return servicesRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
+    }
+
+    private ServiceCategory checkServiceCategory(int id) {
+        return serviceCategoryRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+    }
+
     //Add
     @Transactional
     public void assignTherapistToService(int id, AssignTherapistRequest request) {
@@ -133,16 +143,6 @@ public class ServicesService {
         //Add service to therapist
         therapist.getServices().add(service);
         therapistRepository.save(therapist);
-    }
-
-    private Services checkService(int id) {
-        return servicesRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
-    }
-
-    private ServiceCategory checkServiceCategory(int id) {
-        return serviceCategoryRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
     }
 
 }

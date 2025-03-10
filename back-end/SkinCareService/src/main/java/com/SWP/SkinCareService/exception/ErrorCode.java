@@ -70,6 +70,10 @@ public enum ErrorCode {
     ROOM_EXISTED(1030, "Room already exists", HttpStatus.BAD_REQUEST),
     SERVICE_ALREADY_EXISTS(1043,"Service is assign to the room already" ,HttpStatus.BAD_REQUEST ),
     OUT_OF_ROOM(1034, "There are no available rooms at the moment", HttpStatus.NOT_FOUND),
+    SESSION_STATUS_INVALID(1059, "Session status not existed" , HttpStatus.BAD_REQUEST ),
+    BOOKING_STATUS_INVALID(1060, "Booking status not existed" , HttpStatus.BAD_REQUEST ),
+    THERAPIST_NOT_SUPPORTED(1061, "Therapist is not supported", HttpStatus.BAD_REQUEST),
+
     ;
 
     int code;

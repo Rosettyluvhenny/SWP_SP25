@@ -20,4 +20,8 @@ public interface TherapistRepository extends JpaRepository<Therapist, String> {
 
     Optional<Therapist> findByUserId(String id);
     List<Therapist> findTherapistByServices(List<Services> services);
+
+    boolean existsByIdAndServices_Id(String therapistId, int serviceId);
+
+    List<Therapist> findAllByServicesId(int serviceId);
 }

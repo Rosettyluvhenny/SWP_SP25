@@ -3,7 +3,6 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.dto.request.Therapist.GetScheduleRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
-import com.SWP.SkinCareService.dto.response.Room.RoomResponse;
 import com.SWP.SkinCareService.dto.response.Therapist.TherapistResponse;
 import com.SWP.SkinCareService.dto.response.Therapist.TherapistSummaryResponse;
 import com.SWP.SkinCareService.entity.*;
@@ -26,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -174,7 +172,7 @@ public class TherapistService {
                     return response;
                 });
     }
-
+    //Get list therapist available for booking service request
     public List<Therapist> getTherapistAvailableForService(int serviceId, LocalDateTime startTime) {
         Services services = servicesRepository.findById(serviceId).orElseThrow(()
                 -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
@@ -188,12 +186,12 @@ public class TherapistService {
         LocalDateTime startOfDay = startTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
         List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
-        List<BookingSession> bookingSessionList = bookingSessionRepository.findAllByBookingTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
+        List<BookingSession> bookingSessionList = bookingSessionRepository.findAllBySessionDateTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
         List<Therapist> therapistList = therapistRepository.findTherapistByServices(findByService);
         Set<Therapist> therapistsNotAvailable = new HashSet<>();
 
         for (BookingSession bookingSession : bookingSessionList) {
-            LocalDateTime existingStartTime = bookingSession.getBookingTime();
+            LocalDateTime existingStartTime = bookingSession.getSessionDateTime();
             LocalDateTime existingEndTime = existingStartTime.plusMinutes(bookingSession.getBooking().getService().getDuration());
 
 
@@ -209,8 +207,8 @@ public class TherapistService {
         }
         return therapistList;
     }
-
-    public List<TherapistResponse> getTherapistAvailable(GetScheduleRequest request) {
+    //Get list therapist free in time
+    public List<TherapistResponse> getTherapistAvailableInTime(GetScheduleRequest request) {
 
         LocalDateTime time = request.getTime();
         LocalDateTime endTime = time.plusMinutes(59);
@@ -219,12 +217,12 @@ public class TherapistService {
         LocalDateTime startOfDay = time.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
         List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
-        List<BookingSession> bookingSessionList = bookingSessionRepository.findAllByBookingTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
+        List<BookingSession> bookingSessionList = bookingSessionRepository.findAllBySessionDateTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
         List<Therapist> therapistList = therapistRepository.findAll();
         Set<Therapist> therapistsNotAvailable = new HashSet<>();
 
         for (BookingSession bookingSession : bookingSessionList) {
-            LocalDateTime existingStartTime = bookingSession.getBookingTime();
+            LocalDateTime existingStartTime = bookingSession.getSessionDateTime();
             LocalDateTime existingEndTime = existingStartTime.plusMinutes(bookingSession.getBooking().getService().getDuration());
 
 
