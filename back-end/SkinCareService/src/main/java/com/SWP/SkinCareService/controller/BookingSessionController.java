@@ -6,24 +6,31 @@ import com.SWP.SkinCareService.dto.request.Booking.StatusRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
+import com.SWP.SkinCareService.dto.response.BookingSession.TherapistAvailabilityResponse;
+import com.SWP.SkinCareService.dto.response.BookingSession.TimeSlotAvailabilityResponse;
 import com.SWP.SkinCareService.service.BookingSessionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/bookingSession")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookingSessionController {
-    @Autowired
-    private BookingSessionService bookingSessionService;
+    BookingSessionService bookingSessionService;
 
     @PostMapping()
-
     ResponseEntity<ApiResponse<BookingSessionResponse>> createBookingSession(@RequestBody BookingSessionRequest bookingSessionRequest) {
         var result = bookingSessionService.createBookingSession(bookingSessionRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -72,5 +79,26 @@ public class BookingSessionController {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingResponse>builder().message("Updates successfull").build()
         );
+    }
+
+    @GetMapping("/therapist/{therapistId}/service/{serviceId}/available-slots")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
+    public ApiResponse<List<TimeSlotAvailabilityResponse>> getAvailableTimeSlotsForTherapist(
+            @PathVariable String therapistId,
+            @PathVariable int serviceId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ApiResponse.<List<TimeSlotAvailabilityResponse>>builder()
+                .result(bookingSessionService.getAvailableTimeSlotsForTherapist(therapistId, serviceId, date))
+                .build();
+    }
+
+    @GetMapping("/service/{serviceId}/available-slots")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
+    public ApiResponse<List<TherapistAvailabilityResponse>> getAvailableTimeSlotsWithAvailableTherapists(
+            @PathVariable int serviceId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ApiResponse.<List<TherapistAvailabilityResponse>>builder()
+                .result(bookingSessionService.getAvailableTimeSlotsWithAvailableTherapists(serviceId, date))
+                .build();
     }
 }

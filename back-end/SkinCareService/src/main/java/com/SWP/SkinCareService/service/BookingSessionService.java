@@ -4,11 +4,10 @@ import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Booking.StatusRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
-import com.SWP.SkinCareService.dto.response.Booking.TherapistAvailabilityResponse;
-import com.SWP.SkinCareService.dto.response.Booking.TimeSlotAvailabilityResponse;
+import com.SWP.SkinCareService.dto.response.BookingSession.TherapistAvailabilityResponse;
+import com.SWP.SkinCareService.dto.response.BookingSession.TimeSlotAvailabilityResponse;
 import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
-import com.SWP.SkinCareService.enums.BookingStatus;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BookingSessionMapper;
@@ -16,9 +15,12 @@ import com.SWP.SkinCareService.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.stream.events.EndDocument;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +30,7 @@ import java.util.*;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class  BookingSessionService {
     BookingSessionRepository bookingSessionRepository;
     BookingSessionMapper bookingSessionMapper;
@@ -149,7 +152,8 @@ public class  BookingSessionService {
 
     public List<TimeSlotAvailabilityResponse> getAvailableTimeSlotsForTherapist(
             String therapistId, int serviceId, LocalDate bookingDate) {
-
+        if(bookingDate.isBefore(LocalDate.now()))
+            throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
         // Check if therapist exists
         Therapist therapist = getTherapistById(therapistId);
 
@@ -177,11 +181,21 @@ public class  BookingSessionService {
 
         // Filter out slots that overlap with existing bookings
         List<TimeSlotAvailabilityResponse> availableSlots = new ArrayList<>();
-
+        LocalDateTime now = LocalDateTime.now();
         for (LocalTime slot : allTimeSlots) {
-            LocalTime potentialEndTime = slot.plusMinutes(serviceDuration);
+            // Find the next predefined slot that is greater than or equal to (start + serviceDuration)
+            LocalTime expectedEndTime = slot.plusMinutes(serviceDuration);
+            LocalTime endTime = allTimeSlots.stream()
+                    .filter(t -> !t.isBefore(expectedEndTime)) // Get the first slot after expectedEndTime
+                    .findFirst()
+                    .orElse(LocalTime.of(17, 0)); // Default to 17:00 if no slot matches
+
             LocalDateTime slotStartDateTime = bookingDate.atTime(slot);
-            LocalDateTime slotEndDateTime = bookingDate.atTime(potentialEndTime);
+            LocalDateTime slotEndDateTime = bookingDate.atTime(endTime);
+
+            if (bookingDate.isEqual(LocalDate.now()) && slotStartDateTime.isBefore(now)) {
+                continue; // Skip this time slot
+            }
 
             boolean isAvailable = true;
 
@@ -216,7 +230,8 @@ public class  BookingSessionService {
      */
     public List<TherapistAvailabilityResponse> getAvailableTimeSlotsWithAvailableTherapists(
             int serviceId, LocalDate bookingDate) {
-
+        if(bookingDate.isBefore(LocalDate.now()))
+            throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
         // Check if service exists and get its duration
         Services service = servicesRepository.findById(serviceId)
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
@@ -245,7 +260,7 @@ public class  BookingSessionService {
         LocalDateTime startOfDay = bookingDate.atTime(9, 0);
         LocalDateTime endOfDay = bookingDate.atTime(17, 0);
 
-        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED, BookingSessionStatus.WAITING);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED);
         List<BookingSession> allBookings = bookingSessionRepository.findBySessionDateTimeBetweenAndStatusNotIn(
                 startOfDay, endOfDay, excludeStatuses);
 
@@ -284,17 +299,26 @@ public class  BookingSessionService {
 
         // Convert to response objects, selecting the least booked therapist for each slot
         List<TherapistAvailabilityResponse> availabilitySlots = new ArrayList<>();
+        LocalTime now = LocalTime.now();
         for (LocalTime slot : allTimeSlots) {
+            // Find the next predefined slot that is greater than or equal to (start + serviceDuration)
+            LocalTime expectedEndTime = slot.plusMinutes(serviceDuration);
+            LocalTime endTime = allTimeSlots.stream()
+                    .filter(t -> !t.isBefore(expectedEndTime)) // Find the first time slot after expectedEndTime
+                    .findFirst()
+                    .orElse(LocalTime.of(18, 0)); // Default to 17:00 if no slot matches
+
+            if (bookingDate.isEqual(LocalDate.now()) && endTime.isBefore(now)) {
+                continue; // Skip this time slot
+            }
             List<Therapist> availableTherapists = availableTherapistsMap.get(slot);
             if (!availableTherapists.isEmpty()) {
-                LocalTime endTime = slot.plusMinutes(serviceDuration);
-
                 // Find the therapist with the lowest booking count
                 Therapist selectedTherapist = availableTherapists.stream()
                         .min(Comparator.comparing(therapist -> therapistBookingCount.get(therapist.getId())))
                         .orElse(availableTherapists.get(0));
 
-                // Create the response with just the selected therapist
+                // Create the response ensuring time slot aligns with predefined slots
                 TherapistAvailabilityResponse timeSlot = new TherapistAvailabilityResponse(
                         selectedTherapist.getId(),
                         slot,
@@ -303,12 +327,9 @@ public class  BookingSessionService {
 
                 availabilitySlots.add(timeSlot);
 
-                // Increment the booking count for the selected therapist
-                // This ensures future slots will prefer other therapists
+                // Increment therapist booking count
                 therapistBookingCount.put(selectedTherapist.getId(),
                         therapistBookingCount.get(selectedTherapist.getId()) + 1);
-
-                // No need for a break here - the code is already designed to create only one response per time slot
             }
         }
 

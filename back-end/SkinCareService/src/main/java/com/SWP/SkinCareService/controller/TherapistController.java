@@ -34,17 +34,18 @@ public class TherapistController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<TherapistResponse> create(
-            @Valid @RequestPart("data") TherapistRequest request,
+            @Valid @RequestPart("request") TherapistRequest request,
             @RequestPart("img") MultipartFile img) throws IOException {
         return ApiResponse.<TherapistResponse>builder()
-                .code(201)
                 .result(therapistService.create(request, img))
                 .build();
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ApiResponse<Page<TherapistResponse>> getAll(@RequestParam(defaultValue = "false") boolean isActive, Pageable pageable) {
+    public ApiResponse<Page<TherapistResponse>> getAll(
+            @RequestParam(defaultValue = "true") boolean isActive,
+            Pageable pageable) {
         return ApiResponse.<Page<TherapistResponse>>builder()
                 .result(therapistService.findAll(isActive, pageable))
                 .build();
@@ -62,7 +63,7 @@ public class TherapistController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<TherapistResponse> update(
             @PathVariable String id,
-            @Valid @RequestPart("data") TherapistUpdateRequest request,
+            @Valid @RequestPart("request") TherapistUpdateRequest request,
             @RequestPart(value = "img", required = false) MultipartFile img) throws IOException {
         return ApiResponse.<TherapistResponse>builder()
                 .result(therapistService.update(id, request, img))
@@ -88,12 +89,12 @@ public class TherapistController {
     }
 
     @GetMapping("/by-service/{serviceId}")
-    public ApiResponse<Page<TherapistSummaryResponse>> getTherapistsByService(
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
+    public ApiResponse<Page<TherapistSummaryResponse>> getAllByServiceId(
             @PathVariable int serviceId,
             Pageable pageable) {
-        Page<TherapistSummaryResponse> therapists = therapistService.getAllByServiceId(serviceId, pageable);
         return ApiResponse.<Page<TherapistSummaryResponse>>builder()
-                .result(therapists)
+                .result(therapistService.getAllByServiceId(serviceId, pageable))
                 .build();
     }
 }
