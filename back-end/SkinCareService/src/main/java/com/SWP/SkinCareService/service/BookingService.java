@@ -104,7 +104,6 @@ public class BookingService {
         bookingSession.setBooking(booking);
         bookingSession.setBookingDate(request.getBookingTime().toLocalDate());
         bookingSession.setBookingTime(request.getBookingTime());
-        bookingSession.setNote(request.getNotes());
         bookingSessionRepository.save(bookingSession);
 
         return bookingMapper.toBookingResponse(booking);

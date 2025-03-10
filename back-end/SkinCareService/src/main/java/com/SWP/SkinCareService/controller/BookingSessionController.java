@@ -60,6 +60,7 @@ public class BookingSessionController {
     @PutMapping(value = "/before/{sessionId}")
     ResponseEntity<ApiResponse<BookingSessionResponse>> updateBeforeBookingSession(
             @PathVariable int sessionId,
+            @RequestPart("data") SessionUpdateRequest request,
             @RequestParam("img") MultipartFile img) throws IOException {
 
         if (img == null || img.isEmpty()) {
@@ -72,7 +73,7 @@ public class BookingSessionController {
         }
 
 
-        var result = bookingSessionService.updateBefore(sessionId, img);
+        var result = bookingSessionService.updateBefore(sessionId, request, img);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingSessionResponse>builder().result(result).build()
         );
@@ -82,6 +83,7 @@ public class BookingSessionController {
     @PutMapping(value = "/after/{sessionId}")
     ResponseEntity<ApiResponse<BookingSessionResponse>> updateAfterBookingSession(
             @PathVariable int sessionId,
+            @RequestPart("data") SessionUpdateRequest request,
             @RequestParam("img") MultipartFile img) throws IOException {
 
         if (img == null || img.isEmpty()) {
@@ -93,7 +95,7 @@ public class BookingSessionController {
             );
         }
 
-        var result = bookingSessionService.updateAfter(sessionId, img);
+        var result = bookingSessionService.updateAfter(sessionId, request, img);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingSessionResponse>builder().result(result).build()
         );

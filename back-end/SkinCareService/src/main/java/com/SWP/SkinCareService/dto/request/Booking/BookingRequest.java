@@ -15,10 +15,6 @@ public class BookingRequest {
     String userId;
     int serviceId;
     int paymentId;
-    String notes;
-    //int sessionRemain;
-    //String staffId; //null luc tao
-    //int price;
     LocalDateTime bookingTime;
     String therapistId;
 }

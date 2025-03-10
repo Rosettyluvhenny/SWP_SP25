@@ -65,10 +65,11 @@ public class  BookingSessionService {
     public BookingSessionResponse getBookingSessionById(int id) {
         return bookingSessionMapper.toBookingSessionResponse(checkSession(id));
     }
-    public BookingSessionResponse updateBefore(int id, MultipartFile img) throws IOException {
+    public BookingSessionResponse updateBefore(int id,SessionUpdateRequest request, MultipartFile img) throws IOException {
         BookingSession session = checkSession(id);
         //Assign staffID
         //----------------------------------------------
+
         //Ordinal number of the session in the booking
         int sessionNum = 0;
         Booking booking = session.getBooking();
@@ -84,11 +85,12 @@ public class  BookingSessionService {
         }
         String imgBefore = supabaseService.uploadImage(img,"Before_session"+sessionNum+"_booking"+booking.getId());
         session.setImgBefore(imgBefore);
+        session.setNote(request.getNote());
         //Save and response
         bookingSessionRepository.save(session);
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
-    public BookingSessionResponse updateAfter(int id, MultipartFile img) throws IOException {
+    public BookingSessionResponse updateAfter(int id, SessionUpdateRequest request, MultipartFile img) throws IOException {
         BookingSession session = checkSession(id);
         if (session.getImgBefore() == null) {
             throw new AppException(ErrorCode.UPDATE_NOT_ALLOWED);
@@ -108,6 +110,7 @@ public class  BookingSessionService {
         }
         String imgAfter = supabaseService.uploadImage(img,"After_session"+sessionNum+"_booking"+booking.getId());
         session.setImgAfter(imgAfter);
+        session.setNote(request.getNote());
 
         if (session.isFinished()) {
             session.setStatus(BookingSessionStatus.COMPLETED);
