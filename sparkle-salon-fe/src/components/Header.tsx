@@ -357,7 +357,7 @@ export default function Header() {
                 {/* Login Modal */}
                 {isLoginOpen && (
                     <motion.div
-                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50 p-4"
+                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -490,30 +490,30 @@ export default function Header() {
                 {/* Register Modal */}
                 {isRegisterOpen && (
                     <motion.div
-                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50 p-4"
+                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
                         <motion.div
-                            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+                            className="bg-white rounded-2xl shadow-2xl w-full max-w-md h-auto flex flex-col"
                             initial={{ scale: 0.9, y: 20 }}
                             animate={{ scale: 1, y: 0 }}
                             exit={{ scale: 0.9, y: 20 }}
                         >
-                            <div className="bg-gradient-to-r from-[#f398d0] to-[#ee8874] p-6">
+                            <div className="bg-gradient-to-r from-[#f398d0] to-[#ee8874] p-4 ">
                                 <h2 className="text-2xl font-bold text-white text-center">
                                     Đăng ký tài khoản
                                 </h2>
                             </div>
-                            <div className="p-8">
+                            <div className="p-6 flex-1 overflow-auto">
                                 <form
                                     onSubmit={handleRegister}
-                                    className="space-y-6"
+                                    className="grid grid-cols-2 gap-4"
                                 >
                                     {error && (
                                         <motion.p
-                                            className="text-red-500 text-center bg-red-50 p-3 rounded-lg"
+                                            className="text-red-500 text-center bg-red-50 p-3 rounded-lg col-span-2"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                         >
@@ -600,7 +600,7 @@ export default function Header() {
 
                                     <motion.button
                                         type="submit"
-                                        className="w-full bg-gradient-to-r from-[#f398d0] to-[#ee8874] text-white py-3 rounded-lg font-semibold"
+                                        className="w-full bg-gradient-to-r from-[#f398d0] to-[#ee8874] text-white py-3 rounded-lg font-semibold col-span-2"
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                     >
