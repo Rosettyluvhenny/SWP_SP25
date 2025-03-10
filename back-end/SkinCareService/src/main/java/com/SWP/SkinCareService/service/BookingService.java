@@ -37,8 +37,8 @@ public class BookingService {
     private PaymentRepository paymentRepository;
     private BookingSessionRepository bookingSessionRepository;
     private TherapistRepository therapistRepository;
-    private RoomRepository roomRepository;
     private TherapistService therapistService;
+    private RoomService roomService;
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
@@ -81,6 +81,15 @@ public class BookingService {
                     throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
                 }
             }
+        }
+        //Assign Room for session
+        List<Room> roomList = roomService.getRoomAvailableForService(request.getServiceId());
+        if (roomList.isEmpty()) {
+            throw new AppException(ErrorCode.OUT_OF_ROOM);
+        } else {
+            Room room = roomList.getFirst();
+            bookingSession.setRoom(room);
+            roomService.incrementInUse(room.getId());
         }
         //Set data and save
         Booking booking = bookingMapper.toBooking(request);

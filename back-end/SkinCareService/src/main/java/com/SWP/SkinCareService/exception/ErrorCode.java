@@ -69,6 +69,7 @@ public enum ErrorCode {
     ROOM_EMPTY(1034, "Room is already empty", HttpStatus.BAD_REQUEST),
     ROOM_EXISTED(1030, "Room already exists", HttpStatus.BAD_REQUEST),
     SERVICE_ALREADY_EXISTS(1043,"Service is assign to the room already" ,HttpStatus.BAD_REQUEST ),
+    OUT_OF_ROOM(1034, "There are no available rooms at the moment", HttpStatus.NOT_FOUND),
     ;
 
     int code;

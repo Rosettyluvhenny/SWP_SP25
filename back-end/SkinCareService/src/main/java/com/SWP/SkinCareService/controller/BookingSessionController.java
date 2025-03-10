@@ -57,10 +57,9 @@ public class BookingSessionController {
         );
     }
     //Update before Session start, update room and img
-    @PutMapping(value = "/before/{sessionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/before/{sessionId}")
     ResponseEntity<ApiResponse<BookingSessionResponse>> updateBeforeBookingSession(
             @PathVariable int sessionId,
-            @RequestPart("data") SessionUpdateRequest bookingSessionRequest,
             @RequestParam("img") MultipartFile img) throws IOException {
 
         if (img == null || img.isEmpty()) {
@@ -73,7 +72,7 @@ public class BookingSessionController {
         }
 
 
-        var result = bookingSessionService.updateBefore(sessionId, bookingSessionRequest, img);
+        var result = bookingSessionService.updateBefore(sessionId, img);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingSessionResponse>builder().result(result).build()
         );

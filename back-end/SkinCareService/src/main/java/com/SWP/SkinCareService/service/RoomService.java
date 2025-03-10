@@ -191,4 +191,15 @@ public class RoomService {
         room.setInUse(room.getInUse() - 1);
         roomRepository.save(room);
     }
+
+    public List<Room> getRoomAvailableForService(int serviceId) {
+        List<Room> rooms = roomRepository.findAllByServicesId(serviceId);
+        List<Room> availableRooms = new ArrayList<>();
+        for (Room room : rooms) {
+            if (room.getCapacity() > room.getInUse()) {
+                availableRooms.add(room);
+            }
+        }
+        return availableRooms;
+    }
 }

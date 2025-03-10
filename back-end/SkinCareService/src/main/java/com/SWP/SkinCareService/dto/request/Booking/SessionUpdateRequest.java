@@ -9,6 +9,5 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SessionUpdateRequest {
-    int roomId;
     String therapistId;
 }

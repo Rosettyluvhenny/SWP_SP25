@@ -29,10 +29,10 @@ public class  BookingSessionService {
     BookingSessionRepository bookingSessionRepository;
     BookingSessionMapper bookingSessionMapper;
     BookingRepository bookingRepository;
-    RoomRepository roomRepository;
     TherapistRepository therapistRepository;
     SupabaseService supabaseService;
     FeedbackRepository feedbackRepository;
+    RoomService roomService;
 
     public BookingSessionResponse createBookingSession(BookingSessionRequest request) {
         //Check booking
@@ -53,10 +53,7 @@ public class  BookingSessionService {
     }
     public List<BookingSessionResponse> getAllBookingNullTherapist() {
         List<BookingSession> list = bookingSessionRepository.findAll();
-        for (BookingSession bookingSession : list)
-            if (bookingSession.getTherapist() != null) {
-                list.remove(bookingSession);
-            }
+
         list.removeIf(bookingSession -> bookingSession.getTherapist() != null);
 
         if (list.isEmpty()) {
@@ -68,16 +65,10 @@ public class  BookingSessionService {
     public BookingSessionResponse getBookingSessionById(int id) {
         return bookingSessionMapper.toBookingSessionResponse(checkSession(id));
     }
-    public BookingSessionResponse updateBefore(int id, SessionUpdateRequest request, MultipartFile img) throws IOException {
+    public BookingSessionResponse updateBefore(int id, MultipartFile img) throws IOException {
         BookingSession session = checkSession(id);
-        //Check room existed or not
-        Room room = getRoomById(request.getRoomId());
-        //Condition check room available
-        //-----------------------------
-        session.setRoom(room);
-
         //Assign staffID
-
+        //----------------------------------------------
         //Ordinal number of the session in the booking
         int sessionNum = 0;
         Booking booking = session.getBooking();
@@ -91,7 +82,7 @@ public class  BookingSessionService {
         if (img == null || img.isEmpty()) {
             throw new MultipleParameterValidationException(Collections.singletonList("img"));
         }
-        String imgBefore = supabaseService.uploadImage(img,"Before_session_"+sessionNum+"_booking_"+booking.getId());
+        String imgBefore = supabaseService.uploadImage(img,"Before_session"+sessionNum+"_booking"+booking.getId());
         session.setImgBefore(imgBefore);
         //Save and response
         bookingSessionRepository.save(session);
@@ -125,7 +116,9 @@ public class  BookingSessionService {
             if (booking.getSessionRemain() == 0) {
                 booking.setStatus(BookingStatus.COMPLETED);
             }
-
+            //Decrease in use in room
+            int roomId = session.getRoom().getId();
+            roomService.decrementInUse(roomId);
             //Create feedback
             Feedback feedback = new Feedback();
             //Set data
@@ -166,10 +159,6 @@ public class  BookingSessionService {
     Booking getBookingById(int id) {
         return bookingRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
-    }
-    Room getRoomById(int id) {
-        return roomRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
     }
     Therapist getTherapistById(String id) {
         return therapistRepository.findById(id).orElseThrow(()
