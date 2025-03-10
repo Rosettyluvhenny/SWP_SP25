@@ -33,5 +33,5 @@ public class ServiceCategoryResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt;
 
-    List<ServiceDTO> services;
+    //List<ServiceDTO> services;
 }

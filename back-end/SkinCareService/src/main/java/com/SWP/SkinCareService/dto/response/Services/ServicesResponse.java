@@ -30,6 +30,8 @@ public class ServicesResponse {
 
     int categoryId;
 
+    boolean active;
+
     ServiceType type;
 
     float rating;

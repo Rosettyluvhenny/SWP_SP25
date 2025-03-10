@@ -2,7 +2,8 @@ package com.SWP.SkinCareService.mapper;
 
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
-import com.SWP.SkinCareService.dto.response.TherapistResponse;
+import com.SWP.SkinCareService.dto.response.Therapist.TherapistResponse;
+import com.SWP.SkinCareService.dto.response.Therapist.TherapistSummaryResponse;
 import com.SWP.SkinCareService.entity.Therapist;
 import com.SWP.SkinCareService.entity.User;
 import org.mapstruct.Mapper;
@@ -26,7 +27,7 @@ public interface TherapistMapper {
     @Mapping(target = "email", source = "email")
     @Mapping(target = "phone", source = "phone")
     @Mapping(target = "dob", source = "dob")
-    @Mapping(target = "isActive", constant = "true")
+    @Mapping(target = "active", constant = "true")
     User toUser(TherapistRequest request);
 
     @Mapping(target = "username", source = "user.username")
@@ -35,11 +36,14 @@ public interface TherapistMapper {
     @Mapping(target = "dob", source = "user.dob")
     @Mapping(target = "phone", source = "user.phone")
     @Mapping(target = "roles", source = "user.roles")
-    TherapistResponse toTheRapistResponse(Therapist therapist);
+    TherapistResponse toResponse(Therapist therapist);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "experienceYears", source = "experienceYears")
     @Mapping(target = "bio", source = "bio")
-    void updateMapper(TherapistUpdateRequest request, @MappingTarget Therapist therapist);
+    void update(@MappingTarget Therapist therapist, TherapistUpdateRequest request);
+
+    @Mapping(target = "fullName", source = "user.fullName")
+    TherapistSummaryResponse toTherapistSummary(Therapist therapist);
 }

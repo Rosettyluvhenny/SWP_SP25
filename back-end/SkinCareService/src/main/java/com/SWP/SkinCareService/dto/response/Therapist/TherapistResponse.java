@@ -1,5 +1,6 @@
-package com.SWP.SkinCareService.dto.response;
+package com.SWP.SkinCareService.dto.response.Therapist;
 
+import com.SWP.SkinCareService.dto.response.Services.ServiceSummaryResponse;
 import com.SWP.SkinCareService.entity.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
@@ -7,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -29,5 +31,9 @@ public class TherapistResponse {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt;
+
+    String img;
+
+    List<ServiceSummaryResponse> services;
 
 }

@@ -99,7 +99,7 @@ public class BookingSessionController {
                 ApiResponse.<BookingSessionResponse>builder().result(result).build()
         );
     }
-
+    //Assign therapist for session
     @PutMapping("/therapist/{sessionId}")
     ResponseEntity<ApiResponse<BookingSessionResponse>> updateTherapist(@PathVariable int sessionId, @RequestBody SessionUpdateRequest request) {
         var result = bookingSessionService.assignTherapistToSession(sessionId, request);

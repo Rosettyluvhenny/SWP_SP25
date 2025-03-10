@@ -15,8 +15,8 @@ public interface BookingSessionMapper {
     BookingSession toBookingSession(BookingSessionRequest request);
 
     @Mapping(target = "bookingId", source = "booking.id")
-    @Mapping(target = "roomId", source = "room.roomId")
-    @Mapping(target = "roomName", source = "room.roomName")
+    @Mapping(target = "roomId", source = "room.id")
+    @Mapping(target = "roomName", source = "room.name")
     @Mapping(target = "userId", source = "booking.user.id")
     @Mapping(target = "userName", source = "booking.user.username")
     @Mapping(target = "therapistId", source = "therapist.id")

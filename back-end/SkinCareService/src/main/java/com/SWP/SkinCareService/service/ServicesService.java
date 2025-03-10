@@ -7,7 +7,6 @@ import com.SWP.SkinCareService.dto.response.Services.ServicesResponse;
 import com.SWP.SkinCareService.entity.ServiceCategory;
 import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.entity.Therapist;
-import com.SWP.SkinCareService.enums.ServiceType;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.exception.MultipleParameterValidationException;
@@ -54,8 +53,6 @@ public class ServicesService {
 
         Services service = servicesMapper.toServices(request);
         service.setServiceCategory(category);
-        //ServiceType type = Enum.valueOf(ServiceType.class, request.getType());
-        service.setType(request.getType());
         service = servicesRepository.save(service);
         String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());
         service.setImg(serviceImg);
@@ -70,29 +67,14 @@ public class ServicesService {
         return result;
     }
 
-    public Page<ServicesResponse> getAllActive(Pageable pageable) throws IOException {
-        return servicesRepository.findAllByActiveTrue(pageable)
+    public Page<ServicesResponse> getAll(boolean isActive,Pageable pageable) {
+        Page<Services> services = isActive ? servicesRepository.findAllByActiveTrue(pageable) : servicesRepository.findAll(pageable);
+        return services
                 .map(service -> {
-                    try {
-                        var response = servicesMapper.toResponse(service);
-                        response.setImg(supabaseService.getImage(response.getImg()));
-                        return response;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-    }
+                    var response = servicesMapper.toResponse(service);
+                    response.setImg(supabaseService.getImage(response.getImg()));
+                    return response;
 
-    public Page<ServicesResponse> getAll(Pageable pageable) throws IOException {
-        return servicesRepository.findAll(pageable)
-                .map(service -> {
-                    try {
-                        var response = servicesMapper.toResponse(service);
-                        response.setImg(supabaseService.getImage(response.getImg()));
-                        return response;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
                 });
     }
 
@@ -100,8 +82,10 @@ public class ServicesService {
     public ServicesResponse update(int id, ServicesUpdateRequest request, MultipartFile img) throws IOException {
         Services service = checkService(id);
         servicesMapper.update(request, service);
-        if(!(img == null || img.isEmpty()))
-        {
+        if(img == null || img.isEmpty()){
+
+        }
+        else {
             supabaseService.deleteImage(service.getImg());
             String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());
             service.setImg(serviceImg);
@@ -110,19 +94,6 @@ public class ServicesService {
         service.setServiceCategory(category);
         servicesRepository.save(service);
         return servicesMapper.toResponse(service);
-    }
-
-    @Transactional
-    public void assignTherapistToService(int id, AssignTherapistRequest request) {
-        Services service = checkService(id);
-        Therapist therapist = therapistRepository.findById(request.getTherapistId()).orElseThrow(()
-                -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
-        //Add therapist to service
-        service.getTherapists().add(therapist);
-        servicesRepository.save(service);
-        //Add service to therapist
-        therapist.getServices().add(service);
-        therapistRepository.save(therapist);
     }
 
     @Transactional
@@ -150,6 +121,20 @@ public class ServicesService {
         servicesRepository.delete(service);
     }
 
+    //Add
+    @Transactional
+    public void assignTherapistToService(int id, AssignTherapistRequest request) {
+        Services service = checkService(id);
+        Therapist therapist = therapistRepository.findById(request.getTherapistId()).orElseThrow(()
+                -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+        //Add therapist to service
+        service.getTherapists().add(therapist);
+        servicesRepository.save(service);
+        //Add service to therapist
+        therapist.getServices().add(service);
+        therapistRepository.save(therapist);
+    }
+
     private Services checkService(int id) {
         return servicesRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
@@ -159,4 +144,5 @@ public class ServicesService {
         return serviceCategoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
     }
+
 }

@@ -50,7 +50,6 @@ public enum ErrorCode {
     QUIZ_EXISTED(1038, "Quiz existed", HttpStatus.BAD_REQUEST),
     BOOKING_ON_GOING(1040, "Your booking are ongoing", HttpStatus.BAD_REQUEST),
     THERAPIST_NOT_AVAILABLE(1041, "Therapist not available at this time", HttpStatus.BAD_REQUEST),
-    ROOM_NOT_AVAILABLE(1042, "Room not available at this time", HttpStatus.BAD_REQUEST),
     RESULT_EXISTED(1043, "Result existed", HttpStatus.BAD_REQUEST),
     PAYMENT_NOT_EXISTED(1044,"Payment method not existed" , HttpStatus.BAD_REQUEST ),
     USERNAME_EXISTED(1045, "User name is existed" , HttpStatus.BAD_REQUEST ),
@@ -64,6 +63,12 @@ public enum ErrorCode {
     //---------- ADD
     FEEDBACK_NOT_FOUND(1033,"Feedback not found", HttpStatus.NOT_FOUND),
     OUT_OF_THERAPIST(1034,"There are no available therapists at the moment.", HttpStatus.BAD_REQUEST),
+    //Merge
+    ROOM_IN_USE(1032, "Room is in use and cannot be deleted", HttpStatus.BAD_REQUEST),
+    ROOM_FULL(1033, "Room is at full capacity", HttpStatus.BAD_REQUEST),
+    ROOM_EMPTY(1034, "Room is already empty", HttpStatus.BAD_REQUEST),
+    ROOM_EXISTED(1030, "Room already exists", HttpStatus.BAD_REQUEST),
+    SERVICE_ALREADY_EXISTS(1043,"Service is assign to the room already" ,HttpStatus.BAD_REQUEST ),
     ;
 
     int code;

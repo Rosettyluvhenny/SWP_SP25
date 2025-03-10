@@ -4,89 +4,105 @@ import com.SWP.SkinCareService.dto.request.Therapist.GetScheduleRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
-import com.SWP.SkinCareService.dto.response.TherapistResponse;
+import com.SWP.SkinCareService.dto.response.Therapist.TherapistResponse;
+import com.SWP.SkinCareService.dto.response.Therapist.TherapistSummaryResponse;
+import com.SWP.SkinCareService.entity.Therapist;
+import com.SWP.SkinCareService.mapper.TherapistMapper;
 import com.SWP.SkinCareService.service.TherapistService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/therapist")
+@RequestMapping("/therapists")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class TherapistController {
+public class TherapistController {
     TherapistService therapistService;
+    TherapistMapper therapistMapper;
 
-    @PostMapping
-    ResponseEntity<ApiResponse<TherapistResponse>> create(@RequestBody @Valid TherapistRequest request){
-        var result = therapistService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.<TherapistResponse>builder()
-                        .result(result)
-                        .build()
-        );
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<TherapistResponse> create(
+            @Valid @RequestPart("data") TherapistRequest request,
+            @RequestPart("img") MultipartFile img) throws IOException {
+        return ApiResponse.<TherapistResponse>builder()
+                .code(201)
+                .result(therapistService.create(request, img))
+                .build();
     }
 
     @GetMapping
-    ResponseEntity<ApiResponse<List<TherapistResponse>>> getAll(){
-        var result = therapistService.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<List<TherapistResponse>>builder()
-                        .result(result)
-                        .build()
-        );
+    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<Page<TherapistResponse>> getAll(@RequestParam(defaultValue = "true") boolean isActive, Pageable pageable) {
+        return ApiResponse.<Page<TherapistResponse>>builder()
+                .result(therapistService.findAll(isActive, pageable))
+                .build();
     }
 
-    @GetMapping("/{therapistId}")
-    ResponseEntity<ApiResponse<TherapistResponse>> getById(@PathVariable String therapistId){
-        var result = therapistService.findById(therapistId);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<TherapistResponse>builder()
-                        .result(result)
-                        .build()
-        );
+    @GetMapping("/{id}")
+    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<TherapistResponse> getById(@PathVariable String id) {
+        return ApiResponse.<TherapistResponse>builder()
+                .result(therapistService.findById(id))
+                .build();
     }
 
-    @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<TherapistResponse>> update(@PathVariable String id, @RequestBody @Valid TherapistUpdateRequest request){
-        var result = therapistService.update(id, request);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<TherapistResponse>builder()
-                        .result(result)
-                        .build()
-        );
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<TherapistResponse> update(
+            @PathVariable String id,
+            @Valid @RequestPart("data") TherapistUpdateRequest request,
+            @RequestPart(value = "img", required = false) MultipartFile img) throws IOException {
+        return ApiResponse.<TherapistResponse>builder()
+                .result(therapistService.update(id, request, img))
+                .build();
     }
 
-    @PutMapping("/{id}/disable")
-    ResponseEntity<ApiResponse> disable (@PathVariable String id){
+    @DeleteMapping("/{id}/disable")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> disable(@PathVariable String id) {
         therapistService.disable(id);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.builder()
-                        .message("Disable successfully")
-                        .build()
-        );
+        return ApiResponse.<Void>builder()
+                .message("Therapist disabled successfully")
+                .build();
     }
+
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse> delete (@PathVariable String id){
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> delete(@PathVariable String id) {
         therapistService.delete(id);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.builder()
-                        .message("Delete successfully")
-                        .build()
-        );
+        return ApiResponse.<Void>builder()
+                .message("Therapist deleted successfully")
+                .build();
+    }
+
+    @GetMapping("/by-service/{serviceId}")
+    public ApiResponse<Page<TherapistSummaryResponse>> getTherapistsByService(
+            @PathVariable int serviceId,
+            Pageable pageable) {
+        Page<TherapistSummaryResponse> therapists = therapistService.getAllByServiceId(serviceId, pageable);
+        return ApiResponse.<Page<TherapistSummaryResponse>>builder()
+                .result(therapists)
+                .build();
     }
 
     @PostMapping("/schedule")
-    ResponseEntity<ApiResponse<List<TherapistResponse>>> getSchedule(@RequestBody GetScheduleRequest request){
+    ApiResponse<List<TherapistResponse>> getSchedule(@RequestBody GetScheduleRequest request){
         var result = therapistService.getTherapistAvailable(request);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<List<TherapistResponse>>builder().result(result).build()
-        );
+        return ApiResponse.<List<TherapistResponse>>builder().result(result).build();
     }
 }

@@ -26,10 +26,7 @@ public class ServiceCategoryService {
         if(serviceCategoryRepository.existsByName(request.getName())){
             throw new AppException(ErrorCode.CATEGORY_EXISTED);
         }
-        ServiceCategory category = ServiceCategory.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .build();
+        ServiceCategory category = serviceCategoryMapper.toCategory(request);
         category = serviceCategoryRepository.save(category);
         serviceCategoryRepository.flush();
         return serviceCategoryMapper.toResponse(category);
@@ -37,10 +34,7 @@ public class ServiceCategoryService {
     @Transactional
     public ServiceCategoryResponse update(int id, CategoryUpdateRequest request){
         ServiceCategory category = checkServiceCategory(id);
-        if(!request.getName().isBlank())
-            category.setName(request.getName());
-        if(!request.getDescription().isBlank())
-            category.setDescription(request.getDescription());
+        serviceCategoryMapper.update(category, request);
         category = serviceCategoryRepository.save(category);
         serviceCategoryRepository.flush();
         return serviceCategoryMapper.toResponse(category);
@@ -57,6 +51,7 @@ public class ServiceCategoryService {
     public ServiceCategoryResponse getById(int id){
         return serviceCategoryMapper.toResponse(checkServiceCategory(id));
     }
+
     private ServiceCategory checkServiceCategory(int id){
         return serviceCategoryRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
     }

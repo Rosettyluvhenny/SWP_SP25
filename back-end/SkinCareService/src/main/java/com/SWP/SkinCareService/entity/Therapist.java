@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -7,10 +8,14 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.service.spi.ServiceException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "therapist")
@@ -21,6 +26,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class Therapist {
 
     @Id
@@ -37,9 +43,32 @@ public class Therapist {
 
     String bio;
 
+    @ManyToMany
+    @JoinTable(
+            name = "therapist_service",
+            joinColumns = @JoinColumn(name = "therapist_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    @JsonBackReference
+    Set<Services> services ;
+
+    public void addService(Services service) {
+        services.add(service);
+        service.getTherapists().add(this);
+    }
+
+    public void removeService(Services service) {
+        services.remove(service);
+        service.getTherapists().remove(this);
+    }
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime createdAt;
 
+    @UpdateTimestamp
+    @Column(name = "updated_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt;
 
@@ -47,14 +76,8 @@ public class Therapist {
     @JsonManagedReference
     List<BookingSession> bookingSessions;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    @JoinTable(
-            name = "TherapistService",
-            joinColumns = @JoinColumn(name = "therapistId"),
-            inverseJoinColumns = @JoinColumn(name = "serviceId")
-    )
-    List<Services> services;
+
+    String img;
 
     @Override
     public boolean equals(Object o) {
@@ -67,5 +90,10 @@ public class Therapist {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+    public void removeAllService(){
+        for (Services service : this.services){
+            service.getTherapists().remove(this);
+        }
     }
 }

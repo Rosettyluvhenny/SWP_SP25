@@ -32,7 +32,7 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "isActive", expression = "java(true)")
+    @Mapping(target = "active", expression = "java(true)")
     User toUser(UserRequest request);
     UserResponse toUserResponse(User user);
     @Mapping(target ="roles", ignore = true)

@@ -3,13 +3,12 @@ package com.SWP.SkinCareService.controller;
 import com.SWP.SkinCareService.dto.request.Services.AssignTherapistRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServicesRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServicesUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Services.ServicesResponse;
 import com.SWP.SkinCareService.service.ServicesService;
-import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -40,10 +39,9 @@ public class ServicesController {
     @Operation(summary = "Create a new service", description = "Create a new service with image upload")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ServicesResponse>> createServiceCategory(
-            @RequestPart("data") @Valid ServicesRequest request,
+            @RequestPart("data")ServicesRequest request,
             @Parameter(description = "Service image file")
-            @RequestPart("img") MultipartFile img) throws IOException {
-
+            @RequestPart(value = "img") MultipartFile img) throws IOException {
 
         if (img == null || img.isEmpty()) {
             return ResponseEntity.badRequest().body(
@@ -53,7 +51,6 @@ public class ServicesController {
                             .build()
             );
         }
-
 
 
         var result = servicesService.create(request, img);
@@ -79,10 +76,10 @@ public class ServicesController {
             description = "Retrieve a paginated list of all active services. Use page, size, and sort parameters for pagination and sorting."
     )
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<ServicesResponse>>> getAll( @RequestParam(defaultValue = "false") boolean isActive
-            ,@Parameter(description = "Page number (0-based)")
-                                                                       @PageableDefault(size = 10, sort = "id")  Pageable pageable) throws IOException {
-        var result = isActive ? servicesService.getAllActive(pageable): servicesService.getAll(pageable);
+    public ResponseEntity<ApiResponse<Page<ServicesResponse>>> getAll(@RequestParam(defaultValue = "false") boolean isActive,
+                                                                      @Parameter(description = "Page number (0-based)")
+                                                                      @PageableDefault(size = 10, sort = "id") Pageable pageable) throws IOException {
+        var result = servicesService.getAll(isActive,pageable);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<Page<ServicesResponse>>builder()
                         .result(result)
@@ -92,12 +89,10 @@ public class ServicesController {
 
     @Operation(summary = "Update a service", description = "Update an existing service with image upload")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<ServicesResponse>> updateServiceCategory(
-            @PathVariable int id,
-            @RequestPart("data") @Valid ServicesUpdateRequest request,
-            @Parameter(description = "Service image file")
-            @RequestParam(required = false) MultipartFile img) throws IOException {
-
+    public ResponseEntity<ApiResponse<ServicesResponse>> updateServiceCategory(@PathVariable int id,
+                                                                               @RequestPart("data")ServicesUpdateRequest request,
+                                                                               @Parameter(description = "Service image file")
+                                                                               @RequestPart(value = "img",required = false) MultipartFile img) throws IOException {
 
         var result = servicesService.update(id, request, img);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -126,7 +121,6 @@ public class ServicesController {
                         .build()
         );
     }
-
     @PutMapping("/assign/{id}")
     public ResponseEntity<ApiResponse> assignTherapist(@PathVariable int id, @RequestBody AssignTherapistRequest request) {
         servicesService.assignTherapistToService(id, request);
@@ -134,7 +128,6 @@ public class ServicesController {
                 ApiResponse.builder().message("Assigned").build()
         );
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteServiceCategory(@PathVariable int id) throws IOException {

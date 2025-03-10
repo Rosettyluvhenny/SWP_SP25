@@ -73,7 +73,7 @@ public class BookingService {
         //Get all booking of user
         Set<Booking> bookingList = user.getBooking();
         for (Booking booking : bookingList) {
-            if ((booking.getService().getType() == ServiceType.DIEU_TRI) && (booking.getService().getType() == service.getType()))  {
+            if ((booking.getService().getType() == ServiceType.TREATMENT) && (booking.getService().getType() == service.getType()))  {
                 BookingSession session = booking.getBookingSessions().getLast();
                 LocalDate lastSessionDateValid = session.getBookingDate().plusDays(7);
                 LocalDate currentDate = request.getBookingTime().toLocalDate();

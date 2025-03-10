@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.mapper;
 
 import com.SWP.SkinCareService.dto.request.Services.ServicesRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServicesUpdateRequest;
+import com.SWP.SkinCareService.dto.response.Services.ServiceSummaryResponse;
 import com.SWP.SkinCareService.dto.response.Services.ServicesResponse;
 import com.SWP.SkinCareService.entity.Services;
 import org.mapstruct.*;
@@ -19,4 +20,6 @@ public interface ServicesMapper {
     @Mapping(target = "serviceCategory", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void update(ServicesUpdateRequest request,@MappingTarget Services service);
+
+    ServiceSummaryResponse toSummaryResponse(Services services);
 }
