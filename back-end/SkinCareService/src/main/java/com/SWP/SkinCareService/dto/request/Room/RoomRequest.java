@@ -2,21 +2,24 @@ package com.SWP.SkinCareService.dto.request.Room;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
+import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class RoomRequest {
-    @NotBlank(message = "Room name cannot be empty")
-    String roomName;
-    
-    @Min(value = 1, message = "Capacity must be at least 1")
+    @NotBlank(message = "NOT_EMPTY")
+    String name;
+
+    @NotNull(message = "NOT_EMPTY")
+    @Min(value = 1, message = "MIN")
     int capacity;
-    
-    @Min(value = 0, message = "InUse must be at least 0")
-    int inUse;
+
+    List<Integer> serviceIds = new ArrayList<>();
 } 
