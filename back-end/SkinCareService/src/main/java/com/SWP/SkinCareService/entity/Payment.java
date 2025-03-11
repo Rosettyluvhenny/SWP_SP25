@@ -20,7 +20,7 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PaymentID")
-    Long paymentId;
+    Integer paymentId;
 
     @Column(name = "PaymentName", nullable = false, unique = true)
     String paymentName;

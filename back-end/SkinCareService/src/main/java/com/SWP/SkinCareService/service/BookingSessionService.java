@@ -241,7 +241,7 @@ public class  BookingSessionService {
         session.setStatus(BookingSessionStatus.PENDING);
 
         bookingSessionRepository.save(session);
-
+        bookingSessionRepository.flush();
         updateSessionRemain(request.getBookingId());
 
         return bookingSessionMapper.toBookingSessionResponse(session);
@@ -605,10 +605,12 @@ public class  BookingSessionService {
     void updateSessionRemain(int id) {
         Booking booking = getBookingById(id);
         List<BookingSession> list = booking.getBookingSessions();
-        int remain = 0;
-        for (BookingSession bookingSession : list) {
-            if (bookingSession.getStatus() != BookingSessionStatus.COMPLETED && bookingSession.getStatus() != BookingSessionStatus.IS_CANCELED) {
-                remain++;
+        int remain = booking.getSessionRemain();
+        if(list!=null) {
+            for (BookingSession bookingSession : list) {
+                if (bookingSession.getStatus() != BookingSessionStatus.COMPLETED && bookingSession.getStatus() != BookingSessionStatus.IS_CANCELED) {
+                    remain--;
+                }
             }
         }
         booking.setSessionRemain(remain);

@@ -53,12 +53,12 @@ public class Booking {
 
     String notes;
 
-    //@CreationTimestamp
+    @CreationTimestamp
     //@Temporal(TemporalType.TIMESTAMP)
 
     LocalDateTime createAt;
 
-    //@UpdateTimestamp
+    @UpdateTimestamp
     //@Temporal(TemporalType.TIMESTAMP)
     LocalDateTime updateAt;
 

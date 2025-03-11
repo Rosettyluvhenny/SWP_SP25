@@ -50,6 +50,7 @@ public class BookingService {
         Services service = getServiceById(request.getServiceId());
         //Check payment method
         Payment payment = getPaymentById(request.getPaymentId());
+        log.info(payment.getPaymentName());
         //Create first session
         BookingSession bookingSession = new BookingSession();
         //Get time booking
@@ -74,16 +75,18 @@ public class BookingService {
         Booking booking = bookingMapper.toBooking(request);
         booking.setUser(user);
         booking.setService(service);
+        booking.setPrice(service.getPrice());
         booking.setPayment(payment);
         booking.setStatus(BookingStatus.PENDING);
         booking.setPaymentStatus(PaymentStatus.PENDING);
         booking.setSessionRemain(service.getSession());
         bookingRepository.save(booking);
+        bookingRepository.flush();
         //Set data and save
         BookingSessionRequest rq = BookingSessionRequest.builder()
                 .bookingId(booking.getId())
                 .sessionDateTime(request.getBookingTime())
-                .note(request.getNote())
+                .note(request.getNotes())
                 .therapistId(request.getTherapistId())
                         .build();
         bookingSessionService.createBookingSession(rq);
