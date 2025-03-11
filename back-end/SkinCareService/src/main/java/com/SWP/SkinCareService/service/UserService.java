@@ -197,8 +197,10 @@ import com.SWP.SkinCareService.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -211,6 +213,7 @@ import java.util.Set;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     UserMapper userMapper;
     UserRepository userRepository;
@@ -243,11 +246,16 @@ public class UserService {
                 .map(userMapper::toUserResponse).toList();
     }
 
-    @PostAuthorize("returnObject.id == authentication.id")
+    @PostAuthorize("returnObject.name == authentication.name")
     public UserResponse getMyInfo(){
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
-
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("Authentication: "+authentication);
+        log.info("name: "+ authentication.getName());
+        log.info("Authorities: "+ authentication.getAuthorities());
+        log.info("Principal: "+ authentication.getPrincipal());
+        log.info("id: " + authentication.getPrincipal().toString());
         User user = userRepository.findByUsername(name).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);
@@ -260,7 +268,7 @@ public class UserService {
         return userRepository.findByUsername(userName).orElseThrow(()-> new RuntimeException("user can not be found"));
     }
 
-    @PreAuthorize("returnObject.id == authentication.id")
+    @PreAuthorize("returnObject.name == authentication.name")
     @Transactional
     public UserResponse update(String userId, UserUpdateRequest request){
         User user = userRepository.findById(userId)

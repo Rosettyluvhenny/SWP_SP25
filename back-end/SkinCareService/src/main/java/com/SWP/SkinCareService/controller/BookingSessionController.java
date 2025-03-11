@@ -2,7 +2,6 @@ package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
-import com.SWP.SkinCareService.dto.request.Booking.StatusRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
@@ -39,6 +38,7 @@ public class BookingSessionController {
     }
 
     @GetMapping()
+
     ResponseEntity<ApiResponse<List<BookingSessionResponse>>> getAllBookingSessions() {
         var result = bookingSessionService.getAllBookingSessions();
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -46,6 +46,7 @@ public class BookingSessionController {
         );
     }
 
+    @PreAuthorize("@customSecurityService.canAccessSession(#id, authentication.principal.id, authentication.authorities.iterator().next().authority)")
     @GetMapping("/{sessionId}")
     ResponseEntity<ApiResponse<BookingSessionResponse>> getBookingSession(@PathVariable int sessionId) {
         var result = bookingSessionService.getBookingSessionById(sessionId);
@@ -55,6 +56,7 @@ public class BookingSessionController {
     }
 
     @PutMapping("/{sessionId}")
+    @PreAuthorize("hasRole('STAFF','THERAPIST')")
     ResponseEntity<ApiResponse<BookingSessionResponse>> updateBookingSession(@PathVariable int sessionId,
                                                                              @RequestPart("data") BookingSessionUpdateRequest bookingSessionRequest,
                                                                              @RequestPart("imgBefore")MultipartFile imgBefore,
@@ -66,6 +68,7 @@ public class BookingSessionController {
     }
 
     @DeleteMapping("/{sessionId}")
+    @PreAuthorize("@sessionSecurityService.canAccessSession(#id, authentication.principal.id, authentication.authorities.iterator().next().authority)")
     ResponseEntity<ApiResponse<BookingSessionResponse>> deleteBookingSession(@PathVariable int sessionId) {
         bookingSessionService.deleteBookingSession(sessionId);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -74,7 +77,8 @@ public class BookingSessionController {
     }
 
     @PutMapping("/{sessionId}/status")
-    ResponseEntity<ApiResponse<BookingResponse>> deleteBooking(@PathVariable int sessionId, @RequestBody StatusRequest status) {
+    @PreAuthorize("hasRole('STAFF','THERAPIST')")
+    ResponseEntity<ApiResponse<BookingResponse>> updateStatus(@PathVariable int sessionId, @RequestParam String status) {
         bookingSessionService.updateStatus(sessionId, status);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingResponse>builder().message("Updates successfull").build()
@@ -82,7 +86,7 @@ public class BookingSessionController {
     }
 
     @GetMapping("/therapist/{therapistId}/service/{serviceId}/available-slots")
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
     public ApiResponse<List<TimeSlotAvailabilityResponse>> getAvailableTimeSlotsForTherapist(
             @PathVariable String therapistId,
             @PathVariable int serviceId,
@@ -93,7 +97,7 @@ public class BookingSessionController {
     }
 
     @GetMapping("/service/{serviceId}/available-slots")
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
     public ApiResponse<List<TherapistAvailabilityResponse>> getAvailableTimeSlotsWithAvailableTherapists(
             @PathVariable int serviceId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {

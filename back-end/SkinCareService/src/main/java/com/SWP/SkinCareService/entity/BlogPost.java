@@ -24,7 +24,7 @@ public class BlogPost {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     @JsonBackReference
-    ServiceCategory category;
+    QuizResult quizResult;
 
     @Column(nullable = false, length = 255)
     String title;

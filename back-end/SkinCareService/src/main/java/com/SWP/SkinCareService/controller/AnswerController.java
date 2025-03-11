@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class AnswerController {
     private AnswerService answerService;
 
     @PostMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AnswerResponse>> createAnswer(@RequestBody @Valid AnswerRequest request) {
         var result = answerService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -61,6 +63,7 @@ public class AnswerController {
 
 
     @PutMapping("/{answerId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AnswerResponse>> updateAnswer(@PathVariable int answerId, @RequestBody @Valid AnswerRequest  request) {
         var result = answerService.update(answerId, request);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -71,6 +74,7 @@ public class AnswerController {
     }
 
     @DeleteMapping("/{answerId}")
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<ApiResponse> deleteAnswer(@PathVariable int answerId) {
         answerService.delete(answerId);
         return ResponseEntity.status(HttpStatus.OK).body(

@@ -176,7 +176,6 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
-import com.SWP.SkinCareService.dto.request.Booking.StatusRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TherapistAvailabilityResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TimeSlotAvailabilityResponse;
@@ -312,10 +311,10 @@ public class  BookingSessionService {
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
 
-    public void updateStatus(int id, StatusRequest status){
+    public void updateStatus(int id, String status){
         BookingSession bookingSession = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
         try {
-            BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(status.getStatus().toUpperCase());
+            BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(status.toUpperCase());
             bookingSession.setStatus(sessionStatus);
             bookingSessionRepository.save(bookingSession);
         }catch(IllegalArgumentException e){

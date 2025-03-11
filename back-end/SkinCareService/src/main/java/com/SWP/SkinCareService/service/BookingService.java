@@ -2,10 +2,8 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingUpdateRequest;
-import com.SWP.SkinCareService.dto.request.Booking.StatusRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.entity.*;
-import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.SWP.SkinCareService.enums.BookingStatus;
 import com.SWP.SkinCareService.enums.PaymentStatus;
 import com.SWP.SkinCareService.enums.ServiceType;
@@ -22,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -167,10 +164,10 @@ public class BookingService {
                 -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
     }
 
-    public void updateStatus(int id, StatusRequest status){
+    public void updateStatus(int id, String status){
         Booking booking = bookingRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
         try {
-            BookingStatus bookingStatus = BookingStatus.valueOf(status.getStatus().toUpperCase());
+            BookingStatus bookingStatus = BookingStatus.valueOf(status.toUpperCase());
             booking.setStatus(bookingStatus);
             bookingRepository.save(booking);
         }catch(IllegalArgumentException e){
@@ -178,13 +175,6 @@ public class BookingService {
         }
     }
 
-    /**
-     * Method 1: Find available time slots for a specific therapist on a specific date
-     * @param therapistId The ID of the therapist
-     * @param serviceId The ID of the service
-     * @param bookingDate The date to check availability for
-     * @return List of available time slots for the specified therapist
-     */
 
 
 

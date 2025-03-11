@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +49,7 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Update a blog post", description = "Update a blog post by ID")
-    @PreAuthorize("hasRole('THERAPIST')")
+    @PreAuthorize("hasRole('THERAPIST') and @customSecurityService.canEditBlogPost(#blogPostId, authentication.principal.userId)")
     @PutMapping(value = "/{blogPostId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BlogPostResponse>> updateBlogPost(
             @PathVariable Integer blogPostId,
@@ -68,7 +70,7 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Delete a blog post", description = "Delete a blog post by ID")
-    @PreAuthorize("hasRole('THERAPIST')")
+    @PreAuthorize("hasRole('THERAPIST') and @customSecurityService.canEditBlogPost(#blogPostId, authentication.principal.userId)")
     @DeleteMapping("/{blogPostId}")
     public ResponseEntity<ApiResponse<Void>> deleteBlogPost(@PathVariable Integer blogPostId) {
         var response = blogPostService.deleteBlogPost(blogPostId);
@@ -76,7 +78,7 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Approve a blog post", description = "Approve a blog post by ID")
-    @PreAuthorize("hasRole('THERAPIST')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/approve/{id}")
     public ResponseEntity<ApiResponse<BlogPostResponse>> approveBlogPost(@PathVariable Integer id) {
         var result = blogPostService.approveBlogPost(id);
@@ -90,12 +92,11 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Get all blog posts", description = "Get all blog posts")
-    @PreAuthorize("hasRole('THERAPIST')")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<BlogPostResponse>>> getAllBlogPosts() {
-        var result = blogPostService.getAllBlogPosts();
+    public ResponseEntity<ApiResponse<Page<BlogPostResponse>>> getAllBlogPosts(Pageable pageable) {
+        var result = blogPostService.getAllBlogPosts(pageable);
         return ResponseEntity.ok(
-                ApiResponse.<List<BlogPostResponse>>builder()
+                ApiResponse.<Page<BlogPostResponse>>builder()
                         .code(200)
                         .result(result)
                         .message("Blog posts retrieved successfully")
@@ -104,7 +105,6 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Get blog post by ID", description = "Get blog post by ID")
-    @PreAuthorize("hasRole('THERAPIST')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BlogPostResponse>> getBlogPostById(@PathVariable Integer id) {
         var result = blogPostService.getBlogPostById(id);
