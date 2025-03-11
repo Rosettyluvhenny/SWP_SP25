@@ -16,5 +16,6 @@ public class BookingRequest {
     int serviceId;
     int paymentId;
     LocalDateTime bookingTime;
+    String note;
     String therapistId;
 }

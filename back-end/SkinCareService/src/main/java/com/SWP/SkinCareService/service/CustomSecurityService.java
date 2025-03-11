@@ -24,7 +24,7 @@ public class CustomSecurityService {
     /**
      * Check if the current user is allowed to access the session
      */
-    public boolean canAccessSession(int sessionId, String userId, String role) {
+    public boolean canAccessSession(int sessionId, String username, String role) {
         Optional<BookingSession> sessionOpt = sessionRepository.findById(sessionId);
         if (sessionOpt.isEmpty()) return false;
 
@@ -35,10 +35,10 @@ public class CustomSecurityService {
             return true; // Staff can access all sessions
         }
         if ("ROLE_THERAPIST".equals(role)) {
-            return session.getTherapist() != null && session.getTherapist().getId().equals(userId);
+            return session.getTherapist() != null && session.getTherapist().getUser().getUsername().equals(username);
         }
         if ("ROLE_USER".equals(role)) {
-            return booking.getUser().getId().equals(userId);
+            return booking.getUser().getUsername().equals(username);
         }
 
         return false; // Default deny

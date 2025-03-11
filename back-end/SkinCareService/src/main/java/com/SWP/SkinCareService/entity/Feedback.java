@@ -6,7 +6,9 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -17,35 +19,40 @@ import java.util.Date;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Feedback {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    private Integer id;
 
-    String feedbackText;
-    int rating;
+    private String feedbackText;
+    private Integer rating;
 
     @CreatedDate
-    @Temporal(TemporalType.TIMESTAMP)
-    Date createdAt;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    Date updatedAt;
 
-    //Many to one - User
-    @ManyToOne()
-    @JoinColumn(name = "userId", nullable = false)
-    @JsonBackReference
-    User user;
-
-    //Many To One - Session
+    // Many-to-One - User
     @ManyToOne
-    @JoinColumn(name = "bookingSessionId")
-    @JsonBackReference
-    BookingSession bookingSession;
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
 
-    String therapistId;
-    int serviceId;
-    boolean isRated = false;
+    // Many-to-One - BookingSession (One feedback belongs to one session)
+    @OneToOne
+    @JoinColumn(name = "bookingSessionId", unique = true, nullable = false)
+    private BookingSession bookingSession;
+
+    // Many-to-One - Therapist (One feedback belongs to one therapist)
+    @ManyToOne
+    @JoinColumn(name = "therapistId", nullable = false)
+    private Therapist therapist;
+
+    // Many-to-One - Service (One feedback belongs to one service)
+    @ManyToOne
+    @JoinColumn(name = "serviceId", nullable = false)
+    private Services service;
+
+    @Column(nullable = false)
+    private boolean rated = false;
 
 }

@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.cors.CorsConfiguration;
@@ -34,8 +35,11 @@ public class SecurityConfig {
             "/swagger-ui.html","/therapist","/therapist/**","/category/**","/services/**","/supabase/**","/serviceInfo/**"};
     @Autowired
     private CustomJwtDecoder jwtDecoder;
+    @Autowired
+    private AuthenticationEntryPoint JwtAuthenticationEntryPoint;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
+
         httpSecurity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -48,6 +52,9 @@ public class SecurityConfig {
                                 .anyRequest().authenticated())
 
                          */
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(JwtAuthenticationEntryPoint) // 🔥 Handle JwtException here
+                )
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))

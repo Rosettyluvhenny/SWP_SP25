@@ -13,10 +13,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "services")
 @Data
+@ToString(exclude = {"serviceCategory","quizResult","rooms","bookings","therapists"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -90,5 +92,8 @@ public class Services {
     @JsonBackReference
     List<Therapist> therapists = new ArrayList<>();
 
+    @OneToMany
+    @JsonManagedReference
+    Set<Feedback> feedbacks;
 
 }

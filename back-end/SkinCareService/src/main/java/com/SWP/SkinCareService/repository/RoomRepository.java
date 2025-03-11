@@ -14,4 +14,5 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
     boolean existsByName(String name);
     Page<Room> findAll(Pageable pageable);
     List<Room> findAllByServicesId(int serviceId);
+    boolean existsByIdAndServices_Id(int id, int serviceId);
 }

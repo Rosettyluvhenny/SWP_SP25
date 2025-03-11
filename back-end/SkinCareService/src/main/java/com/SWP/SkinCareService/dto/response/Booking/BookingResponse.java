@@ -16,7 +16,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingResponse {
     int id;
-    //User user;
     String userId;
     String fullName;
 
@@ -33,8 +32,8 @@ public class BookingResponse {
     Date createAt;
     Date updateAt;
     int sessionRemain;
-
-    List<BookingSession> bookingSessions;
+    String img;
+//    List<BookingSession> bookingSessions;
     int price;
 
 }

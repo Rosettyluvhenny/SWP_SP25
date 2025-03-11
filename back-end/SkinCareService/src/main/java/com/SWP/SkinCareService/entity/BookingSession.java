@@ -68,9 +68,9 @@ public class BookingSession {
     private User staff;
 
     //One To Many - Feedback
-    @OneToMany(mappedBy = "bookingSession", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "bookingSession")
     @JsonManagedReference
-    List<Feedback> feedbackList;
+    List<Feedback> feedbacks;
 
     public boolean isFinished() {
         return Stream.of(booking, note, imgBefore, imgAfter, room, therapist).allMatch(Objects::nonNull);

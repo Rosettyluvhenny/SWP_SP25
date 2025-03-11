@@ -30,7 +30,6 @@ public class FeedbackService {
     ServicesRepository servicesRepository;
     TherapistRepository therapistRepository;
 
-
     public FeedbackResponse updateFeedback(int id, FeedbackRequest request) {
         Feedback feedback = getById(id);
         feedback.setFeedbackText(request.getFeedbackText());
@@ -40,26 +39,27 @@ public class FeedbackService {
 
 
         //Get service
-        Services services = getServiceById(feedback.getServiceId());
+        Services service = feedback.getService();
         //Calculate rating for Service
         float serviceRating = 0;
-        List<Feedback> feedbackListService = getAllFeedbackByServices(services);
+
+        List<Feedback> feedbackListService = getAllFeedbackByServices(service);
         if (feedbackListService.isEmpty()) {
             serviceRating = feedback.getRating();
-            services.setRating(serviceRating);
-            servicesRepository.save(services);
+            service.setRating(serviceRating);
+            servicesRepository.save(service);
         } else {
             for (Feedback feedbackInList : feedbackListService) {
                 serviceRating += feedbackInList.getRating();
             }
             serviceRating = serviceRating / feedbackListService.size();
-            services.setRating(serviceRating);
-            servicesRepository.save(services);
+            service.setRating(serviceRating);
+            servicesRepository.save(service);
         }
 
 
         //Get therapist
-        Therapist therapist = getTherapistById(feedback.getTherapistId());
+        Therapist therapist = feedback.getTherapist();
         //Calculate rating for Therapist
         float therapistRating = 0;
         List<Feedback> feedbackListTherapist = getAllFeedbackByTherapist(therapist);
@@ -91,7 +91,7 @@ public class FeedbackService {
         Feedback feedback = getById(id);
 
         //Get service
-        Services services = getServiceById(feedback.getServiceId());
+        Services services = feedback.getService();
         //Calculate rating for Service
         float serviceRating = 0;
         List<Feedback> feedbackListService = getAllFeedbackByServices(services);
@@ -110,7 +110,7 @@ public class FeedbackService {
         }
 
         //Get therapist
-        Therapist therapist = getTherapistById(feedback.getTherapistId());
+        Therapist therapist = feedback.getTherapist();
         //Calculate rating for Therapist
         float therapistRating = 0;
         List<Feedback> feedbackListTherapist = getAllFeedbackByTherapist(therapist);
@@ -137,25 +137,11 @@ public class FeedbackService {
     }
 
     private List<Feedback> getAllFeedbackByServices(Services services) {
-        List<Feedback> list = feedbackRepository.findAll();
-        List<Feedback> filteredList = new ArrayList<>();
-        for (Feedback feedback : list) {
-            if (feedback.getServiceId() == services.getId()) {
-                filteredList.add(feedback);
-            }
-        }
-        return filteredList;
+        return feedbackRepository.findAllByService_Id(services.getId());
     }
 
     private List<Feedback> getAllFeedbackByTherapist(Therapist therapist) {
-        List<Feedback> list = feedbackRepository.findAll();
-        List<Feedback> filteredList = new ArrayList<>();
-        for (Feedback feedback : list) {
-            if (feedback.getTherapistId().equals(therapist.getId())) {
-                filteredList.add(feedback);
-            }
-        }
-        return filteredList;
+        return feedbackRepository.findAllByTherapist_Id(therapist.getId());
     }
 
     private Services getServiceById(int id) {

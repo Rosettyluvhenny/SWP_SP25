@@ -49,7 +49,7 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Update a blog post", description = "Update a blog post by ID")
-    @PreAuthorize("hasRole('THERAPIST') and @customSecurityService.canEditBlogPost(#blogPostId, authentication.principal.userId)")
+    @PreAuthorize("hasRole('THERAPIST') and @customSecurityService.canEditBlogPost(#blogPostId, authentication.name)")
     @PutMapping(value = "/{blogPostId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BlogPostResponse>> updateBlogPost(
             @PathVariable Integer blogPostId,
@@ -70,7 +70,7 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Delete a blog post", description = "Delete a blog post by ID")
-    @PreAuthorize("hasRole('THERAPIST') and @customSecurityService.canEditBlogPost(#blogPostId, authentication.principal.userId)")
+    @PreAuthorize("hasRole('THERAPIST') and @customSecurityService.canEditBlogPost(#blogPostId, authentication.name)")
     @DeleteMapping("/{blogPostId}")
     public ResponseEntity<ApiResponse<Void>> deleteBlogPost(@PathVariable Integer blogPostId) {
         var response = blogPostService.deleteBlogPost(blogPostId);

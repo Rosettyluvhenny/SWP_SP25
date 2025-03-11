@@ -176,6 +176,7 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Feedback.FeedbackRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TherapistAvailabilityResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TimeSlotAvailabilityResponse;
@@ -190,6 +191,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -219,7 +221,6 @@ public class  BookingSessionService {
         Booking booking = getBookingById(request.getBookingId());
 
         BookingSession session = bookingSessionMapper.toBookingSession(request);
-        System.out.println(session);
         Services service = booking.getService();
 
         if (request.getTherapistId() != null){
@@ -235,10 +236,12 @@ public class  BookingSessionService {
                 session.setTherapist(therapist);
             }
         }
-        //session.setBookingDate(request.getSessionDateTime().toLocalDate());
+        session.setBookingDate(request.getSessionDateTime().toLocalDate());
         session.setBooking(booking);
         session.setStatus(BookingSessionStatus.PENDING);
+
         bookingSessionRepository.save(session);
+
         updateSessionRemain(request.getBookingId());
 
         return bookingSessionMapper.toBookingSessionResponse(session);
@@ -255,7 +258,6 @@ public class  BookingSessionService {
                                                        MultipartFile imgAfter) throws IOException {
         BookingSession session = checkSession(id);
 
-        Room room = getRoomById(request.getRoomId());
 
         if (request.getTherapistId() != null){
             Therapist therapist = getTherapistById(request.getTherapistId());
@@ -280,7 +282,17 @@ public class  BookingSessionService {
         if(!imgAfter.isEmpty()) {
             session.setImgAfter(supabaseService.uploadImage(imgAfter, "imgAfter_" + session.getId()));
         }
+        if(request.getRoomId()!=null) {
+            var roomValid = roomRepository.existsByIdAndServices_Id(request.getRoomId(), request.getRoomId());
 
+
+            if (!roomValid) {
+                throw new AppException(ErrorCode.OUT_OF_ROOM);
+            } else {
+                session.setRoom(getRoomById(request.getRoomId()));
+                roomService.incrementInUse(request.getRoomId());
+            }
+        }
         if (session.isFinished()) {
             Booking booking = session.getBooking();
             session.setStatus(BookingSessionStatus.COMPLETED);
@@ -292,18 +304,20 @@ public class  BookingSessionService {
             //Decrease in use in room
             int roomId = session.getRoom().getId();
             roomService.decrementInUse(roomId);
+            bookingRepository.save(booking);
             //Create feedback
-            Feedback feedback = new Feedback();
-            //Set data
-            feedback.setServiceId(booking.getService().getId());
-            feedback.setBookingSession(session);
-            feedback.setUser(booking.getUser());
-            feedback.setTherapistId(session.getTherapist().getId());
-            feedback.setRated(false);
+            Feedback feedback  = Feedback.builder()
+                    .service(booking.getService())
+                    .bookingSession(session)
+                    .user(booking.getUser())
+                    .therapist(session.getTherapist())
+                    .rated(false)
+                    .build();
+
+
             //Save
             feedbackRepository.save(feedback);
 
-            bookingRepository.save(booking);
         }
 
         bookingSessionRepository.save(session);
@@ -390,7 +404,7 @@ public class  BookingSessionService {
         LocalDateTime startOfDay = bookingDate.atTime(9, 0);
         LocalDateTime endOfDay = bookingDate.atTime(17, 0);
 
-        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED, BookingSessionStatus.WAITING);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED);
         List<BookingSession> therapistBookings = bookingSessionRepository.findByTherapistIdAndSessionDateTimeBetweenAndStatusNotIn(
                 therapistId, startOfDay, endOfDay, excludeStatuses);
 
@@ -475,7 +489,7 @@ public class  BookingSessionService {
         LocalDateTime startOfDay = bookingDate.atTime(9, 0);
         LocalDateTime endOfDay = bookingDate.atTime(17, 0);
 
-        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED,BookingSessionStatus.WAITING,BookingSessionStatus.PENDING);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED);
         List<BookingSession> allBookings = bookingSessionRepository.findBySessionDateTimeBetweenAndStatusNotIn(
                 startOfDay, endOfDay, excludeStatuses);
 
@@ -552,11 +566,13 @@ public class  BookingSessionService {
     }
 
     public boolean isTherapistAvailable(String therapistId, LocalDateTime requestTime, int requestDuration) {
+        if(requestTime.isBefore(LocalDateTime.now()))
+            throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
         LocalDateTime startOfDay = requestTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
         // Define statuses to exclude from active bookings
-        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED,BookingSessionStatus.PENDING,BookingSessionStatus.WAITING);
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
 
         // Fetch all active bookings for the therapist within the day
         List<BookingSession> existingBookings = bookingSessionRepository

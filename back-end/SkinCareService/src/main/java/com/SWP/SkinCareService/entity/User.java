@@ -72,7 +72,7 @@ public class User {
     //
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
-    Set<Feedback> feedback;
+    Set<Feedback> feedbacks;
 
     @Override
     public boolean equals(Object o) {

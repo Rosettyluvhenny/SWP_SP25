@@ -5,10 +5,15 @@ import com.SWP.SkinCareService.dto.request.Booking.BookingUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.service.BookingService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -70,6 +75,27 @@ public class BookingController {
         );
     }
 
+    @Operation(summary = "Get a booking by ID")
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'STAFF')")
+    public ResponseEntity<BookingResponse> getById(@PathVariable int id) {
+        return ResponseEntity.ok(bookingService.getById(id));
+    }
+
+    @Operation(summary = "Get all bookings for authenticated user")
+    @GetMapping("/my-bookings")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Page<BookingResponse>> getAllByUser(Pageable pageable) {
+        return ResponseEntity.ok(bookingService.getAllByUser(pageable));
+    }
+
+    @Operation(summary = "Get all bookings for authenticated staff")
+    @GetMapping("/staff-bookings/{phone}")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<Page<BookingResponse>> getAllByStaff(@PathVariable(required = false) @Pattern(regexp = "^\\d{10}$", message = "PHONE_INVALID") String phone, Pageable pageable) {
+        return ResponseEntity.ok(bookingService.getAllByStaff(phone, pageable));
+    }
+
 }
 /*
 package com.SWP.SkinCareService.controller;
@@ -106,25 +132,6 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.create(request));
     }
 
-    @Operation(summary = "Get a booking by ID")
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'STAFF')")
-    public ResponseEntity<BookingResponse> getById(@PathVariable int id) {
-        return ResponseEntity.ok(bookingService.getById(id));
-    }
 
-    @Operation(summary = "Get all bookings for authenticated user")
-    @GetMapping("/my-bookings")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Page<BookingResponse>> getAllByUser(Pageable pageable) {
-        return ResponseEntity.ok(bookingService.getAllByUser(pageable));
-    }
-
-    @Operation(summary = "Get all bookings for authenticated staff")
-    @GetMapping("/staff-bookings")
-    @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<Page<BookingResponse>> getAllByStaff(Pageable pageable) {
-        return ResponseEntity.ok(bookingService.getAllByStaff(pageable));
-    }
 }
  */

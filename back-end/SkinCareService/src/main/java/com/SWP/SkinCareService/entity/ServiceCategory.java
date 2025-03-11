@@ -19,6 +19,7 @@ import java.util.Date;
 @Table(name="serviceCategory")
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@ToString(exclude = {"services","quiz"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

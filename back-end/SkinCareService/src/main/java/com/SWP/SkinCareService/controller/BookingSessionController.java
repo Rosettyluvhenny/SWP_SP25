@@ -38,7 +38,6 @@ public class BookingSessionController {
     }
 
     @GetMapping()
-
     ResponseEntity<ApiResponse<List<BookingSessionResponse>>> getAllBookingSessions() {
         var result = bookingSessionService.getAllBookingSessions();
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -68,7 +67,7 @@ public class BookingSessionController {
     }
 
     @DeleteMapping("/{sessionId}")
-    @PreAuthorize("@sessionSecurityService.canAccessSession(#id, authentication.principal.id, authentication.authorities.iterator().next().authority)")
+   // @PreAuthorize("@sessionSecurityService.canAccessSession(#id, authentication.principal.id, authentication.authorities.iterator().next().authority)")
     ResponseEntity<ApiResponse<BookingSessionResponse>> deleteBookingSession(@PathVariable int sessionId) {
         bookingSessionService.deleteBookingSession(sessionId);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -86,7 +85,6 @@ public class BookingSessionController {
     }
 
     @GetMapping("/therapist/{therapistId}/service/{serviceId}/available-slots")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
     public ApiResponse<List<TimeSlotAvailabilityResponse>> getAvailableTimeSlotsForTherapist(
             @PathVariable String therapistId,
             @PathVariable int serviceId,
@@ -97,7 +95,6 @@ public class BookingSessionController {
     }
 
     @GetMapping("/service/{serviceId}/available-slots")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
     public ApiResponse<List<TherapistAvailabilityResponse>> getAvailableTimeSlotsWithAvailableTherapists(
             @PathVariable int serviceId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {

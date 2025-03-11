@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -108,7 +110,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getHttpStatusCode()).body(apiResponse);
     }
 
+    @ExceptionHandler(value = AuthenticationServiceException.class)
+    ResponseEntity<ApiResponse> authenticationHandling ( AuthenticationServiceException exception){
+        ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(exception.getMessage());
+        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(apiResponse);
+    }
 
+    @ExceptionHandler(value = JwtException.class)
+    ResponseEntity<ApiResponse> JwtExceptionHandling ( JwtException exception){
+        ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(exception.getMessage());
+        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(apiResponse);
+    }
 }
 
 

@@ -72,13 +72,16 @@ public class Therapist {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "therapist", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "therapist", cascade = CascadeType.PERSIST)
     @JsonManagedReference
     List<BookingSession> bookingSessions;
 
 
     String img;
 
+    @OneToMany(mappedBy = "therapist")
+    @JsonManagedReference
+    Set<Feedback> feedbacks;
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
