@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingRequest;
+import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.entity.*;
@@ -34,10 +35,7 @@ public class BookingService {
     private UserRepository userRepository;
     private ServicesRepository servicesRepository;
     private PaymentRepository paymentRepository;
-    private BookingSessionRepository bookingSessionRepository;
     private TherapistRepository therapistRepository;
-    private TherapistService therapistService;
-    private RoomService roomService;
     private BookingSessionService bookingSessionService;
 
     @Transactional
@@ -48,70 +46,32 @@ public class BookingService {
         Services service = getServiceById(request.getServiceId());
         //Check payment method
         Payment payment = getPaymentById(request.getPaymentId());
-        //Create first session
-        BookingSession bookingSession = new BookingSession();
         //Get time booking
         LocalDateTime time = request.getBookingTime();
-        //Check therapist
-        if (request.getTherapistId() != null) {
-            Therapist therapist = getTherapistById(request.getTherapistId());
-            Set<Services> serviceSupport = therapist.getServices();
-            if (!serviceSupport.contains(service)) {
-                throw new AppException(ErrorCode.THERAPIST_NOT_SUPPORTED);
-            }
-            //Check time available or not
-            if (!bookingSessionService.isTherapistAvailable(therapist.getId(), time, service.getDuration())) {
-                throw new AppException(ErrorCode.THERAPIST_NOT_AVAILABLE);
-            }
-            //Set therapist if available
-            bookingSession.setTherapist(therapist);
-        } else {
-            //If user doesn't assign the therapist, system will auto set therapist
-            List<Therapist> therapists = therapistService.getTherapistAvailableForService(request.getServiceId(), time);
-            List<Therapist> availableTherapists = therapistRepository.findAllByServicesId(request.getServiceId());
-            therapists.retainAll(availableTherapists);
 
-            if (therapists.isEmpty()) {
-                throw new AppException(ErrorCode.OUT_OF_THERAPIST);
-            }
-            Therapist therapist = therapists.getFirst();
-            bookingSession.setTherapist(therapist);
-        }
-        //Get all booking of user
-        Set<Booking> bookingList = user.getBooking();
-        for (Booking booking : bookingList) {
-            if ((booking.getService().getType() == ServiceType.TREATMENT) && (booking.getService().getType() == service.getType()))  {
-                BookingSession session = booking.getBookingSessions().getLast();
-                LocalDate lastSessionDateValid = session.getBookingDate().plusDays(7);
-                LocalDate currentDate = request.getBookingTime().toLocalDate();
-                if (currentDate.isBefore(lastSessionDateValid) || session.getBooking().getStatus() != BookingStatus.COMPLETED) {
-                    throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
-                }
-            }
-        }
-        //Assign Room for session
-        List<Room> roomList = roomService.getRoomAvailableForService(request.getServiceId());
-        if (roomList.isEmpty()) {
-            throw new AppException(ErrorCode.OUT_OF_ROOM);
-        } else {
-            Room room = roomList.getFirst();
-            bookingSession.setRoom(room);
-            roomService.incrementInUse(room.getId());
-        }
         //Set data and save
         Booking booking = bookingMapper.toBooking(request);
+
         booking.setUser(user);
         booking.setService(service);
+        booking.setPrice(service.getPrice());
         booking.setPayment(payment);
         booking.setStatus(BookingStatus.PENDING);
         booking.setPaymentStatus(PaymentStatus.PENDING);
         booking.setSessionRemain(service.getSession());
+
         bookingRepository.save(booking);
-        //Set data and save
-        bookingSession.setBooking(booking);
-        bookingSession.setBookingDate(request.getBookingTime().toLocalDate());
-        bookingSession.setSessionDateTime(request.getBookingTime());
-        bookingSessionRepository.save(bookingSession);
+        bookingRepository.flush();
+
+        BookingSessionRequest sessionRequest = BookingSessionRequest.builder()
+                .bookingId(booking.getId())
+                .sessionDateTime(time)
+                .therapistId(request.getTherapistId())
+                .build();
+
+        if (booking.getId() != 0) {
+            bookingSessionService.createBookingSession(sessionRequest);
+        }
 
         return bookingMapper.toBookingResponse(booking);
     }

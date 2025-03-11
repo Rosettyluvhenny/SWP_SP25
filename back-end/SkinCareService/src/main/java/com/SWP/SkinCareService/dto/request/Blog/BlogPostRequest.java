@@ -15,11 +15,11 @@ import lombok.experimental.FieldDefaults;
 @Schema(description = "Blog post information")
 public class BlogPostRequest {
     @Schema(
-        description = "Category ID",
+        description = "Quiz result ID",
         example = "1",
         defaultValue = "1"
     )
-    @NotNull(message = "Category ID cannot be empty")
+    @NotNull(message = "Quiz result ID cannot be empty")
     Integer quizResultId;
 
     @Schema(

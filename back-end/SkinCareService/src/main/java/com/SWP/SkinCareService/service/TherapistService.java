@@ -173,7 +173,7 @@ public class TherapistService {
                 });
     }
     //Get list therapist available for booking service request
-    public List<Therapist> getTherapistAvailableForService(int serviceId, LocalDateTime startTime) {
+    public List<Therapist> getTherapistAvailableForServiceInTime(int serviceId, LocalDateTime startTime) {
         Services services = servicesRepository.findById(serviceId).orElseThrow(()
                 -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
 
@@ -185,7 +185,7 @@ public class TherapistService {
         LocalDateTime endTime = startTime.plusMinutes(duration);
         LocalDateTime startOfDay = startTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
-        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED, BookingSessionStatus.PENDING);
         List<BookingSession> bookingSessionList = bookingSessionRepository.findAllBySessionDateTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
         List<Therapist> therapistList = therapistRepository.findTherapistByServices(findByService);
         Set<Therapist> therapistsNotAvailable = new HashSet<>();
@@ -194,8 +194,7 @@ public class TherapistService {
             LocalDateTime existingStartTime = bookingSession.getSessionDateTime();
             LocalDateTime existingEndTime = existingStartTime.plusMinutes(bookingSession.getBooking().getService().getDuration());
 
-
-            if (!(endTime.isBefore(existingStartTime) || startTime.isAfter(existingEndTime))) {
+            if (startTime.isBefore(existingEndTime) && endTime.isAfter(existingStartTime)) {
                 therapistsNotAvailable.add(bookingSession.getTherapist());
             }
         }

@@ -56,7 +56,7 @@ public class BookingSessionController {
     }
 
     @PutMapping("/{sessionId}")
-    @PreAuthorize("hasRole('STAFF','THERAPIST')")
+    //@PreAuthorize("hasRole('STAFF','THERAPIST')")
     ResponseEntity<ApiResponse<BookingSessionResponse>> updateBookingSession(@PathVariable int sessionId,
                                                                              @RequestPart("data") BookingSessionUpdateRequest bookingSessionRequest,
                                                                              @RequestPart("imgBefore")MultipartFile imgBefore,
@@ -77,7 +77,7 @@ public class BookingSessionController {
     }
 
     @PutMapping("/{sessionId}/status")
-    @PreAuthorize("hasRole('STAFF','THERAPIST')")
+    //@PreAuthorize("hasRole('STAFF','THERAPIST')")
     ResponseEntity<ApiResponse<BookingResponse>> updateStatus(@PathVariable int sessionId, @RequestParam String status) {
         bookingSessionService.updateStatus(sessionId, status);
         return ResponseEntity.status(HttpStatus.OK).body(

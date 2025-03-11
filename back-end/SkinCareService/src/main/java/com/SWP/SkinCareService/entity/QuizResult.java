@@ -41,6 +41,10 @@ public class QuizResult {
     @JsonBackReference
     private Quiz quiz;
 
+    @OneToMany(mappedBy = "quizResult", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    List<BlogPost> blogPosts = new ArrayList<>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

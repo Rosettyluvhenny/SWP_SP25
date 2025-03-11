@@ -47,11 +47,11 @@ public class BlogPostService {
         Therapist therapist = therapistRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
         
-        QuizResult category = getCategoryById(request.getQuizResultId());
+        QuizResult quizResult = getQuizResultById(request.getQuizResultId());
         
         BlogPost blogPost = blogPostMapper.toBlogPost(request);
         blogPost.setTherapist(therapist);
-        blogPost.setQuizResult(category);
+        blogPost.setQuizResult(quizResult);
         
         // Save first to get the ID
         blogPostRepository.save(blogPost);
@@ -99,8 +99,8 @@ public class BlogPostService {
         }
 
         if (request.getQuizResultId() != null) {
-            QuizResult category = getCategoryById(request.getQuizResultId());
-            blogPost.setQuizResult(category);
+            QuizResult result = getQuizResultById(request.getQuizResultId());
+            blogPost.setQuizResult(result);
         }
 
         blogPostMapper.updateBlogPost(blogPost, request);
@@ -190,8 +190,8 @@ public class BlogPostService {
                 -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
     }
 
-    private QuizResult getCategoryById(Integer id) {
+    private QuizResult getQuizResultById(Integer id) {
         return quizResultRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+                -> new AppException(ErrorCode.RESULT_NOT_EXISTED));
     }
 } 

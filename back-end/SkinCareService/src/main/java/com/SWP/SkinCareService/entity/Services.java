@@ -20,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"serviceCategory","quizResults", "rooms", "bookings", "therapists"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Services {
 
