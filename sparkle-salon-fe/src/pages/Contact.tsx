@@ -2,30 +2,34 @@ import React, { useState, useEffect } from "react";
 import DateTimeSelector from "../components/DateTimeSelector";
 import { useLocation } from "react-router-dom";
 import { Service, servicesData } from "../data/servicesData";
-import { therapistsData, Therapist } from "../data/therapistData";
+import { getTherapists } from "../data/therapistData";
 import { GoChevronRight } from "react-icons/go";
 import { FaCheck } from "react-icons/fa";
 
-// Extended Therapist interface with additional fields needed in the UI
-interface ExtendedTherapist extends Therapist {
-    name: string;
+type Therapist = {
+    id: number;
+    username: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    dob: string;
+    experienceYears: number;
+    bio: string;
     img: string;
-    availableSlots?: { date: string; times: string[] }[];
 }
 
 export default function Contact() {
-    const [selectedTherapist, setSelectedTherapist] = useState<number | null>(
-        null
-    );
+    const [selectedTherapist, setSelectedTherapist] = useState<string | null>(null);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [services, setServices] = useState<Service[]>([]);
     const [isTherapistOpen, setIsTherapistOpen] = useState<boolean>(false);
-    const [therapists, setTherapists] = useState<ExtendedTherapist[]>([]);
+    const [therapists, setTherapists] = useState<Therapist[]>([]);
 
     const location = useLocation();
     const selectedService = location.state?.selectedService || "";
 
+    // Fetch services and therapists on component mount
     useEffect(() => {
         async function fetchServices() {
             try {
@@ -35,38 +39,23 @@ export default function Contact() {
                 console.error("Failed to fetch services:", error);
             }
         }
-        fetchServices();
 
-        // Transform therapistsData to the format needed for UI
-        if (therapistsData && therapistsData[0]) {
-            const formattedTherapists = therapistsData[0].map((therapist) => ({
-                ...therapist,
-                name: therapist.fullName, // Use fullName as name for display
-                img: `/assets/therapists/${therapist.id}.jpg`, // Assume image naming convention
-                availableSlots: [
-                    { date: "2025-03-12", times: ["10:00", "12:00", "15:00"] },
-                    { date: "2025-03-13", times: ["11:00", "14:00", "16:30"] },
-                ],
-            }));
-            setTherapists(formattedTherapists);
+        async function fetchTherapists() {
+            try {
+                const fetchedTherapists = await getTherapists();
+                setTherapists(fetchedTherapists);
+            } catch (error) {
+                console.error("Failed to fetch therapists:", error);
+            }
         }
+
+        fetchServices();
+        fetchTherapists();
     }, []);
 
     const selectedServiceData = services.find(
         (service) => service.name === selectedService
     );
-
-    const defaultSlots = [
-        { date: "2025-03-12", times: ["10:00", "12:00", "15:00"] },
-        { date: "2025-03-13", times: ["11:00", "14:00", "16:30"] },
-    ];
-
-    const getTherapistSlots = (therapistId: number | null) => {
-        if (therapistId === null) return defaultSlots;
-        // Look in our transformed therapists array
-        const therapist = therapists.find((t) => t.id === therapistId);
-        return therapist?.availableSlots || defaultSlots;
-    };
 
     return (
         <div className="bg-gradient-to-b from-white to-pink-200 min-h-screen">
@@ -145,23 +134,23 @@ export default function Contact() {
                                 <div
                                     key={therapist.id}
                                     className={`relative border-2 p-3 rounded-lg cursor-pointer min-w-[130px] transition-all duration-300 ease-in-out flex flex-col items-center ${
-                                        selectedTherapist === therapist.id
+                                        selectedTherapist === therapist.id.toString()
                                             ? "border-pink-400 bg-pink-100 scale-105"
                                             : "border-gray-300 bg-white hover:scale-105 hover:shadow-md"
                                     }`}
                                     onClick={() =>
-                                        setSelectedTherapist(therapist.id)
+                                        setSelectedTherapist(therapist.id.toString())
                                     }
                                 >
                                     <img
                                         src={therapist.img}
-                                        alt={therapist.name}
+                                        alt={therapist.fullName}
                                         className="rounded-lg h-24 w-full object-cover"
                                     />
                                     <p className="text-sm mt-2 font-semibold text-center text-gray-700">
-                                        {therapist.name}
+                                        {therapist.fullName}
                                     </p>
-                                    {selectedTherapist === therapist.id && (
+                                    {selectedTherapist === therapist.id.toString() && (
                                         <div className="absolute top-0 right-0 bg-pink-300 text-white rounded-full p-1">
                                             <FaCheck />
                                         </div>
@@ -182,7 +171,7 @@ export default function Contact() {
                             setSelectedDate(date);
                             setSelectedTime(time);
                         }}
-                        availableSlots={getTherapistSlots(selectedTherapist)}
+                        availableSlots={[] }
                     />
                 </div>
             </div>

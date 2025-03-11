@@ -11,6 +11,7 @@ interface ServiceCardProps {
         img: string;
         price: number;
         duration: string;
+        rating: number;
         category?: string;
         description?: string;
     };

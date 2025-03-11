@@ -10,6 +10,7 @@ export interface Service {
     description: string;
     categoryId: number;
     categoryName: string;
+    rating: number;
 }
 
 

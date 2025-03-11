@@ -4,22 +4,25 @@ import TextEditor from "./TextEditor";
 import FormData from "form-data";
 import { serviceDataById } from "../data/servicesData";
 
-export type Service = {
+export interface Service {
     id: number;
+    active: boolean;
     name: string;
-    price: string;
-    status: string;
-    serviceCategoryId: number;
-    description: string;
+    price: number;
     duration: string;
-    session: string;
-    active: boolean; // làm sau
-    img: string; // làm sau
-};
+    session: number;
+    img: string;
+    description: string;
+    categoryId: number;
+    categoryName: string;
+    rating: number;
+}
+
 
 type ServiceCategory = {
     id: number;
     name: string;
+    description: string;
     createdAt: string;
     updatedAt: string;
     services: Service[];

@@ -4,15 +4,18 @@ import { AiFillFrown } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
-interface Service {
+export interface Service {
     id: number;
+    active: boolean;
     name: string;
     price: number;
     duration: string;
     session: number;
     img: string;
     description: string;
+    categoryId: number;
     categoryName: string;
+    rating: number;
 }
 
 interface ServiceListProps {

@@ -19,11 +19,10 @@ type Service = {
     session: string;
 };
 
-
-
 type ServiceCategory = {
     id: number;
     name: string;
+    description: string;
     createdAt: string;
     updatedAt: string;
     services: Service[];
@@ -56,6 +55,7 @@ export default function ServiceManagement() {
         [key: string]: string;
     }>({});
     const [categoryFormValue, setCategoryFormValue] = useState<string>("");
+    const [categoryFormDescription, setCategoryFormDescription] = useState<string>("");
 
     const handleOpenServiceForm = (serviceId: string | null) => {
         setSelectedService(serviceId);
@@ -175,11 +175,13 @@ export default function ServiceManagement() {
                     `http://localhost:8081/swp/category/${editingCategory.id}`,
                     {
                         name: categoryFormValue,
+                        description: categoryFormDescription,
                     }
                 );
             } else {
                 await axios.post("http://localhost:8081/swp/category", {
                     name: categoryFormValue,
+                    description: categoryFormDescription,
                 });
             }
             fetchCategories();
@@ -736,6 +738,23 @@ export default function ServiceManagement() {
                                 </p>
                             )}
                         </label>
+                        <label className="block mb-4">
+                                <span className="text-gray-700">Mô Tả</span>
+                                <textarea
+                                    value={categoryFormDescription}
+                                    onChange={(e) =>
+                                        setCategoryFormDescription(e.target.value)
+                                    }
+                                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                    rows={2}
+                                    placeholder="Mô tả danh mục"
+                                />
+                                {categoryFormErrors.description && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {categoryFormErrors.description}
+                                    </p>
+                                )}
+                            </label>
                         {categoryFormErrors.submit && (
                             <p className="text-red-500 text-sm mb-4">
                                 {categoryFormErrors.submit}
