@@ -4,6 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { getUser, login, register } from "../data/authData";
+import { jwtDecode } from "jwt-decode";
 
 export default function Header() {
     const [loginData, setLoginData] = useState({ username: "", password: "" });
@@ -60,10 +61,13 @@ export default function Header() {
 
         const token = await login(loginData.username, loginData.password);
         if (token) {
-            localStorage.setItem("token", token);           
+            localStorage.setItem("token", token);   
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const decodeToken: any = jwtDecode(token);
+            const userId = decodeToken.userId;    
+            localStorage.setItem("userId", userId);    
             setIsLoginOpen(false);
             const user = await getUser();
-            localStorage.setItem("userId", user.id); 
             if (user.roles[0].name === "ADMIN") {
                 setUser(user);
                 setIsLoggedIn(true);

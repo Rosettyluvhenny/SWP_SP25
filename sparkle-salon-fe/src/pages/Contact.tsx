@@ -5,7 +5,6 @@ import { Service,  serviceDataById } from "../data/servicesData";
 import { getTherapists, getTherapistSlots } from "../data/therapistData";
 import { GoChevronRight } from "react-icons/go";
 import { FaCheck } from "react-icons/fa";
-import { jwtDecode } from "jwt-decode";
 import { BookingBody, bookingService } from "../data/bookingData";
 
 type Therapist = {
@@ -64,14 +63,7 @@ export default function Contact() {
     }
 
     const handleBooking =  async () => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            alert("Vui lòng đăng nhập để đặt lịch");
-            return;
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const decodeToken: any = jwtDecode(token);
-        const userId = decodeToken.userId;
+        const userId = localStorage.getItem("userId");
         if (!userId) {
             alert("Vui lòng đăng nhập để đặt lịch");
             return;
