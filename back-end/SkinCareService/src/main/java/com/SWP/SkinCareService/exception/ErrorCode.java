@@ -48,7 +48,17 @@ public enum ErrorCode {
     BLOGPOST_ALREADY_APPROVED(1033, "Blog post is already approved", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED_ACCESS(1034, "You are not authorized to modify this blog post", HttpStatus.FORBIDDEN),
     ROOM_NOT_EXISTED(1031, "Room does not exist", HttpStatus.NOT_FOUND),
-    IMAGE_UPLOAD_FAILED(1032, "Failed to upload image", HttpStatus.BAD_REQUEST);
+    IMAGE_UPLOAD_FAILED(1032, "Failed to upload image", HttpStatus.BAD_REQUEST),
+
+    // VNPay Error Codes
+    VNPAY_PAYMENT_ERROR(2000, "Lỗi trong quá trình tạo URL thanh toán VNPay", HttpStatus.INTERNAL_SERVER_ERROR),
+    VNPAY_INVALID_AMOUNT(2001, "Số tiền thanh toán không hợp lệ", HttpStatus.BAD_REQUEST),
+    VNPAY_INVALID_ORDER_INFO(2002, "Thông tin đơn hàng không hợp lệ", HttpStatus.BAD_REQUEST),
+    VNPAY_INVALID_IP_ADDRESS(2003, "Không thể xác định địa chỉ IP", HttpStatus.BAD_REQUEST),
+    VNPAY_INVALID_CHECKSUM(2004, "Chữ ký không hợp lệ", HttpStatus.BAD_REQUEST),
+    VNPAY_PAYMENT_FAILED(2005, "Thanh toán thất bại", HttpStatus.BAD_REQUEST),
+    VNPAY_INVALID_RESPONSE(2006, "Phản hồi từ VNPay không hợp lệ", HttpStatus.BAD_REQUEST),
+    VNPAY_MISSING_PARAMS(2007, "Thiếu thông tin thanh toán", HttpStatus.BAD_REQUEST);
 
     int code;
     String message;
