@@ -23,7 +23,10 @@ const servicesData = async (): Promise<Service[]> =>{
 };
 
 
-const serviceDataById = async (id:string) => {
+const serviceDataById = async (id:string | null) => {
+    if (!id) {
+        return null
+    }
     const serviceResponse = await axios.get(`http://localhost:8081/swp/services/${id}`)
     if (serviceResponse.status === 200) {
         const serviceData = serviceResponse.data.result
@@ -32,7 +35,10 @@ const serviceDataById = async (id:string) => {
     return null
 }
 
-const deleteServiceById = async (id:string) => {
+const deleteServiceById = async (id:string | null) => {
+    if (!id) {
+        return false
+    }
     const deleteServiceResponse = await axios.delete(`http://localhost:8081/swp/services/${id}`)
     if (deleteServiceResponse.status === 200) {
         return true

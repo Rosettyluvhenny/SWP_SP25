@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export interface Therapist {
-  id: number;
+  id: string;
   username: string;
   fullName: string;
   email: string;
@@ -12,8 +12,8 @@ export interface Therapist {
   img: string;
 }
 
-  const getTherapists = async () => {
-    const response = await axios.get("http://localhost:8081/swp/therapists");
+  const getTherapists = async (serviceId: string) => {
+    const response = await axios.get("http://localhost:8081/swp/therapists/by-service/"+serviceId);
     if (response.status === 200) {
         return response.data.result.content;
     }
@@ -28,8 +28,11 @@ export interface Therapist {
     return null;
   }
 
-  const getTherapistSlots = async (therapistId: number, serviceId: number, date: string) => {
-    const response = await axios.get(`http://localhost:8081/swp/bookingSession/therapist/${therapistId}/service/${serviceId}/available-slots?date=${date}`);
+  const getTherapistSlots = async (therapistId: string | null, serviceId: string | null, date: string) => {
+    if (!serviceId) {
+        return []
+    }
+    const response = await axios.get(`http://localhost:8081/swp/bookingSession${therapistId ? `/therapist/${therapistId}` : ""}/service/${serviceId}/available-slots?date=${date}`);
     if (response.status === 200) {
         return response.data.result;
     }

@@ -15,30 +15,16 @@ interface ServiceCardProps {
         category?: string;
         description?: string;
     };
-    onSelectService?: (serviceName: string) => void;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelectService }) => {
-    const navigate = useNavigate();
+const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
     const [isHovered, setIsHovered] = useState(false);
-
+    
     const displayName = service.name.startsWith("http") ? "Trẻ Hóa Da Công Nghệ Cao" : service.name;
-
+    
+    const navigate = useNavigate();
     const handleBooking = () => {
-        if (onSelectService) {
-            onSelectService(displayName);
-        } else {
-            navigate("/contact", { 
-                state: { 
-                    service: {
-                        id: service.id,
-                        name: displayName,
-                        price: service.price,
-                        duration: service.duration
-                    }
-                } 
-            });
-        }
+        navigate(`/contact?service=${service.id}`);
     };
 
     return (

@@ -60,9 +60,10 @@ export default function Header() {
 
         const token = await login(loginData.username, loginData.password);
         if (token) {
-            localStorage.setItem("token", token);
+            localStorage.setItem("token", token);           
             setIsLoginOpen(false);
             const user = await getUser();
+            localStorage.setItem("userId", user.id); 
             if (user.roles[0].name === "ADMIN") {
                 setUser(user);
                 setIsLoggedIn(true);
