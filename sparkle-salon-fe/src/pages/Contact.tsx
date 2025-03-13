@@ -9,6 +9,7 @@ import {
 import { GoChevronRight } from "react-icons/go";
 import { FaCheck } from "react-icons/fa";
 import { BookingBody, bookingService } from "../data/bookingData";
+import { getPayment } from "../data/paymentData";
 
 type Therapist = {
     id: number;
@@ -27,6 +28,11 @@ type BookingDate = {
     day: string;
     month: string;
     year: string;
+};
+
+type Payment = {
+    paymentId: string;
+    paymentName: string;
 };
 
 export default function Contact() {
@@ -62,6 +68,8 @@ export default function Contact() {
     const [therapistSlots, setTherapistSlots] = useState<
         { startTime: string; endTime: string }[]
     >([]);
+    const [payments, setPayments] = useState<Payment[]>([]);
+    const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
     const [searchParams] = useSearchParams();
     const selectedServiceId = searchParams.get("service") || "";
@@ -79,7 +87,7 @@ export default function Contact() {
         const bookingBody: BookingBody = {
             userId,
             serviceId: parseInt(selectedServiceId),
-            paymentId: 3,
+            paymentId: parseInt(selectedPayment?.paymentId || "0"),
             bookingTime: `${selectedDate}T${selectedTime}.000Z`,
             notes: "",
             therapistId: selectedTherapist,
@@ -91,6 +99,7 @@ export default function Contact() {
             setSelectedDate(todayString);
             setSelectedTime(null);
             setSelectedService(undefined);
+            setSelectedPayment(null);
         } else {
             alert("Đặt lịch thất bại");
         }
@@ -110,6 +119,11 @@ export default function Contact() {
                 console.error("Failed to fetch therapist slots:", error);
             }
         }
+        async function fetchPayments() {
+            const fetchedPayments = await getPayment();
+            setPayments(fetchedPayments);
+        }
+        fetchPayments();
         fetchTherapistSlots();
         setSelectedTime(null);
     }, [selectedTherapist, selectedServiceId, selectedDate]);
@@ -175,6 +189,45 @@ export default function Contact() {
                         </div>
                     </div>
                 )}
+                
+                {/* thanh toán Section */}
+                <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h2 className="text-xl font-bold text-gray-800 flex items-center">
+                            Chọn phương thức thanh toán
+                        </h2>
+                    <div
+                        className={`transition-all overflow-hidden ${
+                            isTherapistOpen ? "max-h-[500px] mt-4" : "max-h-0"
+                        }`}
+                    >
+                        <div className="flex space-x-3 overflow-x-auto scrollbar-hide p-2">
+                            {payments.map((payment) => (
+                                <div
+                                    key={payment.paymentId}
+                                    className={`relative border-2 p-3 rounded-lg cursor-pointer min-w-[130px] transition-all duration-300 ease-in-out flex flex-col items-center ${
+                                        selectedPayment === payment
+                                            ? "border-pink-400 bg-pink-100 scale-105"
+                                            : "border-gray-300 bg-white hover:scale-105 hover:shadow-md"
+                                    }`}
+                                    onClick={() =>
+                                        setSelectedPayment(payment)
+                                    }
+                                >
+                                    <p className="text-sm mt-2 font-semibold text-center text-gray-700">
+                                        {payment.paymentName}
+                                    </p>
+                                    {selectedPayment === payment && (
+                                        <div className="absolute top-0 right-0 bg-pink-300 text-white rounded-full p-1">
+                                            <FaCheck />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* chọn chuyên viên Section */}
                 <div className="bg-white p-6 rounded-lg shadow-md mb-6">
                     <div
                         className="flex justify-between items-center cursor-pointer"
@@ -249,6 +302,8 @@ export default function Contact() {
                         </div>
                     </div>
                 </div>
+
+                {/* chọn ngày & giờ Section */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-bold text-gray-800 mb-4 border-b-2 border-pink-300 pb-2">
                         Chọn Ngày & Giờ

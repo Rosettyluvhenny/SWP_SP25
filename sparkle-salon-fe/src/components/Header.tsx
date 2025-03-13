@@ -74,13 +74,13 @@ export default function Header() {
                 alert("chào mừng admin " + user.fullName);
                 navigate("/manager");
             } 
-            else if (user.roles[1].name === "STAFF") {
+            else if (user.roles[0].name === "STAFF") {
                 setUser(user);
                 setIsLoggedIn(true);
                 alert("chào mừng staff " + user.fullName);
                 navigate("/manager");
             }
-            else if (user.roles[2].name === "THERAPIST") {
+            else if (user.roles[0].name === "THERAPIST") {
                 setUser(user);
                 setIsLoggedIn(true);
                 alert("chào mừng therapist " + user.fullName);
