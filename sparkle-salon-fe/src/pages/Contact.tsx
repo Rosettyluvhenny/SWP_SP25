@@ -79,7 +79,7 @@ export default function Contact() {
         const bookingBody: BookingBody = {
             userId,
             serviceId: parseInt(selectedServiceId),
-            paymentId: 1,
+            paymentId: 3,
             bookingTime: `${selectedDate}T${selectedTime}.000Z`,
             notes: "",
             therapistId: selectedTherapist,

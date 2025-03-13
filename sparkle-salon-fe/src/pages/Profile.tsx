@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { getUserBookings, Booking } from "../data/userData";
 import { getUser } from "../data/authData";
+import axios from "axios";
 
 export interface UserInfo {
     id: string;
@@ -39,10 +40,22 @@ export default function Profile() {
         fetchUser();
     }, []);
 
-    const handleCancelBooking = (id: string) => {
-        if (window.confirm("Bạn có chắc chắn muốn huỷ lịch này?")) {
-            setBookings(bookings.filter((booking) => booking.id !== id));
-            alert("Huỷ lịch thành công!");
+    const handleCancelBooking = async (id: string) => {
+        const confirmDelete = window.confirm(
+            "Bạn có chắc chắn muốn xóa danh mục này?"
+        );
+        if (confirmDelete) {
+            try {
+                await axios.delete(`http://localhost:8081/swp/booking/${id}`);
+                const bookings = await getUserBookings();
+                if (bookings) {
+                    setBookings(bookings);
+                }
+                alert("Huỷ lịch thành công");
+            } catch (error) {
+                console.error("Error deleting booking:", error);
+                alert("Huỷ lịch thất bại");
+            }
         }
     };
 
@@ -59,7 +72,7 @@ export default function Profile() {
                      Trang Cá Nhân
                 </h2>
                 <div className="flex flex-col space-y-4">
-                    {["Hồ Sơ", "Lịch Sử Đặt Lịch", "Cài Đặt & Bảo mật"].map(
+                    {["Hồ Sơ", "Lịch Sử Đặt Lịch"].map(
                         (item) => (
                             <button
                                 key={item}
