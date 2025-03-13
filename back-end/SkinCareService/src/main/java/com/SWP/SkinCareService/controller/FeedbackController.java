@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.Feedback.FeedbackRequest;
+import com.SWP.SkinCareService.dto.request.Feedback.FeedbackUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Feedback.FeedbackResponse;
 import com.SWP.SkinCareService.service.FeedbackService;
@@ -17,8 +18,16 @@ import java.util.List;
 public class FeedbackController {
     private final FeedbackService feedbackService;
 
+    @PostMapping()
+    public ResponseEntity<ApiResponse<FeedbackResponse>> createFeedback(@RequestBody FeedbackRequest feedbackRequest) {
+        var result = feedbackService.createFeedback(feedbackRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.<FeedbackResponse>builder().result(result).build()
+        );
+    }
+
     @PutMapping("/{feedbackId}")
-    public ResponseEntity<ApiResponse<FeedbackResponse>> updateFeedback(@PathVariable int feedbackId, @RequestBody FeedbackRequest feedbackRequest) {
+    public ResponseEntity<ApiResponse<FeedbackResponse>> updateFeedback(@PathVariable int feedbackId, @RequestBody FeedbackUpdateRequest feedbackRequest) {
         var result = feedbackService.updateFeedback(feedbackId, feedbackRequest);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<FeedbackResponse>builder().result(result).build()

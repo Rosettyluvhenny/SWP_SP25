@@ -1,177 +1,3 @@
-/*
-package com.SWP.SkinCareService.service;
-
-import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
-import com.SWP.SkinCareService.dto.request.Booking.SessionUpdateRequest;
-import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
-import com.SWP.SkinCareService.entity.*;
-import com.SWP.SkinCareService.enums.BookingSessionStatus;
-import com.SWP.SkinCareService.enums.BookingStatus;
-import com.SWP.SkinCareService.exception.AppException;
-import com.SWP.SkinCareService.exception.ErrorCode;
-import com.SWP.SkinCareService.exception.MultipleParameterValidationException;
-import com.SWP.SkinCareService.mapper.BookingSessionMapper;
-import com.SWP.SkinCareService.repository.*;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
-
-@Service
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequiredArgsConstructor
-public class  BookingSessionService {
-    BookingSessionRepository bookingSessionRepository;
-    BookingSessionMapper bookingSessionMapper;
-    BookingRepository bookingRepository;
-    TherapistRepository therapistRepository;
-    SupabaseService supabaseService;
-    FeedbackRepository feedbackRepository;
-    RoomService roomService;
-
-    public BookingSessionResponse createBookingSession(BookingSessionRequest request) {
-        //Check booking
-        Booking booking = getBookingById(request.getBookingId());
-        //Check therapist
-        Therapist therapist = getTherapistById(request.getTherapistId());
-
-        //Create session
-        BookingSession session = bookingSessionMapper.toBookingSession(request);
-        session.setBooking(booking);
-        session.setTherapist(therapist);
-
-        bookingSessionRepository.save(session);
-        return bookingSessionMapper.toBookingSessionResponse(session);
-    }
-    public List<BookingSessionResponse> getAllBookingSessions() {
-        return bookingSessionRepository.findAll().stream().map(bookingSessionMapper::toBookingSessionResponse).toList();
-    }
-    public List<BookingSessionResponse> getAllBookingNullTherapist() {
-        List<BookingSession> list = bookingSessionRepository.findAll();
-
-        list.removeIf(bookingSession -> bookingSession.getTherapist() != null);
-
-        if (list.isEmpty()) {
-            return List.of();
-        } else {
-            return list.stream().map(bookingSessionMapper::toBookingSessionResponse).toList();
-        }
-    }
-    public BookingSessionResponse getBookingSessionById(int id) {
-        return bookingSessionMapper.toBookingSessionResponse(checkSession(id));
-    }
-    public BookingSessionResponse updateBefore(int id,SessionUpdateRequest request, MultipartFile img) throws IOException {
-        BookingSession session = checkSession(id);
-        //Assign staffID
-        //----------------------------------------------
-
-        //Ordinal number of the session in the booking
-        int sessionNum = 0;
-        Booking booking = session.getBooking();
-        List<BookingSession> list = booking.getBookingSessions();
-        for (BookingSession bookingSession : list) {
-            if (session.getId() == bookingSession.getId()) {
-                sessionNum = list.indexOf(bookingSession)+1;
-            }
-        }
-        //Set the image before session start
-        if (img == null || img.isEmpty()) {
-            throw new MultipleParameterValidationException(Collections.singletonList("img"));
-        }
-        String imgBefore = supabaseService.uploadImage(img,"Before_session"+sessionNum+"_booking"+booking.getId());
-        session.setImgBefore(imgBefore);
-        session.setNote(request.getNote());
-        //Save and response
-        bookingSessionRepository.save(session);
-        return bookingSessionMapper.toBookingSessionResponse(session);
-    }
-    public BookingSessionResponse updateAfter(int id, SessionUpdateRequest request, MultipartFile img) throws IOException {
-        BookingSession session = checkSession(id);
-        if (session.getImgBefore() == null) {
-            throw new AppException(ErrorCode.UPDATE_NOT_ALLOWED);
-        }
-        //Ordinal number of the session in the booking
-        int sessionNum = 0;
-        Booking booking = session.getBooking();
-        List<BookingSession> list = booking.getBookingSessions();
-        for (BookingSession bookingSession : list) {
-            if (session.getId() == bookingSession.getId()) {
-                sessionNum = list.indexOf(bookingSession)+1;
-            }
-        }
-        //Set the image after session finish
-        if (img == null || img.isEmpty()) {
-            throw new MultipleParameterValidationException(Collections.singletonList("img"));
-        }
-        String imgAfter = supabaseService.uploadImage(img,"After_session"+sessionNum+"_booking"+booking.getId());
-        session.setImgAfter(imgAfter);
-        session.setNote(request.getNote());
-
-        if (session.isFinished()) {
-            session.setStatus(BookingSessionStatus.COMPLETED);
-            //Check status of bookingService
-            booking.setSessionRemain(booking.getSessionRemain()-1);
-            if (booking.getSessionRemain() == 0) {
-                booking.setStatus(BookingStatus.COMPLETED);
-            }
-            //Decrease in use in room
-            int roomId = session.getRoom().getId();
-            roomService.decrementInUse(roomId);
-            //Create feedback
-            Feedback feedback = new Feedback();
-            //Set data
-            feedback.setServiceId(booking.getService().getId());
-            feedback.setBookingSession(session);
-            feedback.setUser(booking.getUser());
-            feedback.setTherapistId(session.getTherapist().getId());
-            feedback.setRated(false);
-            //Save
-            feedbackRepository.save(feedback);
-
-            bookingRepository.save(booking);
-        }
-
-
-        //Save and response
-        bookingSessionRepository.save(session);
-        return bookingSessionMapper.toBookingSessionResponse(session);
-    }
-    public BookingSessionResponse assignTherapistToSession(int id, SessionUpdateRequest request) {
-        BookingSession session = checkSession(id);
-        Therapist therapist = getTherapistById(request.getTherapistId());
-        session.setTherapist(therapist);
-        bookingSessionRepository.save(session);
-        return bookingSessionMapper.toBookingSessionResponse(session);
-    }
-
-
-    public void deleteBookingSession(int id) {
-        BookingSession session = checkSession(id);
-        bookingSessionRepository.delete(session);
-    }
-
-    BookingSession checkSession(int id) {
-        return bookingSessionRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.SESSION_NOT_EXISTED));
-    }
-    Booking getBookingById(int id) {
-        return bookingRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
-    }
-    Therapist getTherapistById(String id) {
-        return therapistRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
-    }
-
-}
-
- */
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
@@ -183,6 +9,7 @@ import com.SWP.SkinCareService.dto.response.BookingSession.TimeSlotAvailabilityR
 import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.SWP.SkinCareService.enums.BookingStatus;
+import com.SWP.SkinCareService.enums.PaymentStatus;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BookingSessionMapper;
@@ -191,8 +18,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -214,11 +41,24 @@ public class  BookingSessionService {
     ServicesRepository servicesRepository;
     SupabaseService supabaseService;
     RoomService roomService;
-    FeedbackRepository feedbackRepository;
+    FeedbackService feedbackService;
 
+    @Transactional
     public BookingSessionResponse createBookingSession(BookingSessionRequest request) {
-
         Booking booking = getBookingById(request.getBookingId());
+
+        //Check condition to create new booking session
+        // 1. Last session have to completed
+        // 2. Many session can't in the same day
+        // 3. Total session (completed and waiting) can't more than the total session allow of service
+
+
+        if (!isAllowToCreate(request.getBookingId(), request.getSessionDateTime().toLocalDate())) {
+            throw new AppException(ErrorCode.BOOKING_REJECTED);
+        }
+        //Allowed to create new booking session
+
+
 
         BookingSession session = bookingSessionMapper.toBookingSession(request);
         Services service = booking.getService();
@@ -236,13 +76,28 @@ public class  BookingSessionService {
                 session.setTherapist(therapist);
             }
         }
+
         session.setBookingDate(request.getSessionDateTime().toLocalDate());
         session.setBooking(booking);
-        session.setStatus(BookingSessionStatus.PENDING);
+
+        //Set status for session base on payment status of booking
+        if (booking.getPaymentStatus() == PaymentStatus.PAID || booking.getStatus() == BookingStatus.ON_GOING) {
+            session.setStatus(BookingSessionStatus.WAITING);
+            //Assign Room for session
+            List<Room> roomAvailableForService = roomService.getRoomAvailableForService(service.getId());
+            if (roomAvailableForService.isEmpty()) {
+                throw new AppException(ErrorCode.OUT_OF_ROOM);
+            } else {
+                Room room = roomAvailableForService.getFirst();
+                session.setRoom(room);
+                roomService.incrementInUse(room.getId());
+            }
+        } else {
+            session.setStatus(BookingSessionStatus.PENDING);
+        }
 
         bookingSessionRepository.save(session);
         bookingSessionRepository.flush();
-        updateSessionRemain(request.getBookingId());
 
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
@@ -252,6 +107,7 @@ public class  BookingSessionService {
     public BookingSessionResponse getBookingSessionById(int id) {
         return bookingSessionMapper.toBookingSessionResponse(checkSession(id));
     }
+    @Transactional
     public BookingSessionResponse updateBookingSession(int id,
                                                        BookingSessionUpdateRequest request,
                                                        MultipartFile imgBefore,
@@ -263,7 +119,6 @@ public class  BookingSessionService {
             Therapist therapist = getTherapistById(request.getTherapistId());
             session.setTherapist(therapist);
         }
-
 
         bookingSessionMapper.updateBookingSession(session, request);
 
@@ -297,7 +152,7 @@ public class  BookingSessionService {
             Booking booking = session.getBooking();
             session.setStatus(BookingSessionStatus.COMPLETED);
             //Check status of bookingService
-            booking.setSessionRemain(booking.getSessionRemain()-1);
+            updateSessionRemain(booking.getId());
             if (booking.getSessionRemain() == 0) {
                 booking.setStatus(BookingStatus.COMPLETED);
             }
@@ -306,17 +161,14 @@ public class  BookingSessionService {
             roomService.decrementInUse(roomId);
             bookingRepository.save(booking);
             //Create feedback
-            Feedback feedback  = Feedback.builder()
-                    .service(booking.getService())
-                    .bookingSession(session)
-                    .user(booking.getUser())
-                    .therapist(session.getTherapist())
+            FeedbackRequest feedbackRequest = FeedbackRequest.builder()
+                    .serviceId(booking.getService().getId())
+                    .bookingSessionId(session.getId())
+                    .userId(session.getBooking().getUser().getId())
+                    .therapistId(session.getTherapist().getId())
                     .rated(false)
                     .build();
-
-
-            //Save
-            feedbackRepository.save(feedback);
+            feedbackService.createFeedback(feedbackRequest);
 
         }
 
@@ -324,12 +176,47 @@ public class  BookingSessionService {
         bookingSessionRepository.flush();
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
-
+    @Transactional
     public void updateStatus(int id, String status){
         BookingSession bookingSession = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
         try {
             BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(status.toUpperCase());
             bookingSession.setStatus(sessionStatus);
+            Booking currentBooking = getBookingById(bookingSession.getBooking().getId());
+            Services service = bookingSession.getBooking().getService();
+            if (bookingSession.getStatus() == BookingSessionStatus.WAITING) {
+                if (currentBooking.getBookingSessions().size() == 1) {
+                    currentBooking.setStatus(BookingStatus.ON_GOING);
+                    bookingRepository.save(currentBooking);
+                }
+                //Assign Room for session
+                List<Room> roomAvailableForService = roomService.getRoomAvailableForService(service.getId());
+                if (roomAvailableForService.isEmpty()) {
+                    throw new AppException(ErrorCode.OUT_OF_ROOM);
+                } else {
+                    Room room = roomAvailableForService.getFirst();
+                    bookingSession.setRoom(room);
+                    roomService.incrementInUse(room.getId());
+                }
+            } else if (bookingSession.getStatus() == BookingSessionStatus.COMPLETED) {
+                Booking existingBooking = bookingSession.getBooking();
+                roomService.decrementInUse(bookingSession.getRoom().getId());
+                //Create feedback
+                FeedbackRequest feedbackRequest = FeedbackRequest.builder()
+                        .serviceId(service.getId())
+                        .bookingSessionId(bookingSession.getId())
+                        .userId(bookingSession.getBooking().getUser().getId())
+                        .therapistId(bookingSession.getTherapist().getId())
+                        .rated(false)
+                        .build();
+                feedbackService.createFeedback(feedbackRequest);
+                updateSessionRemain(existingBooking.getId());
+                if (existingBooking.getSessionRemain() == 0) {
+                    existingBooking.setStatus(BookingStatus.COMPLETED);
+                    bookingRepository.save(existingBooking);
+                }
+            }
+
             bookingSessionRepository.save(bookingSession);
         }catch(IllegalArgumentException e){
             throw new AppException(ErrorCode.SESSION_STATUS_INVALID);
@@ -342,7 +229,7 @@ public class  BookingSessionService {
             throw new AppException(ErrorCode.SESSION_STATUS_INVALID);
         }
     }
-
+    @Transactional
     public void deleteBookingSession(int id) {
         BookingSession session = checkSession(id);
         bookingSessionRepository.delete(session);
@@ -404,7 +291,7 @@ public class  BookingSessionService {
         LocalDateTime startOfDay = bookingDate.atTime(9, 0);
         LocalDateTime endOfDay = bookingDate.atTime(17, 0);
 
-        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELLED);
         List<BookingSession> therapistBookings = bookingSessionRepository.findByTherapistIdAndSessionDateTimeBetweenAndStatusNotIn(
                 therapistId, startOfDay, endOfDay, excludeStatuses);
 
@@ -489,25 +376,29 @@ public class  BookingSessionService {
         LocalDateTime startOfDay = bookingDate.atTime(9, 0);
         LocalDateTime endOfDay = bookingDate.atTime(17, 0);
 
-        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELLED);
         List<BookingSession> allBookings = bookingSessionRepository.findBySessionDateTimeBetweenAndStatusNotIn(
                 startOfDay, endOfDay, excludeStatuses);
 
         // Remove therapists from slots where they have bookings
         for (BookingSession booking : allBookings) {
-            String therapistId = booking.getTherapist().getId();
-            LocalTime bookingStartTime = booking.getSessionDateTime().toLocalTime();
-            int bookingDuration = booking.getBooking().getService().getDuration();
-            LocalTime bookingEndTime = bookingStartTime.plusMinutes(bookingDuration);
 
-            for (LocalTime slot : allTimeSlots) {
-                LocalTime slotEndTime = slot.plusMinutes(serviceDuration);
+            if (booking.getTherapist() != null) {
+                String therapistId = booking.getTherapist().getId();
 
-                // Check if this slot would overlap with the booking
-                if (slot.isBefore(bookingEndTime) && slotEndTime.isAfter(bookingStartTime)) {
-                    availableTherapistsMap.get(slot).removeIf(
-                            therapist -> therapist.getId().equals(therapistId)
-                    );
+                LocalTime bookingStartTime = booking.getSessionDateTime().toLocalTime();
+                int bookingDuration = booking.getBooking().getService().getDuration();
+                LocalTime bookingEndTime = bookingStartTime.plusMinutes(bookingDuration);
+
+                for (LocalTime slot : allTimeSlots) {
+                    LocalTime slotEndTime = slot.plusMinutes(serviceDuration);
+
+                    // Check if this slot would overlap with the booking
+                    if (slot.isBefore(bookingEndTime) && slotEndTime.isAfter(bookingStartTime)) {
+                        availableTherapistsMap.get(slot).removeIf(
+                                therapist -> therapist.getId().equals(therapistId)
+                        );
+                    }
                 }
             }
         }
@@ -572,7 +463,7 @@ public class  BookingSessionService {
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
         // Define statuses to exclude from active bookings
-        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELLED);
 
         // Fetch all active bookings for the therapist within the day
         List<BookingSession> existingBookings = bookingSessionRepository
@@ -604,17 +495,40 @@ public class  BookingSessionService {
 
     void updateSessionRemain(int id) {
         Booking booking = getBookingById(id);
-        List<BookingSession> list = booking.getBookingSessions();
         int remain = booking.getSessionRemain();
-        if(list!=null) {
-            for (BookingSession bookingSession : list) {
-                if (bookingSession.getStatus() != BookingSessionStatus.COMPLETED && bookingSession.getStatus() != BookingSessionStatus.IS_CANCELED) {
-                    remain--;
-                }
-            }
-        }
+        remain -= 1;
         booking.setSessionRemain(remain);
         bookingRepository.save(booking);
+    }
+
+    public boolean isAllowToCreate(int bookingId, LocalDate requestDate) {
+        Booking booking = getBookingById(bookingId);
+        List<BookingSession> existedList = booking.getBookingSessions();
+        if (existedList != null && !existedList.isEmpty()) {
+            List<BookingSession> existedSession = new ArrayList<>(existedList);
+            BookingSession lastSession = existedSession.getLast();
+            LocalDate dateOfLastSession = lastSession.getBookingDate();
+            //Check status of last session
+            if (lastSession.getStatus() != BookingSessionStatus.COMPLETED) {
+                throw new AppException(ErrorCode.CURRENT_SESSION_NOT_COMPLETED);
+            }
+            //Check date to create new bookingSession
+            if (!requestDate.isAfter(dateOfLastSession)) {
+                throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+            }
+            //Check session remain
+            int maxSessionAllow = booking.getService().getSession();
+            int actualComplete = 0;
+            for (BookingSession bookingSession : existedSession) {
+                if (bookingSession.getStatus() == BookingSessionStatus.COMPLETED) {
+                    actualComplete++;
+                }
+            }
+            if (actualComplete >= maxSessionAllow) {
+                throw new AppException(ErrorCode.MAX_SESSION_REACHED);
+            }
+        }
+        return true;
     }
 
 

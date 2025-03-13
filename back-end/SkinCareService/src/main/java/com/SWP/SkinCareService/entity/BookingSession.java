@@ -36,7 +36,7 @@ public class BookingSession {
     @JsonBackReference
     private Booking booking;
 
-    @CreationTimestamp
+    //@CreationTimestamp
     //@Temporal(TemporalType.TIMESTAMP)
     LocalDate bookingDate;
 
@@ -68,9 +68,9 @@ public class BookingSession {
     private User staff;
 
     //One To Many - Feedback
-    @OneToMany(mappedBy = "bookingSession")
+    @OneToOne(mappedBy = "bookingSession", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    List<Feedback> feedbacks;
+    Feedback feedbacks;
 
     public boolean isFinished() {
         return Stream.of(booking, note, imgBefore, imgAfter, room, therapist).allMatch(Objects::nonNull);

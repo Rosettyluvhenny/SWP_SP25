@@ -25,6 +25,8 @@ public class Payment {
     @Column(name = "PaymentName", nullable = false, unique = true)
     String paymentName;
 
+    String description;
+
     @OneToMany(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference
     List<Booking> bookings;

@@ -53,4 +53,8 @@ public class QuizResult {
     public int hashCode() {
         return id;
     }
+
+    @OneToMany(mappedBy = "quizResult", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<BlogPost> blogPosts = new ArrayList<>();
 }

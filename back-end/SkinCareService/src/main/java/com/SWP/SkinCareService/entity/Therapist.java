@@ -79,7 +79,7 @@ public class Therapist {
 
     String img;
 
-    @OneToMany(mappedBy = "therapist")
+    @OneToMany(mappedBy = "therapist", orphanRemoval = true)
     @JsonManagedReference
     Set<Feedback> feedbacks;
     @Override

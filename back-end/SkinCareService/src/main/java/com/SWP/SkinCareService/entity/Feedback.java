@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,11 +14,14 @@ import java.util.Date;
 
 @Entity
 @Table
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"user","bookingSession", "therapist", "service"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@EntityListeners(AuditingEntityListener.class)
 public class Feedback {
 
     @Id
@@ -25,7 +29,9 @@ public class Feedback {
     private Integer id;
 
     private String feedbackText;
-    private Integer rating;
+
+    @Column(nullable = false)
+    private Integer rating = 0;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -33,7 +39,7 @@ public class Feedback {
 
 
     // Many-to-One - User
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private User user;
 
@@ -43,12 +49,12 @@ public class Feedback {
     private BookingSession bookingSession;
 
     // Many-to-One - Therapist (One feedback belongs to one therapist)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "therapistId", nullable = false)
     private Therapist therapist;
 
     // Many-to-One - Service (One feedback belongs to one service)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "serviceId", nullable = false)
     private Services service;
 

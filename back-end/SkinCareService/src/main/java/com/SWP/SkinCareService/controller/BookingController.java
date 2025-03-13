@@ -43,14 +43,6 @@ public class BookingController {
         );
     }
 
-    @GetMapping("/{bookingId}")
-    ResponseEntity<ApiResponse<BookingResponse>> getBookingById(@PathVariable int bookingId) {
-        var result = bookingService.getBookingById(bookingId);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<BookingResponse>builder().result(result).build()
-        );
-    }
-
     @PutMapping("/{bookingId}")
     ResponseEntity<ApiResponse<BookingResponse>> updateBooking(@PathVariable int bookingId, @RequestBody BookingUpdateRequest bookingRequest) {
         var result = bookingService.updateBooking(bookingId, bookingRequest);
@@ -72,6 +64,14 @@ public class BookingController {
         bookingService.updateStatus(bookingId, status);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingResponse>builder().message("Updates successfull").build()
+        );
+    }
+
+    @PutMapping("/{bookingId}/paymentStatus")
+    ResponseEntity<ApiResponse<BookingResponse>> updatePaymentStatus(@PathVariable int bookingId, @RequestParam String status) {
+        bookingService.updatePaymentStatus(bookingId, status);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<BookingResponse>builder().message("Updates payment status successfull").build()
         );
     }
 

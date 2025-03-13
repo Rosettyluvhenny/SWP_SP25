@@ -17,8 +17,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "services")
-@Data
-@ToString(exclude = {"serviceCategory","quizResult","rooms","bookings","therapists"})
+@Getter
+@Setter
+@ToString(exclude = {"serviceCategory","quizResult","rooms","bookings","therapists","feedbacks"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -92,7 +93,7 @@ public class Services {
     @JsonBackReference
     List<Therapist> therapists = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(mappedBy = "service", orphanRemoval = true)
     @JsonManagedReference
     Set<Feedback> feedbacks;
 

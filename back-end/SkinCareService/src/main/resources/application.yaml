@@ -5,9 +5,9 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3306/swp_db"
+    url: "jdbc:mysql://localhost:3306/swp"
     username: root
-    password: 12345Aa
+    password: 1234
 
   jpa:
     hibernate:
@@ -40,3 +40,10 @@ supabase:
   url: "https://qtlwqfhffuffjcgkgity.supabase.co"
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0bHdxZmhmZnVmZmpjZ2tnaXR5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDAyNjI5NCwiZXhwIjoyMDU1NjAyMjk0fQ.sRVChWMFDxUiHZcsAbaORZ84gLP3eJ47GTDdrQFYGN4"
   bucket: "ImageBucket"
+
+vnpay:
+  tmn-code: G6UJ6GM0
+  hash-secret: KNWNX1BX0Z31T3MIX7E3KROK063KWANW
+  payment-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:8080/swp/payment/vnpay/return
+  ipn-url: http://localhost:8080/swp/payment/vnpay/ipn

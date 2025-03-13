@@ -14,7 +14,7 @@ import java.util.Set;
 @Table(name="user")
 @Getter
 @Setter
-@ToString(exclude = {"therapist", "quizResult", "booking", "bookingServicesStaff", "bookingSessions"})
+@ToString(exclude = {"therapist", "quizResult", "booking", "bookingServicesStaff", "bookingSessions", "feedbacks", "roles"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor

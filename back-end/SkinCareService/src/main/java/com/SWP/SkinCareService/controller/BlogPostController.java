@@ -29,7 +29,7 @@ public class BlogPostController {
     BlogPostService blogPostService;
 
     @Operation(summary = "Create a new blog post", description = "Create a new blog post with optional image")
-    @PreAuthorize("hasRole('THERAPIST')")
+    //@PreAuthorize("hasRole('THERAPIST')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BlogPostResponse>> createBlogPost(
             @RequestPart("data") @Valid BlogPostRequest request,

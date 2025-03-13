@@ -12,10 +12,13 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface FeedbackMapper {
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "bookingSession", ignore = true)
+    @Mapping(target = "service", ignore = true)
+    @Mapping(target = "therapist", ignore = true)
     Feedback toFeedBack(FeedbackRequest feedback);
 
     @Mapping(target = "serviceName", source = "bookingSession.booking.service.name")
     @Mapping(target = "therapistName", source = "bookingSession.therapist.user.fullName")
+    @Mapping(target = "id", source = "id")
     FeedbackResponse toFeedbackResponse(Feedback feedback);
 
     void updateFeedback(FeedbackRequest request,  @MappingTarget Feedback feedback);

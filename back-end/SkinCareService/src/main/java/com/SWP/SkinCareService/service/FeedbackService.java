@@ -1,25 +1,20 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Feedback.FeedbackRequest;
+import com.SWP.SkinCareService.dto.request.Feedback.FeedbackUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Feedback.FeedbackResponse;
-import com.SWP.SkinCareService.entity.Feedback;
-import com.SWP.SkinCareService.entity.Services;
-import com.SWP.SkinCareService.entity.Therapist;
+import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.FeedbackMapper;
-import com.SWP.SkinCareService.repository.FeedbackRepository;
-import com.SWP.SkinCareService.repository.ServicesRepository;
-import com.SWP.SkinCareService.repository.TherapistRepository;
+import com.SWP.SkinCareService.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +24,30 @@ public class FeedbackService {
     FeedbackMapper feedbackMapper;
     ServicesRepository servicesRepository;
     TherapistRepository therapistRepository;
+    UserRepository userRepository;
+    BookingSessionRepository bookingSessionRepository;
 
-    public FeedbackResponse updateFeedback(int id, FeedbackRequest request) {
+    @Transactional
+    public FeedbackResponse createFeedback(FeedbackRequest feedbackRequest) {
+        Feedback feedback = feedbackMapper.toFeedBack(feedbackRequest);
+        //Get user
+        User user = getUserById(feedbackRequest.getUserId());
+        //Get service
+        Services services = getServiceById(feedbackRequest.getServiceId());
+        //Get session
+        BookingSession session = getSessionById(feedbackRequest.getBookingSessionId());
+        //Get therapist
+        Therapist therapist = getTherapistById(feedbackRequest.getTherapistId());
+        feedback.setService(services);
+        feedback.setUser(user);
+        feedback.setBookingSession(session);
+        feedback.setTherapist(therapist);
+        feedback.setRating(0);
+        feedbackRepository.save(feedback);
+        return feedbackMapper.toFeedbackResponse(feedback);
+    }
+    @Transactional
+    public FeedbackResponse updateFeedback(int id, FeedbackUpdateRequest request) {
         Feedback feedback = getById(id);
         feedback.setFeedbackText(request.getFeedbackText());
         feedback.setRating(request.getRating());
@@ -43,14 +60,16 @@ public class FeedbackService {
         //Calculate rating for Service
         float serviceRating = 0;
 
-        List<Feedback> feedbackListService = getAllFeedbackByServices(service);
+        Set<Feedback> feedbackListService = service.getFeedbacks();
         if (feedbackListService.isEmpty()) {
-            serviceRating = feedback.getRating();
+            serviceRating = (float) feedback.getRating();
             service.setRating(serviceRating);
             servicesRepository.save(service);
         } else {
             for (Feedback feedbackInList : feedbackListService) {
-                serviceRating += feedbackInList.getRating();
+                if (feedbackInList.getRating() != null) {
+                    serviceRating += (float) feedbackInList.getRating();
+                }
             }
             serviceRating = serviceRating / feedbackListService.size();
             service.setRating(serviceRating);
@@ -62,14 +81,16 @@ public class FeedbackService {
         Therapist therapist = feedback.getTherapist();
         //Calculate rating for Therapist
         float therapistRating = 0;
-        List<Feedback> feedbackListTherapist = getAllFeedbackByTherapist(therapist);
+        Set<Feedback> feedbackListTherapist = therapist.getFeedbacks();
         if (feedbackListTherapist.isEmpty()) {
-            therapistRating = feedback.getRating();
+            therapistRating = (float) feedback.getRating();
             therapist.setRating(therapistRating);
             therapistRepository.save(therapist);
         } else {
             for (Feedback feedbackInList : feedbackListTherapist) {
-                therapistRating += feedbackInList.getRating();
+                if (feedbackInList.getRating() != null) {
+                    therapistRating += (float) feedbackInList.getRating();
+                }
             }
             therapistRating = therapistRating / feedbackListTherapist.size();
             therapist.setRating(therapistRating);
@@ -86,49 +107,51 @@ public class FeedbackService {
     public FeedbackResponse getFeedbackById(int id) {
         return feedbackMapper.toFeedbackResponse(feedbackRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND)));
     }
-
+    @Transactional
     public void deleteFeedbackById(int id) {
         Feedback feedback = getById(id);
-
         //Get service
         Services services = feedback.getService();
+
+
         //Calculate rating for Service
         float serviceRating = 0;
-        List<Feedback> feedbackListService = getAllFeedbackByServices(services);
-        feedbackListService.remove(feedback);
-        if (feedbackListService.isEmpty()) {
-            serviceRating = feedback.getRating();
+        Set<Feedback> feedbackListByBeforeService = services.getFeedbacks();
+        Set<Feedback> feedbackListAfterService = new HashSet<>(feedbackListByBeforeService);
+        feedbackListAfterService.remove(feedback);
+        if (feedbackListAfterService.isEmpty()) {
             services.setRating(serviceRating);
-            servicesRepository.save(services);
+            services.getFeedbacks().remove(feedback);
         } else {
-            for (Feedback feedbackInList : feedbackListService) {
+            for (Feedback feedbackInList : feedbackListAfterService) {
                 serviceRating += feedbackInList.getRating();
             }
-            serviceRating = serviceRating / feedbackListService.size();
+            serviceRating = serviceRating / feedbackListAfterService.size();
             services.setRating(serviceRating);
-            servicesRepository.save(services);
+            services.getFeedbacks().remove(feedback);
         }
 
         //Get therapist
         Therapist therapist = feedback.getTherapist();
         //Calculate rating for Therapist
         float therapistRating = 0;
-        List<Feedback> feedbackListTherapist = getAllFeedbackByTherapist(therapist);
-        feedbackListTherapist.remove(feedback);
-        if (feedbackListTherapist.isEmpty()) {
-            therapistRating = feedback.getRating();
+        Set<Feedback> feedbackListBeforeTherapist = therapist.getFeedbacks();
+        Set<Feedback> feedbackListAfterTherapist = new HashSet<>(feedbackListBeforeTherapist);
+        feedbackListAfterTherapist.remove(feedback);
+        if (feedbackListAfterTherapist.isEmpty()) {
             therapist.setRating(therapistRating);
-            therapistRepository.save(therapist);
+            therapist.getFeedbacks().remove(feedback);
         } else {
-            for (Feedback feedbackInList : feedbackListTherapist) {
+            for (Feedback feedbackInList : feedbackListAfterTherapist) {
                 therapistRating += feedbackInList.getRating();
             }
-            therapistRating = therapistRating / feedbackListTherapist.size();
+            therapistRating = therapistRating / feedbackListAfterTherapist.size();
             therapist.setRating(therapistRating);
-            therapistRepository.save(therapist);
+            therapist.getFeedbacks().remove(feedback);
+
         }
-
-
+        servicesRepository.save(services);
+        therapistRepository.save(therapist);
         feedbackRepository.delete(feedback);
     }
 
@@ -152,5 +175,15 @@ public class FeedbackService {
     private Therapist getTherapistById(String id) {
         return therapistRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+    }
+
+    private User getUserById(String id) {
+        return userRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    }
+
+    private BookingSession getSessionById(int id) {
+        return bookingSessionRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.SESSION_NOT_EXISTED));
     }
 }

@@ -9,6 +9,6 @@ import lombok.experimental.FieldDefaults;
 public enum BookingStatus {
     PENDING,
     ON_GOING,
-    IS_CANCELED,
+    IS_CANCELLED,
     COMPLETED
 }

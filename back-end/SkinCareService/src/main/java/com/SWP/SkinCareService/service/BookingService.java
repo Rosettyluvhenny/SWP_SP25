@@ -5,6 +5,7 @@ import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.entity.*;
+import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.SWP.SkinCareService.enums.BookingStatus;
 import com.SWP.SkinCareService.enums.PaymentStatus;
 import com.SWP.SkinCareService.enums.ServiceType;
@@ -24,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +42,7 @@ public class BookingService {
     private TherapistRepository therapistRepository;
     private BookingSessionService bookingSessionService;
     SupabaseService supabaseService;
+
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
         //Check user
@@ -50,22 +51,22 @@ public class BookingService {
         Services service = getServiceById(request.getServiceId());
         //Check payment method
         Payment payment = getPaymentById(request.getPaymentId());
-        log.info(payment.getPaymentName());
-        //Create first session
-        BookingSession bookingSession = new BookingSession();
-        //Get time booking
-        LocalDateTime time = request.getBookingTime();
-        //Check therapist
         //Get all booking of user
-        Set<Booking> bookingList = user.getBooking();
-        if(bookingList!=null && !bookingList.isEmpty() ) {
-            for (Booking booking : bookingList) {
-                if ((booking.getService().getType() == ServiceType.TREATMENT) && (booking.getService().getType() == service.getType())) {
-                    BookingSession session = booking.getBookingSessions().getLast();
-                    LocalDate lastSessionDateValid = session.getBookingDate().plusDays(7);
-                    LocalDate currentDate = request.getBookingTime().toLocalDate();
-                    if (currentDate.isBefore(lastSessionDateValid) || session.getBooking().getStatus() != BookingStatus.COMPLETED) {
-                        throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+
+        Set<Booking> userBookingExisted = user.getBooking();
+        if (userBookingExisted != null && !userBookingExisted.isEmpty()) {
+            for (Booking userBooking : userBookingExisted) {
+                if ((userBooking.getService().getType() == ServiceType.TREATMENT) && ServiceType.TREATMENT == service.getType()) {
+
+                    List<BookingSession> sessionList = userBooking.getBookingSessions();
+                    if (sessionList != null && !sessionList.isEmpty()) {
+                        BookingSession lastSessionExisted = sessionList.getLast();
+                        LocalDate lastSessionDateValid = lastSessionExisted.getBookingDate().plusDays(7);
+                        LocalDate currentDate = request.getBookingTime().toLocalDate();
+
+                        if (currentDate.isBefore(lastSessionDateValid) || lastSessionExisted.getBooking().getStatus() != BookingStatus.COMPLETED) {
+                            throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                        }
                     }
                 }
             }
@@ -88,7 +89,7 @@ public class BookingService {
                 .sessionDateTime(request.getBookingTime())
                 .note(request.getNotes())
                 .therapistId(request.getTherapistId())
-                        .build();
+                .build();
         bookingSessionService.createBookingSession(rq);
         BookingResponse result = bookingMapper.toBookingResponse(booking);
         bookingRepository.flush();
@@ -101,9 +102,6 @@ public class BookingService {
         return bookings.stream().map(bookingMapper::toBookingResponse).toList();
     }
 
-    public BookingResponse getBookingById(int id) {
-        return bookingMapper.toBookingResponse(checkBooking(id));
-    }
 
     @Transactional
     public BookingResponse updateBooking(int id, BookingUpdateRequest request) {
@@ -113,7 +111,7 @@ public class BookingService {
         bookingMapper.updateBooking(request, booking);
         return bookingMapper.toBookingResponse(booking);
     }
-
+    @Transactional
     public void deleteBooking(int id) {
         Booking booking = checkBooking(id);
         bookingRepository.delete(booking);
@@ -145,13 +143,47 @@ public class BookingService {
     }
     @Transactional
     public void updateStatus(int id, String status){
-        Booking booking = bookingRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
+        Booking booking = checkBooking(id);
         try {
             BookingStatus bookingStatus = BookingStatus.valueOf(status.toUpperCase());
             booking.setStatus(bookingStatus);
+            if (bookingStatus == BookingStatus.ON_GOING) {
+                List<BookingSession> sessionList = booking.getBookingSessions();
+                if (sessionList != null && !sessionList.isEmpty()) {
+                    for (BookingSession session : sessionList) {
+                        if (session.getStatus() == BookingSessionStatus.PENDING) {
+                            session.setStatus(BookingSessionStatus.WAITING);
+                        }
+                    }
+                }
+            } else if (bookingStatus == BookingStatus.IS_CANCELLED) {
+                List<BookingSession> sessionList = booking.getBookingSessions();
+                if (sessionList != null && !sessionList.isEmpty()) {
+                    for (BookingSession session : sessionList) {
+                        session.setStatus(BookingSessionStatus.IS_CANCELLED);
+                    }
+                }
+            }
             bookingRepository.save(booking);
         }catch(IllegalArgumentException e){
             throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
+        }
+    }
+
+    @Transactional
+    public void updatePaymentStatus(int id, String paymentStatus){
+        Booking booking = checkBooking(id);
+        try {
+            PaymentStatus status = PaymentStatus.valueOf(paymentStatus.toUpperCase());
+            booking.setPaymentStatus(status);
+            if (status == PaymentStatus.PAID) {
+                updateStatus(id, "ON_GOING");
+            } else if (status == PaymentStatus.CANCELLED) {
+                updateStatus(id, "IS_CANCELLED");
+            }
+            bookingRepository.save(booking);
+        } catch (IllegalArgumentException e){
+            throw new AppException(ErrorCode.PAYMENT_STATUS_INVALID);
         }
     }
 
