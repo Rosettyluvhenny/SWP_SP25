@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
+import {createPayment, getPayment, deletePayment, updatePayment} from "../data/paymentData";
 
 type PaymentMethod = {
     id: number;
@@ -8,13 +9,21 @@ type PaymentMethod = {
 };
 
 export default function PaymentManagement() {
-    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
-        { id: 1, name: "Chuyển Khoản" },
-        { id: 2, name: "Tiền Mặt" },
-    ]);
-
+    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null);
+
+    useEffect(() => {
+        const fetchPayments = async () => {
+            try {
+                const payments = await getPayment();
+                setPaymentMethods(payments);
+            } catch (error) {
+                console.error("Error fetching payment methods:", error);
+            }
+        };
+        fetchPayments();
+    }, []);
 
     const openModal = (method: PaymentMethod | null = null) => {
         setEditingMethod(method);
@@ -26,27 +35,36 @@ export default function PaymentManagement() {
         setEditingMethod(null);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
-        const newMethod: PaymentMethod = {
-            id: editingMethod ? editingMethod.id : paymentMethods.length + 1,
-            name: formData.get("name") as string,
-        };
+        const paymentName = formData.get("name") as string;
 
-        if (editingMethod) {
-            setPaymentMethods(paymentMethods.map((m) => (m.id === editingMethod.id ? newMethod : m)));
-        } else {
-            setPaymentMethods([...paymentMethods, newMethod]);
+        try {
+            if (editingMethod) {
+                await updatePayment(editingMethod.id, paymentName);
+                setPaymentMethods((prev) => prev.map((m) => (m.id === editingMethod.id ? { ...m, name: paymentName } : m)));
+            } else {
+                await createPayment(paymentName);
+                const updatedPayments = await getPayment();
+                setPaymentMethods(updatedPayments);
+            }
+        } catch (error) {
+            console.error("Error saving payment method:", error);
         }
 
         closeModal();
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: number) => {
         const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa phương thức thanh toán này?");
         if (confirmDelete) {
-            setPaymentMethods(paymentMethods.filter((method) => method.id !== id));
+            try {
+                await deletePayment(id);
+                setPaymentMethods((prev) => prev.filter((method) => method.id !== id));
+            } catch (error) {
+                console.error("Error deleting payment method:", error);
+            }
         }
     };
 

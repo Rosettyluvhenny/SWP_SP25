@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 // import DateTimeSelector from "../components/DateTimeSelector";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Service,  serviceDataById } from "../data/servicesData";
-import { getTherapists, getTherapistSlots } from "../data/therapistData";
+import { Service, serviceDataById } from "../data/servicesData";
+import {
+    getTherapists,
+    getTherapistSlots
+} from "../data/therapistData";
 import { GoChevronRight } from "react-icons/go";
 import { FaCheck } from "react-icons/fa";
 import { BookingBody, bookingService } from "../data/bookingData";
@@ -37,8 +40,10 @@ export default function Contact() {
             days.push({
                 name: date.toLocaleDateString("vi-VN", { weekday: "long" }), // Lấy thứ trong tuần
                 day: `${date.getDate() < 10 ? "0" : ""}${date.getDate()}`, // Lấy ngày
-                month: `${date.getMonth() + 1 < 10 ? "0" : ""}${date.getMonth() + 1}`, // Lấy tháng (lưu ý: getMonth() trả về 0-11)
-                year: date.getFullYear().toString(), 
+                month: `${date.getMonth() + 1 < 10 ? "0" : ""}${
+                    date.getMonth() + 1
+                }`, // Lấy tháng (lưu ý: getMonth() trả về 0-11)
+                year: date.getFullYear().toString(),
             });
         }
 
@@ -46,7 +51,9 @@ export default function Contact() {
     };
     const nextSevenDates: BookingDate[] = getNextSevenDates();
     const todayString = `${nextSevenDates[0].year}-${nextSevenDates[0].month}-${nextSevenDates[0].day}`;
-    const [selectedTherapist, setSelectedTherapist] = useState<string | null>(null);
+    const [selectedTherapist, setSelectedTherapist] = useState<string | null>(
+        null
+    );
     const [selectedDate, setSelectedDate] = useState<string>(todayString);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [selectedService, setSelectedService] = useState<Service>();
@@ -55,6 +62,7 @@ export default function Contact() {
     const [therapistSlots, setTherapistSlots] = useState<
         { startTime: string; endTime: string }[]
     >([]);
+
     const [searchParams] = useSearchParams();
     const selectedServiceId = searchParams.get("service") || "";
     const navigate = useNavigate();
@@ -62,7 +70,7 @@ export default function Contact() {
         navigate("/service");
     }
 
-    const handleBooking =  async () => {
+    const handleBooking = async () => {
         const userId = localStorage.getItem("userId");
         if (!userId) {
             alert("Vui lòng đăng nhập để đặt lịch");
@@ -74,8 +82,8 @@ export default function Contact() {
             paymentId: 1,
             bookingTime: `${selectedDate}T${selectedTime}.000Z`,
             notes: "",
-            therapistId: selectedTherapist
-        }
+            therapistId: selectedTherapist,
+        };
         const response = await bookingService(bookingBody);
         if (response) {
             alert("Đặt lịch thành công");
@@ -86,8 +94,9 @@ export default function Contact() {
         } else {
             alert("Đặt lịch thất bại");
         }
-    }
+    };
 
+    //init useEffect
     useEffect(() => {
         async function fetchTherapistSlots() {
             try {
@@ -103,7 +112,8 @@ export default function Contact() {
         }
         fetchTherapistSlots();
         setSelectedTime(null);
-    },[selectedTherapist, selectedServiceId, selectedDate])
+    }, [selectedTherapist, selectedServiceId, selectedDate]);
+
     useEffect(() => {
         async function fetchServices() {
             try {
@@ -119,7 +129,9 @@ export default function Contact() {
         async function fetchTherapists() {
             try {
                 if (selectedServiceId && selectedServiceId !== "") {
-                    const fetchedTherapists = await getTherapists(selectedServiceId);
+                    const fetchedTherapists = await getTherapists(
+                        selectedServiceId
+                    );
                     setTherapists(fetchedTherapists);
                 }
             } catch (error) {
@@ -128,7 +140,7 @@ export default function Contact() {
         }
         fetchServices();
         fetchTherapists();
-    }, [selectedServiceId]);
+    }, [selectedServiceId, selectedDate]);
 
     return (
         <div className="bg-gradient-to-b from-white to-pink-200 min-h-screen">
@@ -264,17 +276,24 @@ export default function Contact() {
                     </div>
                     <div className="grid grid-cols-4 gap-4 mt-4">
                         {therapistSlots.map((slot) => (
-                            <button onClick={() => setSelectedTime(slot.startTime)} key={slot.startTime} className={`p-4 rounded-lg shadow-md bg-${
-                                selectedTime === slot.startTime
-                                    ? "pink-400"
-                                    : "slate-400"
-                            }`}>
+                            <button
+                                onClick={() => setSelectedTime(slot.startTime)}
+                                key={slot.startTime}
+                                className={`p-4 rounded-lg shadow-md bg-${
+                                    selectedTime === slot.startTime
+                                        ? "pink-400"
+                                        : "slate-400"
+                                }`}
+                            >
                                 {slot.startTime.slice(0, 5)}
                             </button>
                         ))}
                     </div>
                     <div className="flex justify-end mt-4">
-                        <button className="bg-pink-400 text-white px-4 py-2 rounded-lg" onClick={handleBooking}>
+                        <button
+                            className="bg-pink-400 text-white px-4 py-2 rounded-lg"
+                            onClick={handleBooking}
+                        >
                             Đặt lịch
                         </button>
                     </div>

@@ -39,5 +39,4 @@ export interface Therapist {
     return [];
   }
 
-
-export { getTherapists, getTherapistById, getTherapistSlots };
+export { getTherapists, getTherapistById, getTherapistSlots};
