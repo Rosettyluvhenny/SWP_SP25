@@ -73,7 +73,20 @@ export default function Header() {
                 setIsLoggedIn(true);
                 alert("chào mừng admin " + user.fullName);
                 navigate("/manager");
-            } else {
+            } 
+            else if (user.roles[1].name === "STAFF") {
+                setUser(user);
+                setIsLoggedIn(true);
+                alert("chào mừng staff " + user.fullName);
+                navigate("/manager");
+            }
+            else if (user.roles[2].name === "THERAPIST") {
+                setUser(user);
+                setIsLoggedIn(true);
+                alert("chào mừng therapist " + user.fullName);
+                navigate("/therapist");
+            }
+            else {
                 alert("Login bằng user");
             }
         } else {
