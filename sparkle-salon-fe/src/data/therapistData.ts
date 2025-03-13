@@ -20,7 +20,7 @@ export interface Therapist {
     return [];
   }
 
-  const getTherapistById = async (id: number) => {
+  const getTherapistById = async (id: string) => {
     const response = await axios.get(`http://localhost:8081/swp/therapists/${id}`);
     if (response.status === 200) {
         return response.data.result;
