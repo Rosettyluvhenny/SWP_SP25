@@ -18,6 +18,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +43,7 @@ public class  BookingSessionService {
     SupabaseService supabaseService;
     RoomService roomService;
     FeedbackService feedbackService;
+    private final UserRepository userRepository;
 
     @Transactional
     public BookingSessionResponse createBookingSession(BookingSessionRequest request) {
@@ -51,14 +53,10 @@ public class  BookingSessionService {
         // 1. Last session have to completed
         // 2. Many session can't in the same day
         // 3. Total session (completed and waiting) can't more than the total session allow of service
-
-
         if (!isAllowToCreate(request.getBookingId(), request.getSessionDateTime().toLocalDate())) {
             throw new AppException(ErrorCode.BOOKING_REJECTED);
         }
         //Allowed to create new booking session
-
-
 
         BookingSession session = bookingSessionMapper.toBookingSession(request);
         Services service = booking.getService();
@@ -83,6 +81,8 @@ public class  BookingSessionService {
         //Set status for session base on payment status of booking
         if (booking.getPaymentStatus() == PaymentStatus.PAID || booking.getStatus() == BookingStatus.ON_GOING) {
             session.setStatus(BookingSessionStatus.WAITING);
+
+
             //Assign Room for session
             List<Room> roomAvailableForService = roomService.getRoomAvailableForService(service.getId());
             if (roomAvailableForService.isEmpty()) {
@@ -92,6 +92,8 @@ public class  BookingSessionService {
                 session.setRoom(room);
                 roomService.incrementInUse(room.getId());
             }
+
+
         } else {
             session.setStatus(BookingSessionStatus.PENDING);
         }
@@ -114,6 +116,14 @@ public class  BookingSessionService {
                                                        MultipartFile imgAfter) throws IOException {
         BookingSession session = checkSession(id);
 
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User staff = userRepository.findByUsername(username).orElseThrow(()
+                -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if (staff != null) {
+            session.setStaff(staff);
+            session.setStatus(BookingSessionStatus.ON_GOING);
+        }
 
         if (request.getTherapistId() != null){
             Therapist therapist = getTherapistById(request.getTherapistId());
@@ -291,7 +301,7 @@ public class  BookingSessionService {
         LocalDateTime startOfDay = bookingDate.atTime(9, 0);
         LocalDateTime endOfDay = bookingDate.atTime(17, 0);
 
-        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELLED);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED);
         List<BookingSession> therapistBookings = bookingSessionRepository.findByTherapistIdAndSessionDateTimeBetweenAndStatusNotIn(
                 therapistId, startOfDay, endOfDay, excludeStatuses);
 
@@ -376,7 +386,7 @@ public class  BookingSessionService {
         LocalDateTime startOfDay = bookingDate.atTime(9, 0);
         LocalDateTime endOfDay = bookingDate.atTime(17, 0);
 
-        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELLED);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED);
         List<BookingSession> allBookings = bookingSessionRepository.findBySessionDateTimeBetweenAndStatusNotIn(
                 startOfDay, endOfDay, excludeStatuses);
 
@@ -463,7 +473,7 @@ public class  BookingSessionService {
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
         // Define statuses to exclude from active bookings
-        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELLED);
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
 
         // Fetch all active bookings for the therapist within the day
         List<BookingSession> existingBookings = bookingSessionRepository
@@ -530,6 +540,7 @@ public class  BookingSessionService {
         }
         return true;
     }
+
 
 
 }

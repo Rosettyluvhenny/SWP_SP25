@@ -35,5 +35,6 @@ public class BookingResponse {
     String img;
 //    List<BookingSession> bookingSessions;
     int price;
+    String url;
 
 }

@@ -3,6 +3,7 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.dto.request.Booking.BookingRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingUpdateRequest;
+import com.SWP.SkinCareService.dto.request.VNPAY.VNPayPaymentRequestDTO;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
@@ -41,10 +42,12 @@ public class BookingService {
     private PaymentRepository paymentRepository;
     private TherapistRepository therapistRepository;
     private BookingSessionService bookingSessionService;
-    SupabaseService supabaseService;
+    private SupabaseService supabaseService;
+    private VNPayService vnPayService;
+    private RoomService roomService;
 
     @Transactional
-    public BookingResponse createBooking(BookingRequest request) {
+    public BookingResponse createBooking(BookingRequest request, String ipAddress) {
         //Check user
         User user = getUserById(request.getUserId());
         //Check Service
@@ -94,6 +97,16 @@ public class BookingService {
         BookingResponse result = bookingMapper.toBookingResponse(booking);
         bookingRepository.flush();
         result.setImg(supabaseService.getImage(booking.getService().getImg()));
+        if (payment.getDescription().equalsIgnoreCase("VNPAY")) {
+            VNPayPaymentRequestDTO vnpayRequest = VNPayPaymentRequestDTO.builder()
+                    .bookingId(booking.getId())
+                    .language("vn")
+                    .build();
+
+            String url = vnPayService.createPaymentUrl(vnpayRequest, ipAddress);
+            result.setUrl(url);
+        }
+
         return result;
     }
 
@@ -153,16 +166,28 @@ public class BookingService {
                     for (BookingSession session : sessionList) {
                         if (session.getStatus() == BookingSessionStatus.PENDING) {
                             session.setStatus(BookingSessionStatus.WAITING);
+                            if (session.getRoom() == null) {
+                                //Assign Room for session
+                                List<Room> roomAvailableForService = roomService.getRoomAvailableForService(booking.getService().getId());
+                                if (roomAvailableForService.isEmpty()) {
+                                    throw new AppException(ErrorCode.OUT_OF_ROOM);
+                                } else {
+                                    Room room = roomAvailableForService.getFirst();
+                                    session.setRoom(room);
+                                    roomService.incrementInUse(room.getId());
+                                }
+                            }
                         }
                     }
                 }
-            } else if (bookingStatus == BookingStatus.IS_CANCELLED) {
+            } else if (bookingStatus == BookingStatus.IS_CANCELED) {
                 List<BookingSession> sessionList = booking.getBookingSessions();
                 if (sessionList != null && !sessionList.isEmpty()) {
                     for (BookingSession session : sessionList) {
-                        session.setStatus(BookingSessionStatus.IS_CANCELLED);
+                        session.setStatus(BookingSessionStatus.IS_CANCELED);
                     }
                 }
+                booking.setSessionRemain(0);
             }
             bookingRepository.save(booking);
         }catch(IllegalArgumentException e){
@@ -179,7 +204,7 @@ public class BookingService {
             if (status == PaymentStatus.PAID) {
                 updateStatus(id, "ON_GOING");
             } else if (status == PaymentStatus.CANCELLED) {
-                updateStatus(id, "IS_CANCELLED");
+                updateStatus(id, "IS_CANCELED");
             }
             bookingRepository.save(booking);
         } catch (IllegalArgumentException e){
@@ -209,4 +234,6 @@ public class BookingService {
             return bookingRepository.findAllByUserId(user.getId(), pageable).map(bookingMapper::toBookingResponse);
         }
     }
+
+
 }

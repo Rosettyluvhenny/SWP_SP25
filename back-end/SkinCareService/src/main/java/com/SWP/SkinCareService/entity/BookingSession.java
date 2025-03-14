@@ -73,7 +73,7 @@ public class BookingSession {
     Feedback feedbacks;
 
     public boolean isFinished() {
-        return Stream.of(booking, note, imgBefore, imgAfter, room, therapist).allMatch(Objects::nonNull);
+        return Stream.of(booking, note, imgBefore, imgAfter, room, therapist, staff).allMatch(Objects::nonNull);
     }
 
     //Notification

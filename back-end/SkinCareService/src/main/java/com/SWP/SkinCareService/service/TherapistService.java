@@ -185,7 +185,7 @@ public class TherapistService {
         LocalDateTime endTime = startTime.plusMinutes(duration);
         LocalDateTime startOfDay = startTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
-        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELLED);
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
         List<BookingSession> bookingSessionList = bookingSessionRepository.findAllBySessionDateTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
         List<Therapist> therapistList = therapistRepository.findTherapistByServices(findByService);
         Set<Therapist> therapistsNotAvailable = new HashSet<>();
@@ -216,7 +216,7 @@ public class TherapistService {
 
         LocalDateTime startOfDay = time.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
-        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELLED);
+        List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
         List<BookingSession> bookingSessionList = bookingSessionRepository.findAllBySessionDateTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
         List<Therapist> therapistList = therapistRepository.findAll();
         Set<Therapist> therapistsNotAvailable = new HashSet<>();

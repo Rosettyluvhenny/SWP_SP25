@@ -25,6 +25,7 @@ public class Payment {
     @Column(name = "PaymentName", nullable = false, unique = true)
     String paymentName;
 
+    @Column
     String description;
 
     @OneToMany(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

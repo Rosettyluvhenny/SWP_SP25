@@ -77,6 +77,7 @@ public class BookingSessionController {
 
     @PutMapping("/{sessionId}/status")
     //@PreAuthorize("hasRole('STAFF','THERAPIST')")
+    @PreAuthorize("@customSecurityService.canAccessSession(#id, authentication.principal.id, authentication.authorities.iterator().next().authority)")
     ResponseEntity<ApiResponse<BookingResponse>> updateStatus(@PathVariable int sessionId, @RequestParam String status) {
         bookingSessionService.updateStatus(sessionId, status);
         return ResponseEntity.status(HttpStatus.OK).body(

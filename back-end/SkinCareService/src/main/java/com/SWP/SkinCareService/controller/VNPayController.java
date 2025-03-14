@@ -1,6 +1,6 @@
 package com.SWP.SkinCareService.controller;
 
-import com.SWP.SkinCareService.dto.VNPayPaymentRequestDTO;
+import com.SWP.SkinCareService.dto.request.VNPAY.VNPayPaymentRequestDTO;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.service.VNPayService;
@@ -98,7 +98,7 @@ public class VNPayController {
         }
     }
 
-    private String getIpAddress(HttpServletRequest request) {
+    public String getIpAddress(HttpServletRequest request) {
         String ipAddress = request.getHeader("X-FORWARDED-FOR");
         if (!StringUtils.hasText(ipAddress)) {
             ipAddress = request.getHeader("X-Real-IP");

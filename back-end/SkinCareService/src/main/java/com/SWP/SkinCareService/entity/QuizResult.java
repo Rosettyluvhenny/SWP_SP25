@@ -24,6 +24,8 @@ public class QuizResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String resultText;
     private int minPoint;
     private int maxPoint;

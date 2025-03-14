@@ -4,8 +4,11 @@ import com.SWP.SkinCareService.dto.request.Booking.BookingRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
+import com.SWP.SkinCareService.exception.AppException;
+import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +17,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,11 +27,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingService bookingService;
+    private final VNPayController vnPayController;
 
 
     @PostMapping()
-    ResponseEntity<ApiResponse<BookingResponse>> createBooking(@RequestBody BookingRequest bookingRequest) {
-        var result = bookingService.createBooking(bookingRequest);
+    ResponseEntity<ApiResponse<BookingResponse>> createBooking(@RequestBody BookingRequest bookingRequest, HttpServletRequest request) {
+        String ipAddress = vnPayController.getIpAddress(request);
+        if (!StringUtils.hasText(ipAddress)) {
+            throw new AppException(ErrorCode.VNPAY_INVALID_IP_ADDRESS);
+        }
+        var result = bookingService.createBooking(bookingRequest, ipAddress);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 ApiResponse.<BookingResponse>builder()
                         .result(result)
@@ -97,41 +106,3 @@ public class BookingController {
     }
 
 }
-/*
-package com.SWP.SkinCareService.controller;
-
-import com.SWP.SkinCareService.dto.request.Booking.BookingRequest;
-import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
-import com.SWP.SkinCareService.service.BookingService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/bookings")
-@RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Tag(name = "Booking Management", description = "APIs for managing bookings")
-@SecurityRequirement(name = "Bearer Authentication")
-public class BookingController {
-    BookingService bookingService;
-
-    @Operation(summary = "Create a new booking")
-    @PostMapping
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<BookingResponse> create(@Valid @RequestBody BookingRequest request) {
-        return ResponseEntity.ok(bookingService.create(request));
-    }
-
-
-}
- */

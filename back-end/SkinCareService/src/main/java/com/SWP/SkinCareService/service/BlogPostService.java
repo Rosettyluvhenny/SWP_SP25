@@ -66,7 +66,7 @@ public class BlogPostService {
                 throw new AppException(ErrorCode.IMAGE_UPLOAD_FAILED);
             }
         }
-        
+
         return blogPostMapper.toBlogPostResponse(blogPost);
     }
 
