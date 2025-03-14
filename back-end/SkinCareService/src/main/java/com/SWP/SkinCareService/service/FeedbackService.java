@@ -26,6 +26,7 @@ public class FeedbackService {
     TherapistRepository therapistRepository;
     UserRepository userRepository;
     BookingSessionRepository bookingSessionRepository;
+    SupabaseService supabaseService;
 
     @Transactional
     public FeedbackResponse createFeedback(FeedbackRequest feedbackRequest) {
@@ -44,7 +45,10 @@ public class FeedbackService {
         feedback.setTherapist(therapist);
         feedback.setRating(0);
         feedbackRepository.save(feedback);
+        FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
+        response.setImg(supabaseService.getImage(services.getImg()));
         return feedbackMapper.toFeedbackResponse(feedback);
+
     }
     @Transactional
     public FeedbackResponse updateFeedback(int id, FeedbackUpdateRequest request) {
@@ -63,8 +67,6 @@ public class FeedbackService {
         Set<Feedback> feedbackListService = service.getFeedbacks();
         if (feedbackListService.isEmpty()) {
             serviceRating = (float) feedback.getRating();
-            service.setRating(serviceRating);
-            servicesRepository.save(service);
         } else {
             for (Feedback feedbackInList : feedbackListService) {
                 if (feedbackInList.getRating() != null) {
@@ -72,9 +74,9 @@ public class FeedbackService {
                 }
             }
             serviceRating = serviceRating / feedbackListService.size();
-            service.setRating(serviceRating);
-            servicesRepository.save(service);
         }
+        service.setRating(serviceRating);
+        servicesRepository.save(service);
 
 
         //Get therapist
@@ -84,8 +86,6 @@ public class FeedbackService {
         Set<Feedback> feedbackListTherapist = therapist.getFeedbacks();
         if (feedbackListTherapist.isEmpty()) {
             therapistRating = (float) feedback.getRating();
-            therapist.setRating(therapistRating);
-            therapistRepository.save(therapist);
         } else {
             for (Feedback feedbackInList : feedbackListTherapist) {
                 if (feedbackInList.getRating() != null) {
@@ -93,19 +93,31 @@ public class FeedbackService {
                 }
             }
             therapistRating = therapistRating / feedbackListTherapist.size();
-            therapist.setRating(therapistRating);
-            therapistRepository.save(therapist);
         }
+        therapist.setRating(therapistRating);
+        therapistRepository.save(therapist);
+        FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
+        response.setImg(supabaseService.getImage(service.getImg()));
 
-        return feedbackMapper.toFeedbackResponse(feedback);
+        return response;
     }
 
     public List<FeedbackResponse> getAllFeedback() {
-        return feedbackRepository.findAll().stream().map(feedbackMapper::toFeedbackResponse).toList();
+        List<Feedback> feedbackList = feedbackRepository.findAll();
+        List<FeedbackResponse> feedbackResponseList = new ArrayList<>();
+        for (Feedback feedback : feedbackList) {
+            FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
+            response.setImg(supabaseService.getImage(response.getImg()));
+            feedbackResponseList.add(response);
+        }
+        return feedbackResponseList;
     }
 
     public FeedbackResponse getFeedbackById(int id) {
-        return feedbackMapper.toFeedbackResponse(feedbackRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND)));
+        Feedback feedback = getById(id);
+        FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
+        response.setImg(supabaseService.getImage(response.getImg()));
+        return response;
     }
     @Transactional
     public void deleteFeedbackById(int id) {
@@ -119,17 +131,14 @@ public class FeedbackService {
         Set<Feedback> feedbackListByBeforeService = services.getFeedbacks();
         Set<Feedback> feedbackListAfterService = new HashSet<>(feedbackListByBeforeService);
         feedbackListAfterService.remove(feedback);
-        if (feedbackListAfterService.isEmpty()) {
-            services.setRating(serviceRating);
-            services.getFeedbacks().remove(feedback);
-        } else {
+        if (!feedbackListAfterService.isEmpty()) {
             for (Feedback feedbackInList : feedbackListAfterService) {
                 serviceRating += feedbackInList.getRating();
             }
             serviceRating = serviceRating / feedbackListAfterService.size();
-            services.setRating(serviceRating);
-            services.getFeedbacks().remove(feedback);
         }
+        services.setRating(serviceRating);
+        services.getFeedbacks().remove(feedback);
 
         //Get therapist
         Therapist therapist = feedback.getTherapist();
@@ -138,18 +147,15 @@ public class FeedbackService {
         Set<Feedback> feedbackListBeforeTherapist = therapist.getFeedbacks();
         Set<Feedback> feedbackListAfterTherapist = new HashSet<>(feedbackListBeforeTherapist);
         feedbackListAfterTherapist.remove(feedback);
-        if (feedbackListAfterTherapist.isEmpty()) {
-            therapist.setRating(therapistRating);
-            therapist.getFeedbacks().remove(feedback);
-        } else {
+        if (!feedbackListAfterTherapist.isEmpty()) {
             for (Feedback feedbackInList : feedbackListAfterTherapist) {
                 therapistRating += feedbackInList.getRating();
             }
             therapistRating = therapistRating / feedbackListAfterTherapist.size();
-            therapist.setRating(therapistRating);
-            therapist.getFeedbacks().remove(feedback);
 
         }
+        therapist.setRating(therapistRating);
+        therapist.getFeedbacks().remove(feedback);
         servicesRepository.save(services);
         therapistRepository.save(therapist);
         feedbackRepository.delete(feedback);

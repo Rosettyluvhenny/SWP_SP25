@@ -3,6 +3,8 @@ package com.SWP.SkinCareService.dto.response.Feedback;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,5 +15,7 @@ public class FeedbackResponse {
     String feedbackText;
     int rating;
     String serviceName;
+    String img;
+    LocalDate bookingDate;
     String therapistName;
 }

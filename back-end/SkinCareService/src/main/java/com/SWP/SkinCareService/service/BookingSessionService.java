@@ -538,6 +538,18 @@ public class  BookingSessionService {
                 throw new AppException(ErrorCode.MAX_SESSION_REACHED);
             }
         }
+
+        Set<Booking> totalBookingOfUser = booking.getUser().getBooking();
+        for (Booking bookingExists : totalBookingOfUser) {
+            List<BookingSession> sessionExistedList = bookingExists.getBookingSessions();
+            for (BookingSession sessionExists : sessionExistedList) {
+                if (sessionExists.getStatus() == BookingSessionStatus.COMPLETED) {
+                    if (!requestDate.isAfter(sessionExists.getBookingDate())) {
+                        throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                    }
+                }
+            }
+        }
         return true;
     }
 
