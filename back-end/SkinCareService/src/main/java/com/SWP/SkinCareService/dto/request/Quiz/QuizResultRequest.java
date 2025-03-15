@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,7 +23,7 @@ public class QuizResultRequest {
     int maxPoint;
 
     @NotNull(message = "NOT_EMPTY")
-    int serviceId;
+    List<Integer> serviceId;
 
     int quizId;
 }

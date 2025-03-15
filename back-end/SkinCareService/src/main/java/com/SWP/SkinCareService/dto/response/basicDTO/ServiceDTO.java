@@ -1,5 +1,7 @@
 package com.SWP.SkinCareService.dto.response.basicDTO;
 
+import com.SWP.SkinCareService.service.ServicesService;
+import com.SWP.SkinCareService.service.SupabaseService;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

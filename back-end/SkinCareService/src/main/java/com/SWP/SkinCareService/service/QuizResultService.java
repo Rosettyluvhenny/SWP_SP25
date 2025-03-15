@@ -1,8 +1,8 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Quiz.QuizResultRequest;
-import com.SWP.SkinCareService.dto.request.Quiz.UserResultRequest;
 import com.SWP.SkinCareService.dto.response.Quiz.QuizResultResponse;
+import com.SWP.SkinCareService.dto.response.basicDTO.ServiceDTO;
 import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.entity.Services;
@@ -35,68 +35,115 @@ public class QuizResultService {
 
     private QuizResultMapper quizResultMapper;
 
+    private SupabaseService supabaseService;
+
     @Transactional
     public QuizResultResponse createQuizResult(QuizResultRequest request) {
-        //Check service existed or not
-        Services service = getServiceById(request.getServiceId());
-        //Check quiz existed or not
+        //Check result existed
+        if (quizResultRepository.existsByResultText(request.getResultText())) {
+            throw new AppException(ErrorCode.RESULT_EXISTED);
+        }
+        //Check quiz
         Quiz quiz = getQuizById(request.getQuizId());
-        for (QuizResult quizResult : quiz.getQuizResults()) {
-            if (quizResult.getResultText().equals(request.getResultText())) {
-                throw new AppException(ErrorCode.RESULT_EXISTED);
+        QuizResult quizResult = quizResultMapper.toQuizResult(request);
+        //Add service
+        if (request.getServiceId() != null) {
+            List<Integer> serviceIds = new ArrayList<>(request.getQuizId());
+            List<Services> servicesList = new ArrayList<>(servicesRepository.findAllById(serviceIds));
+            if (servicesList.size() != serviceIds.size()) {
+                throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
+            }
+            quizResult.setServices(servicesList);
+        }
+        quizResultRepository.save(quizResult);
+        //Response
+        QuizResultResponse response = quizResultMapper.toQuizResultResponse(quizResult);
+        List<Services> serviceListByResult = quizResult.getServices();
+        List<ServiceDTO> dtoList = response.getServices();
+        for (ServiceDTO serviceDTO : dtoList) {
+            for (Services serviceInList : serviceListByResult) {
+                if (serviceInList.getId() == serviceDTO.getId()) {
+                    serviceDTO.setImg(supabaseService.getImage(serviceInList.getImg()));
+                }
             }
         }
 
-        QuizResult quizResult = quizResultMapper.toQuizResult(request);
-        quizResult = quizResultRepository.save(quizResult);
-
-        service.getQuizResults().add(quizResult);
-
-        if (quizResult.getServices() == null) {
-            quizResult.setServices(new ArrayList<>());
-        }
-
-        quizResult.setQuiz(quiz);
-
-        quizResult.getServices().add(service);
-
-        servicesRepository.save(service);
-        quizResultRepository.save(quizResult);
-        return quizResultMapper.toQuizResultResponse(quizResult);
+        return response;
     }
 
     public List<QuizResultResponse> getAllQuizResults() {
-        return quizResultRepository.findAll().stream().map(quizResultMapper::toQuizResultResponse).toList();
+        List<QuizResult> quizResultsList = quizResultRepository.findAll();
+        List<QuizResultResponse> quizResultResponseList = new ArrayList<>();
+        for (QuizResult quizResult : quizResultsList) {
+            QuizResultResponse quizResultResponse = quizResultMapper.toQuizResultResponse(quizResult);
+
+            List<Services> servicesListByResult = quizResult.getServices();
+            List<ServiceDTO> dtoList = quizResultResponse.getServices();
+
+            for (ServiceDTO serviceDTO : dtoList) {
+                for (Services service : servicesListByResult) {
+                    if (service.getId() == serviceDTO.getId()) {
+                        serviceDTO.setImg(supabaseService.getImage(service.getImg()));
+                    }
+                }
+            }
+            quizResultResponseList.add(quizResultResponse);
+        }
+        return quizResultResponseList;
     }
 
     public QuizResultResponse getQuizResultById(int id) {
-        return quizResultMapper.toQuizResultResponse(quizResultRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.RESULT_NOT_EXISTED) ));
+        QuizResult quizResult = quizResultRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.RESULT_NOT_EXISTED));
+        QuizResultResponse response = quizResultMapper.toQuizResultResponse(quizResult);
+        List<Services> serviceListByResult = quizResult.getServices();
+        List<ServiceDTO> dtoList = response.getServices();
+        for (ServiceDTO serviceDTO : dtoList) {
+            for (Services serviceInList : serviceListByResult) {
+                if (serviceInList.getId() == serviceDTO.getId()) {
+                    serviceDTO.setImg(supabaseService.getImage(serviceInList.getImg()));
+                }
+            }
+        }
+        return response;
     }
 
     @Transactional
     public QuizResultResponse updateQuizResult(int id, QuizResultRequest request) {
         //Check result existed or not
         QuizResult quizResult = checkQuizResult(id);
-        Services newService = getServiceById(request.getServiceId());
-
+        //Check result existed
+        if (quizResultRepository.existsByResultText(request.getResultText())) {
+            throw new AppException(ErrorCode.RESULT_EXISTED);
+        }
+        quizResultMapper.updateQuizResult(quizResult, request);
+        //Check quiz existed or not
         Quiz newQuiz = getQuizById(request.getQuizId());
-
-        for (Services oldService : quizResult.getServices()) {
-            oldService.getQuizResults().remove(quizResult);
-            servicesRepository.save(oldService);
+        quizResult.setQuiz(newQuiz);
+        System.out.println(request.getServiceId());
+        //Update service
+        if (request.getServiceId() != null) {
+            List<Integer> serviceIds = new ArrayList<>(request.getServiceId());
+            List<Services> servicesList = new ArrayList<>(servicesRepository.findAllById(serviceIds));
+            if (servicesList.size() != serviceIds.size()) {
+                throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
+            }
+            quizResult.setServices(servicesList);
+        }
+        quizResultRepository.save(quizResult);
+        //Response
+        QuizResultResponse response = quizResultMapper.toQuizResultResponse(quizResult);
+        List<Services> serviceListByResult = quizResult.getServices();
+        List<ServiceDTO> dtoList = response.getServices();
+        for (ServiceDTO serviceDTO : dtoList) {
+            for (Services serviceInList : serviceListByResult) {
+                if (serviceInList.getId() == serviceDTO.getId()) {
+                    serviceDTO.setImg(supabaseService.getImage(serviceInList.getImg()));
+                }
+            }
         }
 
-        newService.getQuizResults().add(quizResult);
-        quizResult.getServices().clear();
-        quizResult.getServices().add(newService);
-
-        quizResultMapper.updateQuizResult(quizResult, request);
-        quizResult.setQuiz(newQuiz);
-
-        servicesRepository.save(newService);
-        quizResultRepository.save(quizResult);
-        return quizResultMapper.toQuizResultResponse(quizResult);
+        return response;
     }
 
     @Transactional

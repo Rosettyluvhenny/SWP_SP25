@@ -23,5 +23,5 @@ public class QuizResultResponse {
     String quizName;
 
     //List<UserDTO> users;
-    //List<ServiceDTO> services;
+    List<ServiceDTO> services;
 }

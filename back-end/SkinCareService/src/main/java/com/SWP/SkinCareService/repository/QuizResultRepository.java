@@ -15,4 +15,5 @@ public interface QuizResultRepository extends JpaRepository<QuizResult, Integer>
     List<QuizResult> findByQuizIdOrdered(@Param("quizId") int quizId);
 
      */
+    boolean existsByResultText(String resultText);
 }

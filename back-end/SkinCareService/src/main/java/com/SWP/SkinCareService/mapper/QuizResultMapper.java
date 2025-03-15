@@ -8,24 +8,26 @@ import com.SWP.SkinCareService.dto.response.basicDTO.UserDTO;
 import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.entity.Services;
 import com.SWP.SkinCareService.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import com.SWP.SkinCareService.service.SupabaseService;
+import jakarta.persistence.Column;
+import org.aspectj.lang.annotation.After;
+import org.mapstruct.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface QuizResultMapper {
+
     QuizResult toQuizResult(QuizResultRequest quizResult);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "users", ignore = true)
-    //@Mapping(target = "services", ignore = true)
+    @Mapping(target = "services", ignore = true)
     @Mapping(target = "quiz", ignore = true)
     void updateQuizResult(@MappingTarget QuizResult quizResult, QuizResultRequest quizResultRequest);
 
-    //@Mapping(target = "services", expression = "java(toServiceDTOList(quizResult.getServices()))")
+    @Mapping(target = "services", expression = "java(toServiceDTOList(quizResult.getServices()))")
     //@Mapping(target = "users", expression = "java(toUserDTOList(quizResult.getUsers()))")
     @Mapping(target = "quizId", source = "quiz.id")
     @Mapping(target = "quizName", source = "quiz.name")
@@ -39,9 +41,10 @@ public interface QuizResultMapper {
     @Mapping(target = "price", source = "price")
     @Mapping(target = "duration", source = "duration")
     @Mapping(target = "session", source = "session")
-    @Mapping(target = "img", source = "img")
+    @Mapping(target = "img", ignore = true)
     @Mapping(target = "description", source = "description")
     ServiceDTO toServiceDTO(Services service);
+
 
     List<ServiceDTO> toServiceDTOList(List<Services> services);
 
