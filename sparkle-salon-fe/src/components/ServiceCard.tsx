@@ -7,13 +7,16 @@ import { useState } from "react";
 interface ServiceCardProps {
     service: {
         id: number;
+        active: boolean;
         name: string;
-        img: string;
         price: number;
         duration: string;
+        session: number;
+        img: string;
+        description: string;
+        categoryId: number;
+        categoryName: string;
         rating: number;
-        category?: string;
-        description?: string;
     };
     onSelectService?: (serviceName: string) => void;
 }
@@ -49,7 +52,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onSelectService }) =
         >
             <div className="relative overflow-hidden">
                 <div className="absolute top-3 left-3 bg-gradient-to-r from-pink-500 to-pink-400 text-white px-3 py-1 rounded-full text-sm z-10 shadow-md">
-                    {service.category || "Thẩm mỹ không xâm lấn"}
+                    {service.categoryName || "Thẩm mỹ không xâm lấn"}
                 </div>
                 
                 {/* Service image */}

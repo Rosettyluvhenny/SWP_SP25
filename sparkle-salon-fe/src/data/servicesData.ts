@@ -12,14 +12,35 @@ export interface Service {
     categoryName: string;
     rating: number;
 }
+export interface MetaData {
+    totalElements: number;
+    totalPages: number;
+    pageNumber: number;
+    pageSize: number;
+    first: boolean;
+    last: boolean;
+    numberOfElements: number;
+}
 
-
-const servicesData = async (): Promise<Service[]> =>{
-    const servicesResponse = await axios.get("http://localhost:8081/swp/services");
+const servicesData = async (url : string): Promise<{ services: Service[]; meta: MetaData }> => {
+    const servicesResponse = await axios.get(`http://localhost:8081/swp/services${url}`);
     if (servicesResponse.status === 200) {
-        return servicesResponse.data.result.content;
+        const { content, totalElements, totalPages, number, pageSize, first, last, numberOfElements } =
+            servicesResponse.data.result;
+        return {
+            services: content,
+            meta: {
+                totalElements,
+                totalPages,
+                pageNumber: number,
+                pageSize,
+                first,
+                last,
+                numberOfElements,
+            },
+        };
     }
-    return [];
+    return { services: [], meta: { totalElements: 0, totalPages: 0, pageNumber: 0, pageSize: 0, first: false, last: false, numberOfElements: 0 } };
 };
 
 

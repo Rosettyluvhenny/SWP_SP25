@@ -1,76 +1,81 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { Service } from "../data/servicesData";
 import { servicesData } from "../data/servicesData";
-import SearchBar from "../components/SearchBar";
 import SortButtons from "../components/SortButton";
-import Pagination from "../components/Pagination";
+import Pagination from "../components/Pagination.tsx";
 import ServiceList from "../components/ServiceList";
-import { debounce } from 'lodash';
+import { Category, CategoryData } from "../data/categoryData.ts";
 
-const ITEMS_PER_PAGE = 9;
 
 export default function Service() {
     const [searchParams, setSearchParams] = useSearchParams();
-
-    const searchTermParam = searchParams.get("search") || "";
     const sortByParam = searchParams.get("sort") || "";
-    const pageParam = Number(searchParams.get("page")) || 1;
-
-    const [searchTerm, setSearchTerm] = useState<string>(searchTermParam);
     const [sortBy, setSortBy] = useState<string>(sortByParam);
-    const [currentPage, setCurrentPage] = useState<number>(pageParam);
-    const [isLoading, setIsLoading] = useState(false);
-
+    const [httpError, setHttpError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [ServicePerPage] = useState(9);
+    const [totalAmountOfElements, setTotalAmountOfElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [rating, setRating] = useState<number>();
+    const [searchUrl, setSearchUrl] = useState('?size=9');
     const [services, setServices] = useState<Service[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<number>();
     useEffect(() => {
-        setSearchParams({ search: searchTerm, sort: sortBy, page: currentPage.toString() });
-    }, [searchTerm, sortBy, currentPage, setSearchParams]);
-
-    const fetchServices = async () => {
-        const services = await servicesData();
-        setServices(services);
-    };
-    useEffect(() => {
-        fetchServices();
+        const fetchCategories = async () => {
+            try {
+                const response = await CategoryData();
+                const categoryList = response.result;
+                setCategories(categoryList);
+            } catch (error) {
+                console.error("Error fetching categories", error);
+            }
+        };
+        fetchCategories();
     }, []);
 
-    const debouncedSearch = debounce((term: string) => {
-        setSearchTerm(term);
-        setCurrentPage(1); 
-        setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 300);
-    }, 300);
+    const fetchServices = async () => {
+        const responseJson = await servicesData(searchUrl);
+        console.log(searchUrl)
+        const services = responseJson.services;
+        setServices(services);
+        const meta = responseJson.meta;
+        setTotalAmountOfElements(meta.totalElements);
+        setTotalPages(meta.totalPages);
+        // setIsLoading(true);
 
-    const filteredServices =  services
-        .filter((service: Service) => {
-            const searchLower = searchTerm.toLowerCase();
-            return (
-                service.name.toLowerCase().includes(searchLower) ||
-                (service.categoryName?.toLowerCase().includes(searchLower)) ||
-                (service.description?.toLowerCase().includes(searchLower))
-            );
+    };
+    useEffect(() => {
+        setSearchUrl(
+            `?${rating ? `rating=${rating}&` : ""}${selectedCategory ? `categoryId=${selectedCategory}&` : ""}page=${currentPage-1}&size=${ServicePerPage}&sort=${sortBy}`
+        );
+    }, [currentPage]);
+
+    const handleFilter = () => {
+        setCurrentPage(1);
+        setSearchUrl(
+            `?${rating ? `rating=${rating}&` : ""}${selectedCategory ? `categoryId=${selectedCategory}&` : ""}page=${currentPage-1}&size=${ServicePerPage}&sort=${sortBy}`
+        );
+    }
+    useEffect(() => {
+        fetchServices().catch((error: any) => {
+            setHttpError(error.message);
+
         })
-        .sort((a: Service, b: Service) => {
-            switch (sortBy) {
-                case "newest":
-                    return b.id - a.id;
-                case "low-high":
-                    return a.price - b.price;
-                case "high-low":
-                    return b.price - a.price;
-                default:
-                    return 0;
-            }
-        });
+        window.scroll(0, 0);;
+    }, [currentPage,searchUrl]);
 
-    // Pagination Section   
-    const totalPages = Math.ceil(filteredServices.length / ITEMS_PER_PAGE);
-    const paginatedServices = filteredServices.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
 
+    const indexOfLast: number = currentPage * ServicePerPage;
+    const indexOfFirst: number = indexOfLast - ServicePerPage;
+    let lastItem: number =
+        ServicePerPage * currentPage <= totalAmountOfElements
+            ? ServicePerPage * currentPage
+            : totalAmountOfElements
+    const paginate = (pageNumber: number) => {
+        console.log(pageNumber);
+        setCurrentPage(pageNumber)};
     return (
         <div className="bg-gradient-to-t from-white to-pink-200 min-h-screen">
             {/* Banner Section */}
@@ -84,24 +89,66 @@ export default function Service() {
             <div className="max-w-6xl mx-auto px-4">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg shadow-md -mt-8 relative z-20">
                     <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
-                    <SearchBar 
-                        searchTerm={searchTerm} 
-                        setSearchTerm={debouncedSearch}
-                        isLoading={isLoading}
-                    />
+                    <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(Number(e.target.value))}
+                        className="border p-2 rounded"
+                    >
+                        <option value="">Select a Category</option>
+                        {categories && categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                                {category.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
+                        <option value="">Select a Rating</option>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <option key={star} value={star}>
+                                {"⭐".repeat(star)} ({star})
+                                
+                            </option>
+                            
+                        ))}
+                    </select>
+                    <button className="bg-violet hover:bg-gray" onClick={handleFilter}>Search</button>
                 </div>
 
                 {/* Results Summary */}
                 <div className="mt-4 text-gray-600 px-4">
-                    Found {filteredServices.length} services
+                    {totalAmountOfElements > 0 ? (
+                        <>
+                            <div className="mt-3">
+                                <h5> Number of results: ({totalAmountOfElements})</h5>
+                            </div>
+                            <p>
+                                {indexOfFirst + 1} to {lastItem} of {totalAmountOfElements}{" "}
+                                items:
+                            </p>
+                        </>
+                    ) : (
+                        <div className="m-5">
+                            <h3>Can't find what you are looking for?</h3>
+                            <a
+                                type="button"
+                                className="btn main-color text-white btn-md px-4 me-md-2 fw-bold"
+                                href="#"
+                            >
+                                {" "}
+                            </a>
+                        </div>
+                    )}
                 </div>
 
                 {/* Services List */}
-                <ServiceList services={paginatedServices} />
+                <ServiceList services={services} />
+
+
                 <Pagination
                     totalPages={totalPages}
                     currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
+                    paginate={paginate}
                 />
             </div>
         </div>

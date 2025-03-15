@@ -15,7 +15,7 @@ import {
 
 export default function Reports() {
     // Revenue Data for Line Chart
-    const revenueData = [
+    const revenueData = [ 
         { date: "Feb 10", revenue: 750000 },
         { date: "Feb 11", revenue: 820000 },
         { date: "Feb 12", revenue: 900000 },
