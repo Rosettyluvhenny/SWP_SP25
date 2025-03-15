@@ -112,10 +112,6 @@ public class QuizResultService {
     public QuizResultResponse updateQuizResult(int id, QuizResultRequest request) {
         //Check result existed or not
         QuizResult quizResult = checkQuizResult(id);
-        //Check result existed
-        if (quizResultRepository.existsByResultText(request.getResultText())) {
-            throw new AppException(ErrorCode.RESULT_EXISTED);
-        }
         quizResultMapper.updateQuizResult(quizResult, request);
         //Check quiz existed or not
         Quiz newQuiz = getQuizById(request.getQuizId());
