@@ -147,7 +147,7 @@ export default function Header() {
 
     if (isLoggedIn) {
         navItems.push(
-            { path: "/booking-history", label: "Your Booking" },
+            { path: "/your-booking", label: "Your Booking" },
             { path: "/feedback", label: "Feedback" }
         );
     }

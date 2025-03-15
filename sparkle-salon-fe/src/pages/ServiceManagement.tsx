@@ -91,12 +91,7 @@ export default function ServiceManagement() {
         fetchCategories();
     }, [getServiceList]);
 
-    const categoryOptions = [
-        "Tất Cả",
-        "Chăm Sóc Da",
-        "Trị Liệu",
-        "Dịch Vụ Khác",
-    ];
+    const categoryOptions = ["Tất Cả", ...categories.map((cat) => cat.name)];
 
     const closeServiceModal = () => {
         setIsModalOpen(false);

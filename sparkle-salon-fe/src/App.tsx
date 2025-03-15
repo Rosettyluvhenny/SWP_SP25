@@ -18,6 +18,8 @@ import RoomManagement from "./pages/RoomManagement";
 import PaymentManagement from "./pages/PaymentManagement";
 import Profile from "./pages/Profile";
 import Therapist from "./pages/Therapist";
+import YourBooking from "./pages/YourBooking";
+
 function App() {
   return (
     <>
@@ -40,6 +42,7 @@ function App() {
         <Route path="/payment" element={<Payment />} />
         <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
         <Route path="/therapist" element={<MainLayout><Therapist /></MainLayout>} />
+        <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
       </Routes>
     </>
   );
