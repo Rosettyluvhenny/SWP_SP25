@@ -21,7 +21,7 @@ export default function Header() {
     });
     const [error, setError] = useState<string | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [user, setUser] = useState<{ name: string; avatar: string } | null>(
+    const [user, setUser] = useState<{ username: string ; role: string} | null>(
         null
     );
     const [isScrolled, setIsScrolled] = useState(false);
@@ -40,9 +40,32 @@ export default function Header() {
         setIsMobileMenuOpen(false);
     }, [location]);
 
+    useEffect(() => {
+        const checkAuthStatus = async () => {
+            const token = localStorage.getItem("token");
+            if (token) {
+                try {
+                    const userData = await getUser();
+                    setUser({
+                        username: userData.username,
+                        role: userData.roles[0].name,
+                    });
+                    setIsLoggedIn(true);
+                } catch (error) {
+                    console.error("Failed to fetch user:", error);
+                    localStorage.removeItem("token");
+                }
+            }
+        };
+        checkAuthStatus();
+    }, []);
+
     const handleLogout = () => {
         setIsLoggedIn(false);
         setUser(null);
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        navigate("/");
     };
 
     const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,24 +115,6 @@ export default function Header() {
         } else {
             setError("Đăng nhập không thành công!");
         }
-
-        // try {
-        //     const response = await axios.post(
-        //         "http://localhost:8081/swp/auth/authenticate",
-        //         loginData
-        //     );
-        //     setUser(response.data.user);
-        //     setIsLoggedIn(true);
-        //     setIsLoginOpen(false);
-        // } catch (error: unknown) {
-        //     if (axios.isAxiosError(error)) {
-        //         setError(
-        //             error.response?.data?.message || "Đăng nhập không thành công!"
-        //         );
-        //     } else {
-        //         setError("Có lỗi xảy ra!");
-        //     }
-        // }
     };
 
     const handleRegister = async (e: React.FormEvent) => {
@@ -130,22 +135,6 @@ export default function Header() {
         } else {
             setError("Đăng ký tài khoản không thành công!");
         }
-
-        // try {
-        //     const response = await axios.post(
-        //         "http://localhost:5000/api/auth/register",
-        //         registerData
-        //     );
-        //     setUser(response.data.user);
-        //     setIsLoggedIn(true);
-        //     setIsRegisterOpen(false);
-        // } catch (error: unknown) {
-        //     if (axios.isAxiosError(error)) {
-        //         setError(error.response?.data?.message || "Đăng ký không thành công!");
-        //     } else {
-        //         setError("Có lỗi xảy ra!");
-        //     }
-        // }
     };
 
     const navItems = [
@@ -293,8 +282,8 @@ export default function Header() {
             </AnimatePresence>
 
             {/* Desktop Auth Buttons */}
-            <div className="hidden lg:flex items-center space-x-6 mr-10">
-                {isLoggedIn ? (
+            <div>
+                {isLoggedIn && user ? (
                     <motion.div
                         className="flex items-center space-x-4"
                         initial={{ opacity: 0 }}
@@ -304,29 +293,20 @@ export default function Header() {
                             to="/profile"
                             className="flex items-center space-x-2 group"
                         >
-                            <motion.img
-                                src={
-                                    user?.avatar || "/assets/default-avatar.jpg"
-                                }
-                                alt="Profile"
-                                className="w-10 h-10 rounded-full border-2 border-[#f398d0]"
-                                whileHover={{ scale: 1.1 }}
-                            />
                             <span
                                 className={`${
-                                    isScrolled ? "text-white" : "text-white"
+                                    isScrolled ? "text-black" : "text-white"
                                 } group-hover:text-[#f398d0] transition-colors`}
                             >
-                                {user?.name}
+                                {user.username}
                             </span>
                         </Link>
+                        <div className="h-6 w-px bg-gray-300"></div>
                         <motion.button
                             onClick={handleLogout}
-                            className="text-[#f398d0] hover:text-[#ee8874] transition-colors"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
+                            className="text-white hover:text-[#f398d0] transition-colors"
                         >
-                            Đăng xuất
+                            Đăng Xuất
                         </motion.button>
                     </motion.div>
                 ) : (
@@ -341,7 +321,7 @@ export default function Header() {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                         >
-                            Đăng nhập
+                            Đăng Nhập
                         </motion.button>
                         <div className="h-6 w-px bg-gray-300"></div>
                         <motion.button
@@ -354,7 +334,7 @@ export default function Header() {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                         >
-                            Đăng ký
+                            Đăng Ký
                         </motion.button>
                     </div>
                 )}

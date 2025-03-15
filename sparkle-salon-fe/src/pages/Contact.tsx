@@ -32,7 +32,9 @@ type BookingDate = {
 
 type Payment = {
     paymentId: string;
+    description: string;
     paymentName: string;
+    url: string;
 };
 
 export default function Contact() {
@@ -52,7 +54,6 @@ export default function Contact() {
                 year: date.getFullYear().toString(),
             });
         }
-
         return days;
     };
     const nextSevenDates: BookingDate[] = getNextSevenDates();
@@ -91,6 +92,7 @@ export default function Contact() {
             bookingTime: `${selectedDate}T${selectedTime}.000Z`,
             notes: "",
             therapistId: selectedTherapist,
+            url: selectedPayment?.url
         };
         const response = await bookingService(bookingBody);
         if (response) {
@@ -100,6 +102,8 @@ export default function Contact() {
             setSelectedTime(null);
             setSelectedService(undefined);
             setSelectedPayment(null);
+            console.log(response.code);
+            window.open(response.url, "_blank");
         } else {
             alert("Đặt lịch thất bại");
         }
@@ -221,6 +225,9 @@ export default function Contact() {
                                             <FaCheck />
                                         </div>
                                     )}
+                                    <p className="text-sm mt-2 font-semibold text-center text-gray-700">
+                                        {payment.description}
+                                    </p>
                                 </div>
                             ))}
                         </div>

@@ -7,6 +7,7 @@ export type BookingBody = {
     bookingTime: string;
     notes: string;
     therapistId?: string | null;
+    url?: string | null;
 }
 export const bookingService = async (bookingBody: BookingBody) => {
     const token = localStorage.getItem("token");
@@ -21,6 +22,7 @@ export const bookingService = async (bookingBody: BookingBody) => {
         console.error("Failed to book service:", error);
         return null;
     }
+
 }
 
 
