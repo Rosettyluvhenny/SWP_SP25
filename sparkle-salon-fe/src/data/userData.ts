@@ -13,6 +13,7 @@ export interface UserInfo {
 export interface Booking {
     id: string;
     serviceName: string;
+    img: string;
     status: string;
     paymentStatus: string;
     paymentMethod: string;
