@@ -145,6 +145,13 @@ export default function Header() {
         { path: "/contact", label: "Contact" },
     ];
 
+    if (isLoggedIn) {
+        navItems.push(
+            { path: "/booking-history", label: "Your Booking" },
+            { path: "/feedback", label: "Feedback" }
+        );
+    }
+
     return (
         <motion.header
             className={`fixed top-0 left-0 w-full flex justify-between items-center p-4 transition-all duration-300 z-50 ${
