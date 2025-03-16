@@ -26,6 +26,8 @@ const getUserBookings = async (): Promise<Booking[] | null> => {
     }
 };
 
+
+
 export { getUserBookings };
 
 

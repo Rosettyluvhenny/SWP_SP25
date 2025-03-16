@@ -34,7 +34,7 @@ const getUser = async () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-        console.error("❌ No token found in localStorage!");
+        console.error("No token found in localStorage!");
         return null;
     }
 
@@ -47,10 +47,10 @@ const getUser = async () => {
             },
         });
 
-        console.log("✅ User data received:", response.data); 
+        console.log("User data received:", response.data); 
         return response.data.result; 
     } catch (error) {
-        console.error("❌ Error fetching user:", error);
+        console.error("Error fetching user:", error);
         return null;
     }
 };
@@ -63,14 +63,14 @@ const updateUser = async (
     dob: string
 ) => {
     if (!userId) {
-        console.error("❌ User ID is missing! Update request aborted.");
+        console.error("User ID is missing! Update request aborted.");
         return false;
     }
 
     const token = localStorage.getItem("token");
 
     if (!token) {
-        console.error("❌ No token found! Update failed.");
+        console.error("No token found! Update failed.");
         return false;
     }
 
@@ -89,12 +89,56 @@ const updateUser = async (
             },
         });
 
-        console.log("✅ Update Successful:", response.data);
+        console.log("Update Successful:", response.data);
         return response.status === 200;
     } catch (error) {
-        console.error("❌ Update Error:", error);
+        console.error("Update Error:", error);
         return false;
     }
 };
 
-export { login, getUser, register, updateUser };
+const createUser = async (data: { username: string, password: string, fullName: string, email: string, phone: string, dob: string }) => {
+    const response = await axios.post(`http://localhost:8081/swp/users`, {
+        username: data.username,
+        password: data.password,
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        dob: data.dob,
+    });
+    if (response.status === 200) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+const disableUser = async (userId: string) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        console.error("No token found! Update failed.");
+        return false;
+    }
+
+    const apiUrl = `http://localhost:8081/swp/users/${userId}/disable`;
+
+    try {
+        console.log("🔹 Sending Disable Request to:", apiUrl);
+
+        const response = await axios.put(apiUrl, null, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        console.log("Disable Successful:", response.data);
+        return response.status === 200;
+    } catch (error) {
+        console.error("Disable Error:", error);
+        return false;
+    }
+}
+
+export { login, getUser, register, updateUser, createUser, disableUser };
