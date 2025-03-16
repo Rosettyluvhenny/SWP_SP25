@@ -14,7 +14,6 @@ export interface Service {
     rating: number;
 }
 
-
 const servicesData = async (): Promise<Service[]> =>{
     const servicesResponse = await axios.get("http://localhost:8081/swp/services");
     if (servicesResponse.status === 200) {
@@ -22,7 +21,6 @@ const servicesData = async (): Promise<Service[]> =>{
     }
     return [];
 };
-
 
 const serviceDataById = async (id:string | null) => {
     if (!id) {

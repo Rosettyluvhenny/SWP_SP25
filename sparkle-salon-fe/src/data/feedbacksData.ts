@@ -1,40 +1,79 @@
+import axios from "axios";
+
 export interface Feedback {
-    name: string;
-    rating: number;
-    comment: string;
-    date: string;
+    id: number,
+    feedbackText: string,
+    rating: number,
+    serviceName: string,
+    img: string,
+    bookingDate: string,
+    therapistName: string
 }
 
-export const feedbacksData: Feedback[] = [
-    {
-        name: "Nguyễn Thị Hương",
-        rating: 5,
-        comment: "Dịch vụ tuyệt vời! Nhân viên rất chuyên nghiệp và thân thiện. Tôi rất hài lòng với kết quả và sẽ quay lại.",
-        date: "15/05/2023"
-    },
-    {
-        name: "Trần Văn Minh",
-        rating: 4,
-        comment: "Chất lượng dịch vụ tốt, giá cả hợp lý. Tôi đã thấy sự cải thiện rõ rệt sau khi sử dụng dịch vụ.",
-        date: "03/04/2023"
-    },
-    {
-        name: "Lê Thị Hà",
-        rating: 5,
-        comment: "Không gian salon rất thoải mái và sạch sẽ. Nhân viên tư vấn rất tận tình. Tôi đã được hướng dẫn cách chăm sóc da sau điều trị rất chi tiết.",
-        date: "22/03/2023"
-    },
-    {
-        name: "Phạm Thanh Tùng",
-        rating: 3,
-        comment: "Dịch vụ ổn, nhưng tôi phải đợi hơi lâu. Kết quả khá tốt nhưng có thể cải thiện thêm về thời gian chờ đợi.",
-        date: "10/02/2023"
-    },
-    {
-        name: "Hoàng Minh Anh",
-        rating: 5,
-        comment: "Tôi đã thử nhiều nơi nhưng đây là salon tốt nhất mà tôi từng đến. Kết quả vượt quá mong đợi của tôi. Chắc chắn sẽ giới thiệu cho bạn bè!",
-        date: "05/01/2023"
-    }
-];
+export interface FeedbackResponse {
+    id: number;
+    feedbackText: string;
+    rating: number;
+    serviceId: number;
+    therapistId: string;
+    bookingDate: string;
+}
 
+const getFeedback = async (): Promise<FeedbackResponse[]> => {
+    const response = await axios.get("http://localhost:8081/swp/feedback");
+    if (response.status === 200) {
+        return response.data.result.map((feedback: FeedbackResponse) => ({
+            id: feedback.id,
+            feedbackText: feedback.feedbackText,
+            rating: feedback.rating,
+            serviceId: feedback.serviceId,
+            therapistId: feedback.therapistId,
+            bookingDate: feedback.bookingDate,
+        }));
+    }
+    return [];
+};
+
+const getFeedbackById = async (id:string | null) => {
+    if (!id) {
+        return null
+    }
+    const feedbackResponse = await axios.get(`http://localhost:8081/swp/feedback/${id}`)
+    if (feedbackResponse.status === 200) {
+        const feedbackData = feedbackResponse.data.result
+        return feedbackData
+    }
+    return null
+}
+
+const createFeedback = async (feedback: Feedback) => {
+    const createFeedbackResponse = await axios.post("http://localhost:8081/swp/feedback", feedback)
+    if (createFeedbackResponse.status === 200) {
+        return true
+    }
+    return false
+}
+
+const updateFeedbackById = async (id:string | null, feedback: Feedback) => {
+    if (!id) {
+        return false
+    }
+    const updateFeedbackResponse = await axios.put(`http://localhost:8081/swp/feedback/${id}`, feedback)
+    if (updateFeedbackResponse.status === 200) {
+        return true
+    }   
+    return false
+}
+
+const deleteFeedbackById = async (id:string | null) => {
+    if (!id) {
+        return false
+    }
+    const deleteFeedbackResponse = await axios.delete(`http://localhost:8081/swp/feedback/${id}`)
+    if (deleteFeedbackResponse.status === 200) {
+        return true
+    }
+    return false
+}
+
+export { getFeedback, getFeedbackById, deleteFeedbackById, createFeedback, updateFeedbackById };
