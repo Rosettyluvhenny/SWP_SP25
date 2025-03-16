@@ -34,49 +34,65 @@ const getUser = async () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-        console.error("No token found");
+        console.error("❌ No token found in localStorage!");
         return null;
     }
+
     try {
-        const response = await axios.get(`http://localhost:8081/swp/users/getMyInfo`, {
+        console.log("🔹 Fetching user info with token:", token); 
+
+        const response = await axios.get("http://localhost:8081/swp/users/getMyInfo", {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
-        return response.data.result;
+
+        console.log("✅ User data received:", response.data); 
+        return response.data.result; 
     } catch (error) {
-        console.error("Error fetching user:", error);
+        console.error("❌ Error fetching user:", error);
         return null;
     }
 };
 
-const updateUser = async (userId: string, fullName: string, email: string, phone: string, dob: string) => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        console.error("No token found! Update failed.");
+const updateUser = async (
+    userId: string | undefined, 
+    fullName: string, 
+    email: string, 
+    phone: string, 
+    dob: string
+) => {
+    if (!userId) {
+        console.error("❌ User ID is missing! Update request aborted.");
         return false;
     }
 
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        console.error("❌ No token found! Update failed.");
+        return false;
+    }
+
+    const apiUrl = `http://localhost:8081/swp/users/${userId}`;; 
+
+    const updatedData = { fullName, email, phone, dob: dob || "" };
+
     try {
-        console.log("User ID:", userId); // Debugging
-        console.log("Authorization Header:", `Bearer ${token}`); // Debugging
+        console.log("🔹 Sending Update Request to:", apiUrl);
+        console.log("🔹 Payload:", updatedData);
 
-        const response = await axios.put(
-            `http://localhost:8081/swp/users/${userId}`,
-            { fullName, email, phone, dob },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            }
-        );
+        const response = await axios.put(apiUrl, updatedData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
 
-        console.log("Update Response:", response.data); // Debugging
+        console.log("✅ Update Successful:", response.data);
         return response.status === 200;
     } catch (error) {
-        console.error("Error updating user:", error);
+        console.error("❌ Update Error:", error);
         return false;
     }
 };
