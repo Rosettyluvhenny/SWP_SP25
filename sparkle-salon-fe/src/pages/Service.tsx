@@ -1,56 +1,43 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { Service } from "../data/servicesData";
 import { servicesData } from "../data/servicesData";
-import SearchBar from "../components/SearchBar";
 import SortButtons from "../components/SortButton";
 import Pagination from "../components/Pagination";
 import ServiceList from "../components/ServiceList";
-import { debounce } from 'lodash';
 
 const ITEMS_PER_PAGE = 9;
 
 export default function Service() {
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const searchTermParam = searchParams.get("search") || "";
     const sortByParam = searchParams.get("sort") || "";
     const pageParam = Number(searchParams.get("page")) || 1;
+    const categoryParam = searchParams.get("category") || "Tất Cả";
 
-    const [searchTerm, setSearchTerm] = useState<string>(searchTermParam);
     const [sortBy, setSortBy] = useState<string>(sortByParam);
     const [currentPage, setCurrentPage] = useState<number>(pageParam);
-    const [isLoading, setIsLoading] = useState(false);
-
+    const [selectedCategory, setSelectedCategory] = useState<string>(categoryParam);
     const [services, setServices] = useState<Service[]>([]);
-    useEffect(() => {
-        setSearchParams({ search: searchTerm, sort: sortBy, page: currentPage.toString() });
-    }, [searchTerm, sortBy, currentPage, setSearchParams]);
+    const [categories, setCategories] = useState<string[]>(["Tất Cả"]);
 
-    const fetchServices = async () => {
+    useEffect(() => {
+        setSearchParams({ sort: sortBy, page: currentPage.toString(), category: selectedCategory });
+    }, [sortBy, currentPage, selectedCategory, setSearchParams]);
+
+    const fetchServices = useCallback(async () => {
         const services = await servicesData();
         setServices(services);
-    };
-    useEffect(() => {
-        fetchServices();
+        const uniqueCategories = ["Tất Cả", ...new Set(services.map((s) => s.categoryName))];
+        setCategories(uniqueCategories);
     }, []);
 
-    const debouncedSearch = debounce((term: string) => {
-        setSearchTerm(term);
-        setCurrentPage(1); 
-        setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 300);
-    }, 300);
+    useEffect(() => {
+        fetchServices();
+    }, [fetchServices]);
 
-    const filteredServices =  services
-        .filter((service: Service) => {
-            const searchLower = searchTerm.toLowerCase();
-            return (
-                service.name.toLowerCase().includes(searchLower) ||
-                (service.categoryName?.toLowerCase().includes(searchLower)) ||
-                (service.description?.toLowerCase().includes(searchLower))
-            );
-        })
+    const filteredServices = services
+        .filter((service) => selectedCategory === "Tất Cả" || service.categoryName === selectedCategory)
         .sort((a: Service, b: Service) => {
             switch (sortBy) {
                 case "newest":
@@ -84,11 +71,15 @@ export default function Service() {
             <div className="max-w-6xl mx-auto px-4">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg shadow-md -mt-8 relative z-20">
                     <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
-                    <SearchBar 
-                        searchTerm={searchTerm} 
-                        setSearchTerm={debouncedSearch}
-                        isLoading={isLoading}
-                    />
+                    <select
+                        className="border border-gray-300 rounded px-4 py-2"
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                    >
+                        {categories.map((category) => (
+                            <option key={category} value={category}>{category}</option>
+                        ))}
+                    </select>
                 </div>
 
                 {/* Results Summary */}
