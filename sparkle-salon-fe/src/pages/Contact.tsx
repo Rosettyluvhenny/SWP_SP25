@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// import DateTimeSelector from "../components/DateTimeSelector";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Service, serviceDataById } from "../data/servicesData";
 import {
@@ -85,6 +84,7 @@ export default function Contact() {
             alert("Vui lòng đăng nhập để đặt lịch");
             return;
         }
+    
         const bookingBody: BookingBody = {
             userId,
             serviceId: parseInt(selectedServiceId),
@@ -92,20 +92,21 @@ export default function Contact() {
             bookingTime: `${selectedDate}T${selectedTime}.000Z`,
             notes: "",
             therapistId: selectedTherapist,
-            url: selectedPayment?.url
         };
-        const response = await bookingService(bookingBody);
-        if (response) {
-            alert("Đặt lịch thành công");
-            setSelectedTherapist(null);
-            setSelectedDate(todayString);
-            setSelectedTime(null);
-            setSelectedService(undefined);
-            setSelectedPayment(null);
-            console.log(response.code);
-            window.open(response.url, "_blank");
-        } else {
-            alert("Đặt lịch thất bại");
+    
+        try {
+            const response = await bookingService(bookingBody);
+            console.log("Booking Response:", response);
+    
+            if (response && response.result?.url) {
+                alert("Đặt lịch thành công! Đang chuyển hướng đến trang thanh toán...");
+                window.open(response.result.url, "_blank"); // Mở trang VNPay
+            } else {
+                alert("chuyển hướng trang thanh toán thất bại.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi đặt lịch:", error);
+            alert("Đặt lịch thất bại.");
         }
     };
 
