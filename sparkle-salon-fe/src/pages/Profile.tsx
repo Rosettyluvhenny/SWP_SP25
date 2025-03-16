@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { getUserBookings, Booking } from "../data/userData";
-import { getUser } from "../data/authData";
-import axios from "axios";
+import { getUser, updateUser } from "../data/authData";
 
 export interface UserInfo {
     id: string;
@@ -15,47 +13,44 @@ export interface UserInfo {
 
 export default function Profile() {
 
-    const [bookings, setBookings] = useState<Booking[]>([]);
-    const [activeTab, setActiveTab] = useState("Hồ Sơ");
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+    const [activeTab, setActiveTab] = useState("Hồ Sơ");
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
-        const fetchBookings = async () => {
-            const bookings = await getUserBookings();
-            if (bookings) {
-                setBookings(bookings);
-            }
-            else {
-                alert("Không thể lấy danh sách lịch đặt!");
-            }
-        };
-        fetchBookings();
-
         const fetchUser = async () => {
             const user = await getUser();
             if (user) {
                 setUserInfo(user);
+            } else {
+                alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
+                localStorage.removeItem("token");
             }
         };
         fetchUser();
     }, []);
 
-    const handleCancelBooking = async (id: string) => {
-        const confirmDelete = window.confirm(
-            "Bạn có chắc chắn muốn xóa danh mục này?"
-        );
-        if (confirmDelete) {
-            try {
-                await axios.delete(`http://localhost:8081/swp/booking/${id}`);
-                const bookings = await getUserBookings();
-                if (bookings) {
-                    setBookings(bookings);
-                }
-                alert("Huỷ lịch thành công");
-            } catch (error) {
-                console.error("Error deleting booking:", error);
-                alert("Huỷ lịch thất bại");
-            }
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!userInfo) return;
+        setUserInfo({ ...userInfo, [e.target.name]: e.target.value });
+    };
+
+    const handleUpdate = async () => {
+        if (!userInfo) return;
+    
+        try {
+            await updateUser(
+                userInfo.id,  
+                userInfo.fullName,
+                userInfo.email,
+                userInfo.phone,
+                userInfo.dob
+            );
+            alert("Cập nhật thành công!");
+            setIsEditModalOpen(false);
+        } catch (error) {
+            console.error("Lỗi khi cập nhật thông tin:", error); 
+            alert("Lỗi khi cập nhật thông tin!");
         }
     };
 
@@ -72,7 +67,7 @@ export default function Profile() {
                      Trang Cá Nhân
                 </h2>
                 <div className="flex flex-col space-y-4">
-                    {["Hồ Sơ", "Lịch Sử Đặt Lịch"].map(
+                    {["Hồ Sơ"].map(
                         (item) => (
                             <button
                                 key={item}
@@ -116,97 +111,94 @@ export default function Profile() {
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.3 }}
                     >
-                        {/* Profile Header */}
-                        <div className="relative mt-16 flex flex-col items-center text-center">
-                            <div className="relative">
-                            </div>
+                         {/* Profile Header */}
+                         <div className="relative mt-16 flex flex-col items-center text-center">
                             <h2 className="mt-4 text-3xl font-bold text-gray-800">
                                 {userInfo?.username}
                             </h2>
-                            <p className="text-gray-500 text-lg">
-                                {userInfo?.email}
-                            </p>
+                            <p className="text-gray-500 text-lg">{userInfo?.fullName}</p>
+                            <p className="text-gray-500 text-lg">{userInfo?.email}</p>
+
+                            {/* Edit Button */}
+                            <button
+                                onClick={() => setIsEditModalOpen(true)}
+                                className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition"
+                            >
+                                Chỉnh Sửa
+                            </button>
                         </div>
 
                         {/* Profile Details */}
                         <div className="mt-8 space-y-6">
                             <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg shadow-md hover:bg-gray-100 transition">
-                                <span className="text-blue-500 text-xl">
-                                    Email:
-                                </span>
+                                <span className="text-blue-500 text-xl">Email:</span>
                                 <span className="text-lg">{userInfo?.email}</span>
                             </div>
                             <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg shadow-md hover:bg-gray-100 transition">
-                                <span className="text-green-500 text-xl">
-                                    Sđt:
-                                </span>
+                                <span className="text-green-500 text-xl">Sđt:</span>
                                 <span className="text-lg">{userInfo?.phone}</span>
                             </div>
                             <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg shadow-md hover:bg-gray-100 transition">
-                                <span className="text-blue-500 text-xl">
-                                    Ngày Sinh:
-                                </span>
+                                <span className="text-blue-500 text-xl">Ngày Sinh:</span>
                                 <span className="text-lg">{userInfo?.dob}</span>
                             </div>
                         </div>
                     </motion.div>
                 )}
-
-                {activeTab === "Lịch Sử Đặt Lịch" && (
-                    <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                            📅 Lịch Sử Đặt Lịch
-                        </h2>
-                        {bookings.length > 0 ? (
-                            <ul className="space-y-3">
-                                {bookings.map((booking) => (
-                                    <li
-                                        key={booking.id}
-                                        className="flex justify-between items-center bg-gray-50 p-4 rounded-lg shadow-md hover:bg-gray-100 transition"
-                                    >
-                                        <div>
-                                            <p className="text-gray-800 font-medium">
-                                                {booking.serviceName}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-gray-800 font-small text-sm">
-                                                {booking.status}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-gray-800 font-small text-sm">
-                                                {booking.paymentStatus}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-gray-800 font-small text-sm">
-                                                {booking.paymentMethod}
-                                            </p>
-                                        </div>
-                                        <motion.button
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition"
-                                            onClick={() =>
-                                                handleCancelBooking(booking.id)
-                                            }
-                                        >
-                                            Huỷ
-                                        </motion.button>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-gray-500">Chưa có lịch được đặt!</p>
-                        )}
-                    </motion.div>
-                )}
             </motion.main>
+        {/* Edit Modal */}
+        {isEditModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                        <h2 className="text-xl font-bold mb-4">Cập Nhật Thông Tin</h2>
+                        <input
+                            type="text"
+                            name="fullName"
+                            value={userInfo?.fullName || ""}
+                            onChange={handleInputChange}
+                            placeholder="Họ và Tên"
+                            className="w-full p-2 border rounded mb-2"
+                        />
+                        <input
+                            type="date"
+                            name="dob"
+                            value={userInfo?.dob || ""}
+                            onChange={handleInputChange}
+                            className="w-full p-2 border rounded mb-2"
+                        />
+                        <input
+                            type="email"
+                            name="email"
+                            value={userInfo?.email || ""}
+                            onChange={handleInputChange}
+                            placeholder="Email"
+                            className="w-full p-2 border rounded mb-2"
+                        />
+                        <input
+                            type="text"
+                            name="phone"
+                            value={userInfo?.phone || ""}
+                            onChange={handleInputChange}
+                            placeholder="Số điện thoại"
+                            className="w-full p-2 border rounded mb-4"
+                        />
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                onClick={() => setIsEditModalOpen(false)}
+                                className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={handleUpdate}
+                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                            >
+                                Lưu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

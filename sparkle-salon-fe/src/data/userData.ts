@@ -1,15 +1,5 @@
 import axios from "axios";
 
-export interface UserInfo {
-    id: string;
-    username: string;
-    fullName: string;
-    dob: string;
-    email: string;
-    phone: string;
-    quizResult: number;
-}
-
 export interface Booking {
     id: string;
     serviceName: string;
