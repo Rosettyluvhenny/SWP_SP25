@@ -2,6 +2,7 @@ import axios from "axios";
 
 export interface Booking {
     id: string;
+    serviceId: number;
     serviceName: string;
     img: string;
     status: string;
