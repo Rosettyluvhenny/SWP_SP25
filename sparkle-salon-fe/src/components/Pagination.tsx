@@ -1,30 +1,70 @@
-import React from "react";
+import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
 
 interface PaginationProps {
-    totalPages: number;
     currentPage: number;
-    setCurrentPage: (page: number) => void;
+    totalPages: number;
+    setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, setCurrentPage }) => {
-    if (totalPages <= 1) return null;
+const Pagination: React.FC<PaginationProps> = ({
+    currentPage,
+    totalPages,
+    setCurrentPage,
+}) => {
+    const pageNumbers: number[] = [];
+
+    if (currentPage === 1) {
+        pageNumbers.push(currentPage);
+        if (totalPages >= currentPage + 1) pageNumbers.push(currentPage + 1);
+        if (totalPages >= currentPage + 2) pageNumbers.push(currentPage + 2);
+    } else {
+        if (currentPage >= 3) {
+            pageNumbers.push(currentPage - 2);
+            pageNumbers.push(currentPage - 1);
+        } else {
+            pageNumbers.push(currentPage - 1);
+        }
+
+        pageNumbers.push(currentPage);
+        if (totalPages >= currentPage + 1) pageNumbers.push(currentPage + 1);
+        if (totalPages >= currentPage + 2) pageNumbers.push(currentPage + 2);
+    }
 
     return (
-        <div className="flex justify-center mt-6 space-x-2 mb-4">
-            {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                    key={i + 1}
-                    className={`px-4 py-2 rounded-md border border-black ${
-                        currentPage === i + 1
-                            ? "bg-pink-400 text-white font-bold"
-                            : "hover:bg-pink-300"
-                    }`}
-                    onClick={() => setCurrentPage(i + 1)}
-                >
-                    {i + 1}
-                </button>
-            ))}
-        </div>
+        <nav className="mt-4 flex justify-center mb-4">
+            <ul className="flex space-x-2">
+                <li>
+                    <button
+                        className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-md hover:bg-gray-300"
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    >
+                        <SlArrowLeft />
+                    </button>
+                </li>
+                {pageNumbers.map((number) => (
+                    <li key={number}>
+                        <button
+                            className={`w-10 h-10 flex items-center justify-center rounded-md transition ${
+                                currentPage === number
+                                    ? "bg-pink-500 text-white"
+                                    : "bg-gray-200 hover:bg-gray-300"
+                            }`}
+                            onClick={() => setCurrentPage(number)}
+                        >
+                            {number}
+                        </button>
+                    </li>
+                ))}
+                <li>
+                    <button
+                        className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-md hover:bg-gray-300"
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    >
+                        <SlArrowRight />
+                    </button>
+                </li>
+            </ul>
+        </nav>
     );
 };
 
