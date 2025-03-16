@@ -1,15 +1,20 @@
 import { getUserBookings, Booking } from "../data/userData";
 import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { FaTrash } from "react-icons/fa";
-import { serviceDataById } from "../data/servicesData";
+import { Service, serviceDataById } from "../data/servicesData";
 
 export default function YourBooking() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [serviceImages, setServiceImages] = useState<{
         [key: number]: string;
     }>({});
+    const [selectedService, setSelectedService] = useState<Service>();
+    const [searchParams] = useSearchParams();
+    const selectedServiceId = searchParams.get("service") || "";
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         const fetchBookings = async () => {
@@ -28,22 +33,36 @@ export default function YourBooking() {
             const imagesMap: { [key: number]: string } = {};
             for (const booking of bookings) {
                 if (!booking.serviceId) continue;
-                const service = await serviceDataById(booking.serviceId.toString());
+                const service = await serviceDataById(
+                    booking.serviceId.toString()
+                );
                 if (service) {
                     imagesMap[booking.serviceId] = service.img;
                 }
             }
             setServiceImages(imagesMap);
         };
-    
+
         if (bookings.length > 0) {
             fetchServiceImages();
         }
     }, [bookings]);
 
+    useEffect(() => {
+        async function fetchServices() {
+            try {
+                const fetchedServices = await serviceDataById(selectedServiceId);
+                setSelectedService(fetchedServices);
+            } catch (error) {
+                console.error("Failed to fetch services:", error);
+            }
+        }
+        fetchServices();
+    }, [selectedServiceId]);
+
     const handleCancelBooking = async (id: string) => {
         const confirmDelete = window.confirm(
-            "Bạn có chắc chắn muốn xóa danh mục này?"
+            "Bạn có chắc chắn muốn huỷ lịch hẹn này?"
         );
         if (confirmDelete) {
             try {
@@ -58,6 +77,10 @@ export default function YourBooking() {
                 alert("Huỷ lịch thất bại");
             }
         }
+    };
+
+    const handleRebook = (serviceId: number) => {
+        navigate(`/contact?service=${serviceId}`);
     };
 
     return (
@@ -84,7 +107,9 @@ export default function YourBooking() {
                                 <th className="p-3 text-left">Giá (VND)</th>
                                 <th className="p-3 text-left">Số Buổi</th>
                                 <th className="p-3 text-left">Trạng Thái</th>
-                                <th className="p-3 text-left">Phương Thức</th>
+                                <th className="p-3 text-left">
+                                    Phương Thức TT
+                                </th>
                                 <th className="p-3 text-left">Trạng Thái TT</th>
                                 <th className="p-3 text-left">Hành Động</th>
                             </tr>
@@ -155,18 +180,23 @@ export default function YourBooking() {
                                         </td>
                                         <td className="p-3 flex space-x-2">
                                             <motion.button
+                                                onClick={() => handleRebook(bookings.serviceId)}
+                                                className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                Đặt Lại
+                                            </motion.button>
+
+                                            <motion.button
                                                 onClick={() =>
                                                     handleCancelBooking(
                                                         bookings.id
                                                     )
                                                 }
                                                 className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
-                                                whileHover={{
-                                                    scale: 1.05,
-                                                }}
-                                                whileTap={{
-                                                    scale: 0.95,
-                                                }}
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
                                             >
                                                 <FaTrash size={14} /> Xóa
                                             </motion.button>

@@ -73,6 +73,7 @@ export default function Contact() {
 
     const [searchParams] = useSearchParams();
     const selectedServiceId = searchParams.get("service") || "";
+    
     const navigate = useNavigate();
     if (!selectedServiceId) {
         navigate("/service");
@@ -101,8 +102,6 @@ export default function Contact() {
             if (response && response.result?.url) {
                 alert("Đặt lịch thành công! Đang chuyển hướng đến trang thanh toán...");
                 window.open(response.result.url, "_blank"); // Mở trang VNPay
-            } else {
-                alert("chuyển hướng trang thanh toán thất bại.");
             }
         } catch (error) {
             console.error("Lỗi khi đặt lịch:", error);
