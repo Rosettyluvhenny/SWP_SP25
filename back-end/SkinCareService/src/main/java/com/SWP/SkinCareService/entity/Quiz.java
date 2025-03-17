@@ -20,11 +20,11 @@ public class Quiz {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_category_id")
     @JsonBackReference
-
     private ServiceCategory serviceCategory;
+
     String name;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -32,7 +32,7 @@ public class Quiz {
     List<Question> questions;
 
 
-    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<QuizResult> quizResults;
+    List<QuizResult> quizResults;
 }

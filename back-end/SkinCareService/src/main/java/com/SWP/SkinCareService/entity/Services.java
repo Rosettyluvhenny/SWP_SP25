@@ -68,7 +68,7 @@ public class Services {
     float rating;
 
     //Many to many with Quiz result
-    @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinTable(
             name = "ServiceQuizResult",
             joinColumns = @JoinColumn(name = "serviceId"),
@@ -89,7 +89,7 @@ public class Services {
     List<Booking> bookings = new ArrayList<>();
 
     //Many to Many - Therapist
-    @ManyToMany(mappedBy = "services", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "services", cascade = CascadeType.MERGE)
     @JsonBackReference
     List<Therapist> therapists = new ArrayList<>();
 

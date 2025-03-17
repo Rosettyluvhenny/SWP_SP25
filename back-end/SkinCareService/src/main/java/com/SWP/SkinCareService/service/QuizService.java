@@ -19,6 +19,7 @@ import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.repository.QuizRepository;
 import com.SWP.SkinCareService.entity.ServiceCategory;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -30,6 +31,7 @@ public class QuizService {
     ServiceCategoryRepository serviceCategoryRepository;
     QuizResultService quizResultService;
     QuizResultMapper quizResultMapper;
+
 
     @Transactional
     public QuizResponse create(QuizRequest request) {
@@ -70,8 +72,16 @@ public class QuizService {
         return quizMapper.toResponse(quiz);
     }
 
+    @Transactional
     public void delete(int id) {
         Quiz quiz = getQuiz(id);
+
+        List<QuizResult> quizResults = quiz.getQuizResults();
+        for (QuizResult quizResult : quizResults) {
+            quizResult.setQuiz(null);
+            quizResultService.deleteQuizResult(quizResult.getId());
+        }
+
         quizRepository.delete(quiz);
     }
     private Quiz getQuiz(int id) {

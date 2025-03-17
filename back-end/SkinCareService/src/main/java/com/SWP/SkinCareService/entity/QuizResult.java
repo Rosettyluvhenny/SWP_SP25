@@ -30,11 +30,11 @@ public class QuizResult {
     private int minPoint;
     private int maxPoint;
 
-    @OneToMany(mappedBy = "quizResult")
+    @OneToMany(mappedBy = "quizResult", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<User> users;
 
-    @ManyToMany(mappedBy = "quizResults")
+    @ManyToMany(mappedBy = "quizResults", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JsonBackReference
     private List<Services> services = new ArrayList<>();
 

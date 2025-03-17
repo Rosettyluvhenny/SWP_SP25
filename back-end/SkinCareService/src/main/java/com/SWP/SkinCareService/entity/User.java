@@ -14,7 +14,7 @@ import java.util.Set;
 @Table(name="user")
 @Getter
 @Setter
-@ToString(exclude = {"therapist", "quizResult", "booking", "bookingServicesStaff", "bookingSessions", "feedbacks", "roles"})
+@ToString(exclude = {"therapist", "quizResult", "booking", "bookingServicesStaff", "bookingSessions", "feedbacks", "roles", "notifications"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -73,6 +73,11 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
     Set<Feedback> feedbacks;
+    //
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    Set<Notification> notifications;
+
 
     @Override
     public boolean equals(Object o) {

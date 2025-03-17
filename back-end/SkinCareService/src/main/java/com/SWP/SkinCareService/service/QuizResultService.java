@@ -55,6 +55,7 @@ public class QuizResultService {
             }
             quizResult.setServices(servicesList);
         }
+        quizResult.setQuiz(quiz);
         quizResultRepository.save(quizResult);
         //Response
         QuizResultResponse response = quizResultMapper.toQuizResultResponse(quizResult);
