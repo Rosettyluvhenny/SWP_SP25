@@ -26,8 +26,8 @@ export default function ServiceDetail() {
 
     useEffect(() => {
         const fetchRelatedServices = async () => {
-            const services = await servicesData();
-            setRelatedServices(services);
+            const responseJson = await servicesData("?size=4");
+            setRelatedServices(responseJson.services);
         }
         fetchRelatedServices();
         const fetchService = async () => {

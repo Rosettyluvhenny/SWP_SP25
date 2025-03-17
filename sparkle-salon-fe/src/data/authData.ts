@@ -2,7 +2,7 @@ import axios from "axios";
 
 const login = async (username: string, password: string) => {
     try {
-        const response = await axios.post(`/auth/authenticate`, { username, password });
+        const response = await axios.post(`http://localhost:8081/swp/auth/authenticate`, { username, password });
         return response; 
     } catch (error) {
         console.error("Login failed:", error);

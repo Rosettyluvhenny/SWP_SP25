@@ -21,9 +21,6 @@ export default function Profile() {
             const user = await getUser();
             if (user) {
                 setUserInfo(user);
-            } else {
-                alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
-                localStorage.removeItem("token");
             }
         };
         fetchUser();

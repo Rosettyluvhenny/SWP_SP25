@@ -93,8 +93,8 @@ export default function Header() {
         }
         const res = await login(loginData.username, loginData.password);
         console.log(">> check res ", res);
-        if (res && res.result) {
-            localStorage.setItem("token", res.result.token);
+        if (res && res.data.result) {
+            localStorage.setItem("token", res.data.result.token);
             loginContext(loginData.username);
             toast.success("Login successfully ");
             setLoginData({ username: "", password: "" });
@@ -222,7 +222,7 @@ export default function Header() {
         { path: "/contact", label: "Contact" },
     ];
 
-    if (isLoggedIn) {
+    if (user && user.auth === true) {
         navItems.push(
             { path: "/your-booking", label: "Your Booking" },
             { path: "/feedback", label: "Feedback" }
@@ -452,7 +452,7 @@ export default function Header() {
                                         whileHover={{ scale: 1.1 }}
                                         whileTap={{ scale: 0.9 }}
                                     >
-                                        <NavLink to="/Account">
+                                        <NavLink to="/profile">
                                             Tài Khoản
                                         </NavLink>
                                     </motion.button>

@@ -60,6 +60,7 @@ export default function Service() {
             }page=${currentPage - 1}&size=${ServicePerPage}&sort=${sortBy}`
         );
     };
+
     useEffect(() => {
         fetchServices().catch((error: any) => {
             setHttpError(error.message);
@@ -147,7 +148,6 @@ export default function Service() {
                         </>
                     ) : (
                         <div className="m-5">
-                            <h3>Can't find what you are looking for?</h3>
                             <a
                                 type="button"
                                 className="btn main-color text-white btn-md px-4 me-md-2 fw-bold"

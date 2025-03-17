@@ -1,4 +1,5 @@
 import axios from "../services/customizedAxios";
+
 export interface Service {
     id: number;
     active: boolean;
@@ -24,9 +25,9 @@ export interface MetaData {
 
 const servicesData = async (url : string): Promise<{ services: Service[]; meta: MetaData }> => {
     const servicesResponse = await axios.get(`/services${url}`);
-    if (servicesResponse.result) {
+    if (servicesResponse.data.result) {
         const { content, totalElements, totalPages, number, pageSize, first, last, numberOfElements } =
-            servicesResponse.result;
+            servicesResponse.data.result;
         return {
             services: content,
             meta: {
@@ -46,8 +47,8 @@ const servicesData = async (url : string): Promise<{ services: Service[]; meta: 
 
 const serviceDataById = async (id:string) => {
     const serviceResponse = await axios.get(`/services/${id}`)
-    if (serviceResponse.result) {
-        const serviceData = serviceResponse.result;
+    if (serviceResponse.data.result) {
+        const serviceData = serviceResponse.data.result;
         return serviceData
     }
     return null
