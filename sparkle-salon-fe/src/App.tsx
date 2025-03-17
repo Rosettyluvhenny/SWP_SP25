@@ -42,7 +42,7 @@ function App() {
         <Route path="/manager/payment" element={<PaymentManagement />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
-        <Route path="/therapist" element={<MainLayout><Therapist /></MainLayout>} />
+        <Route path="/therapist/:id" element={<Therapist />} />
         <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
         {/* <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} /> */}
       </Routes>

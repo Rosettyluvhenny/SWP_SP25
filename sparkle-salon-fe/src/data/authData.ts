@@ -1,16 +1,12 @@
 import axios from "axios";
 
 const login = async (username: string, password: string) => {
-    const response = await axios.post(`http://localhost:8081/swp/auth/authenticate`, {
-        username,
-        password,
-    });
-    if (response.status === 200) {
-        const token = response.data.result.token;
-        localStorage.setItem("token", token);
-        return token;
-    } else {
-        return null;
+    try {
+        const response = await axios.post(`/auth/authenticate`, { username, password });
+        return response; 
+    } catch (error) {
+        console.error("Login failed:", error);
+        return null; 
     }
 };
 
@@ -31,28 +27,13 @@ const register = async (data: { username: string, password: string, fullName: st
 };
 
 const getUser = async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        console.error("No token found in localStorage!");
-        return null;
-    }
-
-    try {
-        console.log("🔹 Fetching user info with token:", token); 
-
-        const response = await axios.get("http://localhost:8081/swp/users/getMyInfo", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        console.log("User data received:", response.data); 
-        return response.data.result; 
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        return null;
-    }
+    const token = localStorage.getItem('token')
+    const response = await axios.get(`/users/getMyInfo`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data.result;
 };
 
 const updateUser = async (
@@ -79,8 +60,8 @@ const updateUser = async (
     const updatedData = { fullName, email, phone, dob: dob || "" };
 
     try {
-        console.log("🔹 Sending Update Request to:", apiUrl);
-        console.log("🔹 Payload:", updatedData);
+        console.log("Sending Update Request to:", apiUrl);
+        console.log("Payload:", updatedData);
 
         const response = await axios.put(apiUrl, updatedData, {
             headers: {
@@ -124,7 +105,7 @@ const disableUser = async (userId: string) => {
     const apiUrl = `http://localhost:8081/swp/users/${userId}/disable`;
 
     try {
-        console.log("🔹 Sending Disable Request to:", apiUrl);
+        console.log("Sending Disable Request to:", apiUrl);
 
         const response = await axios.put(apiUrl, null, {
             headers: {

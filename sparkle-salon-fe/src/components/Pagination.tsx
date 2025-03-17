@@ -1,71 +1,75 @@
-import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
+import React from "react";
 
 interface PaginationProps {
-    currentPage: number;
-    totalPages: number;
-    setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  currentPage: number;
+  totalPages: number;
+  paginate: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({
-    currentPage,
-    totalPages,
-    setCurrentPage,
-}) => {
-    const pageNumbers: number[] = [];
+const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, paginate }) => {
+  const pageNumbers: number[] = [];
 
-    if (currentPage === 1) {
-        pageNumbers.push(currentPage);
-        if (totalPages >= currentPage + 1) pageNumbers.push(currentPage + 1);
-        if (totalPages >= currentPage + 2) pageNumbers.push(currentPage + 2);
+  if (currentPage === 1) {
+    pageNumbers.push(currentPage);
+    if (totalPages >= currentPage + 1) pageNumbers.push(currentPage + 1);
+    if (totalPages >= currentPage + 2) pageNumbers.push(currentPage + 2);
+  } else if (currentPage > 1) {
+    if (currentPage >= 3) {
+      pageNumbers.push(currentPage - 2);
+      pageNumbers.push(currentPage - 1);
     } else {
-        if (currentPage >= 3) {
-            pageNumbers.push(currentPage - 2);
-            pageNumbers.push(currentPage - 1);
-        } else {
-            pageNumbers.push(currentPage - 1);
-        }
-
-        pageNumbers.push(currentPage);
-        if (totalPages >= currentPage + 1) pageNumbers.push(currentPage + 1);
-        if (totalPages >= currentPage + 2) pageNumbers.push(currentPage + 2);
+      pageNumbers.push(currentPage - 1);
     }
+    pageNumbers.push(currentPage);
+    if (totalPages >= currentPage + 1) pageNumbers.push(currentPage + 1);
+    if (totalPages >= currentPage + 2) pageNumbers.push(currentPage + 2);
+  }
 
-    return (
-        <nav className="mt-4 flex justify-center mb-4">
-            <ul className="flex space-x-2">
-                <li>
-                    <button
-                        className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-md hover:bg-gray-300"
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    >
-                        <SlArrowLeft />
-                    </button>
-                </li>
-                {pageNumbers.map((number) => (
-                    <li key={number}>
-                        <button
-                            className={`w-10 h-10 flex items-center justify-center rounded-md transition ${
-                                currentPage === number
-                                    ? "bg-pink-500 text-white"
-                                    : "bg-gray-200 hover:bg-gray-300"
-                            }`}
-                            onClick={() => setCurrentPage(number)}
-                        >
-                            {number}
-                        </button>
-                    </li>
-                ))}
-                <li>
-                    <button
-                        className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-md hover:bg-gray-300"
-                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    >
-                        <SlArrowRight />
-                    </button>
-                </li>
-            </ul>
-        </nav>
-    );
+  return (
+    <nav aria-label="Pagination" className="flex justify-center mt-6">
+      <ul className="flex items-center gap-2 bg-white p-3 rounded-lg shadow-md">
+        {/* First Page Button */}
+        <li>
+          <button
+            onClick={() => paginate(1)}
+            disabled={currentPage === 1}
+            className={`px-3 py-2 rounded-md border border-gray-300 transition-all 
+                ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-100"}
+            `}
+          >
+            First
+          </button>
+        </li>
+
+        {/* Page Numbers */}
+        {pageNumbers.map((number) => (
+          <li key={number}>
+            <button
+              onClick={() => paginate(number)}
+              className={`px-4 py-2 rounded-md border border-gray-300 transition-all 
+                ${currentPage === number ? "bg-pink-500 text-white" : "hover:bg-gray-100"}
+              `}
+            >
+              {number}
+            </button>
+          </li>
+        ))}
+
+        {/* Last Page Button */}
+        <li>
+          <button
+            onClick={() => paginate(totalPages)}
+            disabled={currentPage === totalPages}
+            className={`px-3 py-2 rounded-md border border-gray-300 transition-all 
+                ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-100"}
+            `}
+          >
+            Last
+          </button>
+        </li>
+      </ul>
+    </nav>
+  );
 };
 
 export default Pagination;
