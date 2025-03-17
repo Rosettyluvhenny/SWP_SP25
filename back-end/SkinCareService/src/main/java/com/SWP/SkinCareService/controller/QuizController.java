@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class QuizController {
     QuizService quizService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<QuizResponse>> createQuiz(@RequestBody @Valid QuizRequest request) {
         var result = quizService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -55,6 +57,7 @@ public class QuizController {
     }
 
     @PutMapping("/{quizId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<QuizResponse>> updateQuiz(@PathVariable int quizId, @RequestBody @Valid QuizRequest request) {
         var result = quizService.update(quizId, request);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -65,6 +68,7 @@ public class QuizController {
     }
 
     @DeleteMapping("/{quizId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> deleteQuiz(@PathVariable int quizId) {
         quizService.delete(quizId);
         return ResponseEntity.status(HttpStatus.OK).body(

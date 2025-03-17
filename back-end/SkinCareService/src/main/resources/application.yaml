@@ -1,7 +1,14 @@
 server:
-  port: 8080
+  port: 8443
   servlet:
     context-path: /swp
+  ssl:
+    key-store: classpath:skincare.p12
+    key-store-password: 12345678
+    key-store-type: PKCS12
+    key-alias: skincare
+    enabled: true
+
 
 spring:
   datasource:
@@ -13,15 +20,18 @@ spring:
     hibernate:
       ddl-auto: update
       show-sql: true
+
 jwt:
   signerKey: "1Ln55lu2teW6wbb2nd3sLkHUQgql0e/avY0TCtXgEkERCDXm6tB6m64jXVXf43jn"
   valid-duration: 3600  #second
   refreshable-duration: 36000 #second
+
+
 openapi:
   title: API document
   version: v1.0.0
   description: API service
-  serverUrl: http://localhost:8080/swp
+  serverUrl: https://localhost:8443/swp
   serverName: Test Server
 
 springdoc:
@@ -45,5 +55,6 @@ vnpay:
   tmn-code: G6UJ6GM0
   hash-secret: KNWNX1BX0Z31T3MIX7E3KROK063KWANW
   payment-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  return-url: http://localhost:8080/swp/payment/vnpay/return
-  ipn-url: http://localhost:8080/swp/payment/vnpay/ipn
+  return-url: https://localhost:8443/swp/payment/vnpay/status
+  ipn-url: https://localhost:8443/swp/payment/vnpay/ipn
+

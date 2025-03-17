@@ -68,6 +68,24 @@ public class VNPayService {
         }
     }
 
+    public String processPaymentResponseUpdate(@NonNull Map<String, String> response) {
+        Assert.notEmpty(response, "Payment response cannot be empty");
+
+        try {
+            if (response.isEmpty()) {
+                throw new AppException(ErrorCode.VNPAY_MISSING_PARAMS);
+            }
+
+            validatePaymentResponse(response);
+            return buildPaymentResultUpdate(response);
+        } catch (AppException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.VNPAY_PAYMENT_ERROR);
+        }
+    }
+
+
     public Map<String, String> processIPNResponse(@NonNull Map<String, String> response) {
         Assert.notEmpty(response, "IPN response cannot be empty");
 
@@ -261,6 +279,88 @@ public class VNPayService {
         }
 
         return result;
+    }
+
+    private String buildPaymentResultUpdate(Map<String, String> response) {
+        String responseCode = response.getOrDefault("vnp_ResponseCode", "99");
+        String transactionStatus = response.getOrDefault("vnp_TransactionStatus", "99");
+        String transactionNo = response.get("vnp_TransactionNo");
+        String transactionRef = response.get("vnp_TxnRef");
+
+        if (!response.containsKey("vnp_Amount")) {
+            throw new AppException(ErrorCode.VNPAY_MISSING_PARAMS);
+        }
+
+        long amount = Long.parseLong(response.get("vnp_Amount")) / 100;
+        boolean isSuccess = "00".equals(responseCode) && "00".equals(transactionStatus);
+
+        String url = "";
+
+        if (isSuccess) {
+            // Cập nhật trạng thái đơn hàng khi thanh toán thành công
+            try {
+                // Lấy booking ID từ orderInfo
+                String orderInfo = response.get("vnp_OrderInfo");
+                int bookingId = extractBookingId(orderInfo);
+
+                // Cập nhật trạng thái booking
+                Booking booking = bookingRepository.findById(bookingId)
+                        .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
+
+                booking.setPaymentStatus(PaymentStatus.PAID);
+                booking.setStatus(BookingStatus.ON_GOING);
+
+                // Cập nhật trạng thái các session
+                List<BookingSession> sessions = booking.getBookingSessions();
+                if (sessions != null && !sessions.isEmpty()) {
+                    for (BookingSession session : sessions) {
+                        if (session.getStatus() == BookingSessionStatus.PENDING) {
+                            session.setStatus(BookingSessionStatus.WAITING);
+                            if (session.getRoom() == null) {
+                                //Assign Room for session
+                                List<Room> roomAvailableForService = roomService.getRoomAvailableForService(booking.getService().getId());
+                                if (roomAvailableForService.isEmpty()) {
+                                    throw new AppException(ErrorCode.OUT_OF_ROOM);
+                                } else {
+                                    Room room = roomAvailableForService.getFirst();
+                                    session.setRoom(room);
+                                    roomService.incrementInUse(room.getId());
+                                }
+                            }
+                        }
+                    }
+                }
+                //URL khi payment thành công
+                url = "https://localhost:8443/swp/success.html";
+                bookingRepository.save(booking);
+            } catch (Exception e) {
+            }
+        } else {
+            try {
+                String orderInfo = response.get("vnp_OrderInfo");
+                int bookingId = extractBookingId(orderInfo);
+
+                // Cập nhật trạng thái booking khi thanh toán thất bại
+                Booking booking = bookingRepository.findById(bookingId)
+                        .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
+
+                booking.setPaymentStatus(PaymentStatus.CANCELLED);
+                booking.setStatus(BookingStatus.IS_CANCELED);
+                List<BookingSession> sessionList = booking.getBookingSessions();
+                if (sessionList != null && !sessionList.isEmpty()) {
+                    for (BookingSession session : sessionList) {
+                        session.setStatus(BookingSessionStatus.IS_CANCELED);
+                    }
+                }
+                booking.setSessionRemain(0);
+                ///URL khi payment thất bại
+                url = "https://localhost:8443/swp/failed.html";
+                bookingRepository.save(booking);
+            } catch (Exception e) {
+            }
+        }
+
+        return url;
     }
 
     private int extractBookingId(String orderInfo) {

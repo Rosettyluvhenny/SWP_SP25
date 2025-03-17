@@ -412,6 +412,7 @@ public class  BookingSessionService {
                 }
             }
         }
+        // Bỏ giờ trước thời điểm hiện tại, now + 30ph
 
         // Count bookings per therapist to determine workload
         Map<String, Integer> therapistBookingCount = new HashMap<>();

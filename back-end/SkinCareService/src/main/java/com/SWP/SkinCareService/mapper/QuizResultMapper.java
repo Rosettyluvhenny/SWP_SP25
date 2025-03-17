@@ -41,7 +41,7 @@ public interface QuizResultMapper {
     @Mapping(target = "price", source = "price")
     @Mapping(target = "duration", source = "duration")
     @Mapping(target = "session", source = "session")
-    @Mapping(target = "img", ignore = true)
+    @Mapping(target = "img", source = "img")
     @Mapping(target = "description", source = "description")
     ServiceDTO toServiceDTO(Services service);
 

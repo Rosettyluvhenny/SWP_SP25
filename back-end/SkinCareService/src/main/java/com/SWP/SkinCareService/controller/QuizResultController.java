@@ -8,6 +8,7 @@ import com.SWP.SkinCareService.service.QuizResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class QuizResultController {
     private QuizResultService quizResultService;
 
     @PostMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<ApiResponse<QuizResultResponse>> addQuizResult(@RequestBody QuizResultRequest request) {
         var result = quizResultService.createQuizResult(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -43,6 +45,7 @@ public class QuizResultController {
     }
 
     @PutMapping("/{quizResultId}")
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<ApiResponse<QuizResultResponse>> updateQuizResult(@PathVariable int quizResultId, @RequestBody QuizResultRequest request) {
         var result = quizResultService.updateQuizResult(quizResultId, request);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -51,6 +54,7 @@ public class QuizResultController {
     }
 
     @DeleteMapping("/{quizResultId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> deleteQuizResult(@PathVariable int quizResultId) {
         quizResultService.deleteQuizResult(quizResultId);
         return ResponseEntity.status(HttpStatus.OK).body(

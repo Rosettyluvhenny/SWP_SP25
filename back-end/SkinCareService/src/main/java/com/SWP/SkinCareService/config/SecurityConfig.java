@@ -32,7 +32,7 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/introspect", "/auth/authenticate", "/auth/logout", "/auth/refresh"};
     private final String[] UNCATEGORIZED_ENDPOINTS= {"/swagger-ui/**",
             "/v3/api-docs/**",
-            "/swagger-ui.html","/therapist","/therapist/**","/category/**","/services/**","/supabase/**","/serviceInfo/**"};
+            "/swagger-ui.html","/therapist","/therapist/**","/category/**","/services/**","/supabase/**","/serviceInfo/**", "/payment/vnpay/**"};
     @Autowired
     private CustomJwtDecoder jwtDecoder;
     @Autowired
@@ -41,17 +41,18 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
 
         httpSecurity
+                .requiresChannel(channel ->channel.anyRequest().requiresSecure()) //Add new to HTTP -> HTTPS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                        request.anyRequest().permitAll())
-                        /*
+                        //request.anyRequest().permitAll())
+
                         request.requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINTS).permitAll()
                                 .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
                                 .requestMatchers(UNCATEGORIZED_ENDPOINTS).permitAll()
                                 .anyRequest().authenticated())
 
-                         */
+
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(JwtAuthenticationEntryPoint) // 🔥 Handle JwtException here
                 )
@@ -103,7 +104,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000","https://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

@@ -265,14 +265,15 @@ public class UserService {
     }
     //    @PostAuthorize("returnObject.id == authentication.id")
     public User getUserByUsername(String userName){
-        return userRepository.findByUsername(userName).orElseThrow(()-> new RuntimeException("user can not be found"));
+        return userRepository.findByUsername(userName).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
     @PreAuthorize("returnObject.name == authentication.name")
     @Transactional
     public UserResponse update(String userId, UserUpdateRequest request){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        var context = SecurityContextHolder.getContext().getAuthentication();
+        String username = context.getName();
+        User user = getUserByUsername(username);
 
         userMapper.updateUser(request,user);
         return userMapper.toUserResponse(userRepository.save(user));

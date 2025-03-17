@@ -55,7 +55,7 @@ public class BookingSessionController {
     }
 
     @PutMapping("/{sessionId}")
-    //@PreAuthorize("hasRole('STAFF','THERAPIST')")
+    @PreAuthorize("hasAnyRole('STAFF','THERAPIST')")
     ResponseEntity<ApiResponse<BookingSessionResponse>> updateBookingSession(@PathVariable int sessionId,
                                                                              @RequestPart("data") BookingSessionUpdateRequest bookingSessionRequest,
                                                                              @RequestPart("imgBefore")MultipartFile imgBefore,
@@ -67,6 +67,7 @@ public class BookingSessionController {
     }
 
     @DeleteMapping("/{sessionId}")
+    @PreAuthorize("hasRole('ADMIN')")
    // @PreAuthorize("@sessionSecurityService.canAccessSession(#id, authentication.principal.id, authentication.authorities.iterator().next().authority)")
     ResponseEntity<ApiResponse<BookingSessionResponse>> deleteBookingSession(@PathVariable int sessionId) {
         bookingSessionService.deleteBookingSession(sessionId);
@@ -76,8 +77,7 @@ public class BookingSessionController {
     }
 
     @PutMapping("/{sessionId}/status")
-    //@PreAuthorize("hasRole('STAFF','THERAPIST')")
-    @PreAuthorize("@customSecurityService.canAccessSession(#id, authentication.principal.id, authentication.authorities.iterator().next().authority)")
+    @PreAuthorize("hasAnyRole('STAFF','THERAPIST')")
     ResponseEntity<ApiResponse<BookingResponse>> updateStatus(@PathVariable int sessionId, @RequestParam String status) {
         bookingSessionService.updateStatus(sessionId, status);
         return ResponseEntity.status(HttpStatus.OK).body(

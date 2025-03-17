@@ -21,10 +21,15 @@ public class VNPayConfig {
     
     @Value("${vnpay.payUrl:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}")
     private String payUrl;
-    
+
+    /*
     @Value("${vnpay.returnUrl:http://localhost:8080/swp/payment/vnpay/return}")
     private String returnUrl;
+     */
+
+    @Value("${vnpay.returnUrl:https://localhost:8443/swp/payment/vnpay/status}")
+    private String returnUrl;
     
-    @Value("${vnpay.ipnUrl:http://localhost:8080/swp/payment/vnpay/ipn}")
+    @Value("${vnpay.ipnUrl:https://localhost:8443/swp/payment/vnpay/ipn}")
     private String ipnUrl;
 } 

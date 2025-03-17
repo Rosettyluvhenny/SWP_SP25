@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -57,6 +58,7 @@ public class QuizResultService {
         }
         quizResult.setQuiz(quiz);
         quizResultRepository.save(quizResult);
+        /*
         //Response
         QuizResultResponse response = quizResultMapper.toQuizResultResponse(quizResult);
         List<Services> serviceListByResult = quizResult.getServices();
@@ -68,11 +70,14 @@ public class QuizResultService {
                 }
             }
         }
+         */
 
-        return response;
+        //return response;
+        return quizResultMapper.toQuizResultResponse(quizResult);
     }
 
     public List<QuizResultResponse> getAllQuizResults() {
+        /*
         List<QuizResult> quizResultsList = quizResultRepository.findAll();
         List<QuizResultResponse> quizResultResponseList = new ArrayList<>();
         for (QuizResult quizResult : quizResultsList) {
@@ -91,11 +96,14 @@ public class QuizResultService {
             quizResultResponseList.add(quizResultResponse);
         }
         return quizResultResponseList;
+         */
+        return quizResultRepository.findAll().stream().map(quizResultMapper::toQuizResultResponse).toList();
     }
 
     public QuizResultResponse getQuizResultById(int id) {
         QuizResult quizResult = quizResultRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.RESULT_NOT_EXISTED));
+        /*
         QuizResultResponse response = quizResultMapper.toQuizResultResponse(quizResult);
         List<Services> serviceListByResult = quizResult.getServices();
         List<ServiceDTO> dtoList = response.getServices();
@@ -107,6 +115,8 @@ public class QuizResultService {
             }
         }
         return response;
+         */
+        return quizResultMapper.toQuizResultResponse(quizResult);
     }
 
     @Transactional
@@ -128,6 +138,7 @@ public class QuizResultService {
             quizResult.setServices(servicesList);
         }
         quizResultRepository.save(quizResult);
+        /*
         //Response
         QuizResultResponse response = quizResultMapper.toQuizResultResponse(quizResult);
         List<Services> serviceListByResult = quizResult.getServices();
@@ -141,26 +152,28 @@ public class QuizResultService {
         }
 
         return response;
+         */
+        return quizResultMapper.toQuizResultResponse(quizResult);
     }
 
     @Transactional
     public void deleteQuizResult(int id) {
         QuizResult quizResult = checkQuizResult(id);
-        
+
         // Clear references from users
         for (User user : quizResult.getUsers()) {
             user.setQuizResult(null);
         }
-        
+
         // Clear references from services
         for (Services service : quizResult.getServices()) {
             service.getQuizResults().remove(quizResult);
         }
-        
+
         // Clear lists to avoid any potential issues
         quizResult.getUsers().clear();
         quizResult.getServices().clear();
-        
+
         quizResultRepository.delete(quizResult);
     }
 

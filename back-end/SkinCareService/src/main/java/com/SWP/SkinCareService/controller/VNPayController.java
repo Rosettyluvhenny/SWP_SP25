@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.Map;
 
@@ -76,6 +77,17 @@ public class VNPayController {
                     ));
         }
     }
+
+    @GetMapping("/status")
+    public RedirectView vnpayReturnStatus(@RequestParam Map<String, String> queryParams) {
+        log.info("Received return from VNPAY: {}", queryParams);
+        RedirectView redirectView = new RedirectView();
+        var result = vnPayService.processPaymentResponseUpdate(queryParams);
+        redirectView.setUrl(result);
+        return redirectView;
+    }
+
+
 
     @PostMapping("/ipn")
     public ResponseEntity<Map<String, String>> vnpayIPN(@RequestParam Map<String, String> queryParams) {

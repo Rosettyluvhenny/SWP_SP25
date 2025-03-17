@@ -55,6 +55,7 @@ public class ServicesService {
         service.setServiceCategory(category);
         service = servicesRepository.save(service);
         String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());
+        serviceImg = supabaseService.getImage(serviceImg);
         service.setImg(serviceImg);
 
         servicesRepository.flush();
@@ -63,12 +64,13 @@ public class ServicesService {
 
     public ServicesResponse getById(int id) throws IOException {
         var result = servicesMapper.toResponse(checkService(id));
-        result.setImg(supabaseService.getImage(result.getImg()));
+        //result.setImg(supabaseService.getImage(result.getImg()));
         return result;
     }
 
     public Page<ServicesResponse> getAll(boolean isActive,Pageable pageable) {
         Page<Services> services = isActive ? servicesRepository.findAllByActiveTrue(pageable) : servicesRepository.findAll(pageable);
+        /*
         return services
                 .map(service -> {
                     var response = servicesMapper.toResponse(service);
@@ -76,6 +78,8 @@ public class ServicesService {
                     return response;
 
                 });
+         */
+        return services.map(servicesMapper::toResponse);
     }
 
     @Transactional
@@ -88,6 +92,7 @@ public class ServicesService {
         else {
             supabaseService.deleteImage(service.getImg());
             String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());
+            serviceImg = supabaseService.getImage(serviceImg);
             service.setImg(serviceImg);
         }
         ServiceCategory category = checkServiceCategory(request.getServiceCategoryId());
