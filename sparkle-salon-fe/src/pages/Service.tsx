@@ -7,7 +7,6 @@ import Pagination from "../components/Pagination.tsx";
 import ServiceList from "../components/ServiceList";
 import { Category, CategoryData } from "../data/categoryData.ts";
 
-
 export default function Service() {
     const [searchParams, setSearchParams] = useSearchParams();
     const sortByParam = searchParams.get("sort") || "";
@@ -22,11 +21,12 @@ export default function Service() {
     const [services, setServices] = useState<Service[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<number>();
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 const response = await CategoryData();
-                const categoryList = response;
+                const categoryList = response.content;
                 setCategories(categoryList);
             } catch (error) {
                 console.error("Error fetching categories", error);
@@ -65,7 +65,6 @@ export default function Service() {
         window.scroll(0, 0);;
     }, [currentPage,searchUrl]);
 
-
     const indexOfLast: number = currentPage * ServicePerPage;
     const indexOfFirst: number = indexOfLast - ServicePerPage;
     let lastItem: number =
@@ -80,8 +79,12 @@ export default function Service() {
             {/* Banner Section */}
             <div className="relative w-full h-[200px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
                 <div className="absolute inset-0 bg-black opacity-40"></div>
-                <h1 className="relative z-10 text-white text-7xl font-serif mb-2">Our Services</h1>
-                <p className="relative z-10 text-white text-xl">Discover our beauty treatments</p>
+                <h1 className="relative z-10 text-white text-7xl font-serif mb-2">
+                    Our Services
+                </h1>
+                <p className="relative z-10 text-white text-xl">
+                    Discover our beauty treatments
+                </p>
             </div>
 
             {/* Search & Filter Section */}
@@ -106,12 +109,14 @@ export default function Service() {
                         {[1, 2, 3, 4, 5].map((star) => (
                             <option key={star} value={star}>
                                 {"⭐".repeat(star)} ({star})
+
                                 
                             </option>
                             
                         ))}
                     </select>
                     <button className="bg-violet hover:bg-gray" onClick={handleFilter}>Search</button>
+
                 </div>
 
                 {/* Results Summary */}
@@ -129,21 +134,12 @@ export default function Service() {
                     ) : (
                         <div className="m-5">
                             <h3>Can't find what you are looking for?</h3>
-                            <a
-                                type="button"
-                                className="btn main-color text-white btn-md px-4 me-md-2 fw-bold"
-                                href="#"
-                            >
-                                {" "}
-                            </a>
                         </div>
                     )}
                 </div>
 
                 {/* Services List */}
                 <ServiceList services={services} />
-
-
                 <Pagination
                     totalPages={totalPages}
                     currentPage={currentPage}

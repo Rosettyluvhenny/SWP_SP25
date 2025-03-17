@@ -1,12 +1,18 @@
 import { useState, useEffect, useContext } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBars, FaBell, FaTimes, FaUser, FaUserCheck, FaUserEdit, FaUsers } from "react-icons/fa";
 import { getUser, login, register } from "../data/authData";
 import LoginModal from "./LoginModal";
 import RegisterModal from "./RegisterModal";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from 'react-toastify';
+import {
+    FaBars,
+    FaBell,
+    FaTimes,
+    FaUserEdit,
+} from "react-icons/fa";
+import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "../context/UserContext";
 
 export default function Header() {
@@ -110,7 +116,6 @@ export default function Header() {
         if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(data.email)) {
             errors.email = "Email không hợp lệ.";
         }
-        
         // Password: At least 8 characters, no spaces
         if (!/^\S{8,}$/.test(data.password)) {
             errors.password = "Mật khẩu phải có ít nhất 8 ký tự và không chứa khoảng trắng.";
@@ -120,7 +125,6 @@ export default function Header() {
         if (!/^\d{10}$/.test(data.phone)) {
             errors.phone = "Số điện thoại phải có 10 chữ số.";
         }
-        
         // DOB: Must be at least 18 years old
         const birthDate = new Date(data.dob);
         const today = new Date();
@@ -146,8 +150,6 @@ export default function Header() {
     
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        // registerData.fullName = transformFullName(registerData.fullName);
         setValidationError({
             username: null,
             fullName: null,
@@ -160,7 +162,6 @@ export default function Header() {
             ...prev,
             fullName: transformFullName(prev.fullName),
         }));
-        
         const validationErrors = validateRegisterData(registerData);
         if (Object.keys(validationErrors).length > 0) {
             setValidationError(validationErrors);
@@ -196,6 +197,13 @@ export default function Header() {
         { path: "/blog", label: "Blog" },
         { path: "/contact", label: "Contact" },
     ];
+
+    if (user && user.auth === true) {
+        navItems.push(
+            { path: "/your-booking", label: "Your Booking" },
+            { path: "/feedback", label: "Feedback" }
+        );
+    }
 
     return (
         <motion.header
@@ -249,7 +257,6 @@ export default function Header() {
                         }}
                         transition={{ type: "spring", stiffness: 350, damping: 30 }}
                     />
-
                     {navItems.map((item) => (
                         <motion.li
                             key={`desktop-${item.path}`}

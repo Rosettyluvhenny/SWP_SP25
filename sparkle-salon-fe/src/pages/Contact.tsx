@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from "react";
-import DateTimeSelector from "../components/DateTimeSelector";
-import { useLocation } from "react-router-dom";
-import { Service, servicesData } from "../data/servicesData";
-import { getTherapists } from "../data/therapistData";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Service, serviceDataById } from "../data/servicesData";
+import {
+    getTherapists,
+    getTherapistSlots
+} from "../data/therapistData";
 import { GoChevronRight } from "react-icons/go";
 import { FaCheck } from "react-icons/fa";
+import { BookingBody, bookingService } from "../data/bookingData";
+import { getPayment } from "../data/paymentData";
 
 type Therapist = {
     id: number;
@@ -16,25 +20,125 @@ type Therapist = {
     experienceYears: number;
     bio: string;
     img: string;
-}
+};
+
+type BookingDate = {
+    name: string;
+    day: string;
+    month: string;
+    year: string;
+};
+
+type Payment = {
+    paymentId: string;
+    description: string;
+    paymentName: string;
+    url: string;
+};
 
 export default function Contact() {
-    const [selectedTherapist, setSelectedTherapist] = useState<string | null>(null);
-    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const getNextSevenDates = () => {
+        const days: BookingDate[] = [];
+
+        for (let i = 0; i < 7; i++) {
+            const date = new Date();
+            date.setDate(date.getDate() + i);
+
+            days.push({
+                name: date.toLocaleDateString("vi-VN", { weekday: "long" }), // Lấy thứ trong tuần
+                day: `${date.getDate() < 10 ? "0" : ""}${date.getDate()}`, // Lấy ngày
+                month: `${date.getMonth() + 1 < 10 ? "0" : ""}${
+                    date.getMonth() + 1
+                }`, // Lấy tháng (lưu ý: getMonth() trả về 0-11)
+                year: date.getFullYear().toString(),
+            });
+        }
+        return days;
+    };
+    const nextSevenDates: BookingDate[] = getNextSevenDates();
+    const todayString = `${nextSevenDates[0].year}-${nextSevenDates[0].month}-${nextSevenDates[0].day}`;
+    const [selectedTherapist, setSelectedTherapist] = useState<string | null>(
+        null
+    );
+    const [selectedDate, setSelectedDate] = useState<string>(todayString);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
-    const [services, setServices] = useState<Service[]>([]);
-    const [isTherapistOpen, setIsTherapistOpen] = useState<boolean>(false);
+    const [selectedService, setSelectedService] = useState<Service>();
+    const [isTherapistOpen, setIsTherapistOpen] = useState<boolean>(true);
     const [therapists, setTherapists] = useState<Therapist[]>([]);
+    const [therapistSlots, setTherapistSlots] = useState<
+        { startTime: string; endTime: string }[]
+    >([]);
+    const [payments, setPayments] = useState<Payment[]>([]);
+    const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
-    const location = useLocation();
-    const selectedService = location.state?.selectedService || "";
+    const [searchParams] = useSearchParams();
+    const selectedServiceId = searchParams.get("service") || "";
+    
+    const navigate = useNavigate();
+    if (!selectedServiceId) {
+        navigate("/service");
+    }
 
-    // Fetch services and therapists on component mount
+    const handleBooking = async () => {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+            alert("Vui lòng đăng nhập để đặt lịch");
+            return;
+        }
+    
+        const bookingBody: BookingBody = {
+            userId,
+            serviceId: parseInt(selectedServiceId),
+            paymentId: parseInt(selectedPayment?.paymentId || "0"),
+            bookingTime: `${selectedDate}T${selectedTime}.000Z`,
+            notes: "",
+            therapistId: selectedTherapist,
+        };
+    
+        try {
+            const response = await bookingService(bookingBody);
+            console.log("Booking Response:", response);
+    
+            if (response && response.result?.url) {
+                alert("Đặt lịch thành công! Đang chuyển hướng đến trang thanh toán...");
+                window.open(response.result.url, "_blank"); // Mở trang VNPay
+            }
+        } catch (error) {
+            console.error("Lỗi khi đặt lịch:", error);
+            alert("Đặt lịch thất bại.");
+        }
+    };
+
+    //init useEffect
+    useEffect(() => {
+        async function fetchTherapistSlots() {
+            try {
+                const fetchedTherapistSlots = await getTherapistSlots(
+                    selectedTherapist,
+                    selectedServiceId,
+                    selectedDate
+                );
+                setTherapistSlots(fetchedTherapistSlots);
+            } catch (error) {
+                console.error("Failed to fetch therapist slots:", error);
+            }
+        }
+        async function fetchPayments() {
+            const fetchedPayments = await getPayment();
+            setPayments(fetchedPayments);
+        }
+        fetchPayments();
+        fetchTherapistSlots();
+        setSelectedTime(null);
+    }, [selectedTherapist, selectedServiceId, selectedDate]);
+
     useEffect(() => {
         async function fetchServices() {
             try {
-                const fetchedServices = await servicesData();
-                setServices(fetchedServices);
+                const fetchedServices = await serviceDataById(
+                    selectedServiceId
+                );
+                setSelectedService(fetchedServices);
             } catch (error) {
                 console.error("Failed to fetch services:", error);
             }
@@ -42,20 +146,19 @@ export default function Contact() {
 
         async function fetchTherapists() {
             try {
-                const fetchedTherapists = await getTherapists();
-                setTherapists(fetchedTherapists);
+                if (selectedServiceId && selectedServiceId !== "") {
+                    const fetchedTherapists = await getTherapists(
+                        selectedServiceId
+                    );
+                    setTherapists(fetchedTherapists);
+                }
             } catch (error) {
                 console.error("Failed to fetch therapists:", error);
             }
         }
-
         fetchServices();
         fetchTherapists();
-    }, []);
-
-    const selectedServiceData = services.find(
-        (service) => service.name === selectedService
-    );
+    }, [selectedServiceId, selectedDate]);
 
     return (
         <div className="bg-gradient-to-b from-white to-pink-200 min-h-screen">
@@ -69,27 +172,69 @@ export default function Contact() {
 
             <div className="bg-gradient-to-tr from-[#f0bfbf] to-[#ffa8f396] py-8 px-6 max-w-6xl mx-auto rounded-xl shadow-lg">
                 {/* Service Details */}
-                {selectedServiceData && (
+                {selectedService && (
                     <div className="bg-white p-6 rounded-lg shadow-md mb-6 flex flex-col md:flex-row items-center md:items-start">
                         <div className="text-center md:text-left w-full md:w-2/3">
                             <h2 className="text-xl font-bold text-gray-800 mb-4 pb-2">
                                 Dịch vụ của bạn
                             </h2>
                             <img
-                                src={selectedServiceData.img}
-                                alt={selectedServiceData.name}
+                                src={selectedService.img}
+                                alt={selectedService.name}
                                 className="w-40 h-40 object-cover rounded-lg shadow-md border-2 border-pink-300"
                             />
                             <h3 className="text-lg font-semibold text-gray-700">
-                                {selectedServiceData.name}
+                                {selectedService.name}
                             </h3>
                             <p className="text-lg font-semibold text-pink-600 flex items-center justify-center md:justify-start mt-2">
                                 Số tiền cần thanh toán:
-                                {selectedServiceData.price.toLocaleString()} VNĐ
+                                {selectedService.price.toLocaleString()} VNĐ
                             </p>
                         </div>
                     </div>
                 )}
+                
+                {/* thanh toán Section */}
+                <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h2 className="text-xl font-bold text-gray-800 flex items-center">
+                            Chọn phương thức thanh toán
+                        </h2>
+                    <div
+                        className={`transition-all overflow-hidden ${
+                            isTherapistOpen ? "max-h-[500px] mt-4" : "max-h-0"
+                        }`}
+                    >
+                        <div className="flex space-x-3 overflow-x-auto scrollbar-hide p-2">
+                            {payments.map((payment) => (
+                                <div
+                                    key={payment.paymentId}
+                                    className={`relative border-2 p-3 rounded-lg cursor-pointer min-w-[130px] transition-all duration-300 ease-in-out flex flex-col items-center ${
+                                        selectedPayment === payment
+                                            ? "border-pink-400 bg-pink-100 scale-105"
+                                            : "border-gray-300 bg-white hover:scale-105 hover:shadow-md"
+                                    }`}
+                                    onClick={() =>
+                                        setSelectedPayment(payment)
+                                    }
+                                >
+                                    <p className="text-sm mt-2 font-semibold text-center text-gray-700">
+                                        {payment.paymentName}
+                                    </p>
+                                    {selectedPayment === payment && (
+                                        <div className="absolute top-0 right-0 bg-pink-300 text-white rounded-full p-1">
+                                            <FaCheck />
+                                        </div>
+                                    )}
+                                    <p className="text-sm mt-2 font-semibold text-center text-gray-700">
+                                        {payment.description}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* chọn chuyên viên Section */}
                 <div className="bg-white p-6 rounded-lg shadow-md mb-6">
                     <div
                         className="flex justify-between items-center cursor-pointer"
@@ -134,12 +279,15 @@ export default function Contact() {
                                 <div
                                     key={therapist.id}
                                     className={`relative border-2 p-3 rounded-lg cursor-pointer min-w-[130px] transition-all duration-300 ease-in-out flex flex-col items-center ${
-                                        selectedTherapist === therapist.id.toString()
+                                        selectedTherapist ===
+                                        therapist.id.toString()
                                             ? "border-pink-400 bg-pink-100 scale-105"
                                             : "border-gray-300 bg-white hover:scale-105 hover:shadow-md"
                                     }`}
                                     onClick={() =>
-                                        setSelectedTherapist(therapist.id.toString())
+                                        setSelectedTherapist(
+                                            therapist.id.toString()
+                                        )
                                     }
                                 >
                                     <img
@@ -150,7 +298,8 @@ export default function Contact() {
                                     <p className="text-sm mt-2 font-semibold text-center text-gray-700">
                                         {therapist.fullName}
                                     </p>
-                                    {selectedTherapist === therapist.id.toString() && (
+                                    {selectedTherapist ===
+                                        therapist.id.toString() && (
                                         <div className="absolute top-0 right-0 bg-pink-300 text-white rounded-full p-1">
                                             <FaCheck />
                                         </div>
@@ -160,19 +309,56 @@ export default function Contact() {
                         </div>
                     </div>
                 </div>
+
+                {/* chọn ngày & giờ Section */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-bold text-gray-800 mb-4 border-b-2 border-pink-300 pb-2">
                         Chọn Ngày & Giờ
                     </h2>
-                    <DateTimeSelector
-                        selectedDate={selectedDate}
-                        selectedTime={selectedTime}
-                        onSelect={(date, time) => {
-                            setSelectedDate(date);
-                            setSelectedTime(time);
-                        }}
-                        availableSlots={[] }
-                    />
+                    <div className="overflow-x-scroll flex gap-4 py-4">
+                        {nextSevenDates.map((day) => {
+                            const dateString = `${day.year}-${day.month}-${day.day}`;
+                            return (
+                                <button
+                                    disabled={dateString === selectedDate}
+                                    onClick={() => setSelectedDate(dateString)}
+                                    key={day.day}
+                                    className={`min-w-[160px] p-4 rounded-lg shadow-md bg-${
+                                        dateString === selectedDate
+                                            ? "pink-400"
+                                            : "slate-400"
+                                    }`}
+                                >
+                                    <p>
+                                        {day.name} | {day.day}/{day.month}
+                                    </p>
+                                </button>
+                            );
+                        })}
+                    </div>
+                    <div className="grid grid-cols-4 gap-4 mt-4">
+                        {therapistSlots.map((slot) => (
+                            <button
+                                onClick={() => setSelectedTime(slot.startTime)}
+                                key={slot.startTime}
+                                className={`p-4 rounded-lg shadow-md bg-${
+                                    selectedTime === slot.startTime
+                                        ? "pink-400"
+                                        : "slate-400"
+                                }`}
+                            >
+                                {slot.startTime.slice(0, 5)}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex justify-end mt-4">
+                        <button
+                            className="bg-pink-400 text-white px-4 py-2 rounded-lg"
+                            onClick={handleBooking}
+                        >
+                            Đặt lịch
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

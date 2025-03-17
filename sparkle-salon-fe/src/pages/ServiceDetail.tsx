@@ -1,18 +1,19 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import  { Service, serviceDataById, servicesData } from "../data/servicesData";
-import { feedbacksData } from "../data/feedbacksData";
+// import { getFeedback } from "../data/feedbacksData";
 import { FaClock, FaMoneyBill, FaCalendarAlt } from "react-icons/fa";
-import FeedbackForm from "../components/FeedbackForm";
-import FeedbackList from "../components/FeedbackList";
 import { motion } from "framer-motion";
 
-interface Feedback {
-    name: string;
-    rating: number;
-    comment: string;
-    date: string;
-}
+// interface Feedback {
+//     id: number,
+//     feedbackText: string,
+//     rating: number,
+//     serviceName: string,
+//     img: string,
+//     bookingDate: string,
+//     therapistName: string
+// }
 
 export default function ServiceDetail() {
     const { id } = useParams();
@@ -20,7 +21,7 @@ export default function ServiceDetail() {
     const [service, setService] = useState<Service | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [feedbacks, setFeedbacks] = useState<Feedback[]>(feedbacksData);
+    // const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [relatedServices, setRelatedServices] = useState<Service[]>([]);
 
     useEffect(() => {
@@ -78,9 +79,9 @@ export default function ServiceDetail() {
         }
     };
 
-    const handleFeedbackSubmit = (newFeedback: Feedback) => {
-        setFeedbacks((prev) => [newFeedback, ...prev]);
-    };
+    // const handleFeedbackSubmit = (newFeedback: Feedback) => {
+    //     setFeedbacks((prev) => [newFeedback, ...prev]);
+    // };
 
     // Loading state
     if (isLoading) {
@@ -224,14 +225,14 @@ export default function ServiceDetail() {
                             </div>
                         </div>
 
-                        {/* Feedback Section */}
+                        {/* Feedback Section
                         <div className="bg-white shadow-lg p-6 rounded-xl">
                             <h2 className="text-xl font-semibold border-b pb-2 mb-4">
                                 Đánh Giá Khách Hàng
                             </h2>
                             <FeedbackList feedbacks={feedbacks} />
                             <FeedbackForm onSubmit={handleFeedbackSubmit} />
-                        </div>
+                        </div> */}
                     </motion.div>
 
                     {/*Sidebar Section */}
