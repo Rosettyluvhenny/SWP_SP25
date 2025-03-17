@@ -16,14 +16,19 @@ import ServiceDetail from "./pages/ServiceDetail";
 import Payment from "./pages/Payment";
 import RoomManagement from "./pages/RoomManagement";
 import PaymentManagement from "./pages/PaymentManagement";
+import {toast} from 'react-toastify';
+import { UserContext, UserProvider } from "./context/UserContext";
+import { useContext } from "react";
 // import Profile from "./pages/Profile";
-
 function App() {
+  const {user} = useContext(UserContext)
   return (
     <>
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<MainLayout><Home /></MainLayout>} />
+        {/* <Route path="/" element={<Home />}/> */}
+
         <Route path="/about" element={<MainLayout><About /></MainLayout>} />
         <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
         <Route path="/service/:id" element={<MainLayout><ServiceDetail /></MainLayout>} />

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../services/customizedAxios";
 export interface Category{
     id: number;
     name: string;
@@ -6,7 +6,7 @@ export interface Category{
 }
 
 export const CategoryData = async () :Promise<{ category: Category[]}> =>{
-    const response = await axios.get(`http://localhost:8081/swp/category`);
-    const category = response.data;
+    const response = await axios.get(`/category`);
+    const category = response.result;
     return category;
 }

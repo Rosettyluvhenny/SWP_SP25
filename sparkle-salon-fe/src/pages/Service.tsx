@@ -26,7 +26,7 @@ export default function Service() {
         const fetchCategories = async () => {
             try {
                 const response = await CategoryData();
-                const categoryList = response.result;
+                const categoryList = response;
                 setCategories(categoryList);
             } catch (error) {
                 console.error("Error fetching categories", error);
@@ -37,7 +37,6 @@ export default function Service() {
 
     const fetchServices = async () => {
         const responseJson = await servicesData(searchUrl);
-        console.log(searchUrl)
         const services = responseJson.services;
         setServices(services);
         const meta = responseJson.meta;

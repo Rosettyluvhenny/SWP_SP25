@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../services/customizedAxios";
 export interface Service {
     id: number;
     active: boolean;
@@ -23,10 +23,10 @@ export interface MetaData {
 }
 
 const servicesData = async (url : string): Promise<{ services: Service[]; meta: MetaData }> => {
-    const servicesResponse = await axios.get(`http://localhost:8081/swp/services${url}`);
-    if (servicesResponse.status === 200) {
+    const servicesResponse = await axios.get(`/services${url}`);
+    if (servicesResponse.result) {
         const { content, totalElements, totalPages, number, pageSize, first, last, numberOfElements } =
-            servicesResponse.data.result;
+            servicesResponse.result;
         return {
             services: content,
             meta: {
@@ -45,16 +45,16 @@ const servicesData = async (url : string): Promise<{ services: Service[]; meta: 
 
 
 const serviceDataById = async (id:string) => {
-    const serviceResponse = await axios.get(`http://localhost:8081/swp/services/${id}`)
-    if (serviceResponse.status === 200) {
-        const serviceData = serviceResponse.data.result
+    const serviceResponse = await axios.get(`/services/${id}`)
+    if (serviceResponse.result) {
+        const serviceData = serviceResponse.result;
         return serviceData
     }
     return null
 }
 
 const deleteServiceById = async (id:string) => {
-    const deleteServiceResponse = await axios.delete(`http://localhost:8081/swp/services/${id}`)
+    const deleteServiceResponse = await axios.delete(`/services/${id}`)
     if (deleteServiceResponse.status === 200) {
         return true
     }
