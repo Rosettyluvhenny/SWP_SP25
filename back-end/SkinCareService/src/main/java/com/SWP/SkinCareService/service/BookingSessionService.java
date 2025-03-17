@@ -48,12 +48,13 @@ public class  BookingSessionService {
     @Transactional
     public BookingSessionResponse createBookingSession(BookingSessionRequest request) {
         Booking booking = getBookingById(request.getBookingId());
-
+        LocalDateTime allowTime = LocalDateTime.now().plusMinutes(30);
         //Check condition to create new booking session
         // 1. Last session have to completed
         // 2. Many session can't in the same day
         // 3. Total session (completed and waiting) can't more than the total session allow of service
-        if (!isAllowToCreate(request.getBookingId(), request.getSessionDateTime().toLocalDate())) {
+        // 4. Time request if after now at least 30 minutes
+        if (!isAllowToCreate(request.getBookingId(), request.getSessionDateTime().toLocalDate()) || !allowTime.isBefore(request.getSessionDateTime())) {
             throw new AppException(ErrorCode.BOOKING_REJECTED);
         }
         //Allowed to create new booking session
@@ -412,7 +413,6 @@ public class  BookingSessionService {
                 }
             }
         }
-        // Bỏ giờ trước thời điểm hiện tại, now + 30ph
 
         // Count bookings per therapist to determine workload
         Map<String, Integer> therapistBookingCount = new HashMap<>();
