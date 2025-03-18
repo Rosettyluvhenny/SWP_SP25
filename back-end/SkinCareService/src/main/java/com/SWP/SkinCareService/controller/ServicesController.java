@@ -77,9 +77,11 @@ public class ServicesController {
     )
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ServicesResponse>>> getAll(@RequestParam(defaultValue = "false") boolean isActive,
+                                                                      @RequestParam(required = false) Float rating,
+                                                                      @RequestParam(required = false) Integer categoryId,
                                                                       @Parameter(description = "Page number (0-based)")
                                                                       @PageableDefault(size = 10, sort = "id") Pageable pageable) throws IOException {
-        var result = servicesService.getAll(isActive,pageable);
+        var result = servicesService.getAll(isActive,rating, categoryId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<Page<ServicesResponse>>builder()
                         .result(result)

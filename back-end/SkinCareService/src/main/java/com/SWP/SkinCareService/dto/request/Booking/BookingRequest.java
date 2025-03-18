@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingRequest {
-    String userId;
     int serviceId;
     int paymentId;
     LocalDateTime bookingTime;

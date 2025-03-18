@@ -14,11 +14,13 @@ import com.SWP.SkinCareService.mapper.ServicesMapper;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
 import com.SWP.SkinCareService.repository.ServicesRepository;
 import com.SWP.SkinCareService.repository.TherapistRepository;
+import jakarta.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -68,8 +70,23 @@ public class ServicesService {
         return result;
     }
 
-    public Page<ServicesResponse> getAll(boolean isActive,Pageable pageable) {
-        Page<Services> services = isActive ? servicesRepository.findAllByActiveTrue(pageable) : servicesRepository.findAll(pageable);
+    public Page<ServicesResponse> getAll(boolean isActive,Float rating, Integer categoryId,Pageable pageable) {
+        Specification<Services> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Filter by rating (if provided)
+            if (rating != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("rating"), rating));
+            }
+
+            // Filter by categoryId (if provided)
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("serviceCategory").get("id"), categoryId));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        Page<Services> services = isActive ? servicesRepository.findAllByActiveTrue(spec, pageable) : servicesRepository.findAll(spec, pageable);
         /*
         return services
                 .map(service -> {

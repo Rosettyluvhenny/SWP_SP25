@@ -20,6 +20,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -47,9 +48,11 @@ public class BookingService {
     private RoomService roomService;
 
     @Transactional
+    @PreAuthorize("hasRole('USER')")
     public BookingResponse createBooking(BookingRequest request, String ipAddress) {
         //Check user
-        User user = getUserById(request.getUserId());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
         //Check Service
         Services service = getServiceById(request.getServiceId());
         //Check payment method

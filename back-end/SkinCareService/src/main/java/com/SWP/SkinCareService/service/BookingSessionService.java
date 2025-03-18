@@ -308,7 +308,7 @@ public class  BookingSessionService {
 
         // Filter out slots that overlap with existing bookings
         List<TimeSlotAvailabilityResponse> availableSlots = new ArrayList<>();
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().plusHours(2);
         for (LocalTime slot : allTimeSlots) {
             // Find the next predefined slot that is greater than or equal to (start + serviceDuration)
             LocalTime expectedEndTime = slot.plusMinutes(serviceDuration);
@@ -430,7 +430,7 @@ public class  BookingSessionService {
 
         // Convert to response objects, selecting the least booked therapist for each slot
         List<TherapistAvailabilityResponse> availabilitySlots = new ArrayList<>();
-        LocalTime now = LocalTime.now();
+        LocalTime now = LocalTime.now().plusHours(2);
         for (LocalTime slot : allTimeSlots) {
             // Find the next predefined slot that is greater than or equal to (start + serviceDuration)
             LocalTime expectedEndTime = slot.plusMinutes(serviceDuration);
@@ -438,8 +438,7 @@ public class  BookingSessionService {
                     .filter(t -> !t.isBefore(expectedEndTime)) // Find the first time slot after expectedEndTime
                     .findFirst()
                     .orElse(LocalTime.of(18, 0)); // Default to 17:00 if no slot matches
-
-            if (bookingDate.isEqual(LocalDate.now()) && endTime.isBefore(now)) {
+            if (bookingDate.isEqual(LocalDate.now()) && (endTime.isBefore(now)||slot.isBefore(now))) {
                 continue; // Skip this time slot
             }
             List<Therapist> availableTherapists = availableTherapistsMap.get(slot);
