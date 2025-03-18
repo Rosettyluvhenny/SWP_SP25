@@ -33,7 +33,7 @@ const getUser = async () => {
             Authorization: `Bearer ${token}`,
         },
     });
-    return response.data.result;
+    return response.result;
 };
 
 const updateUser = async (
@@ -122,4 +122,18 @@ const disableUser = async (userId: string) => {
     }
 }
 
-export { login, getUser, register, updateUser, createUser, disableUser };
+const introspect = async() =>{
+    const token = localStorage.getItem('token')
+    if(!token)
+        return;
+    const response = await axios.post("/auth/introspect", 
+        { token }, // Send token in body
+        {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }
+    );
+    return response.result.valid;
+}
+export { login, getUser, register, updateUser, createUser, disableUser, introspect };

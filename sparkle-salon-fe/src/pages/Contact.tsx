@@ -9,6 +9,7 @@ import { GoChevronRight } from "react-icons/go";
 import { FaCheck } from "react-icons/fa";
 import { BookingBody, bookingService } from "../data/bookingData";
 import { getPayment } from "../data/paymentData";
+import { toast } from "react-toastify";
 
 type Therapist = {
     id: number;
@@ -82,7 +83,7 @@ export default function Contact() {
     const handleBooking = async () => {
         const userId = localStorage.getItem("userId");
         if (!userId) {
-            alert("Vui lòng đăng nhập để đặt lịch");
+            toast.warning("Vui lòng đăng nhập để đặt lịch");
             return;
         }
     

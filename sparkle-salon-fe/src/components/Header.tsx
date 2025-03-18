@@ -29,7 +29,7 @@ export default function Header() {
         dob: "",
     });
 
-    const { user, logout, loginContext, } = useContext(UserContext);
+    const { user, logout, loginContext, loading } = useContext(UserContext);
     const [error, setError] = useState<string|null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
@@ -63,7 +63,6 @@ export default function Header() {
     const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLoginData((prevData) => {
             const updatedData = { ...prevData, [e.target.name]: e.target.value };
-            console.log("Updated registerData:", updatedData);
             return updatedData;
         });
         setError(null);
@@ -72,7 +71,6 @@ export default function Header() {
     const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setRegisterData((prevData) => {
             const updatedData = { ...prevData, [e.target.name]: e.target.value };
-            console.log("Updated registerData:", updatedData);
             return updatedData;
         });
         setError(null);
@@ -86,12 +84,13 @@ export default function Header() {
             return;
         }
         let res = await login(loginData.username, loginData.password);
-        console.log(">> check res ", res)
+        // console.log(">> check res ", res)
         if (res && res.result) {
             localStorage.setItem("token", res.result.token)
             loginContext(loginData.username)
             toast.success("Login successfully ");
             setLoginData({ username: "", password: "" });
+            setIsLoginOpen(false);
         } else {
             // if (res && res.status === 401) {
                 toast.error("Đăng nhập thất bại");
@@ -179,7 +178,6 @@ export default function Header() {
             phone: registerData.phone,
             dob: registerData.dob,
         });
-        console.log(registerResult);
         if (registerResult) {
             setRegisterData({ username: "", password: "", fullName: "", email: "", phone: "", dob: "" });
             setIsRegisterOpen(false);
@@ -204,6 +202,7 @@ export default function Header() {
             { path: "/feedback", label: "Feedback" }
         );
     }
+
 
     return (
         <motion.header
@@ -418,7 +417,7 @@ export default function Header() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                <NavLink to="/Account">
+                <NavLink to="/Profile">
                     Tài Khoản
                 </NavLink>
                 </motion.button>

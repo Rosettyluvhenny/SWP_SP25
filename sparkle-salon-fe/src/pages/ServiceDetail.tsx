@@ -23,7 +23,9 @@ export default function ServiceDetail() {
     const [error, setError] = useState<string | null>(null);
     // const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [relatedServices, setRelatedServices] = useState<Service[]>([]);
-
+    // const handleBooking = () => {
+    //     navigate(`/contact?service=${id}`);
+    // };
     useEffect(() => {
         const fetchRelatedServices = async () => {
             const responseJson = await servicesData("?size=4");
@@ -64,18 +66,20 @@ export default function ServiceDetail() {
             const displayName = service.name.startsWith("http") 
                 ? "Trẻ Hóa Da Công Nghệ Cao" 
                 : service.name;
-                
-            navigate("/contact", { 
-                state: { 
-                    selectedService: displayName,
-                    service: {
-                        id: service.id,
-                        name: displayName,
-                        price: service.price,
-                        duration: service.duration
-                    }
-                } 
-            });
+            console.log("name", displayName);
+            navigate(`/contact?service=${id}`
+                // , { 
+                // state: { 
+                //     selectedService: displayName,
+                //     service: {
+                //         id: service.id,
+                //         name: displayName,
+                //         price: service.price,
+                //         duration: service.duration
+                //     }
+                // } 
+        //    }
+        );
         }
     };
 

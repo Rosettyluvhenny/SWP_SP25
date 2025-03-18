@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from '../services/customizedAxios';
 
 const createPayment = async (paymentName: string) => {
-    const response = await axios.post(`http://localhost:8081/swp/payment`, {
+    const response = await axios.post(`/payment`, {
         paymentName
     });
-    if (response.status === 201) {
+    if (response.result) {
         return true;
     } else {
         return false;
@@ -12,34 +12,34 @@ const createPayment = async (paymentName: string) => {
 };
 
 const getPayment = async () => {
-    const response = await axios.get(`http://localhost:8081/swp/payment`);
-    if (response.status === 200) {
-        return response.data.result;
+    const response = await axios.get(`/payment`);
+    if (response.result) {
+        return response.result;
     }
     return [];
 };
 
 const updatePayment = async (paymentId: string, paymentName: string) => {
-    const response = await axios.put(`http://localhost:8081/swp/payment/${paymentId}`, {
+    const response = await axios.put(`/payment/${paymentId}`, {
         paymentName
     });
-    if (response.status === 200) {
+    if (response.result) {
         return true;
     }
     return false;
 };
 
 const getPaymentById = async (paymentId: string) => {
-    const response = await axios.get(`http://localhost:8081/swp/payment/${paymentId}`);
-    if (response.status === 200) {
-        return response.data.result;
+    const response = await axios.get(`/payment/${paymentId}`);
+    if (response.result) {
+        return response.result;
     }
     return null;
 };
 
 const deletePayment = async (paymentId: string) => {
-    const response = await axios.delete(`http://localhost:8081/swp/payment/${paymentId}`);
-    if (response.status === 200) {
+    const response = await axios.delete(`/payment/${paymentId}`);
+    if (response.result) {
         return true;
     }
     return false;

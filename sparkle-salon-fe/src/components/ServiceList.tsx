@@ -76,7 +76,7 @@ const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
                     <motion.div key={service.id} variants={item}>
                         <ServiceCard
                             service={service}
-                            onSelectService={handleSelectService}
+                            // onSelectService={handleSelectService}
                         />
                     </motion.div>
                 ))

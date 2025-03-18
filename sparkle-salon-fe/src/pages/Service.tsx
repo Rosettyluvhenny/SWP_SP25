@@ -26,7 +26,7 @@ export default function Service() {
         const fetchCategories = async () => {
             try {
                 const response = await CategoryData();
-                const categoryList = response.content;
+                const categoryList = response;
                 setCategories(categoryList);
             } catch (error) {
                 console.error("Error fetching categories", error);
@@ -63,7 +63,7 @@ export default function Service() {
 
         })
         window.scroll(0, 0);;
-    }, [currentPage,searchUrl]);
+    }, [searchUrl]);
 
     const indexOfLast: number = currentPage * ServicePerPage;
     const indexOfFirst: number = indexOfLast - ServicePerPage;

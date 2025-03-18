@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../services/customizedAxios";
 
 export interface Therapist {
   id: string;
@@ -13,9 +13,9 @@ export interface Therapist {
 }
 
   const getTherapists = async (serviceId: string) => {
-    const response = await axios.get("http://localhost:8081/swp/therapists/by-service/"+serviceId);
-    if (response.status === 200) {
-        return response.data.result.content;
+    const response = await axios.get("/therapists/by-service/"+serviceId);
+    if (response.result) {
+        return response.result.content;
     }
     return [];
   }
@@ -24,18 +24,18 @@ export interface Therapist {
     try {
         console.log("Fetching therapist with ID:", id);
 
-        const response = await axios.get<{ result: Therapist }>(`http://localhost:8081/swp/therapists/${id}`);
+        const response = await axios.get<{ result: Therapist }>(`/therapists/${id}`);
 
         console.log("API Response:", response.data);
-        return response.data.result;
+        return response.result;
     } catch (error: unknown) {
-        if (axios.isAxiosError(error)) {
-            console.error("Axios Error:", error.response?.data || error.message);
-        } else if (error instanceof Error) {
-            console.error("General Error:", error.message);
-        } else {
-            console.error("Unknown Error:", error);
-        }
+        // if (axios.isAxiosError(error)) {
+        //     console.error("Axios Error:", error.response?.data || error.message);
+        // } else if (error instanceof Error) {
+        //     console.error("General Error:", error.message);
+        // } else {
+        //     console.error("Unknown Error:", error);
+        // }
         return null;
     }
 };
@@ -45,9 +45,9 @@ export interface Therapist {
     if (!serviceId) {
         return []
     }
-    const response = await axios.get(`http://localhost:8081/swp/bookingSession${therapistId ? `/therapist/${therapistId}` : ""}/service/${serviceId}/available-slots?date=${date}`);
-    if (response.status === 200) {
-        return response.data.result;
+    const response = await axios.get(`/bookingSession${therapistId ? `/therapist/${therapistId}` : ""}/service/${serviceId}/available-slots?date=${date}`);
+    if (response.result) {
+        return response.result;
     }
     return [];
   }

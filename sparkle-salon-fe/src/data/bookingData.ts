@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../services/customizedAxios";
 
 export type BookingBody = {
     userId: string;
@@ -12,7 +12,7 @@ export type BookingBody = {
 export const bookingService = async (bookingBody: BookingBody) => {
     const token = localStorage.getItem("token");
     try {
-        const response = await axios.post(`http://localhost:8081/swp/booking`, bookingBody,{
+        const response = await axios.post(`/booking`, bookingBody,{
             headers: {
                 Authorization: `Bearer ${token}`
             }
