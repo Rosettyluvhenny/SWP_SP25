@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../services/customizedAxios";
 
 export interface Booking {
     id: string;
@@ -14,13 +14,14 @@ export interface Booking {
 }
 
 const getUserBookings = async (): Promise<Booking[] | null> => {
-    const response = await axios.get(`http://localhost:8081/swp/booking/my-bookings`, {
+    const response = await axios.get(`/booking/my-bookings`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
     });
-    if (response.status === 200) {
-        return response.data.content;
+    if (response.content) {
+        console.log(response.content);
+        return response.content;
     } else {
         return null;
     }
