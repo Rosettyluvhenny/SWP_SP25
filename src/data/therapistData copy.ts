@@ -22,7 +22,7 @@ export interface Therapist {
 }
 
   const getTherapists = async (serviceId: string) => {
-    const response = await axios.get("http://localhost:8443/swp/therapists/by-service/"+serviceId);
+    const response = await axios.get("https://localhost:8443/swp/therapists/by-service/"+serviceId);
     if (response.status === 200) {
         return response.data.result.content;
     }
@@ -30,7 +30,7 @@ export interface Therapist {
   }
 
   const getTherapistById = async (id: string) => {
-    const response = await axios.get(`http://localhost:8443/swp/therapists/${id}`);
+    const response = await axios.get(`https://localhost:8443/swp/therapists/${id}`);
     if (response.status === 200) {
         return response.data.result;
     }
@@ -41,7 +41,7 @@ export interface Therapist {
     if (!serviceId) {
         return []
     }
-    const response = await axios.get(`http://localhost:8081/swp/bookingSession${therapistId ? `/therapist/${therapistId}` : ""}/service/${serviceId}/available-slots?date=${date}`);
+    const response = await axios.get(`https://localhost:8443/swp/bookingSession${therapistId ? `/therapist/${therapistId}` : ""}/service/${serviceId}/available-slots?date=${date}`);
     if (response.status === 200) {
         return response.data.result;
     }

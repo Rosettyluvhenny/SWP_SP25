@@ -6,8 +6,10 @@ import {
     FiDollarSign,
     FiBarChart2,
     FiMenu,
+    
 } from "react-icons/fi";
 import { MdMeetingRoom, MdOutlinePayments } from "react-icons/md";
+import { MdNewspaper,MdQuiz  } from "react-icons/md";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
@@ -98,6 +100,29 @@ const Sidebar = () => {
                         <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
                             <FiBarChart2 />
                             Báo Cáo
+                        </li>
+                    </Link>
+                    
+                    {/* Quiz*/}
+                    <Link
+                        to="/manager/quiz"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                            <MdQuiz />
+
+                            Quản lí bài trắc nghiệm
+                        </li>
+                    </Link>
+                    {/* Blog */}
+                    <Link
+                        to="/manager/blog"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                        <MdNewspaper />
+
+                            Quản lí bài đăng
                         </li>
                     </Link>
                 </ul>

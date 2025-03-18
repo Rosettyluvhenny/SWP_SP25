@@ -11,7 +11,7 @@ export interface Blog {
     img: string;
   }
   const blogData = async (): Promise<Blog[]> =>{
-    const blogResponse = await axios.get("http://localhost:8443/swp/blogpost");
+    const blogResponse = await axios.get("https://localhost:8443/swp/blogpost");
     if (blogResponse.status === 200) {
         return blogResponse.data.result.content;
     }
@@ -19,7 +19,7 @@ export interface Blog {
 };
 
 const serviceBlogById = async (blogId:string) => {
-  const serviceResponse = await axios.get(`http://localhost:8443/swp/blogpost/${blogId}`)
+  const serviceResponse = await axios.get(`https://localhost:8443/swp/blogpost/${blogId}`)
   if (serviceResponse.status === 200) {
       const serviceData = serviceResponse.data.result
       return serviceData
@@ -27,7 +27,7 @@ const serviceBlogById = async (blogId:string) => {
   return null
 }
 const deleteBlogById = async (blogId:string) => {
-  const deleteBlogResponse = await axios.delete(`http://localhost:8443/swp/blogpost/${blogId}`)
+  const deleteBlogResponse = await axios.delete(`https://localhost:8443/swp/blogpost/${blogId}`)
   if (deleteBlogResponse.status === 200) {
       return true
   }

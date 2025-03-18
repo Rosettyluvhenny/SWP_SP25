@@ -51,7 +51,7 @@ const ServiceInfoForm = ({
     const fetchCategories = async () => {
         try {
             const response = await axios.get<{ result: ServiceCategory[] }>(
-                "http://localhost:8081/swp/category"
+                "https://localhost:8443/swp/category"
             );
             setCategories(response.data.result);
         } catch (error) {
@@ -103,7 +103,7 @@ const ServiceInfoForm = ({
         );
         const response = selectedService
             ? axios.put(
-                  `http://localhost:8081/swp/services/${selectedService}`,
+                  `https://localhost:8443/swp/services/${selectedService}`,
                   formData,
                   {
                       headers: {
@@ -111,7 +111,7 @@ const ServiceInfoForm = ({
                       },
                   }
               )
-            :  axios.post(`http://localhost:8081/swp/services`, formData, {
+            :  axios.post(`https://localhost:8443/swp/services`, formData, {
                   headers: {
                       "Content-Type": "multipart/form-data;",
                   },

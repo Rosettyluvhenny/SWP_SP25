@@ -171,14 +171,14 @@ export default function ServiceManagement() {
         try {
             if (editingCategory) {
                 await axios.put(
-                    `http://localhost:8443/swp/category/${editingCategory.id}`,
+                    `https://localhost:8443/swp/category/${editingCategory.id}`,
                     {
                         name: categoryFormValue,
                         description: categoryFormDescription,
                     }
                 );
             } else {
-                await axios.post("http://localhost:8443/swp/category", {
+                await axios.post("https://localhost:8443/swp/category", {
                     name: categoryFormValue,
                     description: categoryFormDescription,
                 });
@@ -213,7 +213,7 @@ export default function ServiceManagement() {
         );
         if (confirmDelete) {
             try {
-                await axios.delete(`http://localhost:8443/swp/category/${id}`);
+                await axios.delete(`https://localhost:8443/swp/category/${id}`);
                 fetchCategories();
                 alert("Xóa danh mục thành công");
             } catch (error) {
@@ -227,7 +227,7 @@ export default function ServiceManagement() {
     const fetchCategories = async () => {
         try {
             const response = await axios.get<{ result: ServiceCategory[] }>(
-                "http://localhost:8443/swp/category"
+                "https://localhost:8443/swp/category"
             );
             setCategories(response.data.result);
         } catch (error) {

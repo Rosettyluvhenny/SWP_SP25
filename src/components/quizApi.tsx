@@ -1,7 +1,8 @@
 // src/components/quizApi.tsx
 import axios, { AxiosError } from "axios";
+import { Service } from "../data/servicesData";
 
-const API_URL = "http://localhost:8080/swp";
+const API_URL = "https://localhost:8443/swp";
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
@@ -35,6 +36,8 @@ export interface QuizResult {
   maxPoint: number;
   quizId: number;
   quizName: string;
+  services: Service[];
+
 }
 
 interface ApiResponse<T> {
@@ -149,7 +152,7 @@ export const deleteQuestion = async (questionId: number) => {
 
 export const deleteQuizResult = async (resultId: number) => {
   try {
-    const response = await axiosInstance.delete(`/quiz/result/${resultId}`);
+    const response = await axiosInstance.delete(`/quizResult/${resultId}`);
     if (response.data.code !== 0) throw new Error(response.data.message || "Failed to delete quiz result");
     return response.data;
   } catch (error) {
@@ -161,7 +164,7 @@ export const deleteQuizResult = async (resultId: number) => {
 export const updateQuizResult = async (updatedResult: QuizResult): Promise<QuizResult> => {
   try {
     const response = await axiosInstance.put<ApiResponse<QuizResult>>(
-      `/quiz/result/${updatedResult.id}`,
+      `/quizResult/${updatedResult.id}`,
       {
         quizId: updatedResult.quizId,
         resultText: updatedResult.resultText,

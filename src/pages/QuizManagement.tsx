@@ -577,7 +577,7 @@ export default function QuizManagement() {
               transition={{ delay: 0.2, duration: 0.5 }}
             >
               <h2 className="text-xl font-semibold mb-4">
-                Danh Sách Kết Quả Có Thể Có
+                Danh Sách Kết Quả
               </h2>
               {quizzes.map((quiz) => (
                 <div key={quiz.id} className="mb-6">

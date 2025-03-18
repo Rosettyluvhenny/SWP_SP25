@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8081/swp"; // Adjust based on your backend
+const API_BASE_URL = "https://localhost:8443swp"; // Adjust based on your backend
 
 // Fetch all categories
 export const fetchCategories = async () => {

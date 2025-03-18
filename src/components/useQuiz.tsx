@@ -3,7 +3,7 @@ import axios, { AxiosError } from "axios";
 import quizData, { Quiz } from "../data/quizData";
 
 // Định nghĩa các hằng số
-const API_BASE_URL = "http://localhost:8080/swp";
+const API_BASE_URL = "https://localhost:8443/swp";
 
 // Interface cho state
 interface QuizState {

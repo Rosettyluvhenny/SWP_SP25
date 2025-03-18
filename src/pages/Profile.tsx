@@ -46,7 +46,7 @@ export default function Profile() {
         );
         if (confirmDelete) {
             try {
-                await axios.delete(`http://localhost:8081/swp/booking/${id}`);
+                await axios.delete(`https://localhost:8443/swp/booking/${id}`);
                 const bookings = await getUserBookings();
                 if (bookings) {
                     setBookings(bookings);

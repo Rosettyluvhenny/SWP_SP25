@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const login = async (username: string, password: string) => {
-    const response = await axios.post(`http://localhost:8443/swp/auth/authenticate`, {
+    const response = await axios.post(`https://localhost:8443/swp/auth/authenticate`, {
         username,
         password,
     });
@@ -13,7 +13,7 @@ const login = async (username: string, password: string) => {
 };
 
 const register = async (data: {username: string, password: string, fullName: string, email: string, phone: string, dob: string}) => {
-    const response = await axios.post(`http://localhost:8443/swp/users`, {
+    const response = await axios.post(`https://localhost:8443/swp/users`, {
         username: data.username,
         password: data.password,
         fullName: data.fullName,
@@ -30,7 +30,7 @@ const register = async (data: {username: string, password: string, fullName: str
 
 const getUser = async () => {
     const token = localStorage.getItem('token')
-    const response = await axios.get(`http://localhost:8443/swp/users/getMyInfo`, {
+    const response = await axios.get(`https://localhost:8443/swp/users/getMyInfo`, {
         headers: {
             Authorization: `Bearer ${token}`,
         },

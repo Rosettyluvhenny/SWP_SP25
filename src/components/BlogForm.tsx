@@ -37,7 +37,7 @@ const BlogInfoForm = ({
   const fetchQuizResult = async () => {
     try {
         const response = await axios.get<{ result: QuizResult[] }>(
-            "http://localhost:8080/swp/quizResult"
+            "https://localhost:8443/swp/quizResult"
         );
         console.log(response.data.result)
         setQuizResults(response.data.result);
@@ -106,10 +106,10 @@ console.log()
       console.log(selectedBlog);
 
       const response = selectedBlog
-        ? await axios.put(`http://localhost:8080/swp/blogpost/${selectedBlog}`, formData, {
+        ? await axios.put(`https://localhost:8443/swp/blogpost/${selectedBlog}`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
           })
-        : await axios.post(`http://localhost:8080/swp/blogpost`, formData, {
+        : await axios.post(`https://localhost:8443/swp/blogpost`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
           });
 
