@@ -22,7 +22,7 @@ export interface Therapist {
 }
 
   const getTherapists = async (serviceId: string) => {
-    const response = await axios.get("http://localhost:8081/swp/therapists/by-service/"+serviceId);
+    const response = await axios.get("http://localhost:8443/swp/therapists/by-service/"+serviceId);
     if (response.status === 200) {
         return response.data.result.content;
     }
@@ -30,7 +30,7 @@ export interface Therapist {
   }
 
   const getTherapistById = async (id: string) => {
-    const response = await axios.get(`http://localhost:8081/swp/therapists/${id}`);
+    const response = await axios.get(`http://localhost:8443/swp/therapists/${id}`);
     if (response.status === 200) {
         return response.data.result;
     }

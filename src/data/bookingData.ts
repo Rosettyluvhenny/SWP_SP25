@@ -11,7 +11,7 @@ export type BookingBody = {
 export const bookingService = async (bookingBody: BookingBody) => {
     const token = localStorage.getItem("token");
     try {
-        const response = await axios.post(`http://localhost:8081/swp/booking`, bookingBody,{
+        const response = await axios.post(`http://localhost:8443/swp/booking`, bookingBody,{
             headers: {
                 Authorization: `Bearer ${token}`
             }
