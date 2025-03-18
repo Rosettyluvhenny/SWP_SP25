@@ -134,8 +134,7 @@ export default function KiemTraDa() {
             />
             <div className="prose prose-lg text-gray-700">
               <p>{foundBlog.content}</p>
-            </div>
-           
+            </div>          
           </article>
           <button
             onClick={handleBackFromBlog}

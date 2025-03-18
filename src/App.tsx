@@ -51,7 +51,7 @@ function App() {
         <Route path="/manager/createrquiz" element={<CreaterQuiz />} />
         <Route path="/manager/quiz" element={<QuizManagement />} />
         <Route path="/manager/blog" element={<BlogManagement />} />
-        <Route path="/blog/:blogId" element={<BlogDetail />} />
+        <Route path="/blog/:blogId" element={<MainLayout><BlogDetail /></MainLayout>} />
         <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
         <Route path="/therapist" element={<MainLayout><Therapist /></MainLayout>} />
 

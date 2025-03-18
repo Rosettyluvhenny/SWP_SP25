@@ -22,7 +22,7 @@ export interface Booking {
 }
 
 const getUserBookings = async (): Promise<Booking[] | null> => {
-    const response = await axios.get(`http://localhost:8081/swp/booking/my-bookings`, {
+    const response = await axios.get(`http://localhost:8443/swp/booking/my-bookings`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

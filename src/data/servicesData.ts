@@ -15,7 +15,7 @@ export interface Service {
 
 
 const servicesData = async (): Promise<Service[]> =>{
-    const servicesResponse = await axios.get("http://localhost:8081/swp/services");
+    const servicesResponse = await axios.get("http://localhost:8443/swp/services");
     if (servicesResponse.status === 200) {
         return servicesResponse.data.result.content;
     }
@@ -27,7 +27,7 @@ const serviceDataById = async (id:string | null) => {
     if (!id) {
         return null
     }
-    const serviceResponse = await axios.get(`http://localhost:8081/swp/services/${id}`)
+    const serviceResponse = await axios.get(`http://localhost:8443/swp/services/${id}`)
     if (serviceResponse.status === 200) {
         const serviceData = serviceResponse.data.result
         return serviceData
