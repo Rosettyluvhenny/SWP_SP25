@@ -1,79 +1,105 @@
 import axios from "../services/customizedAxios";
 
 export interface Feedback {
-    id?: number; 
+    id?: number;
     feedbackText: string;
     rating: number;
     serviceName: string;
     img: string;
     bookingDate: string;
     therapistName: string;
+    serviceId?: number;
+    therapistId?: string;
+    userId?: string;
 }
 
-export interface FeedbackResponse {
-    id: number;
-    feedbackText: string;
-    rating: number;
-    serviceId: number;
-    therapistId: string;
-    bookingDate: string;
-}
 
-const getFeedback = async (): Promise<FeedbackResponse[]> => {
-    const response = await axios.get("/feedback");
-    if (response.status === 200) {
-        return response.data.result.map((feedback: FeedbackResponse) => ({
-            id: feedback.id,
-            feedbackText: feedback.feedbackText,
-            rating: feedback.rating,
-            serviceId: feedback.serviceId,
-            therapistId: feedback.therapistId,
-            bookingDate: feedback.bookingDate,
-        }));
-    }
-    return [];
+const getFeedback = async (): Promise<Feedback[]> => {
+        const response = await axios.get("/feedback");
+        if (response.status === 200) {
+            return response.result
+        }
+        return [];
 };
 
-const getFeedbackById = async (id:string | null) => {
+const getUserFeedbacks = async (userId: string): Promise<Feedback[]> => {
+    if (!userId) {
+        return [];
+    }
+    
+    try {
+        const response = await axios.get(`/feedback/${userId}/all`);
+        if (response.status === 200) {
+            return response.result;
+        }
+        return [];
+    } catch (error) {
+        console.error(`Error fetching feedbacks for user ID ${userId}:`, error);
+        throw error;
+    }
+};
+
+const getFeedbackById = async (id: string | null): Promise<Feedback | null> => {
     if (!id) {
-        return null
+        return null;
     }
-    const feedbackResponse = await axios.get(`/feedback/${id}`)
-    if (feedbackResponse.status === 200) {
-        const feedbackData = feedbackResponse.data.result
-        return feedbackData
+    
+    try {
+        const feedbackResponse = await axios.get(`/feedback/${id}`);
+        if (feedbackResponse.status === 200) {
+            const feedbackData = feedbackResponse.result;
+            return feedbackData;
+        }
+        return null;
+    } catch (error) {
+        console.error(`Error fetching feedback with ID ${id}:`, error);
+        throw error;
     }
-    return null
-}
+};
 
-const createFeedback = async (feedback: Feedback) => {
-    const createFeedbackResponse = await axios.post("/feedback", feedback)
-    if (createFeedbackResponse.status === 200) {
-        return true
+const createFeedback = async (feedback: Feedback): Promise<boolean> => {
+    try {
+        const createFeedbackResponse = await axios.post("/feedback", feedback);
+        return createFeedbackResponse.status === 200;
+    } catch (error) {
+        console.error("Error creating feedback:", error);
+        throw error;
     }
-    return false
-}
+};
 
-const updateFeedbackById = async (id:string | null, feedback: Feedback) => {
+const updateFeedbackById = async (id: string | null, feedback: Feedback): Promise<boolean> => {
     if (!id) {
-        return false
+        return false;
     }
-    const updateFeedbackResponse = await axios.put(`/feedback/${id}`, feedback)
-    if (updateFeedbackResponse.status === 200) {
-        return true
-    }   
-    return false
-}
+    
+    try {
+        const updateFeedbackResponse = await axios.put(`/feedback/${id}`, feedback);
+        return updateFeedbackResponse.status === 200;
+    } catch (error) {
+        console.error(`Error updating feedback with ID ${id}:`, error);
+        throw error;
+    }
+};
 
-const deleteFeedbackById = async (id:string | null) => {
+const deleteFeedbackById = async (id: string | null): Promise<boolean> => {
     if (!id) {
-        return false
+        return false;
     }
-    const deleteFeedbackResponse = await axios.delete(`/feedback/${id}`)
-    if (deleteFeedbackResponse.status === 200) {
-        return true
+    
+    try {
+        const deleteFeedbackResponse = await axios.delete(`/feedback/${id}`);
+        return deleteFeedbackResponse.status === 200;
+    } catch (error) {
+        console.error(`Error deleting feedback with ID ${id}:`, error);
+        throw error;
     }
-    return false
-}
+};
 
-export { getFeedback, getFeedbackById, deleteFeedbackById, createFeedback, updateFeedbackById };
+export { 
+    getFeedback, 
+    getFeedbackById, 
+    getUserFeedbacks, 
+    deleteFeedbackById, 
+    createFeedback, 
+    updateFeedbackById 
+};

@@ -156,7 +156,7 @@ export default function YourBooking() {
                                             <span
                                                 className={`px-2 py-1 rounded-full text-xs font-medium ${
                                                     bookings.status ===
-                                                    "Hoạt Động"
+                                                    "ON_GOING"
                                                         ? "bg-green-100 text-green-800"
                                                         : "bg-yellow-100 text-yellow-800"
                                                 }`}
@@ -171,7 +171,7 @@ export default function YourBooking() {
                                             <span
                                                 className={`px-2 py-1 rounded-full text-xs font-medium ${
                                                     bookings.paymentStatus ===
-                                                    "Đã Thanh Toán"
+                                                    "PAID"
                                                         ? "bg-green-100 text-green-800"
                                                         : "bg-yellow-100 text-yellow-800"
                                                 }`}
