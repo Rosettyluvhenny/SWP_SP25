@@ -1,7 +1,6 @@
 import axios from "../services/customizedAxios";
 
 export type BookingBody = {
-    userId: string;
     serviceId: number;
     paymentId: number;
     bookingTime: string;
@@ -17,7 +16,7 @@ export const bookingService = async (bookingBody: BookingBody) => {
                 Authorization: `Bearer ${token}`
             }
         } );
-        return response.data;
+        return response.result;
     } catch (error) {
         console.error("Failed to book service:", error);
         return null;

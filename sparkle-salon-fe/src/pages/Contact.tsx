@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Service, serviceDataById } from "../data/servicesData";
 import {
@@ -10,6 +10,8 @@ import { FaCheck } from "react-icons/fa";
 import { BookingBody, bookingService } from "../data/bookingData";
 import { getPayment } from "../data/paymentData";
 import { toast } from "react-toastify";
+import { UserContext } from "../context/UserContext";
+import { getUser } from "../data/authData";
 
 type Therapist = {
     id: number;
@@ -61,6 +63,7 @@ export default function Contact() {
     const [selectedTherapist, setSelectedTherapist] = useState<string | null>(
         null
     );
+    const {user} = useContext(UserContext)
     const [selectedDate, setSelectedDate] = useState<string>(todayString);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [selectedService, setSelectedService] = useState<Service>();
@@ -81,14 +84,15 @@ export default function Contact() {
     }
 
     const handleBooking = async () => {
-        const userId = localStorage.getItem("userId");
-        if (!userId) {
+        // const userId = localStorage.getItem("userId");
+        const rq = await getUser();
+        // console.log("handle user", rq);
+        if (!(user&&user.auth)) {
             toast.warning("Vui lòng đăng nhập để đặt lịch");
             return;
         }
     
         const bookingBody: BookingBody = {
-            userId,
             serviceId: parseInt(selectedServiceId),
             paymentId: parseInt(selectedPayment?.paymentId || "0"),
             bookingTime: `${selectedDate}T${selectedTime}.000Z`,
@@ -98,11 +102,10 @@ export default function Contact() {
     
         try {
             const response = await bookingService(bookingBody);
-            console.log("Booking Response:", response);
-    
-            if (response && response.result?.url) {
+            
+            if (response && response.url) {
                 alert("Đặt lịch thành công! Đang chuyển hướng đến trang thanh toán...");
-                window.open(response.result.url, "_blank"); // Mở trang VNPay
+                window.open(response.url, "_self"); // Mở trang VNPay
             }
         } catch (error) {
             console.error("Lỗi khi đặt lịch:", error);

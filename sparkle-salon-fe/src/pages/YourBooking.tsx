@@ -67,6 +67,7 @@ export default function YourBooking() {
         if (confirmDelete) {
             try {
                 await axios.delete(`http://localhost:8081/swp/booking/${id}`);
+                //sai dổi status thành canceled 
                 const bookings = await getUserBookings();
                 if (bookings) {
                     setBookings(bookings);
