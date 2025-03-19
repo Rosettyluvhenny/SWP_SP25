@@ -11,18 +11,17 @@ import ScrollToTop from "./components/ScrollToTop";
 import UserManagement from "./pages/UserManagement";
 import ServiceManagement from "./pages/ServiceManagement";
 import OrderManagement from "./pages/OrderManagement";
+import PaymentManagement from "./pages/PaymentManagement";
 import Report from "./pages/Report";
 import ServiceDetail from "./pages/ServiceDetail";
 import Payment from "./pages/Payment";
 import RoomManagement from "./pages/RoomManagement";
-import PaymentManagement from "./pages/PaymentManagement";
-import {toast} from 'react-toastify';
-import { UserContext, UserProvider } from "./context/UserContext";
+import { UserContext } from "./context/UserContext";
 import { useContext } from "react";
 import Profile from "./pages/Profile";
 import Therapist from "./pages/Therapist";
 import YourBooking from "./pages/YourBooking";
-// import Feedback from "./pages/Feedback";
+import Feedback from "./pages/Feedback";
 
 function App() {
   const {user} = useContext(UserContext)
@@ -51,7 +50,7 @@ function App() {
         <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
         <Route path="/therapist/:id" element={<Therapist />} />
         <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
-        {/* <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} /> */}
+        <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
       </Routes>
     </>
   );
