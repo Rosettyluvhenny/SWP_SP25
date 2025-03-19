@@ -27,13 +27,24 @@ const register = async (data: {username: string, password: string, fullName: str
 };
 
 const getUser = async () => {
-    const token = localStorage.getItem('token')
-    const response = await axios.get(`/users/getMyInfo`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
-    return response.result;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        console.error("No token found! Cannot fetch users.");
+        return [];
+    }
+
+    try {
+        const response = await axios.get(`/users`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.result;   
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return []; 
+    }
 };
 
 const updateUser = async (
