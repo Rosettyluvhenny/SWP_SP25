@@ -32,4 +32,7 @@ public class BookingSessionResponse {
     // Therapist details
     String therapistId;
     String therapistName;
+    //
+    String staffId;
+    String staffName;
 }

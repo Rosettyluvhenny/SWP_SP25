@@ -163,6 +163,16 @@ public class UserController {
         );
     }
 
+    @PostMapping("/staff")
+    public ResponseEntity<ApiResponse<UserResponse>> createStaff(@RequestBody @Valid UserRequest requestDto) {
+        var user = userService.createStaff(requestDto);
+        return ResponseEntity.status(201).body(
+                ApiResponse.<UserResponse>builder()
+                        .result(user)
+                        .build()
+        );
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserResponse>>> getUsers() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();

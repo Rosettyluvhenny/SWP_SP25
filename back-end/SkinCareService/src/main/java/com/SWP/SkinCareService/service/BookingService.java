@@ -20,6 +20,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -99,7 +100,7 @@ public class BookingService {
         bookingSessionService.createBookingSession(rq);
         BookingResponse result = bookingMapper.toBookingResponse(booking);
         bookingRepository.flush();
-        result.setImg(supabaseService.getImage(booking.getService().getImg()));
+        result.setImg(booking.getService().getImg());
         if (payment.getDescription().equalsIgnoreCase("VNPAY")) {
             VNPayPaymentRequestDTO vnpayRequest = VNPayPaymentRequestDTO.builder()
                     .bookingId(booking.getId())
@@ -158,7 +159,8 @@ public class BookingService {
                 -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
     }
     @Transactional
-    public void updateStatus(int id, String status){
+    @PostAuthorize("hasRole('STAFF') or (hasRole('USER') and returnObject.user.username == authentication.name)")
+    public Booking updateStatus(int id, String status){
         Booking booking = checkBooking(id);
         try {
             BookingStatus bookingStatus = BookingStatus.valueOf(status.toUpperCase());
@@ -183,6 +185,14 @@ public class BookingService {
                         }
                     }
                 }
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                boolean isStaff = staff.getRoles().stream()
+                        .anyMatch(role -> role.getName().equals("ROLE_STAFF"));  // Assuming your Role entity has a getName() method
+
+                if (isStaff) {
+                    booking.setStaff(staff);
+                }
             } else if (bookingStatus == BookingStatus.IS_CANCELED) {
                 List<BookingSession> sessionList = booking.getBookingSessions();
                 if (sessionList != null && !sessionList.isEmpty()) {
@@ -190,9 +200,8 @@ public class BookingService {
                         session.setStatus(BookingSessionStatus.IS_CANCELED);
                     }
                 }
-                booking.setSessionRemain(0);
             }
-            bookingRepository.save(booking);
+            return bookingRepository.save(booking);
         }catch(IllegalArgumentException e){
             throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
         }
@@ -224,9 +233,15 @@ public class BookingService {
 
 
     public BookingResponse getById(int id) {
-        return bookingMapper.toBookingResponse(
-                bookingRepository.findById(id).orElseThrow(
-                        () -> new AppException(ErrorCode.BOOKING_NOT_EXISTED)));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Booking booking = checkBooking(id);
+        if(user.getRoles().contains("ADMIN")|| user.getId().equals(booking.getUser().getId()))
+            return bookingMapper.toBookingResponse(
+                    bookingRepository.findById(id).orElseThrow(
+                            () -> new AppException(ErrorCode.BOOKING_NOT_EXISTED)));
+        else
+            throw new AppException(ErrorCode.UNAUTHORIZED);
     }
 
     public Page<BookingResponse> getAllByStaff(String phone, Pageable pageable) {

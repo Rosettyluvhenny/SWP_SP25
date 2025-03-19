@@ -23,13 +23,14 @@ public interface BookingSessionMapper {
     @Mapping(target = "staff", ignore = true)
         //@Mapping(target = "bookingDate", ignore = true)
     void updateBookingSession(@MappingTarget BookingSession bookingSession, BookingSessionUpdateRequest request);
-
     @Mapping(target = "bookingId", source = "booking.id")
     @Mapping(target = "roomId", source = "room.id")
     @Mapping(target = "roomName", source = "room.name")
     @Mapping(target = "userId", source = "booking.user.id")
-    @Mapping(target = "userName", source = "booking.user.username")
+    @Mapping(target = "userName", source = "booking.user.fullName")
     @Mapping(target = "therapistId", source = "therapist.id")
     @Mapping(target = "therapistName", source = "therapist.user.fullName")
+    @Mapping(target = "staffName", source = "staff.fullName")
+    @Mapping(target = "staffId", source = "staff.id")
     BookingSessionResponse toBookingSessionResponse(BookingSession bookingSession);
 }

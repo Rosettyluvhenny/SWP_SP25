@@ -331,7 +331,7 @@ public class VNPayService {
                     }
                 }
                 //URL khi payment thành công
-                url = "https://localhost:8443/swp/success.html";
+                url = "http://localhost:3000/BookingDetail/"+bookingId;
                 bookingRepository.save(booking);
             } catch (Exception e) {
             }
@@ -354,7 +354,7 @@ public class VNPayService {
                 }
                 booking.setSessionRemain(0);
                 ///URL khi payment thất bại
-                url = "https://localhost:8443/swp/failed.html";
+                url = "http://localhost:3000/BookingDetail?booking="+bookingId;
                 bookingRepository.save(booking);
             } catch (Exception e) {
             }

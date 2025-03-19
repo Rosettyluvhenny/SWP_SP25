@@ -44,7 +44,7 @@ public class SupabaseService {
             if (!response.isSuccessful()) {
                 throw new IOException("Failed to upload image: " + response.body().string());
             }
-            return fileName;
+            return supabaseConfig.getUrl() + "/storage/v1/object/" + supabaseConfig.getBucket() + "/" + fileName;
         }
     }
 

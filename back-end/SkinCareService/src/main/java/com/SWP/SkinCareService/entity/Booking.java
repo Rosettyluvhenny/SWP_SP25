@@ -56,12 +56,10 @@ public class Booking {
     String notes;
 
     @CreationTimestamp
-    //@Temporal(TemporalType.TIMESTAMP)
 
     LocalDateTime createAt;
 
     @UpdateTimestamp
-    //@Temporal(TemporalType.TIMESTAMP)
     LocalDateTime updateAt;
 
     int sessionRemain;
@@ -75,4 +73,8 @@ public class Booking {
 
     BigDecimal price;
 
+    @ManyToOne
+    @JoinColumn(name="staff_id")
+    @JsonBackReference
+    User staff;
 }

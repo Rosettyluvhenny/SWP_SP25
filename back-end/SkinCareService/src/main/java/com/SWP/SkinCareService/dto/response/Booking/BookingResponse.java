@@ -16,7 +16,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingResponse {
     int id;
-    String userId;
+//    String userId;
     String fullName;
 
     //Services service;

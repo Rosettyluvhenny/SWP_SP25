@@ -303,4 +303,28 @@ public class UserService {
         userRepository.save(user);
         return userMapper.toUserResponse(user);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public UserResponse createStaff(UserRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            log.info(userRepository.existsByEmail(request.getEmail()) + " existed: "+ request.getEmail());
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        if(userRepository.existsByPhone(request.getPhone()))
+            throw new AppException(ErrorCode.PHONE_EXISTED);
+
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        Role roleUser = roleRepository.findById("STAFF").orElseThrow(()-> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleUser);
+        user.setRoles(roles);
+        user = userRepository.save(user);
+        return userMapper.toUserResponse(user);
+    }
 }

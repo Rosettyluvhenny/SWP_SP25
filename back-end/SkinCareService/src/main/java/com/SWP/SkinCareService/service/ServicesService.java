@@ -57,7 +57,6 @@ public class ServicesService {
         service.setServiceCategory(category);
         service = servicesRepository.save(service);
         String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());
-        serviceImg = supabaseService.getImage(serviceImg);
         service.setImg(serviceImg);
 
         servicesRepository.flush();
@@ -109,7 +108,6 @@ public class ServicesService {
         else {
             supabaseService.deleteImage(service.getImg());
             String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());
-            serviceImg = supabaseService.getImage(serviceImg);
             service.setImg(serviceImg);
         }
         ServiceCategory category = checkServiceCategory(request.getServiceCategoryId());

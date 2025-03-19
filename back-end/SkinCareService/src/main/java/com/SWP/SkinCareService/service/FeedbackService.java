@@ -48,7 +48,7 @@ public class FeedbackService {
         feedback.setRating(0);
         feedbackRepository.save(feedback);
         FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
-        response.setImg(supabaseService.getImage(services.getImg()));
+        response.setImg(services.getImg());
         return feedbackMapper.toFeedbackResponse(feedback);
 
     }
@@ -99,7 +99,7 @@ public class FeedbackService {
         therapist.setRating(therapistRating);
         therapistRepository.save(therapist);
         FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
-        response.setImg(supabaseService.getImage(service.getImg()));
+        response.setImg(service.getImg());
 
         return response;
     }
@@ -109,7 +109,7 @@ public class FeedbackService {
         List<FeedbackResponse> feedbackResponseList = new ArrayList<>();
         for (Feedback feedback : feedbackList) {
             FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
-            response.setImg(supabaseService.getImage(response.getImg()));
+            response.setImg(response.getImg());
             feedbackResponseList.add(response);
         }
         return feedbackResponseList;
@@ -118,7 +118,7 @@ public class FeedbackService {
     public FeedbackResponse getFeedbackById(int id) {
         Feedback feedback = getById(id);
         FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
-        response.setImg(supabaseService.getImage(response.getImg()));
+        response.setImg(response.getImg());
         return response;
     }
 

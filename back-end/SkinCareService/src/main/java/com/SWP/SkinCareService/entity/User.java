@@ -78,6 +78,9 @@ public class User {
     @JsonManagedReference
     Set<Notification> notifications;
 
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    Set<Booking> checkingBookings;
 
     @Override
     public boolean equals(Object o) {

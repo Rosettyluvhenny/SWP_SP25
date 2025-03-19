@@ -93,7 +93,7 @@ public class TherapistService {
                     List<Services> services = new ArrayList<>(therapist.getServices());
                     TherapistResponse response = therapistMapper.toResponse(therapist);
                     response.setServices(services.stream().map(servicesMapper::toSummaryResponse).toList());
-                    response.setImg(supabaseService.getImage(response.getImg()));
+                    response.setImg(response.getImg());
                     return response;
                 });
     }
@@ -168,7 +168,7 @@ public class TherapistService {
                 .map(therapist -> {
                     List<Services> services = new ArrayList<>(therapist.getServices());
                     TherapistSummaryResponse response = therapistMapper.toTherapistSummary(therapist);
-                    response.setImg(supabaseService.getImage(therapist.getImg()));
+                    response.setImg(therapist.getImg());
                     return response;
                 });
     }

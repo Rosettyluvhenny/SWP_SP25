@@ -1,6 +1,8 @@
 package com.SWP.SkinCareService.dto.request.Booking;
 
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,5 +18,6 @@ public class BookingRequest {
     int paymentId;
     LocalDateTime bookingTime;
     String notes;
+    @NotBlank(message="NOT_EMPTY")
     String therapistId;
 }

@@ -63,6 +63,7 @@ public class  BookingSessionService {
         Services service = booking.getService();
 
         if (request.getTherapistId() != null){
+            log.info(request.getTherapistId());
             Therapist therapist = getTherapistById(request.getTherapistId());
             boolean isValid = isTherapistAvailable(therapist.getId(), request.getSessionDateTime(), booking.getService().getDuration());
             if(!isValid)
@@ -188,6 +189,7 @@ public class  BookingSessionService {
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
     @Transactional
+
     public void updateStatus(int id, String status){
         BookingSession bookingSession = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
         try {
