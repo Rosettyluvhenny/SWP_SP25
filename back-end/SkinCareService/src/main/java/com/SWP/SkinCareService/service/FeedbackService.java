@@ -47,8 +47,6 @@ public class FeedbackService {
         feedback.setTherapist(therapist);
         feedback.setRating(0);
         feedbackRepository.save(feedback);
-        FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
-        response.setImg(services.getImg());
         return feedbackMapper.toFeedbackResponse(feedback);
 
     }
@@ -98,28 +96,16 @@ public class FeedbackService {
         }
         therapist.setRating(therapistRating);
         therapistRepository.save(therapist);
-        FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
-        response.setImg(service.getImg());
-
-        return response;
+        return feedbackMapper.toFeedbackResponse(feedback);
     }
 
     public List<FeedbackResponse> getAllFeedback() {
-        List<Feedback> feedbackList = feedbackRepository.findAll();
-        List<FeedbackResponse> feedbackResponseList = new ArrayList<>();
-        for (Feedback feedback : feedbackList) {
-            FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
-            response.setImg(response.getImg());
-            feedbackResponseList.add(response);
-        }
-        return feedbackResponseList;
+        return feedbackRepository.findAll().stream().map(feedbackMapper::toFeedbackResponse).toList();
     }
 
     public FeedbackResponse getFeedbackById(int id) {
         Feedback feedback = getById(id);
-        FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
-        response.setImg(response.getImg());
-        return response;
+        return feedbackMapper.toFeedbackResponse(feedback);
     }
 
     public List<FeedbackResponse> getFeedbackByUser(String userId) {

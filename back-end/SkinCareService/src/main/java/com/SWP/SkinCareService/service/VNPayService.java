@@ -228,17 +228,6 @@ public class VNPayService {
                     for (BookingSession session : sessions) {
                         if (session.getStatus() == BookingSessionStatus.PENDING) {
                             session.setStatus(BookingSessionStatus.WAITING);
-                            if (session.getRoom() == null) {
-                                //Assign Room for session
-                                List<Room> roomAvailableForService = roomService.getRoomAvailableForService(booking.getService().getId());
-                                if (roomAvailableForService.isEmpty()) {
-                                    throw new AppException(ErrorCode.OUT_OF_ROOM);
-                                } else {
-                                    Room room = roomAvailableForService.getFirst();
-                                    session.setRoom(room);
-                                    roomService.incrementInUse(room.getId());
-                                }
-                            }
                         }
                     }
                 }

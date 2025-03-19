@@ -61,6 +61,7 @@ public class Services {
 
     boolean active = true;
 
+    @Column(columnDefinition = "TEXT")
     String img;
 
     ServiceType type;

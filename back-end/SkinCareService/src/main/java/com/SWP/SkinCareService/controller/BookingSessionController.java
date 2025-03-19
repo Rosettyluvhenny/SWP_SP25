@@ -81,7 +81,7 @@ public class BookingSessionController {
     ResponseEntity<ApiResponse<BookingResponse>> updateStatus(@PathVariable int sessionId, @RequestParam String status) {
         bookingSessionService.updateStatus(sessionId, status);
         return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<BookingResponse>builder().message("Updates successfull").build()
+                ApiResponse.<BookingResponse>builder().message("Update successfull").build()
         );
     }
 
@@ -93,6 +93,26 @@ public class BookingSessionController {
         return ApiResponse.<List<TimeSlotAvailabilityResponse>>builder()
                 .result(bookingSessionService.getAvailableTimeSlotsForTherapist(therapistId, serviceId, date))
                 .build();
+    }
+
+    @GetMapping("/booking/{bookingId}")
+    public ResponseEntity<ApiResponse<List<BookingSessionResponse>>> getSessionByBooking(@PathVariable int bookingId) {
+        var result = bookingSessionService.getSessionByBooking(bookingId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<List<BookingSessionResponse>>builder()
+                        .result(result)
+                        .build()
+        );
+    }
+
+    @GetMapping("/phone/{phoneNumber}")
+    public ResponseEntity<ApiResponse<List<BookingSessionResponse>>> getSessionByPhoneNumber(@PathVariable String phoneNumber) {
+        var result = bookingSessionService.getSessionByPhone(phoneNumber);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<List<BookingSessionResponse>>builder()
+                        .result(result)
+                        .build()
+        );
     }
 
     @GetMapping("/service/{serviceId}/available-slots")

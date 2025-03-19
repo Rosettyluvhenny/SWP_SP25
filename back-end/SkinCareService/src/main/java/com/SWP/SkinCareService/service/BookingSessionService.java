@@ -18,6 +18,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -84,7 +87,6 @@ public class  BookingSessionService {
         if (booking.getPaymentStatus() == PaymentStatus.PAID || booking.getStatus() == BookingStatus.ON_GOING) {
             session.setStatus(BookingSessionStatus.WAITING);
 
-
             //Assign Room for session
             List<Room> roomAvailableForService = roomService.getRoomAvailableForService(service.getId());
             if (roomAvailableForService.isEmpty()) {
@@ -118,11 +120,14 @@ public class  BookingSessionService {
                                                        MultipartFile imgAfter) throws IOException {
         BookingSession session = checkSession(id);
 
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User staff = userRepository.findByUsername(username).orElseThrow(()
-                -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        if (staff != null) {
+
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        boolean isStaff = staff.getRoles().stream()
+                .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
+
+        if (isStaff) {
             session.setStaff(staff);
             session.setStatus(BookingSessionStatus.ON_GOING);
         }
@@ -134,8 +139,19 @@ public class  BookingSessionService {
 
         bookingSessionMapper.updateBookingSession(session, request);
 
-        if(request.getRoomId()!=null)
+        if(request.getRoomId()!=null) {
             session.setRoom(getRoomById(request.getRoomId()));
+        } else {
+            List<Room> roomAvailableForService = roomService.getRoomAvailableForService(session.getBooking().getService().getId());
+            if (roomAvailableForService.isEmpty()) {
+                throw new AppException(ErrorCode.OUT_OF_ROOM);
+            } else {
+                Room room = roomAvailableForService.getFirst();
+                session.setRoom(room);
+                roomService.incrementInUse(room.getId());
+            }
+        }
+
 
         if(request.getStatus()!=null)
             session.setStatus(getSessionStatus(request.getStatus()));
@@ -148,17 +164,6 @@ public class  BookingSessionService {
         }
         if(!imgAfter.isEmpty()) {
             session.setImgAfter(supabaseService.uploadImage(imgAfter, "imgAfter_" + session.getId()));
-        }
-        if(request.getRoomId()!=null) {
-            var roomValid = roomRepository.existsByIdAndServices_Id(request.getRoomId(), request.getRoomId());
-
-
-            if (!roomValid) {
-                throw new AppException(ErrorCode.OUT_OF_ROOM);
-            } else {
-                session.setRoom(getRoomById(request.getRoomId()));
-                roomService.incrementInUse(request.getRoomId());
-            }
         }
         if (session.isFinished()) {
             Booking booking = session.getBooking();
@@ -188,49 +193,65 @@ public class  BookingSessionService {
         bookingSessionRepository.flush();
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
-    @Transactional
 
+
+    @Transactional
+    @PostAuthorize("hasRole('STAFF') or (hasRole('USER') and returnObject.user.username == authentication.name)")
     public void updateStatus(int id, String status){
-        BookingSession bookingSession = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
+        BookingSession session = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
         try {
             BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(status.toUpperCase());
-            bookingSession.setStatus(sessionStatus);
-            Booking currentBooking = getBookingById(bookingSession.getBooking().getId());
-            Services service = bookingSession.getBooking().getService();
-            if (bookingSession.getStatus() == BookingSessionStatus.WAITING) {
-                if (currentBooking.getBookingSessions().size() == 1) {
-                    currentBooking.setStatus(BookingStatus.ON_GOING);
-                    bookingRepository.save(currentBooking);
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            boolean isStaff = staff.getRoles().stream()
+                    .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
+
+            Services service = session.getBooking().getService();
+
+            if (sessionStatus == BookingSessionStatus.ON_GOING) {
+                if (!isStaff) {
+                    throw new AppException(ErrorCode.NOT_HAVE_PERMISSIONS);
                 }
+                session.setStatus(sessionStatus);
                 //Assign Room for session
                 List<Room> roomAvailableForService = roomService.getRoomAvailableForService(service.getId());
                 if (roomAvailableForService.isEmpty()) {
                     throw new AppException(ErrorCode.OUT_OF_ROOM);
                 } else {
                     Room room = roomAvailableForService.getFirst();
-                    bookingSession.setRoom(room);
+                    session.setRoom(room);
                     roomService.incrementInUse(room.getId());
                 }
-            } else if (bookingSession.getStatus() == BookingSessionStatus.COMPLETED) {
-                Booking existingBooking = bookingSession.getBooking();
-                roomService.decrementInUse(bookingSession.getRoom().getId());
+            } else if (sessionStatus == BookingSessionStatus.COMPLETED) {
+                if (!isStaff) {
+                    throw new AppException(ErrorCode.NOT_HAVE_PERMISSIONS);
+                }
+                //decrease room in use
+                Booking existingBooking = session.getBooking();
+                roomService.decrementInUse(session.getRoom().getId());
                 //Create feedback
                 FeedbackRequest feedbackRequest = FeedbackRequest.builder()
                         .serviceId(service.getId())
-                        .bookingSessionId(bookingSession.getId())
-                        .userId(bookingSession.getBooking().getUser().getId())
-                        .therapistId(bookingSession.getTherapist().getId())
+                        .bookingSessionId(session.getId())
+                        .userId(session.getBooking().getUser().getId())
+                        .therapistId(session.getTherapist().getId())
                         .rated(false)
                         .build();
                 feedbackService.createFeedback(feedbackRequest);
+                //Update session remain when completed
                 updateSessionRemain(existingBooking.getId());
                 if (existingBooking.getSessionRemain() == 0) {
                     existingBooking.setStatus(BookingStatus.COMPLETED);
                     bookingRepository.save(existingBooking);
                 }
+            } else if (sessionStatus == BookingSessionStatus.IS_CANCELED) {
+                if (session.getStatus() == BookingSessionStatus.ON_GOING) {
+                    throw new AppException(ErrorCode.SESSION_ON_GOING);
+                }
+                session.setStatus(sessionStatus);
             }
-
-            bookingSessionRepository.save(bookingSession);
+            bookingSessionRepository.save(session);
         }catch(IllegalArgumentException e){
             throw new AppException(ErrorCode.SESSION_STATUS_INVALID);
         }
@@ -242,6 +263,15 @@ public class  BookingSessionService {
             throw new AppException(ErrorCode.SESSION_STATUS_INVALID);
         }
     }
+    public List<BookingSessionResponse> getSessionByBooking(int bookingId){
+        Booking booking = getBookingById(bookingId);
+        return bookingSessionRepository.findAllByBooking(booking).stream().map(bookingSessionMapper::toBookingSessionResponse).toList();
+    }
+
+    public List<BookingSessionResponse> getSessionByPhone(String phone){
+        return bookingSessionRepository.findByBookingUserPhone(phone).stream().map(bookingSessionMapper::toBookingSessionResponse).toList();
+    }
+
     @Transactional
     public void deleteBookingSession(int id) {
         BookingSession session = checkSession(id);

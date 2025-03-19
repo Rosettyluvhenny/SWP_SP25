@@ -57,6 +57,7 @@ public class ServicesService {
         service.setServiceCategory(category);
         service = servicesRepository.save(service);
         String serviceImg = supabaseService.uploadImage(img, "service_" + service.getId());
+        serviceImg = supabaseService.getImage(serviceImg);
         service.setImg(serviceImg);
 
         servicesRepository.flush();
