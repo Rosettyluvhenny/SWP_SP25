@@ -41,15 +41,20 @@ export interface Therapist {
 };
 
 
-  const getTherapistSlots = async (therapistId: string | null, serviceId: string | null, date: string) => {
-    if (!serviceId) {
-        return []
-    }
-    const response = await axios.get(`/bookingSession${therapistId ? `/therapist/${therapistId}` : ""}/service/${serviceId}/available-slots?date=${date}`);
+  const getTherapistSlots = async (therapistId: string, serviceId: string, date: string) => {
+    const response = await axios.get(`/bookingSession/therapist/${therapistId}/service/${serviceId}/available-slots?date=${date}`);
     if (response.result) {
         return response.result;
     }
     return [];
   }
 
-export { getTherapists, getTherapistById, getTherapistSlots};
+  const getFreeSlots = async (serviceId: string , date: string) => {
+    const response = await axios.get(`/bookingSession/service/${serviceId}/available-slots?date=${date}`);
+    if (response.result) {
+        return response.result;
+    }
+    return [];
+  }
+
+export { getTherapists, getTherapistById, getTherapistSlots, getFreeSlots};

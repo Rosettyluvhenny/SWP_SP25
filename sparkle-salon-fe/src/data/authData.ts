@@ -136,4 +136,19 @@ const introspect = async() =>{
     );
     return response.result.valid;
 }
-export { login, getUser, register, updateUser, createUser, disableUser, introspect };
+const refresh = async() =>{
+    const token = localStorage.getItem('token')
+    if(!token)
+        return;
+    const response = await axios.post("/auth/refresh", 
+        { token }, // Send token in body
+        {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }
+    );
+    return response.result;
+}
+
+export { login, getUser, register, updateUser, createUser, disableUser, introspect, refresh };

@@ -20,15 +20,28 @@ const getUserBookings = async (): Promise<Booking[] | null> => {
         },
     });
     if (response.content) {
-        console.log(response.content);
+        // console.log(response.content);
         return response.content;
     } else {
         return null;
     }
 };
 
+const getBookingById = async(id: string) : Promise<Booking|null> =>{
+    const response = await axios.get(`/booking/${id}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    if (response) {
+        // console.log(response);
+        return response;
+    } else {
+        return null;
+    }
+} 
 
 
-export { getUserBookings };
+export { getUserBookings, getBookingById};
 
 

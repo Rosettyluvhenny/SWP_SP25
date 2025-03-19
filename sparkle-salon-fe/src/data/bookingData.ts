@@ -5,9 +5,10 @@ export type BookingBody = {
     paymentId: number;
     bookingTime: string;
     notes: string;
-    therapistId?: string | null;
+    therapistId: string;
     url?: string | null;
 }
+ 
 export const bookingService = async (bookingBody: BookingBody) => {
     const token = localStorage.getItem("token");
     try {
@@ -23,6 +24,7 @@ export const bookingService = async (bookingBody: BookingBody) => {
     }
 
 }
+
 
 
 

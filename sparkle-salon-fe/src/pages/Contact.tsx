@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Service, serviceDataById } from "../data/servicesData";
 import {
+    getFreeSlots,
     getTherapists,
     getTherapistSlots
 } from "../data/therapistData";
@@ -60,17 +61,17 @@ export default function Contact() {
     };
     const nextSevenDates: BookingDate[] = getNextSevenDates();
     const todayString = `${nextSevenDates[0].year}-${nextSevenDates[0].month}-${nextSevenDates[0].day}`;
-    const [selectedTherapist, setSelectedTherapist] = useState<string | null>(
-        null
-    );
+    const [selectedTherapist, setSelectedTherapist] = useState<string>();
+
+    const [selectedTherapistId, setselectedTherapistId] = useState<string>();
     const {user} = useContext(UserContext)
-    const [selectedDate, setSelectedDate] = useState<string>(todayString);
+    const [selectedDate, setSelectedDate] = useState<string>();
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [selectedService, setSelectedService] = useState<Service>();
     const [isTherapistOpen, setIsTherapistOpen] = useState<boolean>(true);
     const [therapists, setTherapists] = useState<Therapist[]>([]);
     const [therapistSlots, setTherapistSlots] = useState<
-        { startTime: string; endTime: string }[]
+        { therapistId: string;startTime: string; endTime: string }[]
     >([]);
     const [payments, setPayments] = useState<Payment[]>([]);
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
@@ -83,59 +84,9 @@ export default function Contact() {
         navigate("/service");
     }
 
-    const handleBooking = async () => {
-        // const userId = localStorage.getItem("userId");
-        const rq = await getUser();
-        // console.log("handle user", rq);
-        if (!(user&&user.auth)) {
-            toast.warning("Vui lòng đăng nhập để đặt lịch");
-            return;
-        }
-    
-        const bookingBody: BookingBody = {
-            serviceId: parseInt(selectedServiceId),
-            paymentId: parseInt(selectedPayment?.paymentId || "0"),
-            bookingTime: `${selectedDate}T${selectedTime}.000Z`,
-            notes: "",
-            therapistId: selectedTherapist,
-        };
-    
-        try {
-            const response = await bookingService(bookingBody);
-            
-            if (response && response.url) {
-                alert("Đặt lịch thành công! Đang chuyển hướng đến trang thanh toán...");
-                window.open(response.url, "_self"); // Mở trang VNPay
-            }
-        } catch (error) {
-            console.error("Lỗi khi đặt lịch:", error);
-            alert("Đặt lịch thất bại.");
-        }
-    };
+
 
     //init useEffect
-    useEffect(() => {
-        async function fetchTherapistSlots() {
-            try {
-                const fetchedTherapistSlots = await getTherapistSlots(
-                    selectedTherapist,
-                    selectedServiceId,
-                    selectedDate
-                );
-                setTherapistSlots(fetchedTherapistSlots);
-            } catch (error) {
-                console.error("Failed to fetch therapist slots:", error);
-            }
-        }
-        async function fetchPayments() {
-            const fetchedPayments = await getPayment();
-            setPayments(fetchedPayments);
-        }
-        fetchPayments();
-        fetchTherapistSlots();
-        setSelectedTime(null);
-    }, [selectedTherapist, selectedServiceId, selectedDate]);
-
     useEffect(() => {
         async function fetchServices() {
             try {
@@ -160,10 +111,74 @@ export default function Contact() {
                 console.error("Failed to fetch therapists:", error);
             }
         }
+        async function fetchPayments() {
+            const fetchedPayments = await getPayment();
+            setPayments(fetchedPayments);
+        }
         fetchServices();
+        fetchPayments();
         fetchTherapists();
-    }, [selectedServiceId, selectedDate]);
+    }, []);
 
+    useEffect(() => {
+        async function fetchTherapistSlots() {
+                const fetchedTherapistSlots = await getTherapistSlots(
+                    selectedTherapist,
+                    selectedServiceId,
+                    selectedDate
+                );
+                setTherapistSlots(fetchedTherapistSlots);
+        }
+
+        if(selectedDate && selectedTherapist)
+        {
+        fetchTherapistSlots();
+        setSelectedTime(null);}
+    }, [selectedTherapist, selectedDate]);
+
+    useEffect(()=> {
+        async function fetchFreeSlots() {
+            const fetchedTherapistSlots = await getFreeSlots(
+                selectedServiceId,
+                selectedDate
+            );
+            setTherapistSlots(fetchedTherapistSlots);
+        }
+        if(selectedTherapist=="" && selectedDate){
+            fetchFreeSlots();
+            setSelectedTime(null);
+        }
+}, [selectedTherapist, selectedDate]);
+
+    const handleBooking = async () => {
+        // const userId = localStorage.getItem("userId");
+        const rq = await getUser();
+        // console.log("handle user", rq);
+        if (!(user&&user.auth)) {
+            toast.warning("Vui lòng đăng nhập để đặt lịch");
+            return;
+        }
+    
+        const bookingBody: BookingBody = {
+            serviceId: parseInt(selectedServiceId),
+            paymentId: parseInt(selectedPayment?.paymentId || "0"),
+            bookingTime: `${selectedDate}T${selectedTime}.000Z`,
+            notes: "",
+            therapistId: selectedTherapist==""? selectedTherapistId : selectedTherapist
+        };
+
+        try {
+            const response = await bookingService(bookingBody);
+            
+            if (response && response.url) {
+                alert("Đặt lịch thành công! Đang chuyển hướng đến trang thanh toán...");
+                window.open(response.url, "_self"); // Mở trang VNPay
+            }
+        } catch (error) {
+            console.error("Lỗi khi đặt lịch:", error);
+            alert("Đặt lịch thất bại.");
+        }
+    };
     return (
         <div className="bg-gradient-to-b from-white to-pink-200 min-h-screen">
             {/* Page Header */}
@@ -264,11 +279,11 @@ export default function Contact() {
                         <div className="flex space-x-3 overflow-x-auto scrollbar-hide p-2">
                             <div
                                 className={`relative border-2 p-3 rounded-lg cursor-pointer min-w-[130px] transition-all duration-300 ease-in-out flex flex-col items-center ${
-                                    selectedTherapist === null
+                                    selectedTherapist === ""
                                         ? "border-pink-400 bg-pink-100 scale-105"
                                         : "border-gray-300 bg-white hover:scale-105 hover:shadow-md"
                                 }`}
-                                onClick={() => setSelectedTherapist(null)}
+                                onClick={() => setSelectedTherapist("")}
                             >
                                 <p className="text-sm mt-2 font-semibold text-center text-gray-700">
                                     Để Spa chọn giúp bạn
@@ -288,10 +303,14 @@ export default function Contact() {
                                             ? "border-pink-400 bg-pink-100 scale-105"
                                             : "border-gray-300 bg-white hover:scale-105 hover:shadow-md"
                                     }`}
-                                    onClick={() =>
+                                    onClick={() =>{
                                         setSelectedTherapist(
                                             therapist.id.toString()
                                         )
+                                        setselectedTherapistId(
+                                            therapist.id.toString()
+                                        )
+                                    }
                                     }
                                 >
                                     <img
@@ -342,17 +361,22 @@ export default function Contact() {
                     </div>
                     <div className="grid grid-cols-4 gap-4 mt-4">
                         {therapistSlots.map((slot) => (
-                            <button
-                                onClick={() => setSelectedTime(slot.startTime)}
+                                <button
+                                onClick={() => {
+                                    setSelectedTime(slot.startTime)
+                                    if (slot.therapistId) {
+                                        setselectedTherapistId(slot.therapistId);
+                                    }
+                                }}
                                 key={slot.startTime}
                                 className={`p-4 rounded-lg shadow-md bg-${
                                     selectedTime === slot.startTime
-                                        ? "pink-400"
-                                        : "slate-400"
-                                }`}
-                            >
-                                {slot.startTime.slice(0, 5)}
-                            </button>
+                                    ? "pink-400"
+                                    : "slate-400"
+                                    }`}
+                                    >
+                                    {slot.startTime.slice(0, 5)}
+                                    </button>
                         ))}
                     </div>
                     <div className="flex justify-end mt-4">

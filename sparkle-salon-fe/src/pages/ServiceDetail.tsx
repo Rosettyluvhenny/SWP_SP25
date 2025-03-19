@@ -63,22 +63,11 @@ export default function ServiceDetail() {
     const handleBooking = () => {
         if (service) {
             // Fix for URL in name field
-            const displayName = service.name.startsWith("http") 
-                ? "Trẻ Hóa Da Công Nghệ Cao" 
-                : service.name;
-            console.log("name", displayName);
+            const displayName = service.name
+                ? service.name
+                : "Trẻ Hóa Da Công Nghệ Cao" ;
             navigate(`/contact?service=${id}`
-                // , { 
-                // state: { 
-                //     selectedService: displayName,
-                //     service: {
-                //         id: service.id,
-                //         name: displayName,
-                //         price: service.price,
-                //         duration: service.duration
-                //     }
-                // } 
-        //    }
+           
         );
         }
     };
@@ -136,9 +125,9 @@ export default function ServiceDetail() {
         : service.name;
 
     // Fix for potentially broken image URLs
-    const imageUrl = service.img && service.img.startsWith("http") 
+    const imageUrl = service.img
         ? service.img 
-        : "/placeholder.jpg";
+        : "../assets/skin-treatment1.jpg";
 
     return (
         <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
@@ -255,14 +244,14 @@ export default function ServiceDetail() {
                                 .slice(0, 5)
                                 .map((related, index) => {
                                     // Fix for URL in name field
-                                    const relatedDisplayName = related.name.startsWith("http") 
-                                        ? "Trẻ Hóa Da Công Nghệ Cao" 
-                                        : related.name;
+                                    const relatedDisplayName = related.name 
+                                        ?  related.name
+                                        : "Trẻ Hóa Da Công Nghệ Cao";
                                     
                                     // Fix for potentially broken image URLs
-                                    const relatedImageUrl = related.img && related.img.startsWith("http") 
+                                    const relatedImageUrl = related.img 
                                         ? related.img 
-                                        : "/placeholder.jpg";
+                                        : "../assets/skin-treatment1.jpg";
                                         
                                     return (
                                         <motion.div

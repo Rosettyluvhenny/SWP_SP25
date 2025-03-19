@@ -22,6 +22,7 @@ import { useContext } from "react";
 import Profile from "./pages/Profile";
 import Therapist from "./pages/Therapist";
 import YourBooking from "./pages/YourBooking";
+import BookingDetail from "./pages/BookingDetail";
 // import Feedback from "./pages/Feedback";
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
         <Route path="/about" element={<MainLayout><About /></MainLayout>} />
         <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
         <Route path="/service/:id" element={<MainLayout><ServiceDetail /></MainLayout>} />
+        <Route path='/bookingDetail/:id'element={<MainLayout><BookingDetail /></MainLayout>} />
         <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
         <Route path="/blog" element={<MainLayout><Blog /></MainLayout>} />
         <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />

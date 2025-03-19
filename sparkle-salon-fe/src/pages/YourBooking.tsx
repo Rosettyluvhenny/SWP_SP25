@@ -8,12 +8,6 @@ import { Service, serviceDataById } from "../data/servicesData";
 
 export default function YourBooking() {
     const [bookings, setBookings] = useState<Booking[]>([]);
-    const [serviceImages, setServiceImages] = useState<{
-        [key: number]: string;
-    }>({});
-    const [selectedService, setSelectedService] = useState<Service>();
-    const [searchParams] = useSearchParams();
-    const selectedServiceId = searchParams.get("service") || "";
     const navigate = useNavigate(); 
 
     useEffect(() => {
@@ -28,37 +22,6 @@ export default function YourBooking() {
         fetchBookings();
     }, []);
 
-    useEffect(() => {
-        const fetchServiceImages = async () => {
-            const imagesMap: { [key: number]: string } = {};
-            for (const booking of bookings) {
-                if (!booking.serviceId) continue;
-                const service = await serviceDataById(
-                    booking.serviceId.toString()
-                );
-                if (service) {
-                    imagesMap[booking.serviceId] = service.img;
-                }
-            }
-            setServiceImages(imagesMap);
-        };
-
-        if (bookings.length > 0) {
-            fetchServiceImages();
-        }
-    }, [bookings]);
-
-    useEffect(() => {
-        async function fetchServices() {
-            try {
-                const fetchedServices = await serviceDataById(selectedServiceId);
-                setSelectedService(fetchedServices);
-            } catch (error) {
-                console.error("Failed to fetch services:", error);
-            }
-        }
-        fetchServices();
-    }, [selectedServiceId]);
 
     const handleCancelBooking = async (id: string) => {
         const confirmDelete = window.confirm(
@@ -137,10 +100,7 @@ export default function YourBooking() {
                                         <td className="p-3 font-medium">
                                             <img
                                                 src={
-                                                    serviceImages[
-                                                        bookings.serviceId
-                                                    ] ||
-                                                    "/assets/placeholder.jpg"
+                                                    bookings.img
                                                 }
                                                 alt={bookings.serviceName}
                                                 className="w-auto h-16"
@@ -180,15 +140,17 @@ export default function YourBooking() {
                                             </span>
                                         </td>
                                         <td className="p-3 flex space-x-2">
+                                            {bookings.status == "ON_GOING" &&
                                             <motion.button
-                                                onClick={() => handleRebook(bookings.serviceId)}
-                                                className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
+                                            onClick={() => handleRebook(bookings.serviceId)}
+                                            className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
                                             >
-                                                Đặt Lại
+                                                Đặt lịch
                                             </motion.button>
-
+                                            }
+                                            {bookings.status == "PENDING" &&
                                             <motion.button
                                                 onClick={() =>
                                                     handleCancelBooking(
@@ -199,8 +161,20 @@ export default function YourBooking() {
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.95 }}
                                             >
-                                                <FaTrash size={14} /> Xóa
+                                                <FaTrash size={14} /> Hủy 
                                             </motion.button>
+                                            }
+                                             {bookings.status == "COMPLETED" &&
+                                            <motion.button
+                                                onClick={() => handleRebook(bookings.serviceId)}
+                                                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
+
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                <FaTrash size={14} /> Đặt lại
+                                            </motion.button>
+                                            }
                                         </td>
                                     </motion.tr>
                                 ))
