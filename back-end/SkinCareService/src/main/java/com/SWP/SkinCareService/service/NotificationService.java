@@ -83,7 +83,7 @@ public class NotificationService {
                 if (bookingSession.getNotification() == null) {
                     NotificationRequest request = NotificationRequest.builder()
                             .sessionId(bookingSession.getId())
-                            .text("Phiên đặt lịch của bạn sẽ diễn ra vào lúc "+ bookingSession.getSessionDateTime().toLocalTime() +" tại "+bookingSession.getRoom().getName())
+                            .text("Phiên đặt lịch của bạn sẽ diễn ra vào lúc "+ bookingSession.getSessionDateTime().toLocalTime())
                             .userId(bookingSession.getBooking().getUser().getId())
                             .isRead(false)
                             .url(""+bookingSession.getId())
