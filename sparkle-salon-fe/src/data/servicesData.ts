@@ -44,14 +44,23 @@ const servicesData = async (url : string): Promise<{ services: Service[]; meta: 
 };
 
 
-const serviceDataById = async (id:string) => {
-    const serviceResponse = await axios.get(`/services/${id}`)
-    if (serviceResponse.result) {
-        const serviceData = serviceResponse.result;
-        return serviceData
+const serviceDataById = async (id: string) => {
+    try {
+        if (!id) {
+            return null;
+        }
+        
+        const serviceResponse = await axios.get(`/services/${id}`);
+        if (serviceResponse.result) {
+            const serviceData = serviceResponse.result;
+            return serviceData;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error fetching service by ID:", error);
+        return null;
     }
-    return null
-}
+};
 
 const deleteServiceById = async (id:string) => {
     const deleteServiceResponse = await axios.delete(`/services/${id}`)
