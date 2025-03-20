@@ -29,7 +29,7 @@ export default function RoomManagement() {
                 id: room.id,
                 name: room.name,
                 capacity: room.capacity || "",
-                serviceIds: room.serviceIds || []
+                serviceIds: room.serviceIds || [],
             }));
             setRooms(formattedRooms);
         } catch (error) {
@@ -40,12 +40,14 @@ export default function RoomManagement() {
     };
 
     const openModal = (room: Room | null = null) => {
-        setEditingRoom(room ?? { 
-            id: "", 
-            name: "", 
-            capacity: "",
-            serviceIds: []
-        });
+        setEditingRoom(
+            room ?? {
+                id: "",
+                name: "",
+                capacity: "",
+                serviceIds: [],
+            }
+        );
         setIsModalOpen(true);
     };
 
@@ -60,7 +62,6 @@ export default function RoomManagement() {
 
         try {
             if (editingRoom.id) {
-                // Update existing room
                 await updateRoom(
                     editingRoom.id,
                     editingRoom.name,
@@ -68,14 +69,12 @@ export default function RoomManagement() {
                     editingRoom.serviceIds
                 );
             } else {
-                // Create new room
                 await createRoom(
                     editingRoom.name,
                     editingRoom.capacity,
                     editingRoom.serviceIds
                 );
             }
-            // Refresh room list
             fetchRooms();
             closeModal();
         } catch (error) {
@@ -85,11 +84,12 @@ export default function RoomManagement() {
     };
 
     const handleDelete = async (id: string) => {
-        const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa phòng này?");
+        const confirmDelete = window.confirm(
+            "Bạn có chắc chắn muốn xóa phòng này?"
+        );
         if (confirmDelete) {
             try {
                 await deleteRoom(id);
-                // Refresh room list after deletion
                 fetchRooms();
             } catch (error) {
                 console.error("Failed to delete room:", error);
@@ -103,8 +103,13 @@ export default function RoomManagement() {
             <Sidebar />
             <main className="flex-1 p-6">
                 <div className="mb-6 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-800">Quản Lý Phòng</h1>
-                    <button onClick={() => openModal(null)} className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600">
+                    <h1 className="text-2xl font-bold text-gray-800">
+                        Quản Lý Phòng
+                    </h1>
+                    <button
+                        onClick={() => openModal(null)}
+                        className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600"
+                    >
                         + Thêm Phòng
                     </button>
                 </div>
@@ -122,54 +127,101 @@ export default function RoomManagement() {
 
                 {/* Room Table */}
                 <div className="bg-pink-100 shadow-lg rounded-lg p-6">
-                    <h2 className="text-xl font-semibold mb-4">Danh Sách Phòng</h2>
+                    <h2 className="text-xl font-semibold mb-4">
+                        Danh Sách Phòng
+                    </h2>
                     {isLoading ? (
-                        <div className="text-center py-4">Đang tải dữ liệu...</div>
+                        <div className="text-center py-4">
+                            Đang tải dữ liệu...
+                        </div>
                     ) : (
-                        <table className="w-full border-collapse rounded-lg overflow-hidden">
-                            <thead>
-                                <tr className="bg-white text-black">
-                                    <th className="p-3 text-left">ID</th>
-                                    <th className="p-3 text-left">Tên Phòng</th>
-                                    <th className="p-3 text-left">Sức Chứa</th>
-                                    <th className="p-3 text-left">Hành Động</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white">
-                                {rooms
-                                    .filter((room) => room.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                                    .map((room) => (
-                                        <tr key={room.id} className="border-t">
-                                            <td className="p-3">{room.id}</td>
-                                            <td className="p-3">{room.name}</td>
-                                            <td className="p-3">{room.capacity}</td>
+                        <div className="overflow-y-auto max-h-[500px] scrollbar-thin scrollbar-thumb-pink-300 scrollbar-track-pink-100">
+                            <table className="w-full border-collapse rounded-lg overflow-hidden">
+                                <thead className="sticky top-0 bg-white shadow-md">
+                                    <tr className="bg-white text-black">
+                                        <th className="p-3 text-left">ID</th>
+                                        <th className="p-3 text-left">
+                                            Tên Phòng
+                                        </th>
+                                        <th className="p-3 text-left">
+                                            Sức Chứa
+                                        </th>
+                                        <th className="p-3 text-left">
+                                            Hành Động
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white">
+                                    {rooms
+                                        .filter((room) =>
+                                            room.name
+                                                .toLowerCase()
+                                                .includes(
+                                                    searchTerm.toLowerCase()
+                                                )
+                                        )
+                                        .map((room) => (
+                                            <tr
+                                                key={room.id}
+                                                className="border-t"
+                                            >
+                                                <td className="p-3">
+                                                    {room.id}
+                                                </td>
+                                                <td className="p-3">
+                                                    {room.name}
+                                                </td>
+                                                <td className="p-3">
+                                                    {room.capacity}
+                                                </td>
 
-                                            <td className="p-3 flex space-x-2">
-                                                <button onClick={() => openModal(room)} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-                                                    Chỉnh Sửa
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(room.id)}
-                                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                                                >
-                                                    Xóa
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-                        </table>
+                                                <td className="p-3 flex space-x-2">
+                                                    <button
+                                                        onClick={() =>
+                                                            openModal(room)
+                                                        }
+                                                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                                                    >
+                                                        Chỉnh Sửa
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                room.id
+                                                            )
+                                                        }
+                                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </div>
 
                 {/* Modal */}
-                <ManagementModal isOpen={isModalOpen} onClose={closeModal} onSubmit={handleSave} title={editingRoom?.id ? "Chỉnh Sửa Phòng" : "Thêm Phòng"}>
+                <ManagementModal
+                    isOpen={isModalOpen}
+                    onClose={closeModal}
+                    onSubmit={handleSave}
+                    title={editingRoom?.id ? "Chỉnh Sửa Phòng" : "Thêm Phòng"}
+                >
                     <div className="flex flex-col space-y-3">
                         <label className="font-semibold">Tên Phòng</label>
                         <input
                             type="text"
                             value={editingRoom?.name || ""}
-                            onChange={(e) => setEditingRoom((prev) => (prev ? { ...prev, name: e.target.value } : null))}
+                            onChange={(e) =>
+                                setEditingRoom((prev) =>
+                                    prev
+                                        ? { ...prev, name: e.target.value }
+                                        : null
+                                )
+                            }
                             className="p-2 border rounded"
                         />
 
@@ -177,7 +229,13 @@ export default function RoomManagement() {
                         <input
                             type="text"
                             value={editingRoom?.capacity || ""}
-                            onChange={(e) => setEditingRoom((prev) => (prev ? { ...prev, capacity: e.target.value } : null))}
+                            onChange={(e) =>
+                                setEditingRoom((prev) =>
+                                    prev
+                                        ? { ...prev, capacity: e.target.value }
+                                        : null
+                                )
+                            }
                             className="p-2 border rounded"
                         />
                     </div>

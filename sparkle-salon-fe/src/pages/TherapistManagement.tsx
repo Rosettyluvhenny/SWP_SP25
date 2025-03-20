@@ -114,7 +114,6 @@ export default function TherapistManagement() {
                     setError("Không thể cập nhật thông tin chuyên viên");
                 }
             } else {
-                // Create new therapist
                 const newTherapist = {
                     username: formData.get("username") as string,
                     fullName: formData.get("fullName") as string,
