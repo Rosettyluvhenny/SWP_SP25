@@ -79,9 +79,10 @@ public class ServicesController {
     public ResponseEntity<ApiResponse<Page<ServicesResponse>>> getAll(@RequestParam(defaultValue = "false") boolean isActive,
                                                                       @RequestParam(required = false) Float rating,
                                                                       @RequestParam(required = false) Integer categoryId,
+                                                                      @RequestParam(required = false) Integer quizResultId,
                                                                       @Parameter(description = "Page number (0-based)")
                                                                       @PageableDefault(size = 10, sort = "id") Pageable pageable) throws IOException {
-        var result = servicesService.getAll(isActive,rating, categoryId, pageable);
+        var result = servicesService.getAll(isActive,rating, categoryId, quizResultId,  pageable);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<Page<ServicesResponse>>builder()
                         .result(result)

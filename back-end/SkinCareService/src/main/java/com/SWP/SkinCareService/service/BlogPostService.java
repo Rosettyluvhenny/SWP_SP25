@@ -204,14 +204,14 @@ public class BlogPostService {
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public BlogPostResponse setDefaultBlogPost(int blogPostId) {
-        if (blogPostRepository.existsByDefaultBlogTrue()) {
-            blogPostRepository.clearDefaultFlag();
-        }
-
         BlogPost blogPost = checkBlogPost(blogPostId);
         if(!blogPost.isApprove()){
             throw new AppException(ErrorCode.BLOGPOST_NOT_APPROVED);
         }
+        if (blogPostRepository.existsByQuizResult_IdAndDefaultBlogTrue(blogPost.getQuizResult().getId())) {
+            blogPostRepository.clearDefaultFlag(blogPost.getQuizResult().getId());
+        }
+
         blogPost.setDefaultBlog(true);
         blogPostRepository.save(blogPost);
         return blogPostMapper.toBlogPostResponse(blogPost);
