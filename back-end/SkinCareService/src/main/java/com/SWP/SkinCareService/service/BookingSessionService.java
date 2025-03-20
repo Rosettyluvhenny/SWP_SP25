@@ -18,6 +18,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -107,8 +109,14 @@ public class  BookingSessionService {
 
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
-    public List<BookingSessionResponse> getAllBookingSessions() {
-        return bookingSessionRepository.findAll().stream().map(bookingSessionMapper::toBookingSessionResponse).toList();
+    public Page<BookingSessionResponse> getAllBookingSessions(Pageable pageale) {
+        return bookingSessionRepository.findAll(pageale).map(bookingSessionMapper::toBookingSessionResponse);
+    }
+    public Page<BookingSessionResponse> getMySessions(Pageable pageale) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
+        List<Booking> bookings = bookingRepository.findAllByUserId(user.getId());
+        return bookingSessionRepository.findAll(pageale).map(bookingSessionMapper::toBookingSessionResponse);
     }
     public BookingSessionResponse getBookingSessionById(int id) {
         return bookingSessionMapper.toBookingSessionResponse(checkSession(id));

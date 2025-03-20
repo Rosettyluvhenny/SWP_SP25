@@ -14,12 +14,14 @@ import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BookingMapper;
 import com.SWP.SkinCareService.repository.*;
+import jakarta.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -156,6 +159,22 @@ public class BookingService {
         return therapistRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
     }
+
+    @Transactional
+    @PostAuthorize("(hasRole('USER') and returnObject.user.username == authentication.name)")
+    public Booking cancelBooking(int id){
+        Booking booking = checkBooking(id);
+        booking.setStatus(BookingStatus.IS_CANCELED);
+        List<BookingSession> sessionList = booking.getBookingSessions();
+        if (sessionList != null && !sessionList.isEmpty()) {
+            for (BookingSession session : sessionList) {
+                if (session.getStatus() == BookingSessionStatus.PENDING) {
+                    session.setStatus(BookingSessionStatus.IS_CANCELED);
+                }
+            }
+        }
+        return bookingRepository.save(booking);
+    }
     @Transactional
     @PostAuthorize("hasRole('STAFF') or (hasRole('USER') and returnObject.user.username == authentication.name)")
     public Booking updateStatus(int id, String status){
@@ -222,11 +241,41 @@ public class BookingService {
         }
     }
 
-    public Page<BookingResponse> getAllByUser( Pageable pageable){
+    public Page<BookingResponse> getAllByUser(String status, String payStatus, Pageable pageable){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         String userId = user.getId();
-        return bookingRepository.findAllByUserId(userId, pageable).map(bookingMapper::toBookingResponse);
+        try {
+            Specification<Booking> spec = (root, query, cb) -> {
+                List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.equal(root.get("user").get("id"), userId));
+                if (status != null) {
+                    try {
+                        BookingStatus bookingStatus = BookingStatus.valueOf(status.toUpperCase());
+                        predicates.add(cb.equal(root.get("status"), bookingStatus));
+                    } catch (IllegalArgumentException e) {
+                        throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
+                    }
+                }
+
+                if (payStatus != null) {
+                    try {
+                        PaymentStatus paymentStatus = PaymentStatus.valueOf(payStatus.toUpperCase());
+                        predicates.add(cb.equal(root.get("paymentStatus"), paymentStatus));
+                    } catch (IllegalArgumentException e) {
+                        throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
+                    }
+                }
+
+                return cb.and(predicates.toArray(new Predicate[0]));
+            };
+
+            return bookingRepository.findAll(spec, pageable)
+                    .map(bookingMapper::toBookingResponse);
+
+        } catch (IllegalArgumentException e) {
+            throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
+        }
     }
 
 
@@ -247,7 +296,12 @@ public class BookingService {
             return bookingRepository.findAll(pageable).map(bookingMapper::toBookingResponse);
         else{
             User user = userRepository.findByPhone(phone).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
-            return bookingRepository.findAllByUserId(user.getId(), pageable).map(bookingMapper::toBookingResponse);
+            Specification<Booking> spec = (root, query, cb) -> {
+                List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.equal(root.get("userId"), user.getId()));
+                return cb.and(predicates.toArray(new Predicate[0]));
+            };
+            return bookingRepository.findAll(spec, pageable).map(bookingMapper::toBookingResponse);
         }
     }
 

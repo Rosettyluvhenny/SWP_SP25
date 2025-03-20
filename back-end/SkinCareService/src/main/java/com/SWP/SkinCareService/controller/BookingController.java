@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -94,8 +95,11 @@ public class BookingController {
     @Operation(summary = "Get all bookings for authenticated user")
     @GetMapping("/my-bookings")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Page<BookingResponse>> getAllByUser(Pageable pageable) {
-        return ResponseEntity.ok(bookingService.getAllByUser(pageable));
+    public ResponseEntity<Page<BookingResponse>> getAllByUser(@RequestParam(required = false) String status,
+                                                              @RequestParam(required = false) String payStatus,
+                                                              @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+        var result = bookingService.getAllByUser(status ,payStatus, pageable);
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "Get all bookings for authenticated staff")
@@ -105,4 +109,11 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getAllByStaff(phone, pageable));
     }
 
+    @PutMapping("/{bookingId}/cancel")
+    ResponseEntity<ApiResponse<BookingResponse>> cancelByUser(@PathVariable int bookingId) {
+        bookingService.cancelBooking(bookingId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<BookingResponse>builder().message("Updates payment status successfull").build()
+        );
+    }
 }

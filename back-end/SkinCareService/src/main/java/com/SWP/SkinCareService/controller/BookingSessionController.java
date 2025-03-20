@@ -11,6 +11,8 @@ import com.SWP.SkinCareService.service.BookingSessionService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,10 +40,10 @@ public class BookingSessionController {
     }
 
     @GetMapping()
-    ResponseEntity<ApiResponse<List<BookingSessionResponse>>> getAllBookingSessions() {
-        var result = bookingSessionService.getAllBookingSessions();
+    ResponseEntity<ApiResponse<Page<BookingSessionResponse>>> getAllBookingSessions(Pageable pageable) {
+        var result = bookingSessionService.getAllBookingSessions(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<List<BookingSessionResponse>>builder().result(result).build()
+                ApiResponse.<Page<BookingSessionResponse>>builder().result(result).build()
         );
     }
 

@@ -29,10 +29,12 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/introspect", "/auth/authenticate", "/auth/logout", "/auth/refresh"};
-    private final String[] UNCATEGORIZED_ENDPOINTS= {"/swagger-ui/**",
+    private final String[] PUBLIC_POST_ENDPOINTS = {"/users", "/auth/introspect", "/auth/authenticate", "/auth/logout", "/auth/refresh"};
+    private final String[] PUBLIC_ENDPOINTS= {"/swagger-ui/**",
             "/v3/api-docs/**",
-            "/swagger-ui.html","/therapist","/therapist/**","/category/**","/services/**","/supabase/**","/serviceInfo/**", "/payment/vnpay/**"};
+            "/swagger-ui.html","/therapist/**","/category/**","/services/**","/supabase/**","/serviceInfo/**", "/payment/vnpay/**"};
+    private final String[] PUBLIC_GET_ENDPOINTS={"/answer","/therapist/**","/category/**","/services/**","/blogpost/**",
+            "/feedback/**","/question/**","/quiz/**", "/quizResult/**", "/services/**"};
     @Autowired
     private CustomJwtDecoder jwtDecoder;
     @Autowired
@@ -45,12 +47,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                        request.anyRequest().permitAll())
-
-//                        request.requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINTS).permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
-//                                .requestMatchers(UNCATEGORIZED_ENDPOINTS).permitAll()
-//                                .anyRequest().authenticated())
+//                        request.anyRequest().permitAll())
+                        request.requestMatchers(HttpMethod.POST,PUBLIC_POST_ENDPOINTS).permitAll()
+                                .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                                .anyRequest().authenticated())
 
 
                 .exceptionHandling(exception ->
