@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -377,6 +378,17 @@ public class  BookingSessionService {
         // Generate all possible time slots for the day
         List<LocalTime> allTimeSlots = generateTimeSlots();
 
+        LocalTime currentTime = LocalTime.now().plusHours(2);
+        if (bookingDate.isEqual(LocalDate.now())) {
+            allTimeSlots = allTimeSlots.stream()
+                    .filter(slot -> slot.isBefore(currentTime))
+                    .collect(Collectors.toList());
+
+            // If no available slots today after filtering, return empty list
+            if (allTimeSlots.isEmpty()) {
+                return new ArrayList<>();
+            }
+        }
         // Map to store available therapists for each time slot
         Map<LocalTime, List<Therapist>> availableTherapistsMap = new HashMap<>();
 

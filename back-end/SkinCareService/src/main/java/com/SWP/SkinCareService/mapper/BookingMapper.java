@@ -38,6 +38,7 @@ public interface BookingMapper {
     @Mapping(target = "paymentMethod", source = "payment.paymentName")
     @Mapping(target = "status", source = "booking.status")
     @Mapping(target = "paymentStatus", source = "booking.paymentStatus")
+    @Mapping(target = "img", source = "service.img")
     BookingResponse toBookingResponse(Booking booking);
 
     /*

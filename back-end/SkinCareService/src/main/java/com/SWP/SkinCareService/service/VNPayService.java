@@ -354,7 +354,7 @@ public class VNPayService {
                 }
                 booking.setSessionRemain(0);
                 ///URL khi payment thất bại
-                url = "http://localhost:3000/BookingDetail?booking="+bookingId;
+                url = "http://localhost:3000/BookingDetail/"+bookingId;
                 bookingRepository.save(booking);
             } catch (Exception e) {
             }

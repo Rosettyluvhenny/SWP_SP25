@@ -36,7 +36,7 @@ public class SecurityConfig {
     @Autowired
     private CustomJwtDecoder jwtDecoder;
     @Autowired
-    private AuthenticationEntryPoint JwtAuthenticationEntryPoint;
+    private JwtAuthenticationEntryPoint JwtAuthenticationEntryPoint;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
 
@@ -54,7 +54,7 @@ public class SecurityConfig {
 
 
                 .exceptionHandling(exception ->
-                        exception.authenticationEntryPoint(JwtAuthenticationEntryPoint) // 🔥 Handle JwtException here
+                        exception.authenticationEntryPoint(JwtAuthenticationEntryPoint)
                 )
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)
