@@ -66,7 +66,7 @@ export default function ServiceDetail() {
             const displayName = service.name
                 ? service.name
                 : "Trẻ Hóa Da Công Nghệ Cao" ;
-            navigate(`/contact?service=${id}`
+            navigate(`/booking?service=${id}`
            
         );
         }

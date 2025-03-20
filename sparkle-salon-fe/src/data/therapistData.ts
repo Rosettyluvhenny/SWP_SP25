@@ -13,7 +13,11 @@ export interface Therapist {
 }
 
   const getTherapists = async (serviceId: string) => {
-    const response = await axios.get("/therapists/by-service/"+serviceId);
+    const response = await axios.get("/therapists/by-service/"+serviceId,
+      {headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+   });
     if (response.result) {
         return response.result.content;
     }
@@ -24,7 +28,10 @@ export interface Therapist {
     try {
         console.log("Fetching therapist with ID:", id);
 
-        const response = await axios.get<{ result: Therapist }>(`/therapists/${id}`);
+        const response = await axios.get<{ result: Therapist }>(`/therapists/${id}`,
+          {headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+    }});
 
         console.log("API Response:", response.data);
         return response.result;
@@ -42,7 +49,11 @@ export interface Therapist {
 
 
   const getTherapistSlots = async (therapistId: string, serviceId: string, date: string) => {
-    const response = await axios.get(`/bookingSession/therapist/${therapistId}/service/${serviceId}/available-slots?date=${date}`);
+    const response = await axios.get(`/bookingSession/therapist/${therapistId}/service/${serviceId}/available-slots?date=${date}`,
+        {headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
     if (response.result) {
         return response.result;
     }
@@ -50,7 +61,11 @@ export interface Therapist {
   }
 
   const getFreeSlots = async (serviceId: string , date: string) => {
-    const response = await axios.get(`/bookingSession/service/${serviceId}/available-slots?date=${date}`);
+    const response = await axios.get(`/bookingSession/service/${serviceId}/available-slots?date=${date}`,
+      {headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
     if (response.result) {
         return response.result;
     }

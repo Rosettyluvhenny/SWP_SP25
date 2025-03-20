@@ -1,35 +1,35 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { introspect, getUser, refresh } from '../data/authData';
 import { toast } from 'react-toastify';
-const UserContext = React.createContext({name: '', auth: false});
+const UserContext = React.createContext({ name: '', auth: false });
 
-const UserProvider= ({children}) => {
-    const [user, setUser] = React.useState({name:'', auth:false});
+const UserProvider = ({ children }) => {
+    const [user, setUser] = React.useState({ name: '', auth: false });
     const [loading, setIsLoading] = useState(true);
+    const [isLoginOpen, setIsLoginOpen] = useState(false);
 
+    const apiCallTracker = useRef({
+        introspectCalled: false,
+        refreshCalled: false
+    });
     useEffect(() => {
         async function validateAndSetUser() {
             setIsLoading(true);
             const token = localStorage.getItem("token");
-            
+
             if (!token) {
                 setIsLoading(false);
                 return;
             }
-            
+
             try {
-                // Check if current token is valid
-                const response = await introspect();
-                
-                // If token is not valid, try to refresh
-                if (!response) {
-                    const refreshResponse = await refresh();
-                    
-                    if (refreshResponse?.token) {
-                        localStorage.setItem("token", refreshResponse.token);
-                        // After refreshing token, we need to get user data
+                if (!apiCallTracker.current.introspectCalled) {
+                    apiCallTracker.current.introspectCalled = true;
+                    const response = await introspect();
+                    console.log("introspect", response);
+
+                    if (response) {
                         const userData = await getUser();
-                        
                         if (userData) {
                             setUser({
                                 name: `${userData.username}`,
@@ -37,54 +37,97 @@ const UserProvider= ({children}) => {
                             });
                         }
                     } else {
-                        // If refresh fails, clear token and set auth to false
-                        localStorage.removeItem("token");
-                        setUser({
-                            name: "",
-                            auth: false
-                        });
-                    }
-                } else {
-                    // If token is valid, get user data directly
-                    const userData = await getUser();
-                    
-                    if (userData) {
-                        setUser({
-                            name: `${userData.username}`,
-                            auth: true
-                        });
+                        // Only call refresh if it hasn't been called yet
+                        if (!apiCallTracker.current.refreshCalled) {
+                            apiCallTracker.current.refreshCalled = true;
+                            const refreshResponse = await refresh();
+                            console.log("refresh", refreshResponse);
+                            
+                            if (refreshResponse?.token) {
+                                localStorage.setItem("token", refreshResponse.token);
+                                const userData = await getUser();
+                                if (userData) {
+                                    setUser({
+                                        name: `${userData.username}`,
+                                        auth: true
+                                    });
+                                }
+                            } else {
+                                logout();
+                            }
+                        }
                     }
                 }
+                // const response = await introspect();
+                // console.log("introspect", response);
+                // // If token is not valid, try to refresh
+                // if (response) {
+                //     // If token is valid, get user data directly
+                //     const userData = await getUser();
+
+                //     if (userData) {
+                //         setUser({
+                //             name: `${userData.username}`,
+                //             auth: true
+                //         });
+                //     }
+                // }else{
+                //     const refreshResponse = await refresh();
+                //     console.log("refresh", refreshResponse)
+                //     if (refreshResponse?.token) {
+                //         localStorage.setItem("token", refreshResponse.token);
+                //         console.log("set Success full");
+                //         // After refreshing token, we need to get user data
+                //         const userData = await getUser();
+    
+                //         if (userData) {
+                //             setUser({
+                //                 name: `${userData.username}`,
+                //                 auth: true
+                //             });
+                //         }
+                //     } else {
+                //         // If refresh fails, clear token and set auth to false
+                //         localStorage.removeItem("token");
+                //         setUser({
+                //             name: "",
+                //             auth: false
+                //         });
+                //         toast.error("Your access is expired");
+                //         setTimeout(() => { logout(); }, 1000);
+                //     }
+                // }
             } catch (error) {
-                toast.error("Your access is expired");
                 // Handle error by clearing token and setting auth to false
-                logout();
+                toast.error("Your access is expired");
             } finally {
                 setIsLoading(false);
+                console.log("token", localStorage.getItem("token"));
             }
         }
-        
+
         validateAndSetUser();
     }, []);
-    const loginContext = (name) =>{
-        setUser((user)=>({
+    const loginContext = (name) => {
+        setUser((user) => ({
             name: name,
             auth: true
         }))
-        
+
     };
-    
-    const logout = ()=>{
+
+    const logout = () => {
         localStorage.removeItem("token");
-        setUser((user)=> ({
-            name:'',
-            auth:false
+        setUser((user) => ({
+            name: '',
+            auth: false
         }))
+        setIsLoginOpen(true);
     }
     return (
-        <UserContext.Provider value={{user, loginContext, logout, loading}}>
+        <UserContext.Provider value={{ user, loginContext, logout, loading, isLoginOpen, setIsLoginOpen }}>
             {children}
         </UserContext.Provider>
     );
 };
-export {UserContext, UserProvider}
+export { UserContext, UserProvider }

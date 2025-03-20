@@ -17,7 +17,7 @@ import { UserContext } from "../context/UserContext";
 
 export default function Header() {
     const [loginData, setLoginData] = useState({ username: "", password: "" });
-    const [isLoginOpen, setIsLoginOpen] = useState(false);
+    // const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [registerData, setRegisterData] = useState({
@@ -29,7 +29,7 @@ export default function Header() {
         dob: "",
     });
 
-    const { user, logout, loginContext, loading } = useContext(UserContext);
+    const { user, logout, loginContext, loading, isLoginOpen, setIsLoginOpen } = useContext(UserContext);
     const [error, setError] = useState<string|null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
@@ -92,9 +92,8 @@ export default function Header() {
             setLoginData({ username: "", password: "" });
             setIsLoginOpen(false);
         } else {
-            // if (res && res.status === 401) {
+
                 toast.error("Đăng nhập thất bại");
-            // }
         }
     }
 
@@ -193,13 +192,14 @@ export default function Header() {
         { path: "/about", label: "About Us" },
         { path: "/service", label: "Service" },
         { path: "/blog", label: "Blog" },
-        { path: "/contact", label: "Contact" },
+        { path: "/SkinTest", label: "Skin test" },
     ];
 
     if (user && user.auth === true) {
         navItems.push(
-            { path: "/your-booking", label: "Your Booking" },
-            { path: "/feedback", label: "Feedback" }
+            { path: "/your-booking", label: "Booking" },
+            // { path: "/feedback", label: "Feedback" },
+            {  path: "/schedule", label:"Schedule"}
         );
     }
 

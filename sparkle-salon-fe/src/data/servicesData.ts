@@ -46,11 +46,12 @@ const servicesData = async (url : string): Promise<{ services: Service[]; meta: 
 
 const serviceDataById = async (id:string) => {
     const serviceResponse = await axios.get(`/services/${id}`)
+    // console.log(serviceResponse);
     if (serviceResponse.result) {
         const serviceData = serviceResponse.result;
         return serviceData
     }
-    return null
+    return serviceResponse;
 }
 
 const deleteServiceById = async (id:string) => {

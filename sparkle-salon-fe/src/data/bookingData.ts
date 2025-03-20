@@ -22,8 +22,9 @@ export const bookingService = async (bookingBody: BookingBody) => {
         console.error("Failed to book service:", error);
         return null;
     }
-
 }
+
+// export const BookingService = async ()
 
 
 

@@ -48,6 +48,22 @@ export default function BookingDetail() {
         }
     };
 
+    const getBannerText = (status: string) => {
+        switch (status.toUpperCase()) {
+            case 'PAID':
+            case 'COMPLETED':
+                return 'Dịch vụ đã hoàn thành';
+            case 'PENDING':
+                return 'Đặt dịch vụ thành công';
+            case 'CANCELLED':
+                return 'Đặt dịch vụ thất bại';
+            case 'ON_GOING': 
+                return 'Thanh toán thành công'
+            default:
+                return '';
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -73,26 +89,18 @@ export default function BookingDetail() {
         );
     }
 
+    
     return (
         <div className="bg-gray-50 min-h-screen pb-12">
             {/* Hero section with payment status */}
             <div className="relative w-full h-48 sm:h-64 flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
                 <div className="absolute inset-0 bg-black opacity-50"></div>
-                {booking?.paymentStatus === "CANCELLED" ? (
                     <div className="relative z-10 text-center">
-                        <FaTimes className="mx-auto text-red-500 text-4xl mb-2" />
-                        <h1 className="text-red-500 text-3xl sm:text-5xl font-bold">
-                            Thanh toán thất bại 
+                        <h1 className="text-500 text-3xl sm:text-5xl font-bold text-white">
+                  {/* <FaTimes className="mx-auto text-red-500 text-4xl mb-2" /> */}
+                            {getBannerText(booking.status)||"Chi tiết lịch hẹn"}
                         </h1>
                     </div>
-                ) : (
-                    <div className="relative z-10 text-center">
-                        <FaCheck className="mx-auto text-green-500 text-4xl mb-2" />
-                        <h1 className="text-white text-3xl sm:text-5xl font-bold">
-                            Thanh toán thành công
-                        </h1>
-                    </div>
-                )}
             </div>
 
             {/* Booking details content */}

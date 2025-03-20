@@ -24,17 +24,20 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
     return (
         <motion.div
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50"
+            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50 overflow-y-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            style={{ minHeight: '100vh', minWidth: '100vw' }}
         >
             <motion.div
-                className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
+                className="fixed transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 sm:mx-auto"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", damping: 20 }}
             >
+
                 <div className="bg-gradient-to-r from-[#f398d0] to-[#ee8874] p-6">
                     <h2 className="text-2xl font-bold text-white text-center">
                         Đăng nhập
