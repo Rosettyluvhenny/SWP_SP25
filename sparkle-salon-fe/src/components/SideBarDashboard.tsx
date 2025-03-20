@@ -8,6 +8,7 @@ import {
     FiMenu,
 } from "react-icons/fi";
 import { MdMeetingRoom, MdOutlinePayments } from "react-icons/md";
+import { TbPhysotherapist } from "react-icons/tb";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
@@ -56,6 +57,7 @@ const Sidebar = () => {
                             Quản Lý Dịch Vụ
                         </li>
                     </Link>
+                    
                     {/* Orders Management */}
                     <Link
                         to="/manager/order"
@@ -86,6 +88,17 @@ const Sidebar = () => {
                         <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
                             <MdOutlinePayments />
                             Quản Lý Thanh Toán
+                        </li>
+                    </Link>
+
+                    {/* Therapist Management */}
+                    <Link
+                        to="/manager/therapist"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                            <TbPhysotherapist />
+                            Quản Lý Chuyên Viên
                         </li>
                     </Link>
 
