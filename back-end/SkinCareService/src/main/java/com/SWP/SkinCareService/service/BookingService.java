@@ -44,9 +44,7 @@ public class BookingService {
     private PaymentRepository paymentRepository;
     private TherapistRepository therapistRepository;
     private BookingSessionService bookingSessionService;
-    private SupabaseService supabaseService;
     private VNPayService vnPayService;
-    private RoomService roomService;
 
     @Transactional
     @PreAuthorize("hasRole('USER')")
@@ -164,36 +162,27 @@ public class BookingService {
         Booking booking = checkBooking(id);
         try {
             BookingStatus bookingStatus = BookingStatus.valueOf(status.toUpperCase());
-            booking.setStatus(bookingStatus);
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            boolean isStaff = staff.getRoles().stream()
+                    .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
+
             if (bookingStatus == BookingStatus.ON_GOING) {
+                if (!isStaff) {
+                    throw new AppException(ErrorCode.NOT_HAVE_PERMISSIONS);
+                }
+                booking.setStatus(bookingStatus);
                 List<BookingSession> sessionList = booking.getBookingSessions();
                 if (sessionList != null && !sessionList.isEmpty()) {
                     for (BookingSession session : sessionList) {
                         if (session.getStatus() == BookingSessionStatus.PENDING) {
                             session.setStatus(BookingSessionStatus.WAITING);
-                            if (session.getRoom() == null) {
-                                //Assign Room for session
-                                List<Room> roomAvailableForService = roomService.getRoomAvailableForService(booking.getService().getId());
-                                if (roomAvailableForService.isEmpty()) {
-                                    throw new AppException(ErrorCode.OUT_OF_ROOM);
-                                } else {
-                                    Room room = roomAvailableForService.getFirst();
-                                    session.setRoom(room);
-                                    roomService.incrementInUse(room.getId());
-                                }
-                            }
                         }
                     }
                 }
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-                boolean isStaff = staff.getRoles().stream()
-                        .anyMatch(role -> role.getName().equals("ROLE_STAFF"));  // Assuming your Role entity has a getName() method
-
-                if (isStaff) {
-                    booking.setStaff(staff);
-                }
             } else if (bookingStatus == BookingStatus.IS_CANCELED) {
+                booking.setStatus(bookingStatus);
                 List<BookingSession> sessionList = booking.getBookingSessions();
                 if (sessionList != null && !sessionList.isEmpty()) {
                     for (BookingSession session : sessionList) {
@@ -208,6 +197,7 @@ public class BookingService {
     }
 
     @Transactional
+    @PostAuthorize("hasRole('STAFF')")
     public void updatePaymentStatus(int id, String paymentStatus){
         Booking booking = checkBooking(id);
         try {
@@ -217,6 +207,14 @@ public class BookingService {
                 updateStatus(id, "ON_GOING");
             } else if (status == PaymentStatus.CANCELLED) {
                 updateStatus(id, "IS_CANCELED");
+            }
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            boolean isStaff = staff.getRoles().stream()
+                    .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
+
+            if (isStaff) {
+                booking.setStaff(staff);
             }
             bookingRepository.save(booking);
         } catch (IllegalArgumentException e){

@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.repository;
 
+import com.SWP.SkinCareService.entity.Booking;
 import com.SWP.SkinCareService.entity.BookingSession;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,4 +36,8 @@ public interface BookingSessionRepository extends JpaRepository<BookingSession, 
             @Param("status") BookingSessionStatus status,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+
+    List<BookingSession> findAllByBooking(Booking booking);
+
+    List<BookingSession> findByBookingUserPhone(String phoneNumber);
 }
