@@ -17,4 +17,5 @@ public class BlogPostResponse {
     String therapistName;
     boolean approve;
     String img;
+    boolean defaultBlog;
 } 

@@ -93,8 +93,8 @@ public class BlogPostController {
 
     @Operation(summary = "Get all blog posts", description = "Get all blog posts")
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<BlogPostResponse>>> getAllBlogPosts(Pageable pageable) {
-        var result = blogPostService.getAllBlogPosts(pageable);
+    public ResponseEntity<ApiResponse<Page<BlogPostResponse>>> getAllBlogPosts(@RequestParam(required = false, defaultValue = "true") boolean isApprove, Pageable pageable) {
+        var result = blogPostService.getAllBlogPosts(isApprove, pageable);
         return ResponseEntity.ok(
                 ApiResponse.<Page<BlogPostResponse>>builder()
                         .code(200)
@@ -108,6 +108,30 @@ public class BlogPostController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BlogPostResponse>> getBlogPostById(@PathVariable Integer id) {
         var result = blogPostService.getBlogPostById(id);
+        return ResponseEntity.ok(
+                ApiResponse.<BlogPostResponse>builder()
+                        .code(200)
+                        .result(result)
+                        .message("Blog post retrieved successfully")
+                        .build()
+        );
+    }
+
+    @GetMapping("/default/{quizResultId}")
+    public ResponseEntity<ApiResponse<BlogPostResponse>> getDefault(@PathVariable Integer quizResultId) {
+        var result = blogPostService.getDefaultBlogPost(quizResultId);
+        return ResponseEntity.ok(
+                ApiResponse.<BlogPostResponse>builder()
+                        .code(200)
+                        .result(result)
+                        .message("Blog post retrieved successfully")
+                        .build()
+        );
+    }
+
+    @PutMapping("/default/{id}")
+    public ResponseEntity<ApiResponse<BlogPostResponse>> setDefaultBlog(@PathVariable Integer id) {
+        var result = blogPostService.setDefaultBlogPost(id);
         return ResponseEntity.ok(
                 ApiResponse.<BlogPostResponse>builder()
                         .code(200)

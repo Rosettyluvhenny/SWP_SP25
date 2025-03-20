@@ -12,8 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,7 @@ import java.util.List;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class BlogPostService {
     BlogPostRepository blogPostRepository;
     TherapistRepository therapistRepository;
@@ -60,8 +63,8 @@ public class BlogPostService {
         if (img != null && !img.isEmpty()) {
             String fileName = "blog_" + blogPost.getBlogId();
             try {
-                supabaseService.uploadImage(img, fileName);
-                blogPost.setImg(fileName);
+                String imgUrl = supabaseService.uploadImage(img, fileName);
+                blogPost.setImg(imgUrl);
             } catch (IOException e) {
                 throw new AppException(ErrorCode.IMAGE_UPLOAD_FAILED);
             }
@@ -70,8 +73,9 @@ public class BlogPostService {
         return blogPostMapper.toBlogPostResponse(blogPost);
     }
 
-    public Page<BlogPostResponse> getAllBlogPosts(Pageable pageable) {
-        return blogPostRepository.findAll(pageable).map(blogPostMapper::toBlogPostResponse);
+    public Page<BlogPostResponse> getAllBlogPosts(boolean isApprove,Pageable pageable) {
+        Page<BlogPost> result = isApprove? blogPostRepository.findAllByApproveTrue(pageable):blogPostRepository.findAll(pageable);
+        return result.map(blogPostMapper::toBlogPostResponse);
     }
 
     public BlogPostResponse getBlogPostById(Integer id) {
@@ -120,8 +124,8 @@ public class BlogPostService {
             
             try {
                 // Upload new image and save the filename
-                supabaseService.uploadImage(img, fileName);
-                blogPost.setImg(fileName);
+                var imgurl = supabaseService.uploadImage(img, fileName);
+                blogPost.setImg(imgurl);
             } catch (IOException e) {
                 throw new AppException(ErrorCode.IMAGE_UPLOAD_FAILED);
             }
@@ -134,7 +138,8 @@ public class BlogPostService {
     @Transactional
     public ApiResponse<Void> deleteBlogPost(Integer id) {
         BlogPost blogPost = checkBlogPost(id);
-        
+        if(blogPost.isDefaultBlog())
+            throw new AppException(ErrorCode.IS_DEFAULT_BLOG);
         // Kiểm tra xem người đang đăng nhập có phải là therapist của blog này không
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -168,6 +173,7 @@ public class BlogPostService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public BlogPostResponse approveBlogPost(Integer id) {
         BlogPost blogPost = checkBlogPost(id);
         
@@ -194,4 +200,27 @@ public class BlogPostService {
         return quizResultRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
     }
+
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public BlogPostResponse setDefaultBlogPost(int blogPostId) {
+        if (blogPostRepository.existsByDefaultBlogTrue()) {
+            blogPostRepository.clearDefaultFlag();
+        }
+
+        BlogPost blogPost = checkBlogPost(blogPostId);
+        if(!blogPost.isApprove()){
+            throw new AppException(ErrorCode.BLOGPOST_NOT_APPROVED);
+        }
+        blogPost.setDefaultBlog(true);
+        blogPostRepository.save(blogPost);
+        return blogPostMapper.toBlogPostResponse(blogPost);
+    }
+
+    public BlogPostResponse getDefaultBlogPost(int quizResultId){
+        BlogPost blog = blogPostRepository.findByQuizResult_IdAndDefaultBlogTrue(quizResultId).orElseThrow(()-> new AppException(ErrorCode.BLOGPOST_NOT_EXISTED));
+
+        return blogPostMapper.toBlogPostResponse(blog);
+    }
+
 } 

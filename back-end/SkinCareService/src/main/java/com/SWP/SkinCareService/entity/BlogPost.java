@@ -48,4 +48,7 @@ public class BlogPost {
     boolean approve;
 
     String img;
+
+    @Column(columnDefinition = "boolean default false")
+    boolean defaultBlog = false;
 } 

@@ -87,7 +87,9 @@ public enum ErrorCode {
     VNPAY_PAYMENT_FAILED(2005, "Thanh toán thất bại", HttpStatus.BAD_REQUEST),
     VNPAY_INVALID_RESPONSE(2006, "Phản hồi từ VNPay không hợp lệ", HttpStatus.BAD_REQUEST),
     VNPAY_MISSING_PARAMS(2007, "Thiếu thông tin thanh toán", HttpStatus.BAD_REQUEST),
-    PHONE_EXISTED(2008,"Phone number has been used" , HttpStatus.BAD_REQUEST );
+    PHONE_EXISTED(2008,"Phone number has been used" , HttpStatus.BAD_REQUEST ),
+    BLOGPOST_NOT_APPROVED(2009, "Blog post is not approved yet" , HttpStatus.BAD_REQUEST ),
+    IS_DEFAULT_BLOG(2010, "The Blog post is default Blog" , HttpStatus.BAD_REQUEST );
     ;
 
     int code;
