@@ -86,6 +86,7 @@ public class NotificationService {
                             .text("Phiên đặt lịch của bạn sẽ diễn ra vào lúc "+ bookingSession.getSessionDateTime().toLocalTime() +" tại "+bookingSession.getRoom().getName())
                             .userId(bookingSession.getBooking().getUser().getId())
                             .isRead(false)
+                            .url(""+bookingSession.getId())
                             .build();
                     create(request);
                 }

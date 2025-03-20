@@ -15,5 +15,6 @@ public class NotificationResponse {
     int id;
     String text;
     LocalDateTime createdAt;
+    String url;
     boolean isRead;
 }
