@@ -3,10 +3,10 @@ import axios from "../services/customizedAxios";
 const login = async (username: string, password: string) => {
     try {
         const response = await axios.post(`/auth/authenticate`, { username, password });
-        return response; // Return only the actual data from API
+        return response; 
     } catch (error) {
         console.error("Login failed:", error);
-        return null; // Handle errors properly
+        return null; 
     }
 };
 
