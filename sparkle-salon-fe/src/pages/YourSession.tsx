@@ -24,8 +24,8 @@ export default function YourSession() {
     }, [loading]);
 
 
-    const handleRebook = (serviceId: number) => {
-        navigate(`/?service=${serviceId}`);
+    const handleRebook = (id: number) => {
+        navigate(`/bookingSession?booking=${id}`);
     };
     const handleCancelSession = async (sessionId: number) => {
         try {
@@ -132,7 +132,8 @@ export default function YourSession() {
                                                     <motion.button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            handleRebook(session.serviceId);
+                                                            e.preventDefault();
+                                                            handleRebook(session.bookingId);
                                                         }}
                                                         className="bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-1.5 shadow-sm"
                                                         whileHover={{ scale: 1.03 }}
@@ -145,7 +146,8 @@ export default function YourSession() {
                                                     <motion.button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            handleCancelSession(session.id);
+                                                            e.preventDefault();
+                                                            handleRebook(session.bookingId);
                                                         }}
                                                         className="bg-green-500 text-white px-3 py-1.5 rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-1.5 shadow-sm"
                                                         whileHover={{ scale: 1.03 }}

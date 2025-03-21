@@ -18,7 +18,6 @@ instance.interceptors.response.use(function(response){
             const refreshResponse = await refresh();
             if (refreshResponse.token) {
                 localStorage.setItem("token", refreshResponse.token);
-
                 // Retry the failed request with new token
                 // error.config.headers["Authorization"] = `Bearer ${refreshResponse.token}`;
                 console.log("error from inceptors")

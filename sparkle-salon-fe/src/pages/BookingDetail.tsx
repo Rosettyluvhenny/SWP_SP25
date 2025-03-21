@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Booking, getBookingById } from "../data/userData";
+import { Booking, getBookingById, getSessionByBookingId, getSessionById } from "../data/userData";
 import { FaCheck, FaTimes, FaCreditCard, FaMoneyBillWave, FaCalendarAlt, FaClipboardList, FaArrowLeft } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 export default function BookingDetail() {
     const { id } = useParams();
@@ -9,7 +10,7 @@ export default function BookingDetail() {
     const [booking, setBooking] = useState<Booking | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    const [sessions, setSessions] = useState<[]>([]);
     useEffect(() => {
         const fetchBooking = async () => {
             try {
@@ -30,8 +31,18 @@ export default function BookingDetail() {
                 setIsLoading(false);
             }
         };
+        const fetchSession = async() => {
+            try{
+                const response = await getSessionByBookingId(Number(id));
+                if(response)
+                    setSessions(response);
+            }catch(error){
+                console.log(error);
+            }
 
+        }
         fetchBooking();
+        fetchSession();
     }, [id]);
 
     const getStatusColor = (status: string) => {
@@ -91,6 +102,7 @@ export default function BookingDetail() {
 
     
     return (
+        <>
         <div className="bg-gray-50 min-h-screen pb-12">
             {/* Hero section with payment status */}
             <div className="relative w-full h-48 sm:h-64 flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
@@ -189,9 +201,80 @@ export default function BookingDetail() {
                                 Xem chi tiết dịch vụ
                             </button>
                         )}
+                        {(booking?.sessionRemain>0) && (
+                            <button 
+                                onClick={() => navigate(`/bookingSession?booking=${booking.id}`)} 
+                                className="px-4 py-2 border border-purple-600 text-purple-600 rounded-md hover:bg-purple-50 transition duration-300"
+                            >
+                                Đặt lịch
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
+            <motion.div
+                className="bg-pink-100 shadow-lg rounded-lg p-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+            >
+                <div className="overflow-x-auto mt-10">
+                    <table className="w-full border-collapse rounded-lg overflow-hidden">
+                        <thead>
+                            <tr className="bg-white text-black">
+                                <th className="p-3 text-left">Id lịch hẹn</th>
+                                <th className="p-3 text-left">Ngày hẹn</th>
+                                <th className="p-3 text-left">Thời gian</th>
+                                <th className="p-3 text-left">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white">
+                            {sessions.length > 0 ? (
+                                sessions.map((session) => (
+                                    <motion.tr
+                                        key={session.id}
+                                        className="border-t hover:bg-pink-50/80 transition-colors text-left cursor-pointer"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                        onClick={() => { navigate(`/sessionDetail/${session.id}`) }}
+                                    >
+                                        <td className="p-4 font-medium text-gray-700">
+                                            {session.id}
+                                        </td>
+                                        <td className="p-4 text-gray-600">
+                                            {session.sessionDateTime.slice(0, 10)}
+                                        </td>
+                                        <td className="p-4 text-gray-600">
+                                            {session.sessionDateTime.slice(11)}
+                                        </td>
+                                        <td className="p-4">
+                                            <span
+                                                className={`px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(session.status) || ""
+                                                    }`}
+                                            >
+                                                {session.status}
+                                            </span>
+                                        </td>
+                                    </motion.tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td
+                                        colSpan={9}
+                                        className="p-4 text-center text-gray-500"
+                                    >
+                                        Bạn chưa có lịch đặt nào!
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </motion.div>
         </div>
+       
+        </>
+        
     );
 }

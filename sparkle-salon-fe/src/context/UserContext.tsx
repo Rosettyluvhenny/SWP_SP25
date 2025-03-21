@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { introspect, getUser, refresh } from '../data/authData';
 import { toast } from 'react-toastify';
-const UserContext = React.createContext({ name: '', auth: false });
+const UserContext = React.createContext({ name: '', auth: false, role:'' });
 
 const UserProvider = ({ children }) => {
-    const [user, setUser] = React.useState({ name: '', auth: false });
+    const [user, setUser] = React.useState({ name: '', auth: false, role:''});
     const [loading, setIsLoading] = useState(true);
     const [isLoginOpen, setIsLoginOpen] = useState(false);
 
@@ -33,7 +33,8 @@ const UserProvider = ({ children }) => {
                         if (userData) {
                             setUser({
                                 name: `${userData.username}`,
-                                auth: true
+                                auth: true,
+                                role: `${userData.roles[0].name}`
                             });
                         }
                     } else {
@@ -49,7 +50,8 @@ const UserProvider = ({ children }) => {
                                 if (userData) {
                                     setUser({
                                         name: `${userData.username}`,
-                                        auth: true
+                                        auth: true,
+                                        role: ''
                                     });
                                 }
                             } else {
@@ -58,45 +60,6 @@ const UserProvider = ({ children }) => {
                         }
                     }
                 }
-                // const response = await introspect();
-                // console.log("introspect", response);
-                // // If token is not valid, try to refresh
-                // if (response) {
-                //     // If token is valid, get user data directly
-                //     const userData = await getUser();
-
-                //     if (userData) {
-                //         setUser({
-                //             name: `${userData.username}`,
-                //             auth: true
-                //         });
-                //     }
-                // }else{
-                //     const refreshResponse = await refresh();
-                //     console.log("refresh", refreshResponse)
-                //     if (refreshResponse?.token) {
-                //         localStorage.setItem("token", refreshResponse.token);
-                //         console.log("set Success full");
-                //         // After refreshing token, we need to get user data
-                //         const userData = await getUser();
-    
-                //         if (userData) {
-                //             setUser({
-                //                 name: `${userData.username}`,
-                //                 auth: true
-                //             });
-                //         }
-                //     } else {
-                //         // If refresh fails, clear token and set auth to false
-                //         localStorage.removeItem("token");
-                //         setUser({
-                //             name: "",
-                //             auth: false
-                //         });
-                //         toast.error("Your access is expired");
-                //         setTimeout(() => { logout(); }, 1000);
-                //     }
-                // }
             } catch (error) {
                 // Handle error by clearing token and setting auth to false
                 toast.error("Your access is expired");
@@ -108,24 +71,31 @@ const UserProvider = ({ children }) => {
 
         validateAndSetUser();
     }, []);
-    const loginContext = (name) => {
-        setUser((user) => ({
-            name: name,
-            auth: true
-        }))
-
+    const loginContext =  (name, role) => {
+            setUser({
+                name: `${name}`,
+                auth: true,
+                role: role
+            });
     };
 
     const logout = () => {
         localStorage.removeItem("token");
         setUser((user) => ({
             name: '',
-            auth: false
+            auth: false,
+            role: ''
         }))
         setIsLoginOpen(true);
     }
+    
+    const hasRole = (user, roleName:string) => {
+        if (!user || !user.role) return false;
+        return user.role === roleName;
+      };
+
     return (
-        <UserContext.Provider value={{ user, loginContext, logout, loading, isLoginOpen, setIsLoginOpen }}>
+        <UserContext.Provider value={{ user, loginContext, logout, loading, isLoginOpen, setIsLoginOpen, hasRole}}>
             {children}
         </UserContext.Provider>
     );

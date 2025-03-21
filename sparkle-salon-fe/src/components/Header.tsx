@@ -29,7 +29,7 @@ export default function Header() {
         dob: "",
     });
 
-    const { user, logout, loginContext, loading, isLoginOpen, setIsLoginOpen } = useContext(UserContext);
+    const { user, logout, loginContext, loading, isLoginOpen, setIsLoginOpen, hasRole } = useContext(UserContext);
     const [error, setError] = useState<string|null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
@@ -84,13 +84,21 @@ export default function Header() {
             return;
         }
         let res = await login(loginData.username, loginData.password);
-        // console.log(">> check res ", res)
+        
         if (res && res.result) {
             localStorage.setItem("token", res.result.token)
-            loginContext(loginData.username)
-            toast.success("Login successfully ");
-            setLoginData({ username: "", password: "" });
-            setIsLoginOpen(false);
+            try{
+
+                const userInfo = await getUser();
+                const role = userInfo.roles.length > 0 ? userInfo.roles[0].name : "";
+                loginContext(userInfo.name, role);
+                toast.success("Login successfully ");
+                setLoginData({ username: "", password: "" });
+                setIsLoginOpen(false);
+            }catch(error){
+                console.error("Failed to fetch user info:", error);
+                toast.error("Failed to get user information");
+            }
         } else {
 
                 toast.error("Đăng nhập thất bại");
@@ -202,7 +210,6 @@ export default function Header() {
             {  path: "/schedule", label:"Schedule"}
         );
     }
-
 
     return (
         <motion.header

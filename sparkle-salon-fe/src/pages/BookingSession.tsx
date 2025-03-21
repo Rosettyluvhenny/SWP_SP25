@@ -221,7 +221,7 @@ export default function BookingSession() {
     const [searchParams] = useSearchParams();
     const selectedBooking = searchParams.get("booking") || "";
     const navigate = useNavigate();
-    const { user } = useContext(UserContext);
+    const { user, setIsLoginOpen } = useContext(UserContext);
 
     // Helper function to get next seven dates
     function getNextSevenDates() {
@@ -312,6 +312,7 @@ export default function BookingSession() {
 
         if (!(user && user.auth)) {
             toast.warning("Vui lòng đăng nhập để đặt lịch");
+            setIsLoginOpen(true);
             return;
         }
 
@@ -330,17 +331,13 @@ export default function BookingSession() {
         try {
             const response = await sessionSchedule(sessionBody);
 
-            if (response && response.url) {
-                alert("Đặt lịch thành công! Đang chuyển hướng đến trang thanh toán...");
-                window.open(response.url, "_self");
-            }
             
             if (response && response.status) {
                 toast.success("Đặt lịch thành công");
+                navigate(`/sessionDetail/${response.id}`)
             }
         } catch (error) {
-            console.error("Lỗi khi đặt lịch:", error);
-            alert("Đặt lịch thất bại.");
+            toast.error("Lỗi khi đặt lịch:", error);
         }
     };
 

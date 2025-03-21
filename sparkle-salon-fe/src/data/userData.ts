@@ -72,7 +72,7 @@ const cancelBooking = async(id: string) =>{
     }
 }
 
-const getAllSession = async() => {
+const getAllSession = async(url : string) => {
     const response = await axios.get(`/booking/my-bookings${url}`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -124,6 +124,17 @@ const getSessionById = async(id: number) => {
         return null;
     }
 }
-export { Session, getSessionById, cancelMySession, getUserBookings, getBookingById, cancelBooking,getAllSession ,getMySession};
+const getSessionByBookingId = async(id: number) => {
+    const response = await axios.get(`/bookingSession/booking/${id}`,{headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+    }
+    });
+    if(response.result){
+        return response.result;
+    }else {
+        return null;
+    }
+}
+export { getSessionByBookingId, Session, getSessionById, cancelMySession, getUserBookings, getBookingById, cancelBooking,getAllSession ,getMySession};
 
 

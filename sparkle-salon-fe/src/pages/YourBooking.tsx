@@ -171,7 +171,9 @@ export default function YourBooking() {
                                         transition={{
                                             duration: 0.3,
                                         }}
-                                        onClick={() => navigate(`/bookingDetail/${booking.id}`)}
+                                        onClick={(e) =>{ 
+                                            e.stopPropagation();
+                                            navigate(`/bookingDetail/${booking.id}`)}}
                                     >
                                         <td className="p-3 font-medium">
                                             {booking.serviceName}
@@ -213,7 +215,11 @@ export default function YourBooking() {
                                         <td className="p-3 flex space-x-2">
                                             {(booking.status == "ON_GOING" || booking.sessionRemain > 0) &&
                                                 <motion.button
-                                                    onClick={() => handleRebook(booking.serviceId)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); 
+                                                        e.preventDefault();
+                                                        handleRebook(booking.serviceId)}
+                                                    }
                                                     className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
                                                     whileHover={{ scale: 1.05 }}
                                                     whileTap={{ scale: 0.95 }}
@@ -223,10 +229,13 @@ export default function YourBooking() {
                                             }
                                             {booking.status == "PENDING" &&
                                                 <motion.button
-                                                    onClick={() =>
+                                                    onClick={(e) =>{
+                                                        e.stopPropagation();
+                                                        e.preventDefault();
                                                         handleCancelBooking(
                                                             booking.id
                                                         )
+                                                    }
                                                     }
                                                     className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
                                                     whileHover={{ scale: 1.05 }}
@@ -237,7 +246,10 @@ export default function YourBooking() {
                                             }
                                             {(booking.status == "COMPLETED" || booking.status == "IS_CANCELED") &&
                                                 <motion.button
-                                                    onClick={() => handleRebook(booking.serviceId)}
+                                                    onClick={(e) =>{ 
+                                                        e.stopPropagation(); 
+                                                        e.preventDefault();
+                                                        handleRebook(booking.serviceId)}}
                                                     className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
 
                                                     whileHover={{ scale: 1.05 }}
