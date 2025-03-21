@@ -6,82 +6,88 @@ import {
     createFeedback,
     updateFeedbackById,
 } from "../data/feedbacksData";
-import { getUser } from "../data/authData";
+import { serviceDataById } from "../data/servicesData";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { serviceDataById } from "../data/servicesData";
 
 const FeedbackPage: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<"pending" | "completed">(
-        "pending"
-    );
+    const [activeTab, setActiveTab] = useState<"pending" | "completed">("pending");
     const [pendingServices, setPendingServices] = useState<Booking[]>([]);
-    const [completedFeedbacks, setCompletedFeedbacks] = useState<Feedback[]>(
-        []
-    );
+    const [completedFeedbacks, setCompletedFeedbacks] = useState<Feedback[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [userId, setUserId] = useState<string>("");
 
     // Modal states
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [selectedService, setSelectedService] = useState<Booking | null>(
-        null
-    );
+    const [selectedService, setSelectedService] = useState<Booking | null>(null);
     const [feedbackText, setFeedbackText] = useState<string>("");
     const [rating, setRating] = useState<number>(5);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [currentFeedbackId, setCurrentFeedbackId] = useState<string | null>(
-        null
-    );
+    const [currentFeedbackId, setCurrentFeedbackId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const userData = await getUser();
-                if (userData && userData.id) {
-                    setUserId(userData.id);
-
-                    // Get user's paid bookings
-                    const bookingsResponse = await getUserBookings();
-                    console.log("Raw bookings response:", bookingsResponse);
-
-                    const bookings = bookingsResponse || [];
-                    console.log("Bookings array:", bookings);
-
-                    const paidBookings = bookings.filter(
-                        (booking) =>
-                            booking.paymentStatus &&
-                            booking.paymentStatus.toUpperCase() === "PAID"
-                    );
-                    console.log("Paid bookings:", paidBookings);
-
-                    // Get user's feedbacks
-                    const feedbacksResponse = await getUserFeedbacks(
-                        userData.id
-                    );
-                    const feedbacks = feedbacksResponse || []; // Handle null case
-
-                    // Find services that don't have feedback yet
-                    const feedbackServiceIds = feedbacks
-                        .map(
-                            (feedback) =>
-                                feedback.serviceId &&
-                                feedback.serviceId.toString()
-                        )
-                        .filter(Boolean);
-
-                    const pendingServices = paidBookings.filter(
-                        (booking) =>
-                            booking.serviceId &&
-                            !feedbackServiceIds.includes(
-                                booking.serviceId.toString()
-                            )
-                    );
-
-                    setPendingServices(pendingServices);
-                    setCompletedFeedbacks(feedbacks);
+                
+                // Get current user ID from token
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    toast.error("Vui lòng đăng nhập để xem đánh giá");
+                    setLoading(false);
+                    return;
                 }
+                
+                // Extract user ID from token or use a default
+                // This is a simple approach - your actual implementation may differ
+                const tokenParts = token.split('.');
+                if (tokenParts.length === 3) {
+                    try {
+                        const payload = JSON.parse(atob(tokenParts[1]));
+                        if (payload && payload.sub) {
+                            setUserId(payload.sub);
+                        }
+                    } catch (e) {
+                        console.error("Error parsing token:", e);
+                    }
+                }
+                
+                // Get user bookings
+                const bookingsResponse = await getUserBookings();
+                console.log("Raw bookings:", bookingsResponse);
+                
+                if (!bookingsResponse) {
+                    setPendingServices([]);
+                    setLoading(false);
+                    return;
+                }
+                
+                // Filter only PAID bookings
+                const paidBookings = bookingsResponse.filter(
+                    booking => booking.paymentStatus === "PAID"
+                );
+                console.log("Paid bookings:", paidBookings);
+                
+                // Get user's feedback history
+                const feedbacksResponse = await getUserFeedbacks(userId);
+                const feedbacks = feedbacksResponse || [];
+                console.log("User feedbacks:", feedbacks);
+                
+                // Extract service IDs that already have feedback
+                const feedbackServiceIds = feedbacks.map(
+                    feedback => feedback.serviceId
+                ).filter(Boolean);
+                console.log("Feedback service IDs:", feedbackServiceIds);
+                
+                // Find services that need feedback (paid but no feedback yet)
+                const servicesNeedingFeedback = paidBookings.filter(
+                    booking => booking.serviceId && 
+                    !feedbackServiceIds.includes(booking.serviceId)
+                );
+                console.log("Services needing feedback:", servicesNeedingFeedback);
+                
+                setPendingServices(servicesNeedingFeedback);
+                setCompletedFeedbacks(feedbacks);
             } catch (error) {
                 console.error("Error fetching data:", error);
                 toast.error("Không thể tải dữ liệu đánh giá.");
@@ -102,7 +108,7 @@ const FeedbackPage: React.FC = () => {
     };
 
     const handleEditFeedback = async (feedback: Feedback) => {
-        setFeedbackText(feedback.feedbackText);
+        setFeedbackText(feedback.feedbackText || "");
         setRating(feedback.rating);
         setIsEditing(true);
         setCurrentFeedbackId(feedback.id?.toString() || null);
@@ -155,7 +161,7 @@ const FeedbackPage: React.FC = () => {
                     bookingDate: new Date().toISOString(),
                     serviceId: selectedService.serviceId,
                     userId,
-                    therapistName: "Chuyên viên", // Adding default value for therapistName
+                    therapistName: "Chuyên viên", // Default value
                 };
 
                 const success = await updateFeedbackById(
@@ -190,7 +196,7 @@ const FeedbackPage: React.FC = () => {
                     bookingDate: new Date().toISOString(),
                     serviceId: selectedService.serviceId,
                     userId,
-                    therapistName: "Chuyên viên", // Adding default value for therapistName
+                    therapistName: "Chuyên viên", // Default value
                 };
 
                 const success = await createFeedback(feedbackData);
@@ -296,14 +302,10 @@ const FeedbackPage: React.FC = () => {
                                                     {service.serviceName}
                                                 </h3>
                                                 <p className="text-gray-500 text-sm mb-2">
-                                                    Ngày đặt:{" "}
-                                                    {new Date().toLocaleDateString(
-                                                        "vi-VN"
-                                                    )}
+                                                    Trạng thái: {service.status}
                                                 </p>
                                                 <p className="text-gray-500 text-sm">
-                                                    Số buổi:{" "}
-                                                    {service.sessionRemain}
+                                                    Số buổi: {service.sessionRemain}
                                                 </p>
                                             </div>
                                             <button

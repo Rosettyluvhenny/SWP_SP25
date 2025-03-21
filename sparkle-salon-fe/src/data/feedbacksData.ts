@@ -15,11 +15,16 @@ export interface Feedback {
 
 
 const getFeedback = async (): Promise<Feedback[]> => {
+    try {
         const response = await axios.get("/feedback");
-        if (response.status === 200) {
-            return response.result
+        if (response.status === 200 && response.data && response.data.result) {
+            return response.data.result;
         }
         return [];
+    } catch (error) {
+        console.error("Error fetching feedbacks:", error);
+        return [];
+    }
 };
 
 const getUserFeedbacks = async (userId: string): Promise<Feedback[]> => {
@@ -29,13 +34,13 @@ const getUserFeedbacks = async (userId: string): Promise<Feedback[]> => {
     
     try {
         const response = await axios.get(`/feedback/${userId}/all`);
-        if (response.status === 200) {
-            return response.result;
+        if (response.status === 200 && response.data && response.data.result) {
+            return response.data.result;
         }
         return [];
     } catch (error) {
         console.error(`Error fetching feedbacks for user ID ${userId}:`, error);
-        throw error;
+        return [];
     }
 };
 
@@ -45,25 +50,24 @@ const getFeedbackById = async (id: string | null): Promise<Feedback | null> => {
     }
     
     try {
-        const feedbackResponse = await axios.get(`/feedback/${id}`);
-        if (feedbackResponse.status === 200) {
-            const feedbackData = feedbackResponse.result;
-            return feedbackData;
+        const response = await axios.get(`/feedback/${id}`);
+        if (response.status === 200 && response.data && response.data.result) {
+            return response.data.result;
         }
         return null;
     } catch (error) {
         console.error(`Error fetching feedback with ID ${id}:`, error);
-        throw error;
+        return null;
     }
 };
 
 const createFeedback = async (feedback: Feedback): Promise<boolean> => {
     try {
-        const createFeedbackResponse = await axios.post("/feedback", feedback);
-        return createFeedbackResponse.status === 200;
+        const response = await axios.post("/feedback", feedback);
+        return response.status === 200;
     } catch (error) {
         console.error("Error creating feedback:", error);
-        throw error;
+        return false;
     }
 };
 
@@ -73,11 +77,11 @@ const updateFeedbackById = async (id: string | null, feedback: Feedback): Promis
     }
     
     try {
-        const updateFeedbackResponse = await axios.put(`/feedback/${id}`, feedback);
-        return updateFeedbackResponse.status === 200;
+        const response = await axios.put(`/feedback/${id}`, feedback);
+        return response.status === 200;
     } catch (error) {
         console.error(`Error updating feedback with ID ${id}:`, error);
-        throw error;
+        return false;
     }
 };
 
@@ -87,11 +91,11 @@ const deleteFeedbackById = async (id: string | null): Promise<boolean> => {
     }
     
     try {
-        const deleteFeedbackResponse = await axios.delete(`/feedback/${id}`);
-        return deleteFeedbackResponse.status === 200;
+        const response = await axios.delete(`/feedback/${id}`);
+        return response.status === 200;
     } catch (error) {
         console.error(`Error deleting feedback with ID ${id}:`, error);
-        throw error;
+        return false;
     }
 };
 

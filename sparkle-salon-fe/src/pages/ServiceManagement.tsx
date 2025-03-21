@@ -70,7 +70,7 @@ export default function ServiceManagement() {
     // Services logic
     
     const getServiceList = useCallback( async() => {
-        const services = await servicesData("");
+        const services = await servicesData("?size=100");
         const serviceListData: Service[] = services.services.map((service) => ({
             id: service.id,
             name: service.name,
