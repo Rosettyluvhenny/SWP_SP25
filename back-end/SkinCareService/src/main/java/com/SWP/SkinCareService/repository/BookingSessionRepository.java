@@ -3,6 +3,9 @@ package com.SWP.SkinCareService.repository;
 import com.SWP.SkinCareService.entity.Booking;
 import com.SWP.SkinCareService.entity.BookingSession;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -40,4 +43,6 @@ public interface BookingSessionRepository extends JpaRepository<BookingSession, 
     List<BookingSession> findAllByBooking(Booking booking);
 
     List<BookingSession> findByBookingUserPhone(String phoneNumber);
+
+    Page<BookingSession> findAll(Specification spec, Pageable pageable);
 }

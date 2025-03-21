@@ -32,9 +32,9 @@ public class SecurityConfig {
     private final String[] PUBLIC_POST_ENDPOINTS = {"/users", "/auth/introspect", "/auth/authenticate", "/auth/logout", "/auth/refresh"};
     private final String[] PUBLIC_ENDPOINTS= {"/swagger-ui/**",
             "/v3/api-docs/**",
-            "/swagger-ui.html","/therapist/**","/category/**","/services/**","/supabase/**","/serviceInfo/**", "/payment/vnpay/**"};
+            "/swagger-ui.html","/supabase/**","/serviceInfo/**", "/payment/vnpay/**"};
     private final String[] PUBLIC_GET_ENDPOINTS={"/answer","/therapist/**","/category/**","/services/**","/blogpost/**",
-            "/feedback/**","/question/**","/quiz/**", "/quizResult/**", "/services/**"};
+            "/feedback/**","/question/**","/quiz/**", "/quizResult/**", "/services/**","/payment/**"};
     @Autowired
     private CustomJwtDecoder jwtDecoder;
     @Autowired
@@ -43,13 +43,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
 
         httpSecurity
-                .requiresChannel(channel ->channel.anyRequest().requiresSecure()) //Add new to HTTP -> HTTPS
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//                .requiresChannel(channel ->channel.anyRequest().requiresSecure()) //Add new to HTTP -> HTTPS
+                .cors(cors -> cors.configurationSource(corsConfigurationSourcea()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
 //                        request.anyRequest().permitAll())
                         request.requestMatchers(HttpMethod.POST,PUBLIC_POST_ENDPOINTS).permitAll()
                                 .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
+                                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                                 .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
                                 .anyRequest().authenticated())
 
@@ -60,7 +61,7 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+//                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                                 .accessDeniedHandler(accessDeniedHandler())
                 );
 
@@ -103,9 +104,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSourcea() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000","https://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

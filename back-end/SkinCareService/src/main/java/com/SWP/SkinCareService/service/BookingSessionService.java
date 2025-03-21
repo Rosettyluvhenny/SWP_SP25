@@ -14,12 +14,14 @@ import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BookingSessionMapper;
 import com.SWP.SkinCareService.repository.*;
+import jakarta.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -570,11 +572,11 @@ public class  BookingSessionService {
             BookingSession lastSession = existedSession.getLast();
             LocalDate dateOfLastSession = lastSession.getBookingDate();
             //Check status of last session
-            if (lastSession.getStatus() != BookingSessionStatus.COMPLETED) {
+            if (lastSession.getStatus() != BookingSessionStatus.COMPLETED && lastSession.getStatus() != BookingSessionStatus.IS_CANCELED ) {
                 throw new AppException(ErrorCode.CURRENT_SESSION_NOT_COMPLETED);
             }
             //Check date to create new bookingSession
-            if (!requestDate.isAfter(dateOfLastSession)) {
+            if (!requestDate.isAfter(dateOfLastSession) && lastSession.getStatus() != BookingSessionStatus.IS_CANCELED ) {
                 throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
             }
             //Check session remain
@@ -604,6 +606,24 @@ public class  BookingSessionService {
         return true;
     }
 
+    public Page<BookingSession> getByUser(Pageable pageable){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        String userId = user.getId();
+        Specification<Booking> spec = (root, query, cb) -> {
+            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("booking").get("user").get("id"), userId));
 
+            predicates.add(cb.between(root.get("sessionDateTime"), LocalDate.now(), LocalDate.now().plusDays(7)));
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        return bookingSessionRepository.findAll(spec,pageable);
+    }
 
+    @PostAuthorize("returnObject.booking.user.username === authentication.name")
+    public BookingSession cancelByUser(int sessionId) {
+        BookingSession session = checkSession(sessionId);
+        session.setStatus(BookingSessionStatus.IS_CANCELED);
+        return bookingSessionRepository.save(session);
+    }
 }

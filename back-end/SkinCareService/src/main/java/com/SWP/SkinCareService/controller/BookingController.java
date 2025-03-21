@@ -94,7 +94,7 @@ public class BookingController {
 
     @Operation(summary = "Get all bookings for authenticated user")
     @GetMapping("/my-bookings")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("ROLE_USER")
     public ResponseEntity<Page<BookingResponse>> getAllByUser(@RequestParam(required = false) String status,
                                                               @RequestParam(required = false) String payStatus,
                                                               @PageableDefault(size = 10, sort = "id") Pageable pageable) {
@@ -109,11 +109,11 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getAllByStaff(phone, pageable));
     }
 
-    @PutMapping("/{bookingId}/cancel")
+    @PutMapping("/cancel/{bookingId}")
     ResponseEntity<ApiResponse<BookingResponse>> cancelByUser(@PathVariable int bookingId) {
         bookingService.cancelBooking(bookingId);
         return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<BookingResponse>builder().message("Updates payment status successfull").build()
+                ApiResponse.<BookingResponse>builder().message("Updates status successfull").build()
         );
     }
 }

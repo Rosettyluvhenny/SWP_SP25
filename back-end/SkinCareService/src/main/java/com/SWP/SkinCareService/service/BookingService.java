@@ -161,10 +161,12 @@ public class BookingService {
     }
 
     @Transactional
-    @PostAuthorize("(hasRole('USER') and returnObject.user.username == authentication.name)")
+    @PostAuthorize("returnObject.user.username == authentication.name)")
     public Booking cancelBooking(int id){
         Booking booking = checkBooking(id);
         booking.setStatus(BookingStatus.IS_CANCELED);
+        booking.setPaymentStatus(PaymentStatus.CANCELLED);
+        booking.setSessionRemain(0);
         List<BookingSession> sessionList = booking.getBookingSessions();
         if (sessionList != null && !sessionList.isEmpty()) {
             for (BookingSession session : sessionList) {

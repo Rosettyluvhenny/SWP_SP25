@@ -32,5 +32,7 @@ public interface BookingSessionMapper {
     @Mapping(target = "therapistName", source = "therapist.user.fullName")
     @Mapping(target = "staffName", source = "staff.fullName")
     @Mapping(target = "staffId", source = "staff.id")
+    @Mapping(target= "img", source="booking.service.img")
+    @Mapping(target= "serviceName", source="booking.service.name")
     BookingSessionResponse toBookingSessionResponse(BookingSession bookingSession);
 }

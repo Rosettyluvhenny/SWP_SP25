@@ -46,7 +46,13 @@ public class BookingSessionController {
                 ApiResponse.<Page<BookingSessionResponse>>builder().result(result).build()
         );
     }
-
+    @GetMapping("/mySession")
+    ResponseEntity<ApiResponse<Page<BookingSessionResponse>>> getAllByUser(Pageable pageable) {
+        var result = bookingSessionService.getMySessions(pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<Page<BookingSessionResponse>>builder().result(result).build()
+        );
+    }
     @PreAuthorize("@customSecurityService.canAccessSession(#id, authentication.principal.id, authentication.authorities.iterator().next().authority)")
     @GetMapping("/{sessionId}")
     ResponseEntity<ApiResponse<BookingSessionResponse>> getBookingSession(@PathVariable int sessionId) {
@@ -124,5 +130,14 @@ public class BookingSessionController {
         return ApiResponse.<List<TherapistAvailabilityResponse>>builder()
                 .result(bookingSessionService.getAvailableTimeSlotsWithAvailableTherapists(serviceId, date))
                 .build();
+    }
+
+    @PutMapping("/{sessionId}/cancel")
+    @PreAuthorize("hasAnyRole('USER')")
+    ResponseEntity<ApiResponse<BookingResponse>> cancel(@PathVariable int sessionId) {
+        bookingSessionService.cancelByUser(sessionId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<BookingResponse>builder().message("Update successfull").build()
+        );
     }
 }

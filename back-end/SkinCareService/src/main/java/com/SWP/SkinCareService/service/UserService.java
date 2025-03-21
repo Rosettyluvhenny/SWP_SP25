@@ -251,11 +251,11 @@ public class UserService {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("Authentication: "+authentication);
-        log.info("name: "+ authentication.getName());
-        log.info("Authorities: "+ authentication.getAuthorities());
-        log.info("Principal: "+ authentication.getPrincipal());
-        log.info("id: " + authentication.getPrincipal().toString());
+//        log.info("Authentication: "+authentication);
+//        log.info("name: "+ authentication.getName());
+//        log.info("Authorities: "+ authentication.getAuthorities());
+//        log.info("Principal: "+ authentication.getPrincipal());
+//        log.info("id: " + authentication.getPrincipal().toString());
         User user = userRepository.findByUsername(name).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);
@@ -263,12 +263,11 @@ public class UserService {
     public User getById(String id) {
         return userRepository.findById(id).orElseThrow(()-> new RuntimeException("user can not be found"));
     }
-    //    @PostAuthorize("returnObject.id == authentication.id")
     public User getUserByUsername(String userName){
         return userRepository.findByUsername(userName).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
-    @PreAuthorize("returnObject.name == authentication.name")
+    @PostAuthorize("returnObject.name == authentication.name")
     @Transactional
     public UserResponse update(String userId, UserUpdateRequest request){
         var context = SecurityContextHolder.getContext().getAuthentication();

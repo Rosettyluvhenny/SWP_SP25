@@ -39,8 +39,4 @@ public class OpenAPIConfig {
                 .security(List.of(new SecurityRequirement().addList("bearerAuth")));
     }
 
-//    @Bean
-//    public GroupedOpenApi groupedOpenApi(){
-//
-//    }
 }
