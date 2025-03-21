@@ -3,6 +3,7 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.dto.request.Booking.BookingRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
 import com.SWP.SkinCareService.dto.request.VNPAY.VNPayPaymentRequestDTO;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.entity.*;
@@ -48,6 +49,7 @@ public class BookingService {
     private TherapistRepository therapistRepository;
     private BookingSessionService bookingSessionService;
     private VNPayService vnPayService;
+    private NotificationService notificationService;
 
     @Transactional
     @PreAuthorize("hasRole('USER')")
@@ -72,8 +74,14 @@ public class BookingService {
                         LocalDate lastSessionDateValid = lastSessionExisted.getBookingDate().plusDays(7);
                         LocalDate currentDate = request.getBookingTime().toLocalDate();
 
-                        if (currentDate.isBefore(lastSessionDateValid) || lastSessionExisted.getBooking().getStatus() != BookingStatus.COMPLETED) {
-                            throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                        if (currentDate.isBefore(lastSessionDateValid)) {
+                            if (lastSessionExisted.getBooking().getStatus() != BookingStatus.IS_CANCELED) {
+                                throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                            }
+                        } else {
+                            if (lastSessionExisted.getBooking().getStatus() == BookingStatus.ON_GOING) {
+                                throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                            }
                         }
                     }
                 }
@@ -175,12 +183,21 @@ public class BookingService {
                 }
             }
         }
+        String text = "Dịch vụ "+booking.getService().getName()+" của bạn đã bị huỷ";
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .url("http://localhost:3000/bookingDetail/"+booking.getId())
+                .text(text)
+                .userId(booking.getUser().getId())
+                .isRead(false)
+                .build();
+        notificationService.create(notificationRequest);
         return bookingRepository.save(booking);
     }
     @Transactional
     @PostAuthorize("hasRole('STAFF') or (hasRole('USER') and returnObject.user.username == authentication.name)")
     public Booking updateStatus(int id, String status){
         Booking booking = checkBooking(id);
+        String text = "";
         try {
             BookingStatus bookingStatus = BookingStatus.valueOf(status.toUpperCase());
 
@@ -202,6 +219,7 @@ public class BookingService {
                         }
                     }
                 }
+                text = "Dịch vụ "+booking.getService().getName()+" của bạn đã được đặt hoàn tất";
             } else if (bookingStatus == BookingStatus.IS_CANCELED) {
                 booking.setStatus(bookingStatus);
                 List<BookingSession> sessionList = booking.getBookingSessions();
@@ -210,7 +228,16 @@ public class BookingService {
                         session.setStatus(BookingSessionStatus.IS_CANCELED);
                     }
                 }
+                text = "Dịch vụ "+booking.getService().getName()+" của bạn đã bị huỷ";
             }
+
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .url("http://localhost:3000/bookingDetail/"+booking.getId())
+                    .text(text)
+                    .userId(booking.getUser().getId())
+                    .isRead(false)
+                    .build();
+            notificationService.create(notificationRequest);
             return bookingRepository.save(booking);
         }catch(IllegalArgumentException e){
             throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);

@@ -198,7 +198,7 @@ public class BlogPostService {
 
     private QuizResult getCategoryById(Integer id) {
         return quizResultRepository.findById(id).orElseThrow(()
-                -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+                -> new AppException(ErrorCode.RESULT_NOT_EXISTED));
     }
 
     @Transactional

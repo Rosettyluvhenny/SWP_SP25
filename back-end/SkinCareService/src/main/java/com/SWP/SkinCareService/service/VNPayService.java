@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.config.VNPayConfig;
+import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
 import com.SWP.SkinCareService.dto.request.VNPAY.VNPayPaymentRequestDTO;
 import com.SWP.SkinCareService.entity.Booking;
 import com.SWP.SkinCareService.entity.BookingSession;
@@ -30,6 +31,7 @@ public class VNPayService {
     private final VNPayConfig vnPayConfig;
     private final BookingRepository bookingRepository;
     private final RoomService roomService;
+    private final NotificationService notificationService;
 
 
     public String createPaymentUrl(@NonNull VNPayPaymentRequestDTO requestDTO, @NonNull String ipAddress) {
@@ -46,24 +48,6 @@ public class VNPayService {
             throw e;
         } catch (Exception e) {
             log.error("Error creating payment URL: {}", e.getMessage());
-            throw new AppException(ErrorCode.VNPAY_PAYMENT_ERROR);
-        }
-    }
-
-    public Map<String, Object> processPaymentResponse(@NonNull Map<String, String> response) {
-        Assert.notEmpty(response, "Payment response cannot be empty");
-
-        try {
-            if (response.isEmpty()) {
-                throw new AppException(ErrorCode.VNPAY_MISSING_PARAMS);
-            }
-
-            validatePaymentResponse(response);
-            return buildPaymentResult(response);
-        } catch (AppException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Error processing payment response: {}", e.getMessage());
             throw new AppException(ErrorCode.VNPAY_PAYMENT_ERROR);
         }
     }
@@ -186,90 +170,6 @@ public class VNPayService {
         }
     }
 
-    private Map<String, Object> buildPaymentResult(Map<String, String> response) {
-        String responseCode = response.getOrDefault("vnp_ResponseCode", "99");
-        String transactionStatus = response.getOrDefault("vnp_TransactionStatus", "99");
-        String transactionNo = response.get("vnp_TransactionNo");
-        String transactionRef = response.get("vnp_TxnRef");
-
-        if (!response.containsKey("vnp_Amount")) {
-            throw new AppException(ErrorCode.VNPAY_MISSING_PARAMS);
-        }
-
-        long amount = Long.parseLong(response.get("vnp_Amount")) / 100;
-        boolean isSuccess = "00".equals(responseCode) && "00".equals(transactionStatus);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("isSuccess", isSuccess);
-        result.put("amount", amount);
-        result.put("transactionNo", transactionNo);
-        result.put("transactionRef", transactionRef);
-        result.put("responseCode", responseCode);
-        result.put("message", getResponseMessage(responseCode));
-        result.put("rawData", response);
-
-        if (isSuccess) {
-            // Cập nhật trạng thái đơn hàng khi thanh toán thành công
-            try {
-                // Lấy booking ID từ orderInfo
-                String orderInfo = response.get("vnp_OrderInfo");
-                int bookingId = extractBookingId(orderInfo);
-
-                // Cập nhật trạng thái booking
-                Booking booking = bookingRepository.findById(bookingId)
-                        .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
-
-                booking.setPaymentStatus(PaymentStatus.PAID);
-                booking.setStatus(BookingStatus.ON_GOING);
-
-                // Cập nhật trạng thái các session
-                List<BookingSession> sessions = booking.getBookingSessions();
-                if (sessions != null && !sessions.isEmpty()) {
-                    for (BookingSession session : sessions) {
-                        if (session.getStatus() == BookingSessionStatus.PENDING) {
-                            session.setStatus(BookingSessionStatus.WAITING);
-                        }
-                    }
-                }
-
-                bookingRepository.save(booking);
-                log.info("Payment successful - Updated booking status for ID: {}", bookingId);
-            } catch (Exception e) {
-                log.error("Error updating booking status after payment: {}", e.getMessage());
-                // Không throw exception ở đây để không ảnh hưởng đến response về VNPay
-            }
-        } else {
-            log.warn("Payment failed - TxnRef: {}, ResponseCode: {}, TransactionStatus: {}",
-                    transactionRef, responseCode, transactionStatus);
-            try {
-                String orderInfo = response.get("vnp_OrderInfo");
-                int bookingId = extractBookingId(orderInfo);
-
-                // Cập nhật trạng thái booking khi thanh toán thất bại
-                Booking booking = bookingRepository.findById(bookingId)
-                        .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_EXISTED));
-
-                booking.setPaymentStatus(PaymentStatus.CANCELLED);
-                booking.setStatus(BookingStatus.IS_CANCELED);
-                List<BookingSession> sessionList = booking.getBookingSessions();
-                if (sessionList != null && !sessionList.isEmpty()) {
-                    for (BookingSession session : sessionList) {
-                        session.setStatus(BookingSessionStatus.IS_CANCELED);
-                    }
-                }
-                booking.setSessionRemain(0);
-
-                bookingRepository.save(booking);
-                log.info("Payment failed - Updated booking status for ID: {}", bookingId);
-            } catch (Exception e) {
-                log.error("Error updating booking status after failed payment: {}", e.getMessage());
-                // Không throw exception ở đây để không ảnh hưởng đến response về VNPay
-            }
-        }
-
-        return result;
-    }
-
     private String buildPaymentResultUpdate(Map<String, String> response) {
         String responseCode = response.getOrDefault("vnp_ResponseCode", "99");
         String transactionStatus = response.getOrDefault("vnp_TransactionStatus", "99");
@@ -284,6 +184,7 @@ public class VNPayService {
         boolean isSuccess = "00".equals(responseCode) && "00".equals(transactionStatus);
 
         String url = "";
+        String text = "";
 
         if (isSuccess) {
             // Cập nhật trạng thái đơn hàng khi thanh toán thành công
@@ -310,6 +211,15 @@ public class VNPayService {
                 }
                 //URL khi payment thành công
                 url = "http://localhost:3000/BookingDetail/"+bookingId;
+                //Notification
+                text = "Gói dịch vụ "+booking.getService().getName()+" của bạn đã được đặt hoàn tất";
+                NotificationRequest notificationRequest = NotificationRequest.builder()
+                        .url("http://localhost:3000/bookingDetail/"+booking.getId())
+                        .text(text)
+                        .userId(booking.getUser().getId())
+                        .isRead(false)
+                        .build();
+                notificationService.create(notificationRequest);
                 bookingRepository.save(booking);
             } catch (Exception e) {
             }
@@ -333,6 +243,15 @@ public class VNPayService {
                 booking.setSessionRemain(0);
                 ///URL khi payment thất bại
                 url = "http://localhost:3000/BookingDetail/"+bookingId;
+                //Notification
+                text = "Thanh toán cho dịch vụ "+booking.getService().getName()+" thất bại";
+                NotificationRequest notificationRequest = NotificationRequest.builder()
+                        .url("http://localhost:3000/bookingDetail/"+booking.getId())
+                        .text(text)
+                        .userId(booking.getUser().getId())
+                        .isRead(false)
+                        .build();
+                notificationService.create(notificationRequest);
                 bookingRepository.save(booking);
             } catch (Exception e) {
             }

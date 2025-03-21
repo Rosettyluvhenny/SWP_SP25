@@ -11,12 +11,10 @@ import org.mapstruct.MappingTarget;
 public interface NotificationMapper {
 
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "bookingSession", ignore = true)
     Notification toNotification(NotificationRequest request);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "bookingSession", ignore = true)
     void update(@MappingTarget Notification notification, NotificationRequest request);
 
     @Mapping(target = "isRead", source = "read")

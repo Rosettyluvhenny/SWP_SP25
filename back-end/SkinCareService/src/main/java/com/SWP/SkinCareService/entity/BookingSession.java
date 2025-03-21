@@ -72,10 +72,6 @@ public class BookingSession {
     @JsonManagedReference
     Feedback feedbacks;
 
-    //One To Many - Notification
-    @OneToOne(mappedBy = "bookingSession", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    Notification notification;
 
 
     public boolean isFinished() {

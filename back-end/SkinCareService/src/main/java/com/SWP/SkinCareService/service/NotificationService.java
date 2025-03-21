@@ -36,12 +36,7 @@ public class NotificationService {
     public NotificationResponse create(NotificationRequest request) {
         Notification notification = notificationMapper.toNotification(request);
         User user = getUserById(request.getUserId());
-        BookingSession bookingSession = getBookingSessionById(request.getSessionId());
-        if (bookingSession.getNotification() != null) {
-            return notificationMapper.toResponse(bookingSession.getNotification());
-        }
         notification.setUser(user);
-        notification.setBookingSession(bookingSession);
         notificationRepository.save(notification);
         return notificationMapper.toResponse(notification);
     }
@@ -51,10 +46,6 @@ public class NotificationService {
 
     public NotificationResponse getNotificationById(int id) {
         return notificationMapper.toResponse(notificationRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_NOT_FOUND)));
-    }
-
-    public List<NotificationResponse> getAllNotifications() {
-        return notificationRepository.findAll().stream().map(notificationMapper::toResponse).toList();
     }
 
 
@@ -74,22 +65,18 @@ public class NotificationService {
 
         LocalDateTime timeToStart = timeMakeRequest.plusHours(timeBeforeToRemind);
         BookingSessionStatus status = BookingSessionStatus.WAITING;
-        //List<BookingSession> list = bookingSessionRepository.findAllBySessionDateTimeBetweenAndStatusIn(timeMakeRequest, timeToStart, status);
 
         List<BookingSession> sessionList = bookingSessionRepository.findAllBookingSessionsByUserIdAndStatusBetweenDates(user.getId(),status,timeMakeRequest,timeToStart);
 
         if (sessionList != null && !sessionList.isEmpty()) {
             for (BookingSession bookingSession : sessionList) {
-                if (bookingSession.getNotification() == null) {
                     NotificationRequest request = NotificationRequest.builder()
-                            .sessionId(bookingSession.getId())
-                            .text("Phiên đặt lịch của bạn sẽ diễn ra vào lúc "+ bookingSession.getSessionDateTime().toLocalTime())
+                            .text("Buổi dịch vụ "+bookingSession.getBooking().getService().getName()+" của bạn sẽ diễn ra vào lúc "+ bookingSession.getSessionDateTime().toLocalTime())
                             .userId(bookingSession.getBooking().getUser().getId())
                             .isRead(false)
-                            .url(""+bookingSession.getId())
+                            .url("http://localhost:3000/sessionDetail/"+bookingSession.getId())
                             .build();
                     create(request);
-                }
             }
         }
         return notificationRepository.findAllByUserAndIsRead(user, false).stream().map(notificationMapper::toResponse).toList();
