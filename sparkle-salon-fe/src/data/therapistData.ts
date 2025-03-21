@@ -105,12 +105,6 @@ const getTherapistById = async (id: string): Promise<Therapist | null> => {
     }
     return [];
   }
-  const response = await axios.get(`/bookingSession${therapistId ? `/therapist/${therapistId}` : ""}/service/${serviceId}/available-slots?date=${date}`);
-  if (response.result) {
-    return response.result;
-  }
-  return [];
-}
 
   const getFreeSlots = async (serviceId: string , date: string) => {
     const response = await axios.get(`/bookingSession/service/${serviceId}/available-slots?date=${date}`,
@@ -124,4 +118,4 @@ const getTherapistById = async (id: string): Promise<Therapist | null> => {
     return [];
   }
 
-export { getTherapists, getTherapistById, getTherapistSlots, getFreeSlots};
+export {createTherapist, updateTherapist,deleteTherapist,disableTherapist, getTherapists, getTherapistById, getTherapistSlots, getFreeSlots};

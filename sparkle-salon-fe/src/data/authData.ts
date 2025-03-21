@@ -31,11 +31,11 @@ const getUser = async () => {
 
     if (!token) {
         console.error("No token found! Cannot fetch users.");
-        return [];
+        return null;
     }
 
     try {
-        const response = await axios.get(`/users`, {
+        const response = await axios.get(`/users/getMyInfo`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -43,7 +43,7 @@ const getUser = async () => {
         return response.result;   
     } catch (error) {
         console.error("Error fetching users:", error);
-        return []; 
+        return null; 
     }
 };
 
