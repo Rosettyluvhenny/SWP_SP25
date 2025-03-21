@@ -14,4 +14,5 @@ public class NotificationRequest {
     String userId;
     int sessionId;
     boolean isRead;
+    String url;
 }

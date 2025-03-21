@@ -45,4 +45,7 @@ public class Notification {
     @JsonBackReference
     private BookingSession bookingSession;
 
+    String url;
+
+
 }
