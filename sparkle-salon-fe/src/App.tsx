@@ -15,7 +15,7 @@ import ServiceDetail from "./pages/ServiceDetail";
 import Payment from "./pages/Payment";
 import RoomManagement from "./pages/RoomManagement";
 import PaymentManagement from "./pages/PaymentManagement";
-import { UserContext, UserProvider } from "./context/UserContext";
+import { UserContext} from "./context/UserContext";
 import { useContext } from "react";
 import Profile from "./pages/Profile";
 import Therapist from "./pages/Therapist";
@@ -27,16 +27,17 @@ import YourSession from "./pages/YourSession";
 import SessionDetail from "./pages/SessionDetail";
 import TherapistManagement from "./pages/TherapistManagement";
 import Feedback from "./pages/Feedback";
-
+import { ProtectedRoute } from "./routes/ProtectedRoutes";
 function App() {
-  const {user} = useContext(UserContext)
+  const {user} = useContext(UserContext);
+  console.log("token", localStorage.getItem("token"))
+  console.log("user app",user);
   return (
     <>
-      <ScrollToTop />
+      {/* <ScrollToTop />
       <Routes>
         <Route path="/" element={<MainLayout><Home /></MainLayout>} />
-        {/* <Route path="/" element={<Home />}/> */}
-
+        <Route path="/" element={<Home />}/>
         <Route path="/about" element={<MainLayout><About /></MainLayout>} />
         <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
         <Route path="/service/:id" element={<MainLayout><ServiceDetail /></MainLayout>} />
@@ -52,15 +53,59 @@ function App() {
         <Route path="/manager/report" element={<Report />} />
         <Route path="/manager/room" element={<RoomManagement />} />
         <Route path="/manager/payment" element={<PaymentManagement />} />
+        <Route path="/manager/therapist" element={<TherapistManagement />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/schedule" element={<MainLayout><YourSession/></MainLayout>} />
         <Route path="/sessionDetail/:id" element={<MainLayout><SessionDetail/></MainLayout>} />
         <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
         <Route path="/therapist/:id" element={<Therapist />} />
-        <Route path="/manager/therapist" element={<TherapistManagement />} />
         <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
         <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
-      </Routes>
+      </Routes> */}            
+      {/* <UserProvider> */}
+        {/* <AuthWrapper> */}
+      <Routes>
+          {/* Public routes */}
+          <Route path="/about" element={<MainLayout><About /></MainLayout>} />
+          <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
+          <Route path="/service/:id" element={<MainLayout><ServiceDetail /></MainLayout>} />
+          <Route path="/blog" element={<MainLayout><Blog /></MainLayout>} />
+          <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
+          <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
+          <Route path="/therapist/:id" element={<Therapist />} />
+          
+          {/* User protected routes */}
+          <Route element={<ProtectedRoute requiredRoles={['USER']} />}>
+            <Route path='/bookingDetail/:id' element={<MainLayout><BookingDetail /></MainLayout>} />
+            <Route path="/booking" element={<MainLayout><Booking /></MainLayout>} />
+            <Route path="/bookingSession" element={<MainLayout><BookingSession/></MainLayout>} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/schedule" element={<MainLayout><YourSession/></MainLayout>} />
+            <Route path="/sessionDetail/:id" element={<MainLayout><SessionDetail/></MainLayout>} />
+            <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
+            <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
+            <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
+            <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
+          </Route>
+          
+          {/* Admin protected routes */}
+          <Route element={<ProtectedRoute requiredRoles={['ADMIN']} />}>
+            <Route path="/manager" element={<MainLayout><Manager /></MainLayout>} />
+            <Route path="/manager/user" element={<UserManagement />} />
+            <Route path="/manager/service" element={<ServiceManagement />} />
+            <Route path="/manager/order" element={<OrderManagement />} />
+            <Route path="/manager/report" element={<Report />} />
+            <Route path="/manager/room" element={<RoomManagement />} />
+            <Route path="/manager/payment" element={<PaymentManagement />} />
+            <Route path="/manager/therapist" element={<TherapistManagement />} />
+          </Route>
+          
+          {/* Fallback route */}
+          <Route path="*" element={<MainLayout><Home /></MainLayout>} />
+        </Routes>
+          
+        {/* </AuthWrapper> */}
+      {/* </UserProvider> */}
     </>
   );
 }

@@ -1,20 +1,25 @@
 import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import { UserContext } from '../context/UserContext';
+import { Navigate, Outlet } from 'react-router-dom';
+import { UserContext, UserProvider } from '../context/UserContext';
+import { toast } from 'react-toastify';
+import { getUser } from '../data/authData';
 
-export const ProtectedRoute = ({ element, requiredRoles = [] }) => {
-  const { user, hasRole, setIsLoginOpen } = useContext(UserContext);
-  
+export const ProtectedRoute = ({ requiredRoles = [] }) => {
+  // const { user, hasRole, setIsLoginOpen, loginContext } = useContext(UserContext);
   // Check if user is logged in
-  if (!user) {
-    setIsLoginOpen(true);
-    return <Navigate to="/home" />;
-  }
-  
-  // Check if user has required role
-  if (requiredRoles.length > 0 && !requiredRoles.some(role => hasRole(user, role))) {
-    return 
-  }
-  
-  return element;
-};
+    const {user, hasRole} = useContext(UserContext);
+    
+    if (!user) {
+      toast.error("Bạn không có quyền truy cập")
+      return <Navigate to="/home" />;
+    }
+
+    // Check if user has required role
+    if (requiredRoles.length > 0 && !requiredRoles.some(role => hasRole(role))) {
+      toast.error("Bạn không có quyền truy cập")
+      return <Navigate to="/home" />;
+    }
+
+    return <Outlet />;
+  };
+

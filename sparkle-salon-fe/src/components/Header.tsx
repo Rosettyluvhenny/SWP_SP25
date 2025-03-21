@@ -29,7 +29,7 @@ export default function Header() {
         dob: "",
     });
 
-    const { user, logout, loginContext, loading, isLoginOpen, setIsLoginOpen, hasRole } = useContext(UserContext);
+    const { user, logout, loginContext, loading, isLoginOpen, setIsLoginOpen} = useContext(UserContext);
     const [error, setError] = useState<string|null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
@@ -91,7 +91,7 @@ export default function Header() {
 
                 const userInfo = await getUser();
                 const role = userInfo.roles.length > 0 ? userInfo.roles[0].name : "";
-                loginContext(userInfo.name, role);
+                loginContext(userInfo.username, role);
                 toast.success("Login successfully ");
                 setLoginData({ username: "", password: "" });
                 setIsLoginOpen(false);
@@ -210,7 +210,6 @@ export default function Header() {
             {  path: "/schedule", label:"Schedule"}
         );
     }
-
     return (
         <motion.header
             className={`fixed top-0 left-0 w-full flex justify-between items-center p-4 transition-all duration-300 z-50 ${isScrolled

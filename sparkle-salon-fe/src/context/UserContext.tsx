@@ -1,13 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { introspect, getUser, refresh } from '../data/authData';
 import { toast } from 'react-toastify';
-const UserContext = React.createContext({ name: '', auth: false, role:'' });
+import { useLocation } from 'react-router-dom';
+const UserContext = React.createContext({
+    user: { name: '', auth: false, role: '' },
+    loginContext: () => {},
+    logout: () => {},
+    loading: true,
+    isLoginOpen: false,
+    setIsLoginOpen: () => {},
+    hasRole: () => false
+  });
 
 const UserProvider = ({ children }) => {
-    const [user, setUser] = React.useState({ name: '', auth: false, role:''});
+    const [user, setUser] = React.useState(() => {
+        const savedUser = localStorage.getItem("user");
+        return savedUser ? JSON.parse(savedUser) : { name: '', auth: false, role: '' };
+    });
     const [loading, setIsLoading] = useState(true);
     const [isLoginOpen, setIsLoginOpen] = useState(false);
-
+    // const location = useLocation();
     const apiCallTracker = useRef({
         introspectCalled: false,
         refreshCalled: false
@@ -27,7 +39,6 @@ const UserProvider = ({ children }) => {
                     apiCallTracker.current.introspectCalled = true;
                     const response = await introspect();
                     console.log("introspect", response);
-
                     if (response) {
                         const userData = await getUser();
                         if (userData) {
@@ -36,6 +47,7 @@ const UserProvider = ({ children }) => {
                                 auth: true,
                                 role: `${userData.roles[0].name}`
                             });
+                            console.log("data",userData);
                         }
                     } else {
                         // Only call refresh if it hasn't been called yet
@@ -51,7 +63,7 @@ const UserProvider = ({ children }) => {
                                     setUser({
                                         name: `${userData.username}`,
                                         auth: true,
-                                        role: ''
+                                        role: `${userData.roles[0].name}`
                                     });
                                 }
                             } else {
@@ -65,13 +77,15 @@ const UserProvider = ({ children }) => {
                 toast.error("Your access is expired");
             } finally {
                 setIsLoading(false);
-                console.log("token", localStorage.getItem("token"));
             }
         }
-
         validateAndSetUser();
-    }, []);
-    const loginContext =  (name, role) => {
+        console.log("user", user);
+        console.log("user json",JSON.stringify(user));
+
+        localStorage.setItem("user", JSON.stringify(user)); 
+    }, [localStorage.getItem("token")]);
+    const loginContext = (name, role) => {
             setUser({
                 name: `${name}`,
                 auth: true,
@@ -81,6 +95,7 @@ const UserProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("user")
         setUser((user) => ({
             name: '',
             auth: false,
@@ -89,7 +104,8 @@ const UserProvider = ({ children }) => {
         setIsLoginOpen(true);
     }
     
-    const hasRole = (user, roleName:string) => {
+    const hasRole = (roleName:string) => {
+        console.log("check",user.role === roleName )
         if (!user || !user.role) return false;
         return user.role === roleName;
       };
