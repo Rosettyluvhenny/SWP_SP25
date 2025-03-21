@@ -74,8 +74,14 @@ public class BookingService {
                         LocalDate lastSessionDateValid = lastSessionExisted.getBookingDate().plusDays(7);
                         LocalDate currentDate = request.getBookingTime().toLocalDate();
 
-                        if (currentDate.isBefore(lastSessionDateValid) || lastSessionExisted.getBooking().getStatus() != BookingStatus.COMPLETED) {
-                            throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                        if (currentDate.isBefore(lastSessionDateValid)) {
+                            if (lastSessionExisted.getBooking().getStatus() != BookingStatus.IS_CANCELED) {
+                                throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                            }
+                        } else {
+                            if (lastSessionExisted.getBooking().getStatus() == BookingStatus.ON_GOING) {
+                                throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                            }
                         }
                     }
                 }
@@ -175,7 +181,7 @@ public class BookingService {
                 }
             }
         }
-        String text = "Gói dịch vụ "+booking.getService().getName()+" của bạn đã bị huỷ";
+        String text = "Dịch vụ "+booking.getService().getName()+" của bạn đã bị huỷ";
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .url("http://localhost:3000/bookingDetail/"+booking.getId())
                 .text(text)
@@ -211,7 +217,7 @@ public class BookingService {
                         }
                     }
                 }
-                text = "Gói dịch vụ "+booking.getService().getName()+" của bạn đã được đặt hoàn tất";
+                text = "Dịch vụ "+booking.getService().getName()+" của bạn đã được đặt hoàn tất";
             } else if (bookingStatus == BookingStatus.IS_CANCELED) {
                 booking.setStatus(bookingStatus);
                 List<BookingSession> sessionList = booking.getBookingSessions();
@@ -220,7 +226,7 @@ public class BookingService {
                         session.setStatus(BookingSessionStatus.IS_CANCELED);
                     }
                 }
-                text = "Gói dịch vụ "+booking.getService().getName()+" của bạn đã bị huỷ";
+                text = "Dịch vụ "+booking.getService().getName()+" của bạn đã bị huỷ";
             }
 
             NotificationRequest notificationRequest = NotificationRequest.builder()
