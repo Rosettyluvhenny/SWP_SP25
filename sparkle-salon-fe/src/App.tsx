@@ -25,7 +25,8 @@ import Booking from "./pages/Booking";
 import BookingSession from "./pages/BookingSession";
 import YourSession from "./pages/YourSession";
 import SessionDetail from "./pages/SessionDetail";
-// import Feedback from "./pages/Feedback";
+import TherapistManagement from "./pages/TherapistManagement";
+import Feedback from "./pages/Feedback";
 
 function App() {
   const {user} = useContext(UserContext)
@@ -56,8 +57,9 @@ function App() {
         <Route path="/sessionDetail/:id" element={<MainLayout><SessionDetail/></MainLayout>} />
         <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
         <Route path="/therapist/:id" element={<Therapist />} />
+        <Route path="/manager/therapist" element={<TherapistManagement />} />
         <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
-        {/* <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} /> */}
+        <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
       </Routes>
     </>
   );

@@ -5,13 +5,13 @@
     "description": "API service",
     "license": {
       "name": "Api License",
-      "url": "http://localhost:8081/swp"
+      "url": "https://localhost:8443/swp"
     },
     "version": "v1.0.0"
   },
   "servers": [
     {
-      "url": "http://localhost:8081/swp",
+      "url": "https://localhost:8443/swp",
       "description": "Test Server"
     }
   ],
