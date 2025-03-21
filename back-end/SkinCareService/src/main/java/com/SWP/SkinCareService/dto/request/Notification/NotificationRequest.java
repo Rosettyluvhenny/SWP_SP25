@@ -12,7 +12,6 @@ import lombok.experimental.FieldDefaults;
 public class NotificationRequest {
     String text;
     String userId;
-    int sessionId;
     boolean isRead;
     String url;
 }

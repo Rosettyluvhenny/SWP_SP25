@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.SWP.SkinCareService.enums.NotificationType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
@@ -39,11 +40,6 @@ public class Notification {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     User user;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bookingSessionId", nullable = false)
-    @JsonBackReference
-    private BookingSession bookingSession;
 
     String url;
 

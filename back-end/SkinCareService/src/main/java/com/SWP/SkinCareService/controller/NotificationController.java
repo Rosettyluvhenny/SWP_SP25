@@ -34,16 +34,6 @@ public class NotificationController {
         );
     }
 
-    //Get all notification from database include read status is TRUE and FALSE
-    @GetMapping()
-    public ResponseEntity<ApiResponse<List<NotificationResponse>>> getAllNotifications() {
-        var result = notificationService.getAllNotifications();
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<List<NotificationResponse>>builder()
-                        .result(result)
-                        .build()
-        );
-    }
 
     //Get notification by NOTIFICATION id
     @GetMapping("/{id}")

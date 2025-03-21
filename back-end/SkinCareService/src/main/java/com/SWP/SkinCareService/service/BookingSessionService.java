@@ -3,6 +3,7 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Feedback.FeedbackRequest;
+import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TherapistAvailabilityResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TimeSlotAvailabilityResponse;
@@ -49,6 +50,7 @@ public class  BookingSessionService {
     RoomService roomService;
     FeedbackService feedbackService;
     private final UserRepository userRepository;
+    NotificationService notificationService;
 
     @Transactional
     public BookingSessionResponse createBookingSession(BookingSessionRequest request) {
@@ -135,18 +137,6 @@ public class  BookingSessionService {
         boolean isStaff = staff.getRoles().stream()
                 .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
 
-        if (isStaff) {
-            session.setStaff(staff);
-            session.setStatus(BookingSessionStatus.ON_GOING);
-        }
-
-        if (request.getTherapistId() != null){
-            Therapist therapist = getTherapistById(request.getTherapistId());
-            session.setTherapist(therapist);
-        }
-
-        bookingSessionMapper.updateBookingSession(session, request);
-
         if(request.getRoomId()!=null) {
             session.setRoom(getRoomById(request.getRoomId()));
         } else {
@@ -159,6 +149,30 @@ public class  BookingSessionService {
                 roomService.incrementInUse(room.getId());
             }
         }
+
+        if (isStaff) {
+            session.setStaff(staff);
+            session.setStatus(BookingSessionStatus.ON_GOING);
+            String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn sẽ được thực hiện tại phòng "+session.getRoom().getName();
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .url("http://localhost:3000/sessionDetail/"+session.getId())
+                    .text(text)
+                    .userId(session.getBooking().getUser().getId())
+                    .isRead(false)
+                    .build();
+            notificationService.create(notificationRequest);
+        }
+
+        if (request.getTherapistId() != null){
+            Therapist therapist = getTherapistById(request.getTherapistId());
+            session.setTherapist(therapist);
+        }
+
+        bookingSessionMapper.updateBookingSession(session, request);
+
+
+
+
 
 
         if(request.getStatus()!=null)
@@ -174,6 +188,16 @@ public class  BookingSessionService {
             session.setImgAfter(supabaseService.uploadImage(imgAfter, "imgAfter_" + session.getId()));
         }
         if (session.isFinished()) {
+            //Notification
+            String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã hoàn tất";
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .url("http://localhost:3000/sessionDetail/"+session.getId())
+                    .text(text)
+                    .userId(session.getBooking().getUser().getId())
+                    .isRead(false)
+                    .build();
+            notificationService.create(notificationRequest);
+
             Booking booking = session.getBooking();
             session.setStatus(BookingSessionStatus.COMPLETED);
             //Check status of bookingService
@@ -216,6 +240,7 @@ public class  BookingSessionService {
                     .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
 
             Services service = session.getBooking().getService();
+            String text = "";
 
             if (sessionStatus == BookingSessionStatus.ON_GOING) {
                 if (!isStaff) {
@@ -231,10 +256,12 @@ public class  BookingSessionService {
                     session.setRoom(room);
                     roomService.incrementInUse(room.getId());
                 }
+                text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn sẽ được thực hiện tại phòng "+session.getRoom().getName();
             } else if (sessionStatus == BookingSessionStatus.COMPLETED) {
                 if (!isStaff) {
                     throw new AppException(ErrorCode.NOT_HAVE_PERMISSIONS);
                 }
+                session.setStatus(sessionStatus);
                 //decrease room in use
                 Booking existingBooking = session.getBooking();
                 roomService.decrementInUse(session.getRoom().getId());
@@ -253,12 +280,23 @@ public class  BookingSessionService {
                     existingBooking.setStatus(BookingStatus.COMPLETED);
                     bookingRepository.save(existingBooking);
                 }
+                text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã hoàn tất";
             } else if (sessionStatus == BookingSessionStatus.IS_CANCELED) {
                 if (session.getStatus() == BookingSessionStatus.ON_GOING) {
                     throw new AppException(ErrorCode.SESSION_ON_GOING);
                 }
+                text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã bị huỷ";
                 session.setStatus(sessionStatus);
             }
+            //Notification
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .url("http://localhost:3000/sessionDetail/"+session.getId())
+                    .text(text)
+                    .userId(session.getBooking().getUser().getId())
+                    .isRead(false)
+                    .build();
+            notificationService.create(notificationRequest);
+            //Save session
             bookingSessionRepository.save(session);
         }catch(IllegalArgumentException e){
             throw new AppException(ErrorCode.SESSION_STATUS_INVALID);

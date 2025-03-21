@@ -52,32 +52,6 @@ public class VNPayController {
         }
     }
 
-    @GetMapping("/return")
-    public ResponseEntity<Map<String, Object>> vnpayReturn(@RequestParam Map<String, String> queryParams) {
-        log.info("Received return from VNPAY: {}", queryParams);
-        
-        try {
-            if (queryParams.isEmpty()) {
-                throw new AppException(ErrorCode.VNPAY_MISSING_PARAMS);
-            }
-            
-            Map<String, Object> result = vnPayService.processPaymentResponse(queryParams);
-            return ResponseEntity.ok(Map.of(
-                "status", result.get("isSuccess").equals(true) ? "success" : "error",
-                "message", result.get("message"),
-                "data", result
-            ));
-        } catch (AppException e) {
-            log.error("Error processing payment return: {}", e.getMessage());
-            return ResponseEntity.status(e.getErrorCode().getHttpStatusCode())
-                    .body(Map.of(
-                        "status", "error",
-                        "code", e.getErrorCode().getCode(),
-                        "message", e.getMessage()
-                    ));
-        }
-    }
-
     @GetMapping("/status")
     public RedirectView vnpayReturnStatus(@RequestParam Map<String, String> queryParams) {
         log.info("Received return from VNPAY: {}", queryParams);
