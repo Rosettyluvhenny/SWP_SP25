@@ -5,13 +5,14 @@ interface SortButtonsProps {
     setSortBy: (value: string) => void;
 }
 
-const SortButtons: React.FC<SortButtonsProps> = ({ sortBy, setSortBy }) => {
+const SortButtons: React.FC<SortButtonsProps> = ({ sortBy, setSortBy}) => {
+    
     return (
         <div className="flex space-x-2">
             {[
-                { label: "Mới nhất", value: "newest" },
-                { label: "Giá thấp đến cao", value: "low-high" },
-                { label: "Giá cao đến thấp", value: "high-low" },
+                { label: "Mới nhất", value: "createdAt,asc" },
+                { label: "Giá thấp đến cao", value: "price,asc" },
+                { label: "Giá cao đến thấp", value: "price,desc" },
             ].map(({ label, value }) => (
                 <button
                     key={value}
@@ -23,6 +24,7 @@ const SortButtons: React.FC<SortButtonsProps> = ({ sortBy, setSortBy }) => {
                     {label}
                 </button>
             ))}
+
         </div>
     );
 };

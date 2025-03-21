@@ -43,3 +43,10 @@ main {
 .read-the-docs {
   color: #888;
 }
+
+.ql-container {
+  height: 300px;
+  max-height: 800px;
+  overflow: auto;
+  
+}
