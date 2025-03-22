@@ -122,7 +122,7 @@ public class BookingService {
     @Transactional
     public BookingResponse requestPayment(int bookingId, String ipAddress) {
         Booking booking = checkBooking(bookingId);
-        if (booking.getPayment().getDescription().equalsIgnoreCase("VNPAY") && (booking.getPaymentStatus() == PaymentStatus.PENDING)) {
+        if (booking.getPayment().getDescription().equalsIgnoreCase("VNPAY") && (booking.getPaymentStatus() == PaymentStatus.PENDING) && booking.getUrl() == null) {
             VNPayPaymentRequestDTO vnpayRequest = VNPayPaymentRequestDTO.builder()
                     .bookingId(booking.getId())
                     .language("vn")
@@ -130,6 +130,8 @@ public class BookingService {
             String url = vnPayService.createPaymentUrl(vnpayRequest, ipAddress);
             booking.setUrl(url);
             bookingRepository.save(booking);
+        } else {
+            throw new AppException(ErrorCode.PAYMENT_REQUEST_REJECTED);
         }
         return bookingMapper.toBookingResponse(booking);
     }
