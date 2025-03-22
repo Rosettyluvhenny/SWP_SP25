@@ -18,4 +18,5 @@ public class FeedbackResponse {
     String img;
     LocalDate bookingDate;
     String therapistName;
+    boolean rated;
 }

@@ -37,11 +37,23 @@ public class BookingController {
         if (!StringUtils.hasText(ipAddress)) {
             throw new AppException(ErrorCode.VNPAY_INVALID_IP_ADDRESS);
         }
-        var result = bookingService.createBooking(bookingRequest, ipAddress);
+        var result = bookingService.createBooking(bookingRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 ApiResponse.<BookingResponse>builder()
                         .result(result)
                         .build()
+        );
+    }
+
+    @GetMapping("/payment/{bookingId}")
+    ResponseEntity<ApiResponse<BookingResponse>> requestPayment(@PathVariable int bookingId, HttpServletRequest request) {
+        String ipAddress = vnPayController.getIpAddress(request);
+        if (!StringUtils.hasText(ipAddress)) {
+            throw new AppException(ErrorCode.VNPAY_INVALID_IP_ADDRESS);
+        }
+        var result = bookingService.requestPayment(bookingId, ipAddress);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<BookingResponse>builder().result(result).build()
         );
     }
 

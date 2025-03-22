@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +54,7 @@ public class BookingService {
 
     @Transactional
     @PreAuthorize("hasRole('USER')")
-    public BookingResponse createBooking(BookingRequest request, String ipAddress) {
+    public BookingResponse createBooking(BookingRequest request) {
         //Check user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -110,22 +111,27 @@ public class BookingService {
         BookingResponse result = bookingMapper.toBookingResponse(booking);
         bookingRepository.flush();
         result.setImg(booking.getService().getImg());
-        if (payment.getDescription().equalsIgnoreCase("VNPAY")) {
-            VNPayPaymentRequestDTO vnpayRequest = VNPayPaymentRequestDTO.builder()
-                    .bookingId(booking.getId())
-                    .language("vn")
-                    .build();
-
-            String url = vnPayService.createPaymentUrl(vnpayRequest, ipAddress);
-            result.setUrl(url);
-        }
-
         return result;
     }
 
     public List<BookingResponse> getAllBookings() {
         List<Booking> bookings = bookingRepository.findAll();
         return bookings.stream().map(bookingMapper::toBookingResponse).toList();
+    }
+
+    @Transactional
+    public BookingResponse requestPayment(int bookingId, String ipAddress) {
+        Booking booking = checkBooking(bookingId);
+        if (booking.getPayment().getDescription().equalsIgnoreCase("VNPAY") && (booking.getPaymentStatus() == PaymentStatus.PENDING)) {
+            VNPayPaymentRequestDTO vnpayRequest = VNPayPaymentRequestDTO.builder()
+                    .bookingId(booking.getId())
+                    .language("vn")
+                    .build();
+            String url = vnPayService.createPaymentUrl(vnpayRequest, ipAddress);
+            booking.setUrl(url);
+            bookingRepository.save(booking);
+        }
+        return bookingMapper.toBookingResponse(booking);
     }
 
 
@@ -169,7 +175,7 @@ public class BookingService {
     }
 
     @Transactional
-    @PostAuthorize("returnObject.user.username == authentication.name)")
+    @PostAuthorize("returnObject.user.username == authentication.name")
     public Booking cancelBooking(int id){
         Booking booking = checkBooking(id);
         booking.setStatus(BookingStatus.IS_CANCELED);
@@ -307,11 +313,23 @@ public class BookingService {
         }
     }
 
-
+    @Transactional
     public BookingResponse getById(int id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         Booking booking = checkBooking(id);
+
+        if (booking.getUrl() != null) {
+            LocalDateTime timeRequestPaymentValid = booking.getUpdateAt().plusMinutes(15);
+            LocalDateTime timeCheckPaymentValid = LocalDateTime.now();
+            if (timeCheckPaymentValid.isAfter(timeRequestPaymentValid)) {
+                booking.setUrl(null);
+                updatePaymentStatus(id,"CANCELLED" );
+                bookingRepository.save(booking);
+            }
+        }
+
+
         if(user.getRoles().contains("ADMIN")|| user.getId().equals(booking.getUser().getId()))
             return bookingMapper.toBookingResponse(
                     bookingRepository.findById(id).orElseThrow(

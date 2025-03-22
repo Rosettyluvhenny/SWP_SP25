@@ -220,6 +220,8 @@ public class VNPayService {
                         .isRead(false)
                         .build();
                 notificationService.create(notificationRequest);
+                //Remove payment url
+                booking.setUrl(null);
                 bookingRepository.save(booking);
             } catch (Exception e) {
             }
@@ -252,6 +254,8 @@ public class VNPayService {
                         .isRead(false)
                         .build();
                 notificationService.create(notificationRequest);
+                //Remove payment url
+                booking.setUrl(null);
                 bookingRepository.save(booking);
             } catch (Exception e) {
             }

@@ -26,8 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -159,14 +157,21 @@ public class ServicesService {
     @Transactional
     public void assignTherapistToService(int id, AssignTherapistRequest request) {
         Services service = checkService(id);
-        Therapist therapist = therapistRepository.findById(request.getTherapistId()).orElseThrow(()
-                -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
-        //Add therapist to service
-        service.getTherapists().add(therapist);
+        if (request.getTherapistId() != null) {
+            List<String> therapistId = new ArrayList<>(request.getTherapistId());
+            List<Therapist> therapistList = new ArrayList<>(therapistRepository.findAllById(therapistId));
+            if (therapistList.size() != therapistId.size()) {
+                throw new AppException(ErrorCode.THERAPIST_NOT_EXISTED);
+            }
+            for (Therapist therapist : therapistList) {
+                therapist.getServices().add(service);
+                therapistRepository.save(therapist);
+            }
+
+            service.setTherapists(therapistList);
+        }
         servicesRepository.save(service);
-        //Add service to therapist
-        therapist.getServices().add(service);
-        therapistRepository.save(therapist);
+
     }
 
 }

@@ -55,6 +55,6 @@ vnpay:
   tmn-code: G6UJ6GM0
   hash-secret: KNWNX1BX0Z31T3MIX7E3KROK063KWANW
   payment-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  return-url: https://localhost:8443/swp/payment/vnpay/status
-  ipn-url: https://localhost:8443/swp/payment/vnpay/ipn
+  return-url: http://localhost:8080/swp/payment/vnpay/status
+  ipn-url: http://localhost:8080/swp/payment/vnpay/ipn
 

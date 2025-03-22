@@ -3,7 +3,6 @@ package com.SWP.SkinCareService.entity;
 import com.SWP.SkinCareService.enums.BookingStatus;
 import com.SWP.SkinCareService.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,9 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table (name = "booking")
@@ -44,8 +41,12 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     BookingStatus status = BookingStatus.PENDING;
+
     @Enumerated(EnumType.STRING)
     PaymentStatus paymentStatus = PaymentStatus.PENDING;
+
+    @Column(columnDefinition = "TEXT")
+    String url;
 
     //Many To One - Payment
     @ManyToOne()
@@ -56,7 +57,6 @@ public class Booking {
     String notes;
 
     @CreationTimestamp
-
     LocalDateTime createAt;
 
     @UpdateTimestamp
@@ -77,4 +77,5 @@ public class Booking {
     @JoinColumn(name="staff_id")
     @JsonBackReference
     User staff;
+
 }
