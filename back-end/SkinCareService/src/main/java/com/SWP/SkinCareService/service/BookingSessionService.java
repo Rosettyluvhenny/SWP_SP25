@@ -72,22 +72,21 @@ public class  BookingSessionService {
         BookingSession session = bookingSessionMapper.toBookingSession(request);
         Services service = booking.getService();
 
-        if (session.getStatus() != BookingSessionStatus.PENDING) {
-            if (request.getTherapistId() != null){
-                log.info(request.getTherapistId());
-                Therapist therapist = getTherapistById(request.getTherapistId());
-                boolean isValid = isTherapistAvailable(therapist.getId(), request.getSessionDateTime(), booking.getService().getDuration());
-                if(!isValid)
-                    throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
-                else {
-                    Set<Services> serviceSupport = therapist.getServices();
-                    if (!serviceSupport.contains(service)) {
-                        throw new AppException(ErrorCode.THERAPIST_NOT_SUPPORTED);
-                    }
-                    session.setTherapist(therapist);
+        if (request.getTherapistId() != null){
+            log.info(request.getTherapistId());
+            Therapist therapist = getTherapistById(request.getTherapistId());
+            boolean isValid = isTherapistAvailable(therapist.getId(), request.getSessionDateTime(), booking.getService().getDuration());
+            if(!isValid)
+                throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+            else {
+                Set<Services> serviceSupport = therapist.getServices();
+                if (!serviceSupport.contains(service)) {
+                    throw new AppException(ErrorCode.THERAPIST_NOT_SUPPORTED);
                 }
+                session.setTherapist(therapist);
             }
         }
+
         session.setBookingDate(request.getSessionDateTime().toLocalDate());
         session.setBooking(booking);
 
@@ -98,17 +97,23 @@ public class  BookingSessionService {
             session.setStatus(BookingSessionStatus.PENDING);
         }
 
+
         bookingSessionRepository.save(session);
         bookingSessionRepository.flush();
+
         //Notification when session created, from second session
-        String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã được lên lịch vào ngày "+request.getSessionDateTime().toLocalDate();
-        NotificationRequest notificationRequest = NotificationRequest.builder()
-                .url("http://localhost:3000/sessionDetail/"+session.getId())
-                .text(text)
-                .userId(session.getBooking().getUser().getId())
-                .isRead(false)
-                .build();
-        notificationService.create(notificationRequest);
+        if (session.getStatus() != BookingSessionStatus.PENDING) {
+            String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã được lên lịch vào ngày "+request.getSessionDateTime().toLocalDate();
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .url("http://localhost:3000/sessionDetail/"+session.getId())
+                    .text(text)
+                    .userId(session.getBooking().getUser().getId())
+                    .isRead(false)
+                    .build();
+            notificationService.create(notificationRequest);
+        }
+
+
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
     public Page<BookingSessionResponse> getAllBookingSessions(Pageable pageale) {
