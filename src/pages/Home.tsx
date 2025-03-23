@@ -5,7 +5,7 @@ export default function Home() {
     return (
         <div className="pt-16 flex flex-col">
             {/* Hero Section */}
-            <div className="min-h-screen flex flex-row items-center bg-[url('/assets/home-banner.jpg')] bg-cover bg-center bg-no-repeat bg-fixed relative">
+            <div className="min-h-screen flex flex-row items-center bg-[url('/assets/home-banner.jpg')] bg-cover bg-center bg-no-repeat bg-attachment-local bg-fixed">
                 <div className="absolute inset-0 bg-opacity-40"></div>
                 <motion.div 
                     initial={{ opacity: 0, x: -100 }}

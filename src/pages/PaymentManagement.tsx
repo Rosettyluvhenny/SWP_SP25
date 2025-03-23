@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
-//import { createPayment, getPayment, deletePayment, updatePayment } from "../data/paymentData";
+import { createPayment, getPayment, deletePayment, updatePayment } from "../data/paymentData";
 
 type PaymentMethod = {
     paymentId: string;

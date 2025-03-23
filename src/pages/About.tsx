@@ -4,12 +4,12 @@ export default function About() {
   return (
     <div className="pt-16 pt flex flex-col">
       {/* Section 1*/}
-      <div className="h-64 flex items-center justify-center bg-[url('/assets/skin-title.jpg')] bg-cover bg-no-repeat">
+      <div className="h-64 flex items-center justify-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-no-repeat">
         <div className="text-start text-white">
           <h1 className="text-7xl font-serif leading-tight">About Us</h1>
         </div>
       </div>
-
+     
       {/* Section 2 */}
       <div className="flex flex-row  items-center justify-center w-full bg-white text-left space-y-10">
         {/* Right Section */}

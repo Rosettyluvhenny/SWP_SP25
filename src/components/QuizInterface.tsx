@@ -10,9 +10,7 @@ interface QuizInterfaceProps {
 
 export default function QuizInterface({ quiz, onComplete, onBack, submitting = false }: QuizInterfaceProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<{ [key: number]: { selectedOption: number; point: number } }>(
-    {}
-  );
+  const [userAnswers, setUserAnswers] = useState<{ [key: number]: { selectedOption: number; point: number } }>({});
 
   const handleAnswer = (index: number, point: number) => {
     setUserAnswers(prev => ({
@@ -20,7 +18,6 @@ export default function QuizInterface({ quiz, onComplete, onBack, submitting = f
       [currentQuestion]: { selectedOption: index, point }
     }));
 
-    // Tự động chuyển sang câu hỏi tiếp theo sau một khoảng thời gian ngắn
     if (currentQuestion < quiz.questions.length - 1) {
       setTimeout(() => {
         setCurrentQuestion(prev => prev + 1);
@@ -30,13 +27,20 @@ export default function QuizInterface({ quiz, onComplete, onBack, submitting = f
 
   const handleSubmit = () => {
     if (submitting) return;
-    
+
     const answers = Object.entries(userAnswers).reduce((acc, [questionIndex, { point }]) => {
       acc[quiz.questions[Number(questionIndex)].id] = point;
       return acc;
     }, {} as { [key: number]: number });
     onComplete(answers);
   };
+
+  // Tính điểm tạm thời
+  const currentScore = Object.values(userAnswers).reduce((sum, answer) => sum + answer.point, 0);
+  const maxScore = quiz.questions.reduce((sum, question) => {
+    const maxPoint = Math.max(...question.answers.map(answer => answer.point));
+    return sum + maxPoint;
+  }, 0);
 
   return (
     <div className="flex h-[1200px] bg-white">
@@ -69,6 +73,12 @@ export default function QuizInterface({ quiz, onComplete, onBack, submitting = f
               </div>
               <span className="text-gray-500">
                 Câu hỏi {currentQuestion + 1}/{quiz.questions.length}
+              </span>
+            </div>
+            {/* Hiển thị điểm tạm thời */}
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-600">
+                Điểm tạm thời: {currentScore}/{maxScore}
               </span>
             </div>
             <div className="h-2 bg-gray-200 rounded-full">
@@ -113,7 +123,6 @@ export default function QuizInterface({ quiz, onComplete, onBack, submitting = f
                 ← Câu hỏi trước
               </button>
             )}
-            
             {currentQuestion === quiz.questions.length - 1 && (
               <button
                 onClick={handleSubmit}
@@ -142,4 +151,4 @@ export default function QuizInterface({ quiz, onComplete, onBack, submitting = f
       </main>
     </div>
   );
-} 
+}

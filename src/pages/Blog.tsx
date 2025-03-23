@@ -82,10 +82,11 @@ export default function Blog() {
 
   return (
     <div className="bg-gradient-to-t from-white to-pink-200 min-h-screen">
-      {/* Banner */}
-      <div className="h-64 flex items-center justify-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-no-repeat">
-        <h1 className="text-7xl font-serif text-white">Blog</h1>
-      </div>
+          <div className="relative w-full h-[200px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
+                <div className=" absolute inset-0 bg-black opacity-40"></div>
+                <h1 className="mt-10 relative z-10 text-white text-7xl font-serif mb-2">Blog</h1>
+                <p className="relative z-10 text-white text-xl">Discover our beauty treatments</p>
+            </div>
 
       {/* Danh sách Blog */}
       <div className="py-16 bg-gradient-to-r from-pink-100 to-white text-center flex flex-col items-center">

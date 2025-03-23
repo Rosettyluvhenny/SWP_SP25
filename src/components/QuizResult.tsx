@@ -15,7 +15,7 @@ const QuizResult: React.FC<QuizResultProps> = ({
   onLink,
   onBack
 }) => (
-  <div className="p-8 max-w-3xl mx-auto bg-white rounded-2xl shadow-lg space-y-6 mt-10">
+  <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg space-y-6 mt-10">
     <h2 className="text-3xl font-bold text-center">Kết Quả Kiểm Tra</h2>
     {fetchingResult ? (
       <p className="text-lg text-center text-gray-500">Đang tải kết quả...</p>
@@ -28,7 +28,7 @@ const QuizResult: React.FC<QuizResultProps> = ({
     onClick={onLink}
       className="w-full bg-green-600 text-white py-3 text-lg font-semibold rounded-xl hover:bg-green-700 transition"
     >
-      ok
+     Chi tiết về da của bạn 
     </button>
     <button
       onClick={onBack}

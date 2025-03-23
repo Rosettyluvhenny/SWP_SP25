@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Blog, serviceBlogById } from "../data/blogData";
+import { Blog, serviceBlogById } from  "../data/blogData";
 import { useState, useEffect } from "react";
 
 export default function BlogDetail() {

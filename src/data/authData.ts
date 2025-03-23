@@ -1,19 +1,17 @@
-import axios from "axios";
+import axios from "../services/customizedAxios";
 
 const login = async (username: string, password: string) => {
-    const response = await axios.post(`http://localhost:8443/swp/auth/authenticate`, {
-        username,
-        password,
-    });
-    if (response.status === 200) {
-        return response.data.result.token;
-    } else {
-        return null;
+    try {
+        const response = await axios.post(`/auth/authenticate`, { username, password });
+        return response; 
+    } catch (error) {
+        console.error("Login failed:", error);
+        return null; 
     }
 };
 
 const register = async (data: {username: string, password: string, fullName: string, email: string, phone: string, dob: string}) => {
-    const response = await axios.post(`http://localhost:8443/swp/users`, {
+    const response = await axios.post(`/users`, {
         username: data.username,
         password: data.password,
         fullName: data.fullName,
@@ -21,7 +19,7 @@ const register = async (data: {username: string, password: string, fullName: str
         phone: data.phone,
         dob: data.dob,
     });
-    if (response.status === 201) {
+    if (response.result) {
         return true;
     } else {
         return false;
@@ -29,15 +27,140 @@ const register = async (data: {username: string, password: string, fullName: str
 };
 
 const getUser = async () => {
-    const token = localStorage.getItem('token')
-    const response = await axios.get(`http://localhost:8443/swp/users/getMyInfo`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
-    return response.data.result;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        console.error("No token found! Cannot fetch users.");
+        return null;
+    }
+
+    try {
+        const response = await axios.get(`/users/getMyInfo`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.result;   
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return null; 
+    }
 };
 
+const updateUser = async (
+    userId: string | undefined, 
+    fullName: string, 
+    email: string, 
+    phone: string, 
+    dob: string
+) => {
+    if (!userId) {
+        console.error("User ID is missing! Update request aborted.");
+        return false;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        console.error("No token found! Update failed.");
+        return false;
+    }
+
+    const apiUrl = `/users/${userId}`;; 
+
+    const updatedData = { fullName, email, phone, dob: dob || "" };
+
+    try {
+        console.log("Sending Update Request to:", apiUrl);
+        console.log("Payload:", updatedData);
+
+        const response = await axios.put(apiUrl, updatedData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        console.log("Update Successful:", response.data);
+        return response.status === 200;
+    } catch (error) {
+        console.error("Update Error:", error);
+        return false;
+    }
+};
+
+const createUser = async (data: { username: string, password: string, fullName: string, email: string, phone: string, dob: string }) => {
+    const response = await axios.post(`/users`, {
+        username: data.username,
+        password: data.password,
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        dob: data.dob,
+    });
+    if (response.status === 200) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+const disableUser = async (userId: string) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        console.error("No token found! Update failed.");
+        return false;
+    }
+
+    const apiUrl = `/users/${userId}/disable`;
+
+    try {
+        console.log("Sending Disable Request to:", apiUrl);
+
+        const response = await axios.put(apiUrl, null, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        console.log("Disable Successful:", response.data);
+        return response.status === 200;
+    } catch (error) {
+        console.error("Disable Error:", error);
+        return false;
+    }
+}
+
+const introspect = async() =>{
+    const token = localStorage.getItem('token')
+    if(!token)
+        return;
+    const response = await axios.post("/auth/introspect", 
+        { token }, // Send token in body
+        {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }
+    );
+    return response.result.valid;
+}
+const refresh = async() =>{
+    const token = localStorage.getItem('token')
+    if(!token)
+        return;
+    const response = await axios.post("/auth/refresh", 
+        { token }, // Send token in body
+        {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }
+    );
+    return response.result;
+}
 
 
-export {login, getUser, register};
+export { login, getUser, register, updateUser, createUser, disableUser, introspect, refresh };
