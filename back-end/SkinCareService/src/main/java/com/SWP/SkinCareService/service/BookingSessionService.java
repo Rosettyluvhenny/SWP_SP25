@@ -93,25 +93,21 @@ public class  BookingSessionService {
         //Set status for session base on payment status of booking
         if (booking.getPaymentStatus() == PaymentStatus.PAID || booking.getStatus() == BookingStatus.ON_GOING) {
             session.setStatus(BookingSessionStatus.WAITING);
-
-            //Assign Room for session
-            List<Room> roomAvailableForService = roomService.getRoomAvailableForService(service.getId());
-            if (roomAvailableForService.isEmpty()) {
-                throw new AppException(ErrorCode.OUT_OF_ROOM);
-            } else {
-                Room room = roomAvailableForService.getFirst();
-                session.setRoom(room);
-                roomService.incrementInUse(room.getId());
-            }
-
-
         } else {
             session.setStatus(BookingSessionStatus.PENDING);
         }
 
         bookingSessionRepository.save(session);
         bookingSessionRepository.flush();
-
+        //Notification when session created, from second session
+        String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã được lên lịch vào ngày "+request.getSessionDateTime().toLocalDate();
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .url("http://localhost:3000/sessionDetail/"+session.getId())
+                .text(text)
+                .userId(session.getBooking().getUser().getId())
+                .isRead(false)
+                .build();
+        notificationService.create(notificationRequest);
         return bookingSessionMapper.toBookingSessionResponse(session);
     }
     public Page<BookingSessionResponse> getAllBookingSessions(Pageable pageale) {
@@ -172,10 +168,6 @@ public class  BookingSessionService {
         }
 
         bookingSessionMapper.updateBookingSession(session, request);
-
-
-
-
 
 
         if(request.getStatus()!=null)

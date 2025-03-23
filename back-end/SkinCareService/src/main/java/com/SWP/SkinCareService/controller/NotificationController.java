@@ -44,23 +44,10 @@ public class NotificationController {
         );
     }
 
-    //Get all notification of user include read status is TRUE and FALSE
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<NotificationResponse>>> getAllNotificationsByUserId() {
-        var result = notificationService.getAllNotificationByUser();
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<List<NotificationResponse>>builder()
-                        .result(result)
-                        .build()
-        );
-    }
-
     //Get all notification of user with status not read
     @GetMapping("/not-read")
-    public ResponseEntity<ApiResponse<List<NotificationResponse>>> getAllNotificationNotReadByUser(
-            @RequestParam int timeBeforeToRemind,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime timeRequest) {
-        var result = notificationService.getNotificationsIsNotReadByUser(timeRequest,timeBeforeToRemind);
+    public ResponseEntity<ApiResponse<List<NotificationResponse>>> getAllNotificationNotReadByUser() {
+        var result = notificationService.getNotificationsIsNotReadByUser();
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<List<NotificationResponse>>builder()
                         .result(result)

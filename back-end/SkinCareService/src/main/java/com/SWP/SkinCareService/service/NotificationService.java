@@ -1,7 +1,6 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
-import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.dto.response.Notification.NotificationResponse;
 import com.SWP.SkinCareService.entity.BookingSession;
 import com.SWP.SkinCareService.entity.Notification;
@@ -57,16 +56,17 @@ public class NotificationService {
     }
 
     @Transactional
-    public List<NotificationResponse> getNotificationsIsNotReadByUser(LocalDateTime timeMakeRequest, int timeBeforeToRemind) {
+    public List<NotificationResponse> getNotificationsIsNotReadByUser() {
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = getUserByUsername(username);
 
-        LocalDateTime timeToStart = timeMakeRequest.plusHours(timeBeforeToRemind);
+        LocalDateTime timeMakeRequest = LocalDateTime.now();
+        LocalDateTime timeToCheckSessionStart = timeMakeRequest.plusHours(2);
         BookingSessionStatus status = BookingSessionStatus.WAITING;
 
-        List<BookingSession> sessionList = bookingSessionRepository.findAllBookingSessionsByUserIdAndStatusBetweenDates(user.getId(),status,timeMakeRequest,timeToStart);
+        List<BookingSession> sessionList = bookingSessionRepository.findAllBookingSessionsByUserIdAndStatusBetweenDates(user.getId(),status,timeMakeRequest, timeToCheckSessionStart);
 
         if (sessionList != null && !sessionList.isEmpty()) {
             for (BookingSession bookingSession : sessionList) {
