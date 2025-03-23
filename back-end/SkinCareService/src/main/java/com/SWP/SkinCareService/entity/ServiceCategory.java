@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.entity;
 
+import com.SWP.SkinCareService.enums.ServiceType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -51,4 +52,6 @@ public class ServiceCategory {
     @OneToMany(mappedBy = "serviceCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     List<Quiz> quiz;
+
+    ServiceType type;
 }

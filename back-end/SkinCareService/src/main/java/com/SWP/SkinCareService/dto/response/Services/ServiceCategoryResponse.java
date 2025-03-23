@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.dto.response.Services;
 
 import com.SWP.SkinCareService.dto.response.basicDTO.ServiceDTO;
 import com.SWP.SkinCareService.entity.Services;
+import com.SWP.SkinCareService.enums.ServiceType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -33,5 +34,5 @@ public class ServiceCategoryResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt;
 
-    //List<ServiceDTO> services;
+    ServiceType type;
 }

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface BookingSessionRepository extends JpaRepository<BookingSession, Integer> {
+public interface BookingSessionRepository extends JpaRepository<BookingSession, Integer>, JpaSpecificationExecutor {
 
     List<BookingSession> findByTherapistIdAndSessionDateTimeBetweenAndStatusNotIn(
             String therapistId,
@@ -45,4 +46,8 @@ public interface BookingSessionRepository extends JpaRepository<BookingSession, 
     List<BookingSession> findByBookingUserPhone(String phoneNumber);
 
     Page<BookingSession> findAll(Specification spec, Pageable pageable);
+
+    List<BookingSession> findByTherapist_IdAndSessionDateTimeBetweenAndStatusNotIn(String therapistId,LocalDateTime startOfDay,
+                                                                                   LocalDateTime endOfDay,
+                                                                                   List<BookingSessionStatus> excludeStatuses);
 }

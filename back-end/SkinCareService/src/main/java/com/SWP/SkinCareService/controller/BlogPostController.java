@@ -70,7 +70,7 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Delete a blog post", description = "Delete a blog post by ID")
-    @PreAuthorize("hasRole('THERAPIST') and @customSecurityService.canEditBlogPost(#blogPostId, authentication.name)")
+    @PreAuthorize("(hasRole('ADMIN')")
     @DeleteMapping("/{blogPostId}")
     public ResponseEntity<ApiResponse<Void>> deleteBlogPost(@PathVariable Integer blogPostId) {
         var response = blogPostService.deleteBlogPost(blogPostId);

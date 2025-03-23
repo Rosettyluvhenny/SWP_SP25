@@ -141,20 +141,20 @@ public class BlogPostService {
         if(blogPost.isDefaultBlog())
             throw new AppException(ErrorCode.IS_DEFAULT_BLOG);
         // Kiểm tra xem người đang đăng nhập có phải là therapist của blog này không
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        
-        // Tìm user theo username
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        
-        // Lấy therapist từ user ID
-        Therapist currentTherapist = therapistRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
-                
-        if (!blogPost.getTherapist().getId().equals(currentTherapist.getId())) {
-            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
+//        var authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String username = authentication.getName();
+//
+//        // Tìm user theo username
+//        User user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+//
+//        // Lấy therapist từ user ID
+//        Therapist currentTherapist = therapistRepository.findByUserId(user.getId())
+//                .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+//
+//        if (!blogPost.getTherapist().getId().equals(currentTherapist.getId())) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+//        }
         
         // Delete image from Supabase if exists
         if (blogPost.getImg() != null) {

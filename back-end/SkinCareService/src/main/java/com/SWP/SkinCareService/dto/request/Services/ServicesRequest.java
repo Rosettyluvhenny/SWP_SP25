@@ -80,11 +80,5 @@ public class ServicesRequest {
     @Builder.Default
     Boolean active = true;
 
-    @Schema(
-            description = "Type of the service",
-            example = "CHAM_SOC",
-            defaultValue = "CHAM_SOC"
-    )
-    @NotNull(message = "NOT_EMPTY")
-    ServiceType type;
+
 }

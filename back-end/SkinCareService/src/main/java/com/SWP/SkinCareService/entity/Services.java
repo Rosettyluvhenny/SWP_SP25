@@ -64,8 +64,6 @@ public class Services {
     @Column(columnDefinition = "TEXT")
     String img;
 
-    ServiceType type;
-
     float rating;
 
     //Many to many with Quiz result

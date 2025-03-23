@@ -67,7 +67,7 @@ public class BookingService {
         Set<Booking> userBookingExisted = user.getBooking();
         if (userBookingExisted != null && !userBookingExisted.isEmpty()) {
             for (Booking userBooking : userBookingExisted) {
-                if ((userBooking.getService().getType() == ServiceType.TREATMENT) && ServiceType.TREATMENT == service.getType()) {
+                if ((userBooking.getService().getServiceCategory().getType() == ServiceType.TREATMENT) && ServiceType.TREATMENT == service.getServiceCategory().getType()) {
 
                     List<BookingSession> sessionList = userBooking.getBookingSessions();
                     if (sessionList != null && !sessionList.isEmpty()) {
@@ -80,7 +80,8 @@ public class BookingService {
                                 throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
                             }
                         } else {
-                            if (lastSessionExisted.getBooking().getStatus() == BookingStatus.ON_GOING) {
+                            if (lastSessionExisted.getBooking().getStatus() == BookingStatus.ON_GOING
+                                    ||lastSessionExisted.getBooking().getStatus() == BookingStatus.PENDING ) {
                                 throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
                             }
                         }

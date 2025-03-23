@@ -1,6 +1,8 @@
 package com.SWP.SkinCareService.dto.request.Services;
 
+import com.SWP.SkinCareService.enums.ServiceType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,4 +19,7 @@ public class ServiceCategoryRequest {
 
     @NotBlank(message = "NOT_EMPTY")
     String description;
+
+    @NotNull(message = "NOT_EMPTY")
+    ServiceType type;
 }

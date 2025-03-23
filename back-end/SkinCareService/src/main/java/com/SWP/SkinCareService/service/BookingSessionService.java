@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -663,5 +664,19 @@ public class  BookingSessionService {
         BookingSession session = checkSession(sessionId);
         session.setStatus(BookingSessionStatus.IS_CANCELED);
         return bookingSessionRepository.save(session);
+    }
+
+    @PreAuthorize("hasRole('THERAPIST')")
+    public List<BookingSessionResponse> getTherapistSchedule (LocalDate startDate,LocalDate endDate){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        LocalDateTime endDateTime = endDate.atTime(0,0);
+        if(endDate.equals(startDate))
+            endDateTime=startDate.atTime(23,0);
+        List<BookingSessionStatus> excludeStatuses = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSession> sessions = bookingSessionRepository.findByTherapist_IdAndSessionDateTimeBetweenAndStatusNotIn(user.getTherapist().getId(),
+                startDate.atTime(0,0),endDateTime, excludeStatuses);
+
+        return sessions.stream().map(bookingSessionMapper::toBookingSessionResponse).toList();
     }
 }

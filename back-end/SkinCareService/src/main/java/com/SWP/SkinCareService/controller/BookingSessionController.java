@@ -140,4 +140,12 @@ public class BookingSessionController {
                 ApiResponse.<BookingResponse>builder().message("Update successfull").build()
         );
     }
+    @GetMapping("/therapist")
+    @PreAuthorize("hasRole('THERAPIST')")
+    public ApiResponse<List<BookingSessionResponse>> getByTherapist(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startdate, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return ApiResponse.<List<BookingSessionResponse>>builder()
+                .result(bookingSessionService.getTherapistSchedule(startdate,endDate))
+                .build();
+    }
 }

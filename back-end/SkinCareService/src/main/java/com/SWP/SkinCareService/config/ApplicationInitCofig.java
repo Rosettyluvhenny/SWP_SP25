@@ -34,9 +34,6 @@ public class ApplicationInitCofig {
                 Role staffRole   = roleRepository.save(Role.builder().name("STAFF").description("Staff role").build());
                 Set<Role> roles = new HashSet<>();
                 roles.add(adminRole);
-                roles.add(therapistRole);
-                roles.add(staffRole);
-                roles.add(userRole);
                 User user = User.builder()
                         .username("admin")
                         .roles(roles)
