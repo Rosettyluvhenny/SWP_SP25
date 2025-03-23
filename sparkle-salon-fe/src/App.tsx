@@ -28,6 +28,14 @@ import SessionDetail from "./pages/SessionDetail";
 import TherapistManagement from "./pages/TherapistManagement";
 import Feedback from "./pages/Feedback";
 import { ProtectedRoute } from "./routes/ProtectedRoutes";
+
+import ManagerStaff from "./pages/ManagerStaff";
+import SkinTest from "./pages/SkinTest";
+import QuizManagement from "./pages/QuizManagement";
+import BlogManagement from "./pages/BlogManagement";
+import BlogDetail from "./pages/BlogDetail";
+
+
 function App() {
   const {user} = useContext(UserContext);
   console.log("token", localStorage.getItem("token"))
@@ -73,6 +81,10 @@ function App() {
           <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
           <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
           <Route path="/therapist/:id" element={<Therapist />} />
+          <Route path="/blog/:blogId" element={<MainLayout><BlogDetail /></MainLayout>} />
+          <Route path="/skintest" element={<MainLayout><SkinTest /></MainLayout>} />
+
+
           
           {/* User protected routes */}
           <Route element={<ProtectedRoute requiredRoles={['USER']} />}>
@@ -90,6 +102,13 @@ function App() {
           
           {/* Admin protected routes */}
           <Route element={<ProtectedRoute requiredRoles={['ADMIN']} />}>
+            <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
+            <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
+
+          </Route>
+          
+          {/* Admin protected routes */}
+          <Route element={<ProtectedRoute requiredRoles={['ADMIN','THERAPIST']} />}>
             <Route path="/manager" element={<MainLayout><Manager /></MainLayout>} />
             <Route path="/manager/user" element={<UserManagement />} />
             <Route path="/manager/service" element={<ServiceManagement />} />
@@ -98,6 +117,9 @@ function App() {
             <Route path="/manager/room" element={<RoomManagement />} />
             <Route path="/manager/payment" element={<PaymentManagement />} />
             <Route path="/manager/therapist" element={<TherapistManagement />} />
+            <Route path="/managerstaff" element={<ManagerStaff />} />
+            <Route path="/manager/quiz" element={<QuizManagement />} />
+            <Route path="/manager/blog" element={<BlogManagement />} />
           </Route>
           
           {/* Fallback route */}

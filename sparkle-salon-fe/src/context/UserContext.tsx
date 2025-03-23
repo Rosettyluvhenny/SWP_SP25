@@ -77,6 +77,7 @@ const UserProvider = ({ children }) => {
                 }
             } catch (error) {
                 // Handle error by clearing token and setting auth to false
+                toast.error("Your access is expired");
             } finally {
                 setIsLoading(false);
             }

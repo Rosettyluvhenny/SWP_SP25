@@ -140,7 +140,6 @@
 //                 alert("Đặt lịch thành công! Đang chuyển hướng đến trang thanh toán...");
 //                 window.open(response.url, "_self");
 //             }
-
 //             if(response && response.status){
 //                 toast.success("Đặt lịch thành công")
 //             }
@@ -216,7 +215,6 @@ export default function BookingSession() {
     const [selectedDate, setSelectedDate] = useState<string>();
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [therapistSlots, setTherapistSlots] = useState<{ therapistId: string; startTime: string; endTime: string }[]>([]);
-
     // Router hooks
     const [searchParams] = useSearchParams();
     const selectedBooking = searchParams.get("booking") || "";
@@ -248,7 +246,6 @@ export default function BookingSession() {
                 navigate("/yours-booking");
                 return;
             }
-
             try {
                 const fetchedBooking = await getBookingById(selectedBooking);
                 console.log(fetchedBooking);
@@ -273,7 +270,6 @@ export default function BookingSession() {
     useEffect(() => {
         async function fetchTherapistSlots() {
             if (!selectedTherapist || !selectedDate || !selectedServiceId) return;
-
             const fetchedTherapistSlots = await getTherapistSlots(
                 selectedTherapist,
                 selectedServiceId,
@@ -292,7 +288,6 @@ export default function BookingSession() {
     useEffect(() => {
         async function fetchFreeSlots() {
             if (!selectedDate || !selectedServiceId) return;
-
             const fetchedTherapistSlots = await getFreeSlots(
                 selectedServiceId,
                 selectedDate
