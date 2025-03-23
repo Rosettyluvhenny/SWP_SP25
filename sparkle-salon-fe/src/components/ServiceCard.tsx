@@ -27,7 +27,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
     
     const navigate = useNavigate();
     const handleBooking = () => {
-        navigate(`/contact?service=${service.id}`);
+        navigate(`/booking?service=${service.id}`);
     };
 
     return (

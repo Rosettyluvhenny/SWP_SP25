@@ -3,10 +3,10 @@ import axios from "../services/customizedAxios";
 const login = async (username: string, password: string) => {
     try {
         const response = await axios.post(`/auth/authenticate`, { username, password });
-        return response; // Return only the actual data from API
+        return response; 
     } catch (error) {
         console.error("Login failed:", error);
-        return null; // Handle errors properly
+        return null; 
     }
 };
 
@@ -27,13 +27,24 @@ const register = async (data: {username: string, password: string, fullName: str
 };
 
 const getUser = async () => {
-    const token = localStorage.getItem('token')
-    const response = await axios.get(`/users/getMyInfo`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
-    return response.result;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        console.error("No token found! Cannot fetch users.");
+        return null;
+    }
+
+    try {
+        const response = await axios.get(`/users/getMyInfo`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.result;   
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return null; 
+    }
 };
 
 const updateUser = async (
@@ -136,4 +147,20 @@ const introspect = async() =>{
     );
     return response.result.valid;
 }
-export { login, getUser, register, updateUser, createUser, disableUser, introspect };
+const refresh = async() =>{
+    const token = localStorage.getItem('token')
+    if(!token)
+        return;
+    const response = await axios.post("/auth/refresh", 
+        { token }, // Send token in body
+        {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }
+    );
+    return response.result;
+}
+
+
+export { login, getUser, register, updateUser, createUser, disableUser, introspect, refresh };

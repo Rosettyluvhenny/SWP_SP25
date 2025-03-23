@@ -1,24 +1,30 @@
 import { getUserBookings, Booking } from "../data/userData";
 import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaTrash } from "react-icons/fa";
+import { FaRedo, FaTrash } from "react-icons/fa";
 import { Service, serviceDataById } from "../data/servicesData";
-
+import Pagination from "../components/Pagination";
+import { cancelBooking } from "../data/userData"
+import { toast } from "react-toastify"
 export default function YourBooking() {
     const [bookings, setBookings] = useState<Booking[]>([]);
-    const [serviceImages, setServiceImages] = useState<{
-        [key: number]: string;
-    }>({});
-    const [selectedService, setSelectedService] = useState<Service>();
-    const [searchParams] = useSearchParams();
-    const selectedServiceId = searchParams.get("service") || "";
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [ServicePerPage] = useState(9);
+    const [totalAmountOfElements, setTotalAmountOfElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [searchUrl, setSearchUrl] = useState('');
+    const [status, setStatus] = useState("");
+    const [sort, setsort] = useState("");
 
+    const paginate = (pageNumber: number) => {
+        console.log(pageNumber);
+        setCurrentPage(pageNumber)
+    };
     useEffect(() => {
         const fetchBookings = async () => {
-            const bookings = await getUserBookings();
+            const bookings = await getUserBookings(searchUrl);
             if (bookings) {
                 setBookings(bookings);
             } else {
@@ -26,39 +32,8 @@ export default function YourBooking() {
             }
         };
         fetchBookings();
-    }, []);
+    }, [searchUrl]);
 
-    useEffect(() => {
-        const fetchServiceImages = async () => {
-            const imagesMap: { [key: number]: string } = {};
-            for (const booking of bookings) {
-                if (!booking.serviceId) continue;
-                const service = await serviceDataById(
-                    booking.serviceId.toString()
-                );
-                if (service) {
-                    imagesMap[booking.serviceId] = service.img;
-                }
-            }
-            setServiceImages(imagesMap);
-        };
-
-        if (bookings.length > 0) {
-            fetchServiceImages();
-        }
-    }, [bookings]);
-
-    useEffect(() => {
-        async function fetchServices() {
-            try {
-                const fetchedServices = await serviceDataById(selectedServiceId);
-                setSelectedService(fetchedServices);
-            } catch (error) {
-                console.error("Failed to fetch services:", error);
-            }
-        }
-        fetchServices();
-    }, [selectedServiceId]);
 
     const handleCancelBooking = async (id: string) => {
         const confirmDelete = window.confirm(
@@ -66,24 +41,64 @@ export default function YourBooking() {
         );
         if (confirmDelete) {
             try {
-                await axios.delete(`http://localhost:8081/swp/booking/${id}`);
-                //sai dổi status thành canceled 
-                const bookings = await getUserBookings();
+                const response = await cancelBooking(id);
+                toast.success(response);
+                const bookings = await getUserBookings(searchUrl);
                 if (bookings) {
                     setBookings(bookings);
                 }
-                alert("Huỷ lịch thành công");
+                // toast.success("Huỷ lịch thành công");
             } catch (error) {
-                console.error("Error deleting booking:", error);
-                alert("Huỷ lịch thất bại");
+                // console.error("Error deleting booking:", error);
+                toast.error("Hủy lịch thất bại")
             }
         }
     };
 
     const handleRebook = (serviceId: number) => {
-        navigate(`/contact?service=${serviceId}`);
+        navigate(`/booking?service=${serviceId}`);
     };
 
+    const handleFilter = () => {
+        setCurrentPage(1);
+        setSearchUrl(
+            `?${status ? `status=${status}&` : ""}page=${currentPage - 1}&size=${ServicePerPage}&sort=${sort}`
+        );
+    }
+    useEffect(() => {
+        setCurrentPage(1);
+        setSearchUrl(
+            `?${status ? `status=${status}&` : ""}page=${currentPage - 1}&size=${ServicePerPage}&sort=${sort}`
+        );
+    }, [status, currentPage, sort])
+
+    const getStatusColor = (status: string) => {
+        switch (status.toUpperCase()) {
+            case 'PAID':
+            case 'COMPLETED':
+                return 'bg-green-100 text-green-800';
+            case 'PENDING':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'CANCELLED':
+                return 'bg-red-100 text-red-800';
+            case 'ON_GOING':
+                return 'bg-orange-100 text-green-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+    const statuses = [
+        { value: "ON_GOING", label: "On Going" },
+        { value: "IS_CANCELED", label: "Cancelled" },
+        { value: "PENDING", label: "Pending" },
+        { value: "COMPLETED", label: "Completed" },
+
+    ];
+    const sorts = [
+        { value: "createAt,asc", label: "Newest" },
+        { value: "createAt,desc", label: "Oldest" }
+
+    ]
     return (
         <div className="bg-white min-h-screen">
             <div className="relative w-full h-[170px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
@@ -91,6 +106,32 @@ export default function YourBooking() {
                 <h1 className="relative z-10 text-white text-7xl font-serif">
                     Booking History
                 </h1>
+            </div>
+            <div className="flex flex-col md:flex-row justify-left items-center gap-4 bg-white p-4 rounded-lg shadow-md -mt-8 relative z-20">
+                <select
+                    value={status}
+                    onChange={(e) => { setStatus(e.target.value); console.log(e.target.value) }}
+                    className="border p-2 rounded"
+                >
+                    <option value="">Select a status</option>
+                    {statuses && statuses.map((stat, index) => (
+                        <option key={index} value={stat.value}>
+                            {stat.label}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={sort}
+                    onChange={(e) => { setsort(e.target.value); console.log(e.target.value) }}
+                    className="border p-2 rounded"
+                >
+                    <option value="">Select sort</option>
+                    {sorts && sorts.map((stat, index) => (
+                        <option key={index} value={stat.value}>
+                            {stat.label}
+                        </option>
+                    ))}
+                </select>
             </div>
             {/* Services Table */}
             <motion.div
@@ -117,9 +158,9 @@ export default function YourBooking() {
                         </thead>
                         <tbody className="bg-white">
                             {bookings.length > 0 ? (
-                                bookings.map((bookings) => (
+                                bookings.map((booking) => (
                                     <motion.tr
-                                        key={bookings.id}
+                                        key={booking.id}
                                         className="border-t hover:bg-pink-50 transition-colors"
                                         initial={{
                                             opacity: 0,
@@ -130,77 +171,94 @@ export default function YourBooking() {
                                         transition={{
                                             duration: 0.3,
                                         }}
+                                        onClick={(e) =>{ 
+                                            e.stopPropagation();
+                                            navigate(`/bookingDetail/${booking.id}`)}}
                                     >
                                         <td className="p-3 font-medium">
-                                            {bookings.serviceName}
+                                            {booking.serviceName}
                                         </td>
                                         <td className="p-3 font-medium">
                                             <img
                                                 src={
-                                                    serviceImages[
-                                                        bookings.serviceId
-                                                    ] ||
-                                                    "/assets/placeholder.jpg"
+                                                    booking.img
                                                 }
-                                                alt={bookings.serviceName}
+                                                alt={booking.serviceName}
                                                 className="w-auto h-16"
                                             />
                                         </td>
                                         <td className="p-3">
-                                            {bookings.price}
+                                            {booking.price}
                                         </td>
                                         <td className="p-3">
-                                            {bookings.sessionRemain}
+                                            {booking.sessionRemain}
                                         </td>
                                         <td className="p-3">
                                             <span
-                                                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                    bookings.status ===
-                                                    "Hoạt Động"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-yellow-100 text-yellow-800"
-                                                }`}
+                                                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status) || ""
+                                                    }`}
                                             >
-                                                {bookings.status}
+                                                {booking.status}
                                             </span>
                                         </td>
                                         <td className="p-3">
-                                            {bookings.paymentMethod}
+                                            {booking.paymentMethod}
                                         </td>
                                         <td className="p-3">
                                             <span
-                                                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                    bookings.paymentStatus ===
-                                                    "Đã Thanh Toán"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-yellow-100 text-yellow-800"
-                                                }`}
+                                                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status) || ""
+                                                    }`}
                                             >
-                                                {bookings.paymentStatus}
+                                                {booking.paymentStatus}
                                             </span>
                                         </td>
                                         <td className="p-3 flex space-x-2">
-                                            <motion.button
-                                                onClick={() => handleRebook(bookings.serviceId)}
-                                                className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                            >
-                                                Đặt Lại
-                                            </motion.button>
+                                            {(booking.status == "ON_GOING" || booking.sessionRemain > 0) &&
+                                                <motion.button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); 
+                                                        e.preventDefault();
+                                                        handleRebook(booking.serviceId)}
+                                                    }
+                                                    className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    Đặt lịch
+                                                </motion.button>
+                                            }
+                                            {booking.status == "PENDING" &&
+                                                <motion.button
+                                                    onClick={(e) =>{
+                                                        e.stopPropagation();
+                                                        e.preventDefault();
+                                                        handleCancelBooking(
+                                                            booking.id
+                                                        )
+                                                    }
+                                                    }
+                                                    className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    <FaTrash size={14} /> Hủy
+                                                </motion.button>
+                                            }
+                                            {(booking.status == "COMPLETED" || booking.status == "IS_CANCELED") &&
+                                                <motion.button
+                                                    onClick={(e) =>{ 
+                                                        e.stopPropagation(); 
+                                                        e.preventDefault();
+                                                        handleRebook(booking.serviceId)}}
+                                                    className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
 
-                                            <motion.button
-                                                onClick={() =>
-                                                    handleCancelBooking(
-                                                        bookings.id
-                                                    )
-                                                }
-                                                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                            >
-                                                <FaTrash size={14} /> Xóa
-                                            </motion.button>
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    <FaRedo size={14} /> Đặt lại
+                                                </motion.button>
+                                            }
+
                                         </td>
                                     </motion.tr>
                                 ))
@@ -218,6 +276,11 @@ export default function YourBooking() {
                     </table>
                 </div>
             </motion.div>
+            <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                paginate={paginate}
+            />
         </div>
     );
 }

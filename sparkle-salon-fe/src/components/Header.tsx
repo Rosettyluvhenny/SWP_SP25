@@ -17,7 +17,7 @@ import { UserContext } from "../context/UserContext";
 
 export default function Header() {
     const [loginData, setLoginData] = useState({ username: "", password: "" });
-    const [isLoginOpen, setIsLoginOpen] = useState(false);
+    // const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [registerData, setRegisterData] = useState({
@@ -29,7 +29,7 @@ export default function Header() {
         dob: "",
     });
 
-    const { user, logout, loginContext, loading } = useContext(UserContext);
+    const { user, logout, loginContext, loading, isLoginOpen, setIsLoginOpen} = useContext(UserContext);
     const [error, setError] = useState<string|null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
@@ -84,17 +84,24 @@ export default function Header() {
             return;
         }
         let res = await login(loginData.username, loginData.password);
-        // console.log(">> check res ", res)
+        
         if (res && res.result) {
             localStorage.setItem("token", res.result.token)
-            loginContext(loginData.username)
-            toast.success("Login successfully ");
-            setLoginData({ username: "", password: "" });
-            setIsLoginOpen(false);
+            try{
+
+                const userInfo = await getUser();
+                const role = userInfo.roles.length > 0 ? userInfo.roles[0].name : "";
+                loginContext(userInfo.username, role);
+                toast.success("Login successfully ");
+                setLoginData({ username: "", password: "" });
+                setIsLoginOpen(false);
+            }catch(error){
+                console.error("Failed to fetch user info:", error);
+                toast.error("Failed to get user information");
+            }
         } else {
-            // if (res && res.status === 401) {
+
                 toast.error("Đăng nhập thất bại");
-            // }
         }
     }
 
@@ -193,17 +200,16 @@ export default function Header() {
         { path: "/about", label: "About Us" },
         { path: "/service", label: "Service" },
         { path: "/blog", label: "Blog" },
-        { path: "/contact", label: "Contact" },
+        { path: "/SkinTest", label: "Skin test" },
     ];
 
     if (user && user.auth === true) {
         navItems.push(
-            { path: "/your-booking", label: "Your Booking" },
-            { path: "/feedback", label: "Feedback" }
+            { path: "/your-booking", label: "Booking" },
+            // { path: "/feedback", label: "Feedback" },
+            {  path: "/schedule", label:"Schedule"}
         );
     }
-
-
     return (
         <motion.header
             className={`fixed top-0 left-0 w-full flex justify-between items-center p-4 transition-all duration-300 z-50 ${isScrolled
