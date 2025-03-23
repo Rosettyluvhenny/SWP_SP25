@@ -121,9 +121,6 @@ const ServiceInfoForm = ({
             if (res.result) {
                 alert("Đã lưu");
             }
-            if (res.result) {
-                alert("Đã lưu");
-            }
             handleCloseServiceForm();
         }).catch((err) => {
             alert("Lưu thất bại");

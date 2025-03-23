@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
-import { getUser, createUser, disableUser } from "../data/authData";
+import { getAllUser, createUser, disableUser, deleteUser } from "../data/authData";
+
+type Role = {
+    name: string;
+    description: string;
+};
 
 type User = {
-    id: number;
+    userId: string | number;
     username: string;
     fullName: string;
     email: string;
     phone: string;
     dob: string;
-    role: string;
     password?: string;
+    roles?: Role[];
 };
 
 export default function UserManagement() {
@@ -29,7 +34,7 @@ export default function UserManagement() {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const userData = await getUser();
+            const userData = await getAllUser();
             if (userData) {
                 setUsers(userData);
             }
@@ -43,10 +48,9 @@ export default function UserManagement() {
     const openModal = (user: User | null = null) => {
         setEditingUser(
             user ?? {
-                id: users.length + 1,
+                userId: "",
                 username: "",
                 email: "",
-                role: "User",
                 fullName: "",
                 phone: "",
                 dob: "",
@@ -65,9 +69,9 @@ export default function UserManagement() {
         if (!editingUser) return;
 
         try {
-            if (editingUser.id && users.some((u) => u.id === editingUser.id)) {
+            if (editingUser.userId && users.some((u) => u.userId === editingUser.userId)) {
                 setUsers((prev) =>
-                    prev.map((u) => (u.id === editingUser.id ? editingUser : u))
+                    prev.map((u) => (u.userId === editingUser.userId ? editingUser : u))
                 );
             } else {
                 const success = await createUser({
@@ -81,7 +85,8 @@ export default function UserManagement() {
 
                 if (success) {
                     await fetchUsers();
-                }else{
+                    alert("Tạo người dùng thành công");
+                } else {
                     alert("Tạo người dùng thành công");
                 }
             }
@@ -91,32 +96,84 @@ export default function UserManagement() {
         }
     };
 
-    const handleDisable = async (id: number) => {
+    const handleDisable = async (userId: string | number) => {
+        if (userId === undefined || userId === null) {
+            console.error("Invalid user ID:", userId);
+            return;
+        }
+
         const confirmDisable = window.confirm(
             "Bạn có chắc chắn muốn vô hiệu hóa người dùng này?"
         );
+        
         if (confirmDisable) {
             try {
-                const success = await disableUser(id.toString());
+                const success = await disableUser(userId.toString());
 
                 if (success) {
-                    setUsers((prevUsers) =>
-                        prevUsers.map((user) =>
-                            user.id === id
-                                ? { ...user, role: "Disabled" }
-                                : user
-                        )
-                    );
+                    await fetchUsers(); 
+                    alert("Vô hiệu hóa người dùng thành công!");
+                } else {
+                    alert("Không thể vô hiệu hóa người dùng!");
                 }
             } catch (err) {
                 console.error("Error disabling user:", err);
+                alert("Lỗi khi vô hiệu hóa người dùng!");
+            }
+        }
+    };
+
+    const handleDelete = async (userId: string | number) => {
+        const user = users.find(u => u.userId === userId);
+        const isDisabled = user?.roles?.some(role => role.name === "DISABLED");
+        
+        if (!isDisabled) {
+            alert("Bạn phải vô hiệu hóa người dùng trước khi xóa!");
+            return;
+        }
+        
+        if (userId === undefined || userId === null) {
+            console.error("Invalid user ID:", userId);
+            return;
+        }
+        
+        const confirmDelete = window.confirm(
+            "Bạn có chắc chắn muốn xóa người dùng này? Hành động này không thể hoàn tác."
+        );
+        
+        if (confirmDelete) {
+            try {
+                const success = await deleteUser(userId.toString());
+
+                if (success) {
+                    setUsers((prevUsers) =>
+                        prevUsers.filter((user) => user.userId !== userId)
+                    );
+                    alert("Xóa người dùng thành công!");
+                } else {
+                    alert("Không thể xóa người dùng!");
+                }
+            } catch (err) {
+                console.error("Error deleting user:", err);
+                alert("Lỗi khi xóa người dùng!");
             }
         }
     };
 
     const isEditingExistingUser = () => {
-        return editingUser ? users.some((u) => u.id === editingUser.id) : false;
+        return editingUser ? users.some((u) => u.userId === editingUser.userId) : false;
     };
+
+    const isUserDisabled = (user: User) => {
+        return user.roles?.some(role => role.name === "DISABLED");
+    };
+
+    const filteredUsers = users.filter(
+        (user) =>
+            user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="flex h-screen bg-white">
@@ -168,13 +225,13 @@ export default function UserManagement() {
                                         </th>
                                         <th className="p-3 text-left">Email</th>
                                         <th className="p-3 text-left">
-                                            Vai Trò
-                                        </th>
-                                        <th className="p-3 text-left">
                                             Số Điện Thoại
                                         </th>
                                         <th className="p-3 text-left">
                                             Ngày Sinh
+                                        </th>
+                                        <th className="p-3 text-left">
+                                            Vai Trò
                                         </th>
                                         <th className="p-3 text-left">
                                             Hành Động
@@ -182,8 +239,8 @@ export default function UserManagement() {
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white">
-                                    {users.map((user) => (
-                                        <tr key={user.id} className="border-t">
+                                    {filteredUsers.map((user) => (
+                                        <tr key={user.userId} className="border-t">
                                             <td className="p-3">
                                                 {user.username}
                                             </td>
@@ -193,20 +250,31 @@ export default function UserManagement() {
                                             <td className="p-3">
                                                 {user.email}
                                             </td>
-                                            <td className="p-3">{user.role}</td>
                                             <td className="p-3">
                                                 {user.phone}
                                             </td>
                                             <td className="p-3">{user.dob}</td>
+                                            <td className="p-3">
+                                                {user.roles?.map(role => role.name).join(", ") || "N/A"}
+                                            </td>
                                             <td className="p-3 flex space-x-2">
-                                                <button
-                                                    onClick={() =>
-                                                        handleDisable(user.id)
-                                                    }
-                                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                                                >
-                                                    Vô hiệu hóa
-                                                </button>
+                                                {!isUserDisabled(user) ? (
+                                                    <button
+                                                        onClick={() => handleDisable(user.userId)}
+                                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                                    >
+                                                        Vô hiệu hóa
+                                                    </button>
+                                                ) : (
+                                                    <div className="flex space-x-2">
+                                                        <button
+                                                            onClick={() => handleDelete(user.userId)}
+                                                            className="bg-red-700 text-white px-3 py-1 rounded hover:bg-red-800"
+                                                        >
+                                                            Xóa
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
@@ -270,23 +338,6 @@ export default function UserManagement() {
                             }
                             className="p-2 border rounded"
                         />
-
-                        <label className="font-semibold">Vai Trò</label>
-                        <select
-                            value={editingUser?.role || "User"}
-                            onChange={(e) =>
-                                setEditingUser((prev) =>
-                                    prev
-                                        ? { ...prev, role: e.target.value }
-                                        : null
-                                )
-                            }
-                            className="p-2 border rounded"
-                        >
-                            <option value="Admin">Admin</option>
-                            <option value="Therapist">Therapist</option>
-                            <option value="User">User</option>
-                        </select>
 
                         <label className="font-semibold">Ngày Sinh</label>
                         <input
