@@ -34,7 +34,7 @@ public class QuizResult {
     @JsonManagedReference
     private List<User> users;
 
-    @ManyToMany(mappedBy = "quizResults", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "quizResults", cascade = CascadeType.MERGE)
     @JsonBackReference
     private List<Services> services = new ArrayList<>();
 

@@ -47,17 +47,22 @@ public class QuizResultService {
         //Check quiz
         Quiz quiz = getQuizById(request.getQuizId());
         QuizResult quizResult = quizResultMapper.toQuizResult(request);
+        quizResult.setQuiz(quiz);
+        quizResultRepository.save(quizResult);
         //Add service
         if (request.getServiceId() != null) {
-            List<Integer> serviceIds = new ArrayList<>(request.getQuizId());
+            List<Integer> serviceIds = new ArrayList<>(request.getServiceId());
             List<Services> servicesList = new ArrayList<>(servicesRepository.findAllById(serviceIds));
             if (servicesList.size() != serviceIds.size()) {
                 throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
             }
+            for (Services service : servicesList) {
+                service.getQuizResults().add(quizResult);
+                servicesRepository.save(service);
+            }
             quizResult.setServices(servicesList);
         }
-        quizResult.setQuiz(quiz);
-        quizResultRepository.save(quizResult);
+
         //return response;
         return quizResultMapper.toQuizResultResponse(quizResult);
     }

@@ -67,7 +67,7 @@ public class Services {
     float rating;
 
     //Many to many with Quiz result
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
             name = "ServiceQuizResult",
             joinColumns = @JoinColumn(name = "serviceId"),
