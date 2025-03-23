@@ -70,8 +70,8 @@ export default function ServiceManagement() {
     // Services logic
     
     const getServiceList = useCallback( async() => {
-        const services = await servicesData();
-        const serviceListData: Service[] = services.map((service) => ({
+        const services = await servicesData("?size=100");
+        const serviceListData: Service[] = services.services.map((service) => ({
             id: service.id,
             name: service.name,
             price: service.price.toString(),
@@ -91,12 +91,7 @@ export default function ServiceManagement() {
         fetchCategories();
     }, [getServiceList]);
 
-    const categoryOptions = [
-        "Tất Cả",
-        "Chăm Sóc Da",
-        "Trị Liệu",
-        "Dịch Vụ Khác",
-    ];
+    const categoryOptions = ["Tất Cả", ...categories.map((cat) => cat.name)];
 
     const closeServiceModal = () => {
         setIsModalOpen(false);
@@ -171,14 +166,14 @@ export default function ServiceManagement() {
         try {
             if (editingCategory) {
                 await axios.put(
-                    `http://localhost:8443/swp/category/${editingCategory.id}`,
+                    `http://localhost:8081/swp/category/${editingCategory.id}`,
                     {
                         name: categoryFormValue,
                         description: categoryFormDescription,
                     }
                 );
             } else {
-                await axios.post("http://localhost:8443/swp/category", {
+                await axios.post("http://localhost:8081/swp/category", {
                     name: categoryFormValue,
                     description: categoryFormDescription,
                 });
@@ -213,7 +208,7 @@ export default function ServiceManagement() {
         );
         if (confirmDelete) {
             try {
-                await axios.delete(`http://localhost:8443/swp/category/${id}`);
+                await axios.delete(`http://localhost:8081/swp/category/${id}`);
                 fetchCategories();
                 alert("Xóa danh mục thành công");
             } catch (error) {
@@ -227,7 +222,7 @@ export default function ServiceManagement() {
     const fetchCategories = async () => {
         try {
             const response = await axios.get<{ result: ServiceCategory[] }>(
-                "http://localhost:8443/swp/category"
+                "http://localhost:8081/swp/category"
             );
             setCategories(response.data.result);
         } catch (error) {

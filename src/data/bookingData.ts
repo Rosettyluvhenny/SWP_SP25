@@ -1,27 +1,31 @@
-import axios from "axios";
+import axios from "../services/customizedAxios";
 
 export type BookingBody = {
-    userId: string;
     serviceId: number;
     paymentId: number;
     bookingTime: string;
     notes: string;
-    therapistId?: string | null;
+    therapistId: string;
+    url?: string | null;
 }
+ 
 export const bookingService = async (bookingBody: BookingBody) => {
     const token = localStorage.getItem("token");
     try {
-        const response = await axios.post(`http://localhost:8443/swp/booking`, bookingBody,{
+        const response = await axios.post(`/booking`, bookingBody,{
             headers: {
                 Authorization: `Bearer ${token}`
             }
         } );
-        return response.data;
+        return response.result;
     } catch (error) {
         console.error("Failed to book service:", error);
         return null;
     }
 }
+
+// export const BookingService = async ()
+
 
 
 

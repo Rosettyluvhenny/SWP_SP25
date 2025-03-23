@@ -19,7 +19,10 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onSelectService }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const displayName = blog.title || "Tiêu đề không xác định";
-    const contentPreview = blog.content
+    const contentPreview1 = (
+        <div dangerouslySetInnerHTML={{ __html: blog.content }} />
+      );
+    const contentPreview = contentPreview1
         ? (blog.content.length > 100 ? blog.content.substring(0, 100) + "..." : blog.content)
         : "Nội dung không có sẵn";
 
@@ -82,6 +85,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onSelectService }) => {
                     <p className="text-gray-600 flex items-center">
                         {contentPreview}
                     </p>
+                   
                 </div>
             </div>
         </div>

@@ -1,67 +1,84 @@
-import React, { useState, useEffect } from "react";
+import React from 'react';
+import { BookingDate, TimeSlot } from '../types/bookingTypes';
 
 interface DateTimeSelectorProps {
-  selectedDate: string | null;
-  selectedTime: string | null;
-  availableSlots: { date: string; times: string[] }[];
-  onSelect: (date: string | null, time: string | null) => void;
+    nextSevenDates: BookingDate[];
+    selectedDate: string | undefined;
+    setSelectedDate: (date: string) => void;
+    therapistSlots: TimeSlot[];
+    selectedTime: string | null;
+    setSelectedTime: (time: string) => void;
+    setSelectedTherapistId: (id: string) => void;
+    onBooking: () => void;
 }
 
-const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ selectedDate, selectedTime, availableSlots, onSelect }) => {
-  const [bookedSlots, setBookedSlots] = useState<{ [key: string]: string[] }>({});
-
-  useEffect(() => {
-    const storedBookings = JSON.parse(localStorage.getItem("bookedSlots") || "{}");
-    setBookedSlots(storedBookings);
-  }, []);
-
-  const handleDateSelection = (dateId: string) => {
-    onSelect(dateId, null);
-  };
-
-  const isSlotBooked = (date: string, time: string) => {
-    return bookedSlots[date]?.includes(time);
-  };
-
-  return (
-    <div className="bg-pink-100 p-5 rounded-lg shadow-md">
-      <h2 className="text-lg font-bold mb-3">Chọn Ngày & Giờ</h2>
-
-      {/* Date Selection */}
-      <div className="flex space-x-2 mb-3 overflow-x-auto">
-        {availableSlots.map((slot) => (
-          <button
-            key={slot.date}
-            className={`px-3 py-2 rounded-md ${
-              selectedDate === slot.date ? "bg-pink-400 text-white" : "bg-white text-gray-700"
-            }`}
-            onClick={() => handleDateSelection(slot.date)}
-          >
-            {slot.date}
-          </button>
-        ))}
-      </div>
-
-      {/* Time Selection */}
-      {selectedDate && (
-        <div className="grid grid-cols-3 gap-2">
-          {availableSlots.find((slot) => slot.date === selectedDate)?.times.map((time) => (
-            <button
-              key={time}
-              className={`px-3 py-2 rounded-md ${
-                selectedTime === time ? "bg-pink-400 text-white" : "bg-white text-gray-700"
-              } ${isSlotBooked(selectedDate, time) ? "opacity-50 cursor-not-allowed" : ""}`}
-              onClick={() => !isSlotBooked(selectedDate, time) && onSelect(selectedDate, time)}
-              disabled={isSlotBooked(selectedDate, time)}
-            >
-              {time}
-            </button>
-          ))}
+const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
+    nextSevenDates,
+    selectedDate,
+    setSelectedDate,
+    therapistSlots,
+    selectedTime,
+    setSelectedTime,
+    setSelectedTherapistId,
+    onBooking
+}) => {
+    return (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-bold text-gray-800 mb-4 border-b-2 border-pink-300 pb-2">
+                Chọn Ngày & Giờ
+            </h2>
+            <div className="overflow-x-scroll flex gap-4 py-4">
+                {nextSevenDates.map((day) => {
+                    const dateString = `${day.year}-${day.month}-${day.day}`;
+                    return (
+                        <button
+                            disabled={dateString === selectedDate}
+                            onClick={() => setSelectedDate(dateString)}
+                            key={day.day}
+                            className={`min-w-[160px] p-4 rounded-lg shadow-md bg-${
+                                dateString === selectedDate
+                                    ? "pink-400"
+                                    : "slate-400"
+                            }`}
+                        >
+                            <p>
+                                {day.name} | {day.day}/{day.month}
+                            </p>
+                        </button>
+                    );
+                })}
+            </div>
+            <div className="grid grid-cols-4 gap-4 mt-4">
+                {therapistSlots.map((slot) => (
+                    <button
+                        onClick={() => {
+                            setSelectedTime(slot.startTime);
+                            if (slot.therapistId) {
+                                setSelectedTherapistId(slot.therapistId);
+                            }
+                            console.log(slot.startTime + " " +slot.therapistId)
+                        }}
+                        key={slot.startTime}
+                        className={`p-4 rounded-lg shadow-md bg-${
+                            selectedTime === slot.startTime
+                                ? "pink-400"
+                                : "slate-400"
+                        }`}
+                    >
+                        {slot.startTime.slice(0, 5)}
+                    </button>
+                ))}
+            </div>
+            <div className="flex justify-end mt-4">
+                <button
+                    className="bg-pink-400 text-white px-4 py-2 rounded-lg"
+                    onClick={onBooking}
+                >
+                    Đặt lịch
+                </button>
+            </div>
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default DateTimeSelector;
-

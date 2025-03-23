@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import ServiceCard from "./ServiceCard";
-import { AiFillFrown } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+// import { SpinnerLoading } from "./SpinnerLoading";
 
 export interface Service {
     id: number;
@@ -51,18 +51,6 @@ const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
     };
 
     if (isLoading) {
-
-
-
-
-
-
-
-
-
-
-
-        
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-6">
                 {[1, 2, 3].map((i) => (
@@ -88,7 +76,7 @@ const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
                     <motion.div key={service.id} variants={item}>
                         <ServiceCard
                             service={service}
-                            onSelectService={handleSelectService}
+                            // onSelectService={handleSelectService}
                         />
                     </motion.div>
                 ))
@@ -100,12 +88,9 @@ const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
                     transition={{ duration: 0.5 }}
                 >
                     <div className="text-center">
-                        <AiFillFrown className="text-9xl text-pink-300 mx-auto mb-4" />
-                        <p className="text-2xl font-medium text-gray-600">
-                            Không tìm thấy dịch vụ nào
-                        </p>
+                        {/* <SpinnerLoading/> */}
                         <p className="text-gray-500 mt-2">
-                            Vui lòng thử lại với các tiêu chí tìm kiếm khác
+                            Vui lòng đợi...
                         </p>
                     </div>
                 </motion.div>

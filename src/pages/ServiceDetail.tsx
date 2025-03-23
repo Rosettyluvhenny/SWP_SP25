@@ -1,18 +1,19 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import  { Service, serviceDataById, servicesData } from "../data/servicesData";
-import { feedbacksData } from "../data/feedbacksData";
+// import { getFeedback } from "../data/feedbacksData";
 import { FaClock, FaMoneyBill, FaCalendarAlt } from "react-icons/fa";
-import FeedbackForm from "../components/FeedbackForm";
-import FeedbackList from "../components/FeedbackList";
 import { motion } from "framer-motion";
 
-interface Feedback {
-    name: string;
-    rating: number;
-    comment: string;
-    date: string;
-}
+// interface Feedback {
+//     id: number,
+//     feedbackText: string,
+//     rating: number,
+//     serviceName: string,
+//     img: string,
+//     bookingDate: string,
+//     therapistName: string
+// }
 
 export default function ServiceDetail() {
     const { id } = useParams();
@@ -20,13 +21,15 @@ export default function ServiceDetail() {
     const [service, setService] = useState<Service | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [feedbacks, setFeedbacks] = useState<Feedback[]>(feedbacksData);
+    // const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [relatedServices, setRelatedServices] = useState<Service[]>([]);
-
+    // const handleBooking = () => {
+    //     navigate(`/contact?service=${id}`);
+    // };
     useEffect(() => {
         const fetchRelatedServices = async () => {
-            const services = await servicesData();
-            setRelatedServices(services);
+            const responseJson = await servicesData("?size=4");
+            setRelatedServices(responseJson.services);
         }
         fetchRelatedServices();
         const fetchService = async () => {
@@ -60,27 +63,18 @@ export default function ServiceDetail() {
     const handleBooking = () => {
         if (service) {
             // Fix for URL in name field
-            const displayName = service.name.startsWith("http") 
-                ? "Trẻ Hóa Da Công Nghệ Cao" 
-                : service.name;
-                
-            navigate("/contact", { 
-                state: { 
-                    selectedService: displayName,
-                    service: {
-                        id: service.id,
-                        name: displayName,
-                        price: service.price,
-                        duration: service.duration
-                    }
-                } 
-            });
+            const displayName = service.name
+                ? service.name
+                : "Trẻ Hóa Da Công Nghệ Cao" ;
+            navigate(`/booking?service=${id}`
+           
+        );
         }
     };
 
-    const handleFeedbackSubmit = (newFeedback: Feedback) => {
-        setFeedbacks((prev) => [newFeedback, ...prev]);
-    };
+    // const handleFeedbackSubmit = (newFeedback: Feedback) => {
+    //     setFeedbacks((prev) => [newFeedback, ...prev]);
+    // };
 
     // Loading state
     if (isLoading) {
@@ -131,9 +125,9 @@ export default function ServiceDetail() {
         : service.name;
 
     // Fix for potentially broken image URLs
-    const imageUrl = service.img && service.img.startsWith("http") 
+    const imageUrl = service.img
         ? service.img 
-        : "/placeholder.jpg";
+        : "../assets/skin-treatment1.jpg";
 
     return (
         <div className="bg-gradient-to-b from-pink-50 to-white mt-24 min-h-screen">
@@ -224,14 +218,14 @@ export default function ServiceDetail() {
                             </div>
                         </div>
 
-                        {/* Feedback Section */}
+                        {/* Feedback Section
                         <div className="bg-white shadow-lg p-6 rounded-xl">
                             <h2 className="text-xl font-semibold border-b pb-2 mb-4">
                                 Đánh Giá Khách Hàng
                             </h2>
                             <FeedbackList feedbacks={feedbacks} />
                             <FeedbackForm onSubmit={handleFeedbackSubmit} />
-                        </div>
+                        </div> */}
                     </motion.div>
 
                     {/*Sidebar Section */}
@@ -250,14 +244,14 @@ export default function ServiceDetail() {
                                 .slice(0, 5)
                                 .map((related, index) => {
                                     // Fix for URL in name field
-                                    const relatedDisplayName = related.name.startsWith("http") 
-                                        ? "Trẻ Hóa Da Công Nghệ Cao" 
-                                        : related.name;
+                                    const relatedDisplayName = related.name 
+                                        ?  related.name
+                                        : "Trẻ Hóa Da Công Nghệ Cao";
                                     
                                     // Fix for potentially broken image URLs
-                                    const relatedImageUrl = related.img && related.img.startsWith("http") 
+                                    const relatedImageUrl = related.img 
                                         ? related.img 
-                                        : "/placeholder.jpg";
+                                        : "../assets/skin-treatment1.jpg";
                                         
                                     return (
                                         <motion.div
