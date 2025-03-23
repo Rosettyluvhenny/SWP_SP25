@@ -72,21 +72,22 @@ public class  BookingSessionService {
         BookingSession session = bookingSessionMapper.toBookingSession(request);
         Services service = booking.getService();
 
-        if (request.getTherapistId() != null){
-            log.info(request.getTherapistId());
-            Therapist therapist = getTherapistById(request.getTherapistId());
-            boolean isValid = isTherapistAvailable(therapist.getId(), request.getSessionDateTime(), booking.getService().getDuration());
-            if(!isValid)
-                throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
-            else {
-                Set<Services> serviceSupport = therapist.getServices();
-                if (!serviceSupport.contains(service)) {
-                    throw new AppException(ErrorCode.THERAPIST_NOT_SUPPORTED);
+        if (session.getStatus() != BookingSessionStatus.PENDING) {
+            if (request.getTherapistId() != null){
+                log.info(request.getTherapistId());
+                Therapist therapist = getTherapistById(request.getTherapistId());
+                boolean isValid = isTherapistAvailable(therapist.getId(), request.getSessionDateTime(), booking.getService().getDuration());
+                if(!isValid)
+                    throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                else {
+                    Set<Services> serviceSupport = therapist.getServices();
+                    if (!serviceSupport.contains(service)) {
+                        throw new AppException(ErrorCode.THERAPIST_NOT_SUPPORTED);
+                    }
+                    session.setTherapist(therapist);
                 }
-                session.setTherapist(therapist);
             }
         }
-
         session.setBookingDate(request.getSessionDateTime().toLocalDate());
         session.setBooking(booking);
 
