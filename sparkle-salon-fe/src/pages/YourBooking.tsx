@@ -1,8 +1,8 @@
-import { getUserBookings, Booking } from "../data/userData";
+import { getUserBookings, Booking, getUrlPayment } from "../data/userData";
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaRedo, FaTrash } from "react-icons/fa";
+import { FaMoneyBill, FaMoneyBillAlt, FaRedo, FaTrash } from "react-icons/fa";
 import { Service, serviceDataById } from "../data/servicesData";
 import Pagination from "../components/Pagination";
 import { cancelBooking } from "../data/userData"
@@ -59,6 +59,9 @@ export default function YourBooking() {
         navigate(`/booking?service=${serviceId}`);
     };
 
+    const handleSessionBooking = (bookingId :number) =>{
+        navigate(`/bookingSession?booking=${bookingId}`)
+    }
     const handleFilter = () => {
         setCurrentPage(1);
         setSearchUrl(
@@ -99,6 +102,18 @@ export default function YourBooking() {
         { value: "createAt,desc", label: "Oldest" }
 
     ]
+    async function handleCard(booking: any) {
+        if(booking.url)
+            window.open(booking.url, "_self");
+        else{
+            const response = await getUrlPayment(booking.id);
+            if (response && response.url) {
+                alert("Đang chuyển hướng đến trang thanh toán...");
+                window.open(response.url, "_self");
+            } 
+        }
+    }
+
     return (
         <div className="bg-white min-h-screen">
             <div className="relative w-full h-[170px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
@@ -213,12 +228,12 @@ export default function YourBooking() {
                                             </span>
                                         </td>
                                         <td className="p-3 flex space-x-2">
-                                            {(booking.status == "ON_GOING" || booking.sessionRemain > 0) &&
+                                            {(booking.status == "ON_GOING" && booking.sessionRemain > 0) &&
                                                 <motion.button
                                                     onClick={(e) => {
                                                         e.stopPropagation(); 
                                                         e.preventDefault();
-                                                        handleRebook(booking.serviceId)}
+                                                        handleSessionBooking(booking.id)}
                                                     }
                                                     className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
                                                     whileHover={{ scale: 1.05 }}
@@ -258,6 +273,21 @@ export default function YourBooking() {
                                                     <FaRedo size={14} /> Đặt lại
                                                 </motion.button>
                                             }
+                                             {(booking.status == "PENDING" && booking.paymentMethod=="Thanh toán qua thẻ ngân hàng") &&
+                                                <motion.button
+                                                    onClick={(e) =>{ 
+                                                        e.stopPropagation(); 
+                                                        e.preventDefault();
+                                                        handleCard(booking)}}
+                                                    className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 flex items-center gap-1"
+
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    <FaMoneyBillAlt size={14} /> Thanh toán
+                                                </motion.button>
+                                            }
+
 
                                         </td>
                                     </motion.tr>

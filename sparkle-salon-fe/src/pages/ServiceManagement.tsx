@@ -4,7 +4,7 @@ import ManagementModal from "../components/ManagementModal";
 import { motion } from "framer-motion";
 import { FaEdit, FaTrash, FaSearch, FaPlus } from "react-icons/fa";
 import { deleteServiceById, servicesData } from "../data/servicesData";
-import axios from "axios";
+import axios from "../services/customizedAxios";
 // import QuillTest from "../components/QuillTest";
 import ServiceInfoForm from "../components/ServiceForm";
 
@@ -26,6 +26,7 @@ type ServiceCategory = {
     createdAt: string;
     updatedAt: string;
     services: Service[];
+    type: string;
 };
 
 export default function ServiceManagement() {
@@ -34,6 +35,7 @@ export default function ServiceManagement() {
         "services"
     );
 
+    const types = ["CLEANSING", "TREATMENT", "RESTORATION"]
     const [isOpenCreateService, setIsOpenServiceForm] = useState(false);
 
     // Services state
@@ -43,8 +45,8 @@ export default function ServiceManagement() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingService, setEditingService] = useState<Service | null>(null);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
-    const [selectedService, setSelectedService] = useState< string | null>(null);
-
+    const [selectedService, setSelectedService] = useState<string | null>(null);
+    const [type, setType]= useState("");
     // Categories state
     const [categories, setCategories] = useState<ServiceCategory[]>([]);
     const [categorySearchTerm, setCategorySearchTerm] = useState("");
@@ -68,8 +70,8 @@ export default function ServiceManagement() {
     };
 
     // Services logic
-    
-    const getServiceList = useCallback( async() => {
+
+    const getServiceList = useCallback(async () => {
         const services = await servicesData("?size=100");
         const serviceListData: Service[] = services.services.map((service) => ({
             id: service.id,
@@ -89,7 +91,7 @@ export default function ServiceManagement() {
     useEffect(() => {
         getServiceList();
         fetchCategories();
-    }, [getServiceList]);
+    }, [isOpenCreateService]);
 
     const categoryOptions = ["Tất Cả", ...categories.map((cat) => cat.name)];
 
@@ -139,8 +141,8 @@ export default function ServiceManagement() {
         setServices((prev) =>
             prev.some((s) => s.id === editingService.id)
                 ? prev.map((s) =>
-                      s.id === editingService.id ? editingService : s
-                  )
+                    s.id === editingService.id ? editingService : s
+                )
                 : [...prev, editingService]
         );
         closeServiceModal();
@@ -166,16 +168,18 @@ export default function ServiceManagement() {
         try {
             if (editingCategory) {
                 await axios.put(
-                    `http://localhost:8081/swp/category/${editingCategory.id}`,
+                    `/category/${editingCategory.id}`,
                     {
                         name: categoryFormValue,
                         description: categoryFormDescription,
+                        type: type
                     }
                 );
             } else {
-                await axios.post("http://localhost:8081/swp/category", {
+                await axios.post("/category", {
                     name: categoryFormValue,
                     description: categoryFormDescription,
+                    type: type
                 });
             }
             fetchCategories();
@@ -208,7 +212,7 @@ export default function ServiceManagement() {
         );
         if (confirmDelete) {
             try {
-                await axios.delete(`http://localhost:8081/swp/category/${id}`);
+                await axios.delete(`/category/${id}`);
                 fetchCategories();
                 alert("Xóa danh mục thành công");
             } catch (error) {
@@ -222,9 +226,9 @@ export default function ServiceManagement() {
     const fetchCategories = async () => {
         try {
             const response = await axios.get<{ result: ServiceCategory[] }>(
-                "http://localhost:8081/swp/category"
+                "/category"
             );
-            setCategories(response.data.result);
+            setCategories(response.result);
         } catch (error) {
             console.error("Error fetching categories:", error);
         }
@@ -255,349 +259,346 @@ export default function ServiceManagement() {
                         Quản Lý Dịch Vụ & Danh Mục
                     </h1>
                     {isOpenCreateService ? (<ServiceInfoForm selectedService={selectedService} handleCloseServiceForm={handleCloseServiceForm} />) : (<>
-                    <div className="flex space-x-4 mb-6">
-                        <button
-                            onClick={() => setActiveTab("services")}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                                activeTab === "services"
-                                    ? "bg-pink-500 text-white"
-                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                            }`}
-                        >
-                            Dịch Vụ
-                        </button>
-                        <button
-                            onClick={() => setActiveTab("categories")}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                                activeTab === "categories"
-                                    ? "bg-pink-500 text-white"
-                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                            }`}
-                        >
-                            Danh Mục
-                        </button>
-                    </div>
-                    {/* Services Tab Content */}
-                    {activeTab === "services" && (
-                        <div>
-                            <div className="flex justify-end mb-4">
-                                <motion.button
-                                    onClick={() => handleOpenServiceForm(null)}
-                                    className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    <FaPlus /> Thêm Dịch Vụ
-                                </motion.button>
-                                {/* <Link className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2" to="/manager/create-service">
+                        <div className="flex space-x-4 mb-6">
+                            <button
+                                onClick={() => setActiveTab("services")}
+                                className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === "services"
+                                        ? "bg-pink-500 text-white"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                    }`}
+                            >
+                                Dịch Vụ
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("categories")}
+                                className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === "categories"
+                                        ? "bg-pink-500 text-white"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                    }`}
+                            >
+                                Danh Mục
+                            </button>
+                        </div>
+                        {/* Services Tab Content */}
+                        {activeTab === "services" && (
+                            <div>
+                                <div className="flex justify-end mb-4">
+                                    <motion.button
+                                        onClick={() => handleOpenServiceForm(null)}
+                                        className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2"
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <FaPlus /> Thêm Dịch Vụ
+                                    </motion.button>
+                                    {/* <Link className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2" to="/manager/create-service">
                                     Thêm Dịch Vụ
                                 </Link> */}
-                            </div>
-
-                            {/* Search & Filter Section */}
-                            <motion.div
-                                className="mb-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-pink-100 p-4 rounded-lg shadow"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.2, duration: 0.5 }}
-                            >
-                                <div className="w-full md:w-1/2 relative">
-                                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Tìm kiếm dịch vụ..."
-                                        value={searchTerm}
-                                        onChange={(e) =>
-                                            setSearchTerm(e.target.value)
-                                        }
-                                        className="w-full p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                                    />
                                 </div>
-                                <select
-                                    value={selectedCategory}
-                                    onChange={(e) =>
-                                        setSelectedCategory(e.target.value)
-                                    }
-                                    className="w-full md:w-auto p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+
+                                {/* Search & Filter Section */}
+                                <motion.div
+                                    className="mb-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-pink-100 p-4 rounded-lg shadow"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.2, duration: 0.5 }}
                                 >
-                                    {categoryOptions.map((category) => (
-                                        <option key={category} value={category}>
-                                            {category}
-                                        </option>
-                                    ))}
-                                </select>
-                            </motion.div>
-
-                            {/* Services Table */}
-                            <motion.div
-                                className="bg-pink-100 shadow-lg rounded-lg p-6"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4, duration: 0.5 }}
-                            >
-                                <div className="overflow-x-auto">
-                                    <table className="w-full border-collapse rounded-lg overflow-hidden">
-                                        <thead>
-                                            <tr className="bg-white text-black">
-                                                <th className="p-3 text-left">
-                                                    ID
-                                                </th>
-                                                <th className="p-3 text-left">
-                                                    Tên Dịch Vụ
-                                                </th>
-                                                <th className="p-3 text-left">
-                                                    Hình Ảnh
-                                                </th>
-                                                <th className="p-3 text-left">
-                                                    Giá (VND)
-                                                </th>
-                                                <th className="p-3 text-left">
-                                                    Thời Lượng
-                                                </th>
-                                                <th className="p-3 text-left">
-                                                    Số Buổi
-                                                </th>
-                                                <th className="p-3 text-left">
-                                                    Trạng Thái
-                                                </th>
-                                                <th className="p-3 text-left">
-                                                    Danh Mục
-                                                </th>
-                                                <th className="p-3 text-left">
-                                                    Hành Động
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-white">
-                                            {filteredServices.length > 0 ? (
-                                                filteredServices.map(
-                                                    (service) => (
-                                                        <motion.tr
-                                                            key={service.id}
-                                                            className="border-t hover:bg-pink-50 transition-colors"
-                                                            initial={{
-                                                                opacity: 0,
-                                                            }}
-                                                            animate={{
-                                                                opacity: 1,
-                                                            }}
-                                                            transition={{
-                                                                duration: 0.3,
-                                                            }}
-                                                        >
-                                                            <td className="p-3">
-                                                                {service.id}
-                                                            </td>
-                                                        
-                                                            <td className="p-3 font-medium">
-                                                                {service.name}
-                                                            </td>
-                                                            <td className="p-3 font-medium">
-                                                                <img src={service.image} alt={service.name} className="w-auto h-16" />
-                                                            </td>
-                                                            <td className="p-3">
-                                                                {service.price}
-                                                            </td>
-                                                            <td className="p-3">
-                                                                {service.duration}
-                                                            </td>
-                                                            <td className="p-3">
-                                                                {service.session}
-                                                            </td>
-                                                            <td className="p-3">
-                                                                <span
-                                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                                        service.status ===
-                                                                        "Hoạt Động"
-                                                                            ? "bg-green-100 text-green-800"
-                                                                            : "bg-yellow-100 text-yellow-800"
-                                                                    }`}
-                                                                >
-                                                                    {
-                                                                        service.status
-                                                                    }
-                                                                </span>
-                                                            </td>
-                                                            <td className="p-3">
-                                                                <span className="bg-pink-100 text-pink-800 px-2 py-1 rounded-full text-xs">
-                                                                    {
-                                                                        service.category
-                                                                    }
-                                                                </span>
-                                                            </td>
-                                                            <td className="p-3 flex space-x-2">
-                                                                <motion.button
-                                                                    onClick={() =>
-                                                                        handleOpenServiceForm(service.id.toString())
-                                                                    }
-                                                                    className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
-                                                                    whileHover={{
-                                                                        scale: 1.05,
-                                                                    }}
-                                                                    whileTap={{
-                                                                        scale: 0.95,
-                                                                    }}
-                                                                >
-                                                                    <FaEdit
-                                                                        size={
-                                                                            14
-                                                                        }
-                                                                    />
-                                                                    Sửa
-                                                                </motion.button>
-                                                                <motion.button
-                                                                    onClick={() =>
-                                                                        handleServiceDelete(
-                                                                            service.id
-                                                                        )
-                                                                    }
-                                                                    className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
-                                                                    whileHover={{
-                                                                        scale: 1.05,
-                                                                    }}
-                                                                    whileTap={{
-                                                                        scale: 0.95,
-                                                                    }}
-                                                                >
-                                                                    <FaTrash
-                                                                        size={
-                                                                            14
-                                                                        }
-                                                                    />{" "}
-                                                                    Xóa
-                                                                </motion.button>
-                                                            </td>
-                                                        </motion.tr>
-                                                    )
-                                                )
-                                            ) : (
-                                                <tr>
-                                                    <td
-                                                        colSpan={9}
-                                                        className="p-4 text-center text-gray-500"
-                                                    >
-                                                        Không tìm thấy dịch vụ
-                                                        nào
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </motion.div>
-                        </div>
-                    )}
-                    {/* Categories Tab Content */}
-                    {activeTab === "categories" && (
-                        <div>
-                            <div className="flex justify-end mb-4">
-                                <motion.button
-                                    onClick={() => openCategoryModal(null)}
-                                    className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    <FaPlus /> Thêm Danh Mục
-                                </motion.button>
-                            </div>
-
-                            {/* Category Search */}
-                            <motion.div
-                                className="mb-6 bg-pink-100 p-4 rounded-lg shadow"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.2, duration: 0.5 }}
-                            >
-                                <div className="relative">
-                                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Tìm kiếm danh mục..."
-                                        value={categorySearchTerm}
+                                    <div className="w-full md:w-1/2 relative">
+                                        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="Tìm kiếm dịch vụ..."
+                                            value={searchTerm}
+                                            onChange={(e) =>
+                                                setSearchTerm(e.target.value)
+                                            }
+                                            className="w-full p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                        />
+                                    </div>
+                                    <select
+                                        value={selectedCategory}
                                         onChange={(e) =>
-                                            setCategorySearchTerm(
-                                                e.target.value
-                                            )
+                                            setSelectedCategory(e.target.value)
                                         }
-                                        className="w-full p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                                    />
-                                </div>
-                            </motion.div>
-
-                            {/* Categories Grid */}
-                            <motion.div
-                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.4, duration: 0.5 }}
-                            >
-                                {filteredCategories.map((category) => (
-                                    <motion.div
-                                        key={category.id}
-                                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
+                                        className="w-full md:w-auto p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
                                     >
-                                        <div className="p-4">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <h3 className="text-xl font-semibold text-gray-900">
-                                                    {category.name}
-                                                </h3>
-                                                <div className="flex gap-2">
-                                                    <motion.button
-                                                        whileHover={{
-                                                            scale: 1.1,
-                                                        }}
-                                                        whileTap={{
-                                                            scale: 0.9,
-                                                        }}
-                                                        onClick={() =>
-                                                            openCategoryModal(
-                                                                category
-                                                            )
-                                                        }
-                                                        className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
-                                                    >
-                                                        <FaEdit />
-                                                    </motion.button>
-                                                    <motion.button
-                                                        whileHover={{
-                                                            scale: 1.1,
-                                                        }}
-                                                        whileTap={{
-                                                            scale: 0.9,
-                                                        }}
-                                                        onClick={() =>
-                                                            handleCategoryDelete(
-                                                                category.id
-                                                            )
-                                                        }
-                                                        className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
-                                                    >
-                                                        <FaTrash />
-                                                    </motion.button>
+                                        {categoryOptions.map((category) => (
+                                            <option key={category} value={category}>
+                                                {category}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </motion.div>
+
+                                {/* Services Table */}
+                                <motion.div
+                                    className="bg-pink-100 shadow-lg rounded-lg p-6"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.4, duration: 0.5 }}
+                                >
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full border-collapse rounded-lg overflow-hidden">
+                                            <thead>
+                                                <tr className="bg-white text-black">
+                                                    <th className="p-3 text-left">
+                                                        ID
+                                                    </th>
+                                                    <th className="p-3 text-left">
+                                                        Tên Dịch Vụ
+                                                    </th>
+                                                    <th className="p-3 text-left">
+                                                        Hình Ảnh
+                                                    </th>
+                                                    <th className="p-3 text-left">
+                                                        Giá (VND)
+                                                    </th>
+                                                    <th className="p-3 text-left">
+                                                        Thời Lượng
+                                                    </th>
+                                                    <th className="p-3 text-left">
+                                                        Số Buổi
+                                                    </th>
+                                                    <th className="p-3 text-left">
+                                                        Trạng Thái
+                                                    </th>
+                                                    <th className="p-3 text-left">
+                                                        Danh Mục
+                                                    </th>
+                                                    <th className="p-3 text-left">
+                                                        Hành Động
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white">
+                                                {filteredServices.length > 0 ? (
+                                                    filteredServices.map(
+                                                        (service) => (
+                                                            <motion.tr
+                                                                key={service.id}
+                                                                className="border-t hover:bg-pink-50 transition-colors"
+                                                                initial={{
+                                                                    opacity: 0,
+                                                                }}
+                                                                animate={{
+                                                                    opacity: 1,
+                                                                }}
+                                                                transition={{
+                                                                    duration: 0.3,
+                                                                }}
+                                                            >
+                                                                <td className="p-3">
+                                                                    {service.id}
+                                                                </td>
+
+                                                                <td className="p-3 font-medium">
+                                                                    {service.name}
+                                                                </td>
+                                                                <td className="p-3 font-medium">
+                                                                    <img src={service.image} alt={service.name} className="w-auto h-16" />
+                                                                </td>
+                                                                <td className="p-3">
+                                                                    {service.price}
+                                                                </td>
+                                                                <td className="p-3">
+                                                                    {service.duration}
+                                                                </td>
+                                                                <td className="p-3">
+                                                                    {service.session}
+                                                                </td>
+                                                                <td className="p-3">
+                                                                    <span
+                                                                        className={`px-2 py-1 rounded-full text-xs font-medium ${service.status ===
+                                                                                "Hoạt Động"
+                                                                                ? "bg-green-100 text-green-800"
+                                                                                : "bg-yellow-100 text-yellow-800"
+                                                                            }`}
+                                                                    >
+                                                                        {
+                                                                            service.status
+                                                                        }
+                                                                    </span>
+                                                                </td>
+                                                                <td className="p-3">
+                                                                    <span className="bg-pink-100 text-pink-800 px-2 py-1 rounded-full text-xs">
+                                                                        {
+                                                                            service.category
+                                                                        }
+                                                                    </span>
+                                                                </td>
+                                                                <td className="p-3 flex space-x-2">
+                                                                    <motion.button
+                                                                        onClick={() =>
+                                                                            handleOpenServiceForm(service.id.toString())
+                                                                        }
+                                                                        className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
+                                                                        whileHover={{
+                                                                            scale: 1.05,
+                                                                        }}
+                                                                        whileTap={{
+                                                                            scale: 0.95,
+                                                                        }}
+                                                                    >
+                                                                        <FaEdit
+                                                                            size={
+                                                                                14
+                                                                            }
+                                                                        />
+                                                                        Sửa
+                                                                    </motion.button>
+                                                                    <motion.button
+                                                                        onClick={() =>
+                                                                            handleServiceDelete(
+                                                                                service.id
+                                                                            )
+                                                                        }
+                                                                        className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
+                                                                        whileHover={{
+                                                                            scale: 1.05,
+                                                                        }}
+                                                                        whileTap={{
+                                                                            scale: 0.95,
+                                                                        }}
+                                                                    >
+                                                                        <FaTrash
+                                                                            size={
+                                                                                14
+                                                                            }
+                                                                        />{" "}
+                                                                        Xóa
+                                                                    </motion.button>
+                                                                </td>
+                                                            </motion.tr>
+                                                        )
+                                                    )
+                                                ) : (
+                                                    <tr>
+                                                        <td
+                                                            colSpan={9}
+                                                            className="p-4 text-center text-gray-500"
+                                                        >
+                                                            Không tìm thấy dịch vụ
+                                                            nào
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </motion.div>
+                            </div>
+                        )}
+                        {/* Categories Tab Content */}
+                        {activeTab === "categories" && (
+                            <div>
+                                <div className="flex justify-end mb-4">
+                                    <motion.button
+                                        onClick={() => openCategoryModal(null)}
+                                        className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2"
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <FaPlus /> Thêm Danh Mục
+                                    </motion.button>
+                                </div>
+
+                                {/* Category Search */}
+                                <motion.div
+                                    className="mb-6 bg-pink-100 p-4 rounded-lg shadow"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.2, duration: 0.5 }}
+                                >
+                                    <div className="relative">
+                                        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="Tìm kiếm danh mục..."
+                                            value={categorySearchTerm}
+                                            onChange={(e) =>
+                                                setCategorySearchTerm(
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="w-full p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                        />
+                                    </div>
+                                </motion.div>
+
+                                {/* Categories Grid */}
+                                <motion.div
+                                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.4, duration: 0.5 }}
+                                >
+                                    {filteredCategories.map((category) => (
+                                        <motion.div
+                                            key={category.id}
+                                            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                        >
+                                            <div className="p-4">
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <h3 className="text-xl font-semibold text-gray-900">
+                                                        {category.name}
+                                                    </h3>
+                                                    <div className="flex gap-2">
+                                                        <motion.button
+                                                            whileHover={{
+                                                                scale: 1.1,
+                                                            }}
+                                                            whileTap={{
+                                                                scale: 0.9,
+                                                            }}
+                                                            onClick={() =>
+                                                                openCategoryModal(
+                                                                    category
+                                                                )
+                                                            }
+                                                            className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
+                                                        >
+                                                            <FaEdit />
+                                                        </motion.button>
+                                                        <motion.button
+                                                            whileHover={{
+                                                                scale: 1.1,
+                                                            }}
+                                                            whileTap={{
+                                                                scale: 0.9,
+                                                            }}
+                                                            onClick={() =>
+                                                                handleCategoryDelete(
+                                                                    category.id
+                                                                )
+                                                            }
+                                                            className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                                                        >
+                                                            <FaTrash />
+                                                        </motion.button>
+                                                    </div>
+                                                </div>
+                                                <div className="text-sm text-gray-500">
+                                                    <p>
+                                                        Created:{" "}
+                                                        {new Date(
+                                                            category.createdAt
+                                                        ).toLocaleDateString()}
+                                                    </p>
+                                                    <p>
+                                                        Updated:{" "}
+                                                        {new Date(
+                                                            category.updatedAt
+                                                        ).toLocaleDateString()}
+                                                    </p>
                                                 </div>
                                             </div>
-                                            <div className="text-sm text-gray-500">
-                                                <p>
-                                                    Created:{" "}
-                                                    {new Date(
-                                                        category.createdAt
-                                                    ).toLocaleDateString()}
-                                                </p>
-                                                <p>
-                                                    Updated:{" "}
-                                                    {new Date(
-                                                        category.updatedAt
-                                                    ).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </motion.div>
-                        </div>
-                    )}</>)}
+                                        </motion.div>
+                                    ))}
+                                </motion.div>
+                            </div>
+                        )}</>)}
                 </motion.div>
             </main>
 
@@ -623,9 +624,8 @@ export default function ServiceManagement() {
                                         name: e.target.value,
                                     })
                                 }
-                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                                    formErrors.name ? "border-red-500" : ""
-                                }`}
+                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${formErrors.name ? "border-red-500" : ""
+                                    }`}
                             />
                             {formErrors.name && (
                                 <p className="text-red-500 text-sm mt-1">
@@ -645,9 +645,8 @@ export default function ServiceManagement() {
                                         price: e.target.value,
                                     })
                                 }
-                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                                    formErrors.price ? "border-red-500" : ""
-                                }`}
+                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${formErrors.price ? "border-red-500" : ""
+                                    }`}
                                 placeholder="150.000"
                             />
                             {formErrors.price && (
@@ -720,11 +719,10 @@ export default function ServiceManagement() {
                                 onChange={(e) =>
                                     setCategoryFormValue(e.target.value)
                                 }
-                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                                    categoryFormErrors.name
+                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${categoryFormErrors.name
                                         ? "border-red-500"
                                         : ""
-                                }`}
+                                    }`}
                             />
                             {categoryFormErrors.name && (
                                 <p className="text-red-500 text-sm mt-1">
@@ -733,22 +731,29 @@ export default function ServiceManagement() {
                             )}
                         </label>
                         <label className="block mb-4">
-                                <span className="text-gray-700">Mô Tả</span>
-                                <textarea
-                                    value={categoryFormDescription}
-                                    onChange={(e) =>
-                                        setCategoryFormDescription(e.target.value)
-                                    }
-                                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
-                                    rows={2}
-                                    placeholder="Mô tả danh mục"
-                                />
-                                {categoryFormErrors.description && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {categoryFormErrors.description}
-                                    </p>
-                                )}
-                            </label>
+                            <span className="text-gray-700">Mô Tả</span>
+                            <textarea
+                                value={categoryFormDescription}
+                                onChange={(e) =>
+                                    setCategoryFormDescription(e.target.value)
+                                }
+                                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                rows={2}
+                                placeholder="Mô tả danh mục"
+                            />
+                            {categoryFormErrors.description && (
+                                <p className="text-red-500 text-sm mt-1">
+                                    {categoryFormErrors.description}
+                                </p>
+                            )}
+                        </label>
+                        <select onChange={(e) => {setType(e.target.value); console.log(e.target.value)}}>
+                            {types && types.map((type) => (
+                                <option key={type} value={type}>
+                                    {type}
+                                </option>
+                            ))}
+                        </select>
                         {categoryFormErrors.submit && (
                             <p className="text-red-500 text-sm mb-4">
                                 {categoryFormErrors.submit}

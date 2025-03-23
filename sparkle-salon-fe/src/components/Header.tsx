@@ -29,20 +29,22 @@ export default function Header() {
         dob: "",
     });
 
-    const { user, logout, loginContext, loading, isLoginOpen, setIsLoginOpen} = useContext(UserContext);
-    const [error, setError] = useState<string|null>(null);
+    const { user, logout, loginContext, loading, isLoginOpen, setIsLoginOpen } = useContext(UserContext);
+    const [error, setError] = useState<string | null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-    const [validationError, setValidationError] = useState<{username: string|null, fullName: string|null,email:string|null,
-        password: string|null, phone: string|null, dob:string|null}>({
-            username: null,
-            fullName: null,
-            email: null,
-            password: null,
-            phone: null,
-            dob: null
-        });;
+    const [validationError, setValidationError] = useState<{
+        username: string | null, fullName: string | null, email: string | null,
+        password: string | null, phone: string | null, dob: string | null
+    }>({
+        username: null,
+        fullName: null,
+        email: null,
+        password: null,
+        phone: null,
+        dob: null
+    });
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
@@ -84,40 +86,39 @@ export default function Header() {
             return;
         }
         let res = await login(loginData.username, loginData.password);
-        
+
         if (res && res.result) {
             localStorage.setItem("token", res.result.token)
-            try{
+            try {
 
                 const userInfo = await getUser();
                 const role = userInfo.roles.length > 0 ? userInfo.roles[0].name : "";
                 loginContext(userInfo.username, role);
                 toast.success("Login successfully ");
                 setLoginData({ username: "", password: "" });
+                if (role == "ADMIN")
+                    navigate('/manager');
                 setIsLoginOpen(false);
-            }catch(error){
+            } catch (error) {
                 console.error("Failed to fetch user info:", error);
                 toast.error("Failed to get user information");
             }
-        } else {
-
-                toast.error("Đăng nhập thất bại");
         }
     }
 
     const validateRegisterData = (data) => {
-        const errors = {} ;
-        
+        const errors = {};
+
         // Username: 8-25 characters, letters and numbers only, no spaces
         if (!/^[a-zA-Z0-9]{8,25}$/.test(data.username)) {
             errors.username = "Tên người dùng phải từ 8-25 ký tự, chỉ gồm chữ và số.";
         }
-        
+
         // Full name: Vietnamese regex, no numbers
         if (!/^[\p{L} ]+$/u.test(data.fullName)) {
             errors.fullName = "Họ và tên chỉ được chứa chữ cái và khoảng trắng.";
         }
-        
+
         // Email validation
         if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(data.email)) {
             errors.email = "Email không hợp lệ.";
@@ -126,7 +127,7 @@ export default function Header() {
         if (!/^\S{8,}$/.test(data.password)) {
             errors.password = "Mật khẩu phải có ít nhất 8 ký tự và không chứa khoảng trắng.";
         }
-        
+
         // Phone: Exactly 10 digits
         if (!/^\d{10}$/.test(data.phone)) {
             errors.phone = "Số điện thoại phải có 10 chữ số.";
@@ -142,10 +143,10 @@ export default function Header() {
         if (age < 18) {
             errors.dob = "Bạn phải đủ 18 tuổi.";
         }
-        
+
         return errors;
     };
-    
+
     const transformFullName = (fullName) => {
         return fullName
             .toLowerCase()
@@ -153,7 +154,7 @@ export default function Header() {
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
     };
-    
+
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         setValidationError({
@@ -207,7 +208,7 @@ export default function Header() {
         navItems.push(
             { path: "/your-booking", label: "Booking" },
             // { path: "/feedback", label: "Feedback" },
-            {  path: "/schedule", label:"Schedule"}
+            { path: "/schedule", label: "Schedule" }
         );
     }
     return (
@@ -391,100 +392,105 @@ export default function Header() {
             </AnimatePresence>
 
             {/* Desktop Auth Buttons */}
-           <div className="hidden lg:flex items-center space-x-6 mr-10">
-      {user && user.auth === true ? (
-        <motion.div
-          className="flex items-center space-x-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          {/* User Dropdown */}
-          <motion.div className="relative">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              className={`text-3xl text-white p-2 transition-colors ${
-                isScrolled ? "" : "text-white"
-              } group-hover:text-[#f398d0]`}
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              <FaUserEdit />
-            </motion.button>
+            <div className="hidden lg:flex items-center space-x-6 mr-10">
+                {user && user.auth === true ? (
+                    <motion.div
+                        className="flex items-center space-x-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                    >
+                        {/* User Dropdown */}
+                        <motion.div className="relative">
+                            <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                className={`text-3xl text-white p-2 transition-colors ${isScrolled ? "" : "text-white"
+                                    } group-hover:text-[#f398d0]`}
+                                onClick={() => setIsOpen(!isOpen)}
+                            >
+                                <FaUserEdit />
+                            </motion.button>
 
-            {isOpen && (
-              <motion.div
-                className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg p-2"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-                {/* Account Link */}
-                <motion.button
-                  className="block w-full text-left px-4 py-2 text-[#f398d0] hover:text-[#ee8874] transition-colors"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                <NavLink to="/Profile">
-                    Tài Khoản
-                </NavLink>
-                </motion.button>
+                            {isOpen && (
+                                <motion.div
+                                    className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg p-2"
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                >
+                                    {/* Account Link */}
+                                    <motion.button
+                                        className="block w-full text-left px-4 py-2 text-[#f398d0] hover:text-[#ee8874] transition-colors"
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                    >
+                                        <NavLink to="/Profile">
+                                            Tài Khoản
+                                        </NavLink>
+                                    </motion.button>
 
-                {/* Logout Button */}
-                <motion.button
-                  onClick={() => {
-                    handleLogout();
-                    setIsOpen(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-[#f398d0] hover:text-[#ee8874] transition-colors"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  Đăng xuất
-                </motion.button>
-              </motion.div>
-            )}
-          </motion.div>
+                                    {/* Logout Button */}
+                                    <motion.button
+                                        onClick={() => {
+                                            handleLogout();
+                                            setIsOpen(false);
+                                        }}
+                                        className="block w-full text-left px-4 py-2 text-[#f398d0] hover:text-[#ee8874] transition-colors"
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                    >
+                                        Đăng xuất
+                                    </motion.button>
+                                </motion.div>
+                            )}
+                        </motion.div>
 
-          {/* Notifications Button */}
-          <motion.button
-            className={`text-3xl text-white p-2 transition-colors ${
-                isScrolled ? "" : "text-white"
-              } group-hover:text-[#f398d0]`}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Link to="/Notification">
-              <FaBell />
-            </Link>
-          </motion.button>
-        </motion.div>
-      ) : (
-        <div className="flex items-center space-x-4">
-          <motion.button
-            onClick={() => setIsLoginOpen(true)}
-            className={`px-4 py-2 rounded-full ${
-              isScrolled ? "text-black hover:text-[#f398d0]" : "text-white hover:text-[#f398d0]"
-            } transition-colors`}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            Đăng nhập
-          </motion.button>
+                        {/* Notifications Button */}
+                        <motion.button
+                            className={`text-3xl text-white p-2 transition-colors ${isScrolled ? "" : "text-white"
+                                } group-hover:text-[#f398d0]`}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                        >
+                            <div className="relative">
+                                <FaBell />
+                                <span className="absolute text-sm top-3 bg-red-500 rounded-full px-1.5 min-w-[1.2rem] text-center">!</span>
+                            <ul className="absolute w-30 bg-white-500 h-30 text-sm">
+                                <li><p>title</p>
+                                    <p>your </p>
+                                </li>
+                                <li>asdas</li>
+                                <li>asdas</li>
+                                <li>asddas</li>
+                            </ul>
+                            </div>
+                        </motion.button>
+                    </motion.div>
+                ) : (
+                    <div className="flex items-center space-x-4">
+                        <motion.button
+                            onClick={() => setIsLoginOpen(true)}
+                            className={`px-4 py-2 rounded-full ${isScrolled ? "text-black hover:text-[#f398d0]" : "text-white hover:text-[#f398d0]"
+                                } transition-colors`}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                        >
+                            Đăng nhập
+                        </motion.button>
 
-          <div className="h-6 w-px bg-gray-300"></div>
+                        <div className="h-6 w-px bg-gray-300"></div>
 
-          <motion.button
-            onClick={() => setIsRegisterOpen(true)}
-            className={`px-4 py-2 rounded-full ${
-              isScrolled ? "text-black hover:text-[#f398d0]" : "text-white hover:text-[#f398d0]"
-            } transition-colors`}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            Đăng ký
-          </motion.button>
-        </div>
-      )}
-    </div>
+                        <motion.button
+                            onClick={() => setIsRegisterOpen(true)}
+                            className={`px-4 py-2 rounded-full ${isScrolled ? "text-black hover:text-[#f398d0]" : "text-white hover:text-[#f398d0]"
+                                } transition-colors`}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                        >
+                            Đăng ký
+                        </motion.button>
+                    </div>
+                )}
+            </div>
 
             <AnimatePresence>
                 {isLoginOpen && <LoginModal

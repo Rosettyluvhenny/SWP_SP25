@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import axios from "../services/customizedAxios";
 
 export type SessionBody = {
@@ -17,7 +18,7 @@ export const sessionSchedule = async (sessionBody: SessionBody) => {
         } );
         return response.result;
     } catch (error) {
-        console.error("Failed to book service:", error);
+        toast.error(error.response.data.message);
         return null;
     }
 

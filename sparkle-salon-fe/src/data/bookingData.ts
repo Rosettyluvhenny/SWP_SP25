@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import axios from "../services/customizedAxios";
 
 export type BookingBody = {
@@ -19,8 +20,8 @@ export const bookingService = async (bookingBody: BookingBody) => {
         } );
         return response.result;
     } catch (error) {
-        console.error("Failed to book service:", error);
-        return null;
+        toast.error(error.response.data.message);
+        return error;
     }
 }
 

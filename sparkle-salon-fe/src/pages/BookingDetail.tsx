@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Booking, getBookingById, getSessionByBookingId, getSessionById } from "../data/userData";
+import { Booking, getBookingById, getSessionByBookingId, getSessionById, getUrlPayment } from "../data/userData";
 import { FaCheck, FaTimes, FaCreditCard, FaMoneyBillWave, FaCalendarAlt, FaClipboardList, FaArrowLeft } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -74,7 +74,19 @@ export default function BookingDetail() {
                 return '';
         }
     };
-
+    async function handleCard(booking: any) {
+        if(booking.url){
+            alert("Đang chuyển hướng đến trang thanh toán...");
+            window.open(booking.url, "_self");
+        }
+        else{
+            const response = await getUrlPayment(booking.id);
+            if (response && response.url) {
+                alert("Đang chuyển hướng đến trang thanh toán...");
+                window.open(response.url, "_self");
+            } 
+        }
+    }
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -201,12 +213,22 @@ export default function BookingDetail() {
                                 Xem chi tiết dịch vụ
                             </button>
                         )}
-                        {(booking?.sessionRemain>0) && (
+
+                        {(booking?.sessionRemain>0 && booking?.status=="ON_GOING") && (
                             <button 
                                 onClick={() => navigate(`/bookingSession?booking=${booking.id}`)} 
                                 className="px-4 py-2 border border-purple-600 text-purple-600 rounded-md hover:bg-purple-50 transition duration-300"
                             >
                                 Đặt lịch
+                            </button>
+                        )}
+                         {(booking?.paymentMethod=="Thanh toán qua thẻ ngân hàng" && booking?.status=="PENDING") && (
+                            <button 
+                                onClick={() => handleCard(booking)} 
+                                className="px-4 py-2 border border-purple-600 text-purple-600 rounded-md hover:bg-purple-50 transition duration-300"
+                            >
+                                <FaMoneyBillWave/>
+                                Thanh toán
                             </button>
                         )}
                     </div>

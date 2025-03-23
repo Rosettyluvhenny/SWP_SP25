@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import axios from "../services/customizedAxios";
 import TextEditor from "./TextEditor";
 import FormData from "form-data";
 import { serviceDataById } from "../data/servicesData";
@@ -46,12 +46,13 @@ const ServiceInfoForm = ({
     const [serviceImgUrl, setServiceImgUrl] = useState<string | null>(null);
     const [serviceImage, setServiceImage] = useState<File | null>(null);
     const quillRef = useRef(null);
+    
     const fetchCategories = async () => {
         try {
             const response = await axios.get<{ result: ServiceCategory[] }>(
-                "http://localhost:8081/swp/category"
+                "/category"
             );
-            setCategories(response.data.result);
+            setCategories(response.result);
         } catch (error) {
             console.error("Error fetching categories:", error);
         }
@@ -101,24 +102,26 @@ const ServiceInfoForm = ({
         );
         const response = selectedService
             ? axios.put(
-                  `http://localhost:8081/swp/services/${selectedService}`,
+                  `/services/${selectedService}`,
                   formData,
                   {
                       headers: {
-                          "Content-Type": "multipart/form-data;",
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "multipart/form-data;",
                       },
                   }
               )
-            :  axios.post(`http://localhost:8081/swp/services`, formData, {
-                  headers: {
-                      "Content-Type": "multipart/form-data;",
+            :  axios.post(`/services`, formData, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "multipart/form-data;",
                   },
               });
         response.then((res) => {
-            if (res.status === 201 && !selectedService) {
+            if (res.result) {
                 alert("Đã lưu");
             }
-            if (res.status === 200 && selectedService) {
+            if (res.result) {
                 alert("Đã lưu");
             }
             handleCloseServiceForm();

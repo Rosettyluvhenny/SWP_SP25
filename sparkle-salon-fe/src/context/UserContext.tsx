@@ -3,13 +3,13 @@ import { introspect, getUser, refresh } from '../data/authData';
 import { toast } from 'react-toastify';
 import { useLocation } from 'react-router-dom';
 const UserContext = React.createContext({
-    user: { name: '', auth: false, role: '' },
-    loginContext: () => {},
-    logout: () => {},
-    loading: true,
-    isLoginOpen: false,
-    setIsLoginOpen: () => {},
-    hasRole: () => false
+    // user: { name: '', auth: false, role: '' },
+    // loginContext: () => {},
+    // logout: () => {},
+    // loading: true,
+    // isLoginOpen: false,
+    // setIsLoginOpen: () => {},
+    // hasRole: () => false
   });
 
 const UserProvider = ({ children }) => {
@@ -41,6 +41,7 @@ const UserProvider = ({ children }) => {
                     console.log("introspect", response);
                     if (response) {
                         const userData = await getUser();
+                        console.log("role: ",userData.role[0].name);
                         if (userData) {
                             setUser({
                                 name: `${userData.username}`,
@@ -59,6 +60,7 @@ const UserProvider = ({ children }) => {
                             if (refreshResponse?.token) {
                                 localStorage.setItem("token", refreshResponse.token);
                                 const userData = await getUser();
+                                console.log(userData.role);
                                 if (userData) {
                                     setUser({
                                         name: `${userData.username}`,
@@ -67,6 +69,7 @@ const UserProvider = ({ children }) => {
                                     });
                                 }
                             } else {
+                                toast.error("Your access is expired");
                                 logout();
                             }
                         }
@@ -74,7 +77,6 @@ const UserProvider = ({ children }) => {
                 }
             } catch (error) {
                 // Handle error by clearing token and setting auth to false
-                toast.error("Your access is expired");
             } finally {
                 setIsLoading(false);
             }

@@ -103,7 +103,7 @@ export default function Service() {
                             </option>
                         ))}
                     </select>
-
+                        
                     <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
                         <option value="">Select a Rating</option>
                         {[1, 2, 3, 4, 5].map((star) => (

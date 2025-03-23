@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import axios from "../services/customizedAxios";
 
 const login = async (username: string, password: string) => {
@@ -5,7 +6,7 @@ const login = async (username: string, password: string) => {
         const response = await axios.post(`/auth/authenticate`, { username, password });
         return response; 
     } catch (error) {
-        console.error("Login failed:", error);
+        toast.error(error.response.data.message);
         return null; 
     }
 };

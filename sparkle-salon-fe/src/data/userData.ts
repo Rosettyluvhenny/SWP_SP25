@@ -135,6 +135,17 @@ const getSessionByBookingId = async(id: number) => {
         return null;
     }
 }
-export { getSessionByBookingId, Session, getSessionById, cancelMySession, getUserBookings, getBookingById, cancelBooking,getAllSession ,getMySession};
+const getUrlPayment = async(id: number)=> {
+    const response = await axios.get(`/booking/payment/${id}`,{headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+    }
+    });
+    if(response.result){
+        return response.result;
+    }else {
+        return null;
+    }
+}
+export {getUrlPayment, getSessionByBookingId, Session, getSessionById, cancelMySession, getUserBookings, getBookingById, cancelBooking,getAllSession ,getMySession};
 
 

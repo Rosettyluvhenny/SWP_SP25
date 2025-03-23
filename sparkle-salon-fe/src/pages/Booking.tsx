@@ -549,17 +549,15 @@ export default function Booking() {
         try {
             const response = await bookingService(bookingBody);
 
-            if (response && response.url) {
-                alert("Đặt lịch thành công! Đang chuyển hướng đến trang thanh toán...");
-                window.open(response.url, "_self");
-            } 
+           
             if(response && response.status ===  "PENDING"){
                 toast.success("Đặt dịch vụ thành công")
-                setTimeout(() => {navigate(`/bookingDetail?booking=${response.id}`)},2000)
+                navigate(`/bookingDetail/${response.id}`)
             }
         } catch (error) {
-            console.error("Lỗi khi đặt lịch:", error);
-            alert("Đặt lịch thất bại.");
+            toast.error(error);
+            // console.error("Lỗi khi đặt lịch:", error);
+            // alert("Đặt lịch thất bại.");
         }
     };
 

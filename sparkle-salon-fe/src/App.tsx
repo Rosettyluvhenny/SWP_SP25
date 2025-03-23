@@ -84,7 +84,7 @@ function App() {
             <Route path="/sessionDetail/:id" element={<MainLayout><SessionDetail/></MainLayout>} />
             <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
             <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
-            <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
+            {/* <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} /> */}
             <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
           </Route>
           
