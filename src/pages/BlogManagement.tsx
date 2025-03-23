@@ -14,7 +14,67 @@ interface DecodedToken {
   [key: string]: any;
 }
 
+interface PaginationProps {
+  totalPages: number;
+  currentPage: number;
+  paginate: (pageNumber: number) => void;
+}
+
 const axiosInstance = instance;
+
+// Pagination Component
+const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, paginate }) => {
+  const pageNumbers = [];
+
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
+
+  return (
+    <nav className="mt-4 flex justify-center">
+      <ul className="flex items-center space-x-2">
+        <motion.button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-3 py-1 rounded-lg bg-gray-200 text-gray-700 disabled:opacity-50"
+          whileHover={{ scale: currentPage === 1 ? 1 : 1.05 }}
+          whileTap={{ scale: currentPage === 1 ? 1 : 0.95 }}
+        >
+          Trước
+        </motion.button>
+        
+        {pageNumbers.map((number) => (
+          <motion.li
+            key={number}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <button
+              onClick={() => paginate(number)}
+              className={`px-3 py-1 rounded-lg ${
+                currentPage === number
+                  ? "bg-pink-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {number}
+            </button>
+          </motion.li>
+        ))}
+        
+        <motion.button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 rounded-lg bg-gray-200 text-gray-700 disabled:opacity-50"
+          whileHover={{ scale: currentPage === totalPages ? 1 : 1.05 }}
+          whileTap={{ scale: currentPage === totalPages ? 1 : 0.95 }}
+        >
+          Sau
+        </motion.button>
+      </ul>
+    </nav>
+  );
+};
 
 export default function BlogManagement() {
   const [isOpenCreateBlog, setIsOpenBlogForm] = useState(false);
@@ -26,6 +86,9 @@ export default function BlogManagement() {
   const [selectedBlog, setSelectedBlog] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loadingBlogId, setLoadingBlogId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [blogsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -65,19 +128,19 @@ export default function BlogManagement() {
         therapistName: blogItem.therapistName,
         approve: blogItem.approve,
         img: blogItem.img,
-        defaultBlog: blogItem.defaultBlog , // Sử dụng defaultBlog
+        defaultBlog: blogItem.defaultBlog,
       }));
       setBlogs(blogListData);
+      setTotalPages(Math.ceil(blogListData.length / blogsPerPage));
     } catch (error) {
       console.error("Error fetching blogs:", error);
       alert("Không thể tải danh sách blog");
     }
-  }, []);
+  }, [blogsPerPage]);
 
   useEffect(() => {
     getBlogList();
   }, [getBlogList]);
-
   const closeBlogModal = () => {
     setIsModalOpen(false);
     setEditingBlog(null);
@@ -99,26 +162,27 @@ export default function BlogManagement() {
   const handleBlogDelete = async (blogId: number) => {
     const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa blog này?");
     if (confirmDelete) {
-      const deletedBlog = await deleteBlogById(blogId.toString());
-      if (deletedBlog) {
-        alert("Xóa blog thành công");
-        setBlogs(blogs.filter((blog) => blog.blogId !== blogId));
-      } else {
-        alert("Xóa blog thất bại");
+      try {
+        const deletedBlog = await deleteBlogById(blogId.toString());
+        if (deletedBlog) {
+          alert("Xóa blog thành công");
+          await getBlogList();
+        } else {
+          alert("Xóa blog thất bại");
+        }
+      } catch (error) {
+        console.error("Error deleting blog:", error);
+        alert("Có lỗi xảy ra khi xóa blog");
       }
     }
   };
 
-  const handleApproveChange = async (
-    blogId: string,
-    currentStatus: boolean
-  ) => {
+  const handleApproveChange = async (blogId: string, currentStatus: boolean) => {
     if (!isAdmin) {
       alert("Chỉ admin mới có quyền thay đổi trạng thái approve");
       return;
     }
     const token = localStorage.getItem("token");
-
     setLoadingBlogId(blogId);
     const newStatus = !currentStatus;
 
@@ -134,23 +198,15 @@ export default function BlogManagement() {
         }
       );
 
-      if (response.status === 200) {
-        setBlogs((prev) =>
-          prev.map((blog) =>
-            blog.blogId.toString() === blogId
-              ? { ...blog, approve: newStatus }
-              : blog
-          )
-        );
+      if (response.result) {
+        await getBlogList();
         alert(`Đã ${newStatus ? "duyệt" : "hủy duyệt"} blog thành công`);
-      } else {
-        throw new Error(`Unexpected status code: ${response.status}`);
+        setLoadingBlogId(null);
       }
     } catch (error) {
-      alert(`Cập nhật trạng thái thất bại`);
-      console.error("Approve change error:", error);
-    } finally {
+      console.error("Error approving blog:", error);
       setLoadingBlogId(null);
+      alert("Có lỗi xảy ra khi thay đổi trạng thái");
     }
   };
 
@@ -159,10 +215,10 @@ export default function BlogManagement() {
       alert("Chỉ admin mới có quyền set default");
       return;
     }
-  
+
     const token = localStorage.getItem("token");
     setLoadingBlogId(blogId);
-  
+
     try {
       const response = await axiosInstance.put(
         `/blogpost/default/${blogId}`,
@@ -174,30 +230,39 @@ export default function BlogManagement() {
           },
         }
       );
-  
-      if (response.status === 200) {
-        setBlogs((prev) =>
-          prev.map((blog) => ({
-            ...blog,
-            defaultBlog: blog.blogId.toString() === blogId, // Sử dụng defaultBlog
-          }))
-        );
+
+      if (response.result) {
+        await getBlogList();
+        setLoadingBlogId(null);
         alert("Đã set blog làm mặc định thành công");
       } else {
-        throw new Error(`Unexpected status code: ${response.status}`);
+        throw new Error(response.data.message || "Failed to set default blog");
       }
     } catch (error) {
-      console.error("Set default error:", error);
-      alert("Set blog mặc định thất bại");
-    } finally {
+      console.error("Error setting default blog:", error);
       setLoadingBlogId(null);
+      alert("Có lỗi xảy ra khi set blog mặc định");
     }
   };
+
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   const filteredBlogs = blogs.filter(
     (blog) =>
-      blog.categoryName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      blog.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (selectedCategory === "Tất Cả" || blog.categoryName === selectedCategory)
   );
+
+  const indexOfLastBlog = currentPage * blogsPerPage;
+  const indexOfFirstBlog = indexOfLastBlog - blogsPerPage;
+  const currentBlogs = filteredBlogs.slice(indexOfFirstBlog, indexOfLastBlog);
+
+  useEffect(() => {
+    setTotalPages(Math.ceil(filteredBlogs.length / blogsPerPage));
+    setCurrentPage(1);
+  }, [filteredBlogs.length, blogsPerPage]);
 
   return (
     <div className="flex h-screen bg-white">
@@ -227,7 +292,7 @@ export default function BlogManagement() {
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Tìm kiếm blog..."
+                  placeholder="Tìm kiếm blog theo tiêu đề..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400"
@@ -251,8 +316,7 @@ export default function BlogManagement() {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse rounded-lg overflow-hidden">
+              <table className="w-full border-collapse rounded-lg ">
                 <thead>
                   <tr className="bg-white text-black">
                     <th className="p-3 text-left">ID</th>
@@ -266,8 +330,8 @@ export default function BlogManagement() {
                   </tr>
                 </thead>
                 <tbody className="bg-white">
-                  {filteredBlogs.length > 0 ? (
-                    filteredBlogs.map((blog) => (
+                  {currentBlogs.length > 0 ? (
+                    currentBlogs.map((blog) => (
                       <motion.tr
                         key={blog.blogId}
                         className="border-t hover:bg-pink-50 transition-colors"
@@ -279,12 +343,13 @@ export default function BlogManagement() {
                         <td className="p-3 font-medium">{blog.title}</td>
                         <td className="p-3">
                           <img
-                            src={blog.img}
+                            src={blog.img || "/placeholder.jpg"}
                             alt={blog.title}
-                            className="w-auto h-16"
+                            className="w-auto h-16 object-cover"
+                            onError={(e) => (e.currentTarget.src = "/placeholder.jpg")}
                           />
                         </td>
-                        <td className="p-3">{blog.therapistName}</td>
+                        <td className="p-3">{blog.therapistName || "Không có"}</td>
                         <td className="p-3 flex items-center space-x-2">
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -306,9 +371,7 @@ export default function BlogManagement() {
                               className="px-2 py-1 rounded-lg text-white text-xs bg-green-500 hover:bg-green-600"
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              disabled={
-                                loadingBlogId === blog.blogId.toString()
-                              }
+                              disabled={loadingBlogId === blog.blogId.toString()}
                             >
                               {loadingBlogId === blog.blogId.toString()
                                 ? "Đang xử lý..."
@@ -319,41 +382,39 @@ export default function BlogManagement() {
                         <td className="p-3">
                           <span className="bg-pink-100 text-pink-800 px-2 py-1 rounded-full text-xs">
                             {blog.categoryName}
-                            
                           </span>
                         </td>
                         <td className="p-3">
-                            
-  {isAdmin && (
-    <motion.button
-      onClick={() => handleSetDefault(blog.blogId.toString())}
-      className={`px-2 py-1 rounded-lg text-white text-xs ${
-        blog.defaultBlog
-          ? "bg-blue-700 cursor-not-allowed"
-          : "bg-blue-500 hover:bg-blue-600"
-      }`}
-      whileHover={{ scale: blog.defaultBlog ? 1 : 1.05 }}
-      whileTap={{ scale: blog.defaultBlog ? 1 : 0.95 }}
-      disabled={blog.defaultBlog || loadingBlogId === blog.blogId.toString()}
-    >
-      {loadingBlogId === blog.blogId.toString()
-        ? "Đang xử lý..."
-        : blog.defaultBlog
-        ? "Đã mặc định"
-        : "Set mặc định"}
-    </motion.button>
-  )}
-  {!isAdmin && (
-    <span className={blog.defaultBlog ? "text-blue-700" : "text-gray-500"}>
-      {blog.defaultBlog ? "Mặc định" : "Không"}
-    </span>
-  )}
-</td>
+                          {isAdmin && (
+                            <motion.button
+                              onClick={() => handleSetDefault(blog.blogId.toString())}
+                              className={`px-2 py-1 rounded-lg text-white text-xs ${
+                                blog.defaultBlog
+                                  ? "bg-blue-700 cursor-not-allowed"
+                                  : "bg-blue-500 hover:bg-blue-600"
+                              }`}
+                              whileHover={{ scale: blog.defaultBlog ? 1 : 1.05 }}
+                              whileTap={{ scale: blog.defaultBlog ? 1 : 0.95 }}
+                              disabled={
+                                blog.defaultBlog || loadingBlogId === blog.blogId.toString()
+                              }
+                            >
+                              {loadingBlogId === blog.blogId.toString()
+                                ? "Đang xử lý..."
+                                : blog.defaultBlog
+                                ? "Đã mặc định"
+                                : "Set mặc định"}
+                            </motion.button>
+                          )}
+                          {!isAdmin && (
+                            <span className={blog.defaultBlog ? "text-blue-700" : "text-gray-500"}>
+                              {blog.defaultBlog ? "Mặc định" : "Không"}
+                            </span>
+                          )}
+                        </td>
                         <td className="p-3 flex space-x-2">
                           <motion.button
-                            onClick={() =>
-                              handleOpenBlogForm(blog.blogId.toString())
-                            }
+                            onClick={() => handleOpenBlogForm(blog.blogId.toString())}
                             className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -381,7 +442,12 @@ export default function BlogManagement() {
                   )}
                 </tbody>
               </table>
-            </div>
+              <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                paginate={paginate}
+              />
+            
           </>
         )}
 

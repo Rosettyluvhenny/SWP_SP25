@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import QuizInterface from "../components/QuizInterface";
 import { useQuiz } from "../components/useQuiz";
-import QuizResult from "../components/QuizResult";
 import { Blog, getDefaultByQuizResult } from "../data/blogData";
 import { useNavigate } from "react-router-dom";
 
@@ -31,17 +30,13 @@ export default function KiemTraDa() {
     fetchBlog();
   }, [state.result, state.quizResultId]);
 
-  const handleNavigate = useCallback(() => {
+  const handleShowBlogDetail = useCallback(() => {
     if (foundBlog) {
       setShowBlogDetail(true);
     } else {
       alert("Không tìm thấy blog phù hợp với kết quả");
     }
   }, [foundBlog]);
-
-  const handleBackFromBlog = () => {
-    setShowBlogDetail(false);
-  };
 
   if (state.loading) {
     return <div className="pt-16 text-center">Đang tải dữ liệu...</div>;
@@ -60,7 +55,7 @@ export default function KiemTraDa() {
       </div>
 
       {/* Chọn quiz */}
-      {!state.isQuizStarted && !state.showResults && !showBlogDetail && (
+      {!state.isQuizStarted && !state.showResults && (
         <div className="flex flex-col items-center mt-6 px-4">
           <h1 className="py-8 text-4xl font-bold text-center">
             Chọn Bộ Câu Hỏi
@@ -107,102 +102,105 @@ export default function KiemTraDa() {
       )}
 
       {/* Giao diện quiz */}
-      {state.isQuizStarted &&
-        !state.showResults &&
-        !showBlogDetail &&
-        state.selectedQuiz && (
-          <QuizInterface
-            quiz={state.selectedQuiz}
-            onComplete={handleQuizComplete}
-            onBack={handleBack}
-          />
-        )}
-
-      {/* Kết quả quiz */}
-      {state.showResults && !showBlogDetail && (
-        <div className="p-8 max-w-3xl mx-auto bg-white rounded-2xl shadow-lg mt-10">
-          <div className="text-center mb-6">
-          <p className="text-4xl font-bold text-blue-600">
-                  Điểm số của bạn : {state.score}
-                </p>
-          </div>
-          <QuizResult
-            result={state.result}
-            error={state.error}
-            fetchingResult={state.fetchingResult}
-            onLink={handleNavigate}
-            onBack={handleBack}
-          />
-          
-        </div>
+      {state.isQuizStarted && !state.showResults && state.selectedQuiz && (
+        <QuizInterface
+          quiz={state.selectedQuiz}
+          onComplete={handleQuizComplete}
+          onBack={handleBack}
+        />
       )}
 
-      {/* Hiển thị chi tiết blog */}
-      {showBlogDetail && foundBlog && (
-        <>
-          <div className="p-8 max-w-3xl mx-auto bg-white rounded-2xl shadow-lg space-y-6 mt-10">
-            <h2 className="text-3xl font-bold text-center">
-              Kết quả về da của bạn
-            </h2>
-            <article className="bg-white rounded-lg p-6">
-              <h1 className="text-2xl font-bold text-gray-800 mb-4">
-                {foundBlog.title}
-              </h1>
-              <img
-                src={foundBlog.img || "/placeholder.jpg"}
-                alt={`Hình ảnh minh họa cho ${foundBlog.title}`}
-                className="w-full h-64 object-cover rounded-md my-4"
-              />
-              <div className="prose prose-lg text-gray-700">
-                <p
-                  className="mt-6 text-lg text-gray-700 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: foundBlog.content }}
-                ></p>
-              </div>
-            </article>
+      {/* Kết quả quiz và nút hiển thị chi tiết blog */}
+      {state.showResults && (
+        <div className="p-8 max-w-3xl mx-auto bg-white rounded-2xl shadow-lg mt-10 space-y-6">
+          {/* Phần kết quả quiz */}
+          <div className="text-center mb-6">
+            <p className="text-4xl font-bold text-blue-600">
+              Điểm số của bạn: {state.score}
+            </p>
           </div>
+          <h2 className="text-3xl font-bold text-center">Kết Quả Kiểm Tra</h2>
+          <p className="text-lg text-center">{state.result || "Không có kết quả để hiển thị"}</p>
 
-          {state.services != null && state.services.length > 0 && (
-            <div className="p-8 mx-auto bg-white rounded-2xl shadow-lg space-y-6 mt-6 w-full max-w-4xl">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-                Dịch vụ gợi ý cho bạn
-              </h3>
-              <div className="flex flex-row flex-wrap gap-6 justify-center">
-                {state.services.map((service) => (
-                  <div
-                    key={service.id}
-                    className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-                    style={{
-                      minWidth: `${Math.min(
-                        100 / Math.min(state.services.length, 4),
-                        25
-                      )}%`,
-                    }}
-                  >
-                    <img
-                      src={service.img || "/placeholder.jpg"}
-                      alt={`Hình ảnh của ${service.name}`}
-                      className="w-32 h-32 object-cover rounded-full mb-3 cursor-pointer"
-                      onClick={() => navigate(`/service/${service.id}`)}
-                    />
-                    <h4 className="text-sm font-semibold text-gray-800 text-center">
-                      {service.name}
-                    </h4>
-                  </div>
-                ))}
-              </div>
-            </div>
+
+          {/* Nút "Chi tiết về da của bạn" - chỉ hiển thị khi chưa show blog */}
+          {!showBlogDetail && (
+            <button
+              onClick={handleShowBlogDetail}
+              className="w-full mt-4 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+            >
+              Chi tiết về da của bạn
+            </button>
           )}
 
-          <div className="p-8 max-w-3xl mx-auto">
-            <button
-              onClick={handleBackFromBlog}
-              className="w-full bg-gray-600 text-white py-3 text-lg font-semibold rounded-xl hover:bg-gray-700 transition"
-            >
-              Quay Lại
-            </button>
-          </div>
-        </>
+          {/* Phần chi tiết blog (chỉ hiển thị khi showBlogDetail là true) */}
+          {showBlogDetail && foundBlog ? (
+            <>
+              
+              <article className="bg-white rounded-lg p-6">
+                <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                  {foundBlog.title}
+                </h1>
+                <img
+                  src={foundBlog.img || "/placeholder.jpg"}
+                  alt={`Hình ảnh minh họa cho ${foundBlog.title}`}
+                  className="w-full h-64 object-cover rounded-md my-4"
+                />
+                <div className="prose prose-lg text-gray-700">
+                  <p
+                    className="mt-6 text-lg text-gray-700 leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: foundBlog.content }}
+                  ></p>
+                </div>
+              </article>
+
+              {/* Dịch vụ gợi ý */}
+              {state.services != null && state.services.length > 0 && (
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+                    Dịch vụ gợi ý cho bạn
+                  </h3>
+                  <div className="flex flex-row flex-wrap gap-6 justify-center">
+                    {state.services.map((service) => (
+                      <div
+                        key={service.id}
+                        className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+                        style={{
+                          minWidth: `${Math.min(
+                            100 / Math.min(state.services.length, 4),
+                            25
+                          )}%`,
+                        }}
+                      >
+                        <img
+                          src={service.img || "/placeholder.jpg"}
+                          alt={`Hình ảnh của ${service.name}`}
+                          className="w-32 h-32 object-cover rounded-full mb-3 cursor-pointer"
+                          onClick={() => navigate(`/service/${service.id}`)}
+                        />
+                        <h4 className="text-sm font-semibold text-gray-800 text-center">
+                          {service.name}
+                        </h4>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : showBlogDetail && !foundBlog ? (
+            <p className="text-center text-gray-500 mt-6">
+              Không tìm thấy blog phù hợp với kết quả của bạn.
+            </p>
+          ) : null}
+
+          {/* Nút quay lại */}
+          <button
+            onClick={handleBack}
+            className="w-full bg-gray-600 text-white py-3 text-lg font-semibold rounded-xl hover:bg-gray-700 transition mt-6"
+          >
+            Quay Lại
+          </button>
+        </div>
       )}
     </div>
   );
