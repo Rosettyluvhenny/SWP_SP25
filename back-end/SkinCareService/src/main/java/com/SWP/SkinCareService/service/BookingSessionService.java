@@ -609,12 +609,15 @@ public class  BookingSessionService {
             BookingSession lastSession = existedSession.getLast();
             LocalDate dateOfLastSession = lastSession.getBookingDate();
             //Check status of last session
-            if (lastSession.getStatus() != BookingSessionStatus.COMPLETED && lastSession.getStatus() != BookingSessionStatus.IS_CANCELED ) {
-                throw new AppException(ErrorCode.CURRENT_SESSION_NOT_COMPLETED);
-            }
-            //Check date to create new bookingSession
-            if (!requestDate.isAfter(dateOfLastSession) && lastSession.getStatus() != BookingSessionStatus.IS_CANCELED ) {
-                throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+            if(lastSession.getStatus() != BookingSessionStatus.IS_CANCELED ){
+
+                if (lastSession.getStatus() != BookingSessionStatus.COMPLETED) {
+                    throw new AppException(ErrorCode.CURRENT_SESSION_NOT_COMPLETED);
+                }
+                //Check date to create new bookingSession
+                if (!requestDate.isAfter(dateOfLastSession)) {
+                    throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                }
             }
             //Check session remain
             int maxSessionAllow = booking.getService().getSession();
@@ -643,24 +646,40 @@ public class  BookingSessionService {
         return true;
     }
 
-    public Page<BookingSession> getByUser(Pageable pageable){
+    public Page<BookingSessionResponse> getByUser(String status, Pageable pageable){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         String userId = user.getId();
         Specification<Booking> spec = (root, query, cb) -> {
             List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("booking").get("user").get("id"), userId));
-
+            if (status != null) {
+                try {
+                    BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(status.toUpperCase());
+                    predicates.add(cb.equal(root.get("status"), sessionStatus));
+                } catch (IllegalArgumentException e) {
+                    throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
+                }
+            }
             predicates.add(cb.between(root.get("sessionDateTime"), LocalDate.now(), LocalDate.now().plusDays(7)));
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-        return bookingSessionRepository.findAll(spec,pageable);
+        return bookingSessionRepository.findAll(spec,pageable).map(bookingSessionMapper::toBookingSessionResponse);
     }
 
     @PostAuthorize("returnObject.booking.user.username === authentication.name")
     public BookingSession cancelByUser(int sessionId) {
         BookingSession session = checkSession(sessionId);
         session.setStatus(BookingSessionStatus.IS_CANCELED);
+
+        String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã được hủy.";
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .url("http://localhost:3000/sessionDetail/"+session.getId())
+                .text(text)
+                .userId(session.getBooking().getUser().getId())
+                .isRead(false)
+                .build();
+        notificationService.create(notificationRequest);
         return bookingSessionRepository.save(session);
     }
 

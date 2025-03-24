@@ -47,8 +47,8 @@ public class BookingSessionController {
         );
     }
     @GetMapping("/mySession")
-    ResponseEntity<ApiResponse<Page<BookingSessionResponse>>> getAllByUser(Pageable pageable) {
-        var result = bookingSessionService.getMySessions(pageable);
+    ResponseEntity<ApiResponse<Page<BookingSessionResponse>>> getAllByUser(@RequestParam(required = false) String status, Pageable pageable) {
+        var result = bookingSessionService.getByUser(status, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<Page<BookingSessionResponse>>builder().result(result).build()
         );

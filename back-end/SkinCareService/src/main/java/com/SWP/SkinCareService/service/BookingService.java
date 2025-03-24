@@ -112,6 +112,14 @@ public class BookingService {
         BookingResponse result = bookingMapper.toBookingResponse(booking);
         bookingRepository.flush();
         result.setImg(booking.getService().getImg());
+        String text = "Dịch vụ "+booking.getService().getName()+" đã được đặt thành công";
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .url("http://localhost:3000/bookingDetail/"+booking.getId())
+                .text(text)
+                .userId(booking.getUser().getId())
+                .isRead(false)
+                .build();
+        notificationService.create(notificationRequest);
         return result;
     }
 
