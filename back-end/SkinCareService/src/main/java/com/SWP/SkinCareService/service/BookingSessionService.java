@@ -134,9 +134,6 @@ public class  BookingSessionService {
                                                        MultipartFile imgBefore,
                                                        MultipartFile imgAfter) throws IOException {
         BookingSession session = checkSession(id);
-
-
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         boolean isStaff = staff.getRoles().stream()
@@ -144,6 +141,7 @@ public class  BookingSessionService {
 
         if(request.getRoomId()!=null) {
             session.setRoom(getRoomById(request.getRoomId()));
+            roomService.incrementInUse(request.getRoomId());
         } else {
             List<Room> roomAvailableForService = roomService.getRoomAvailableForService(session.getBooking().getService().getId());
             if (roomAvailableForService.isEmpty()) {
@@ -158,9 +156,9 @@ public class  BookingSessionService {
         if (isStaff) {
             session.setStaff(staff);
             session.setStatus(BookingSessionStatus.ON_GOING);
-            String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn sẽ được thực hiện tại phòng "+session.getRoom().getName();
+            String text = "Buổi dịch vụ " + session.getBooking().getService().getName() + " của bạn sẽ được thực hiện tại phòng " + session.getRoom().getName();
             NotificationRequest notificationRequest = NotificationRequest.builder()
-                    .url("http://localhost:3000/sessionDetail/"+session.getId())
+                    .url("http://localhost:3000/sessionDetail/" + session.getId())
                     .text(text)
                     .userId(session.getBooking().getUser().getId())
                     .isRead(false)
@@ -168,16 +166,7 @@ public class  BookingSessionService {
             notificationService.create(notificationRequest);
         }
 
-        if (request.getTherapistId() != null){
-            Therapist therapist = getTherapistById(request.getTherapistId());
-            session.setTherapist(therapist);
-        }
-
         bookingSessionMapper.updateBookingSession(session, request);
-
-
-        if(request.getStatus()!=null)
-            session.setStatus(getSessionStatus(request.getStatus()));
         if(request.getNote()!=null)
             session.setNote(request.getNote());
 
@@ -188,40 +177,6 @@ public class  BookingSessionService {
         if(!imgAfter.isEmpty()) {
             session.setImgAfter(supabaseService.uploadImage(imgAfter, "imgAfter_" + session.getId()));
         }
-        if (session.isFinished()) {
-            //Notification
-            String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã hoàn tất";
-            NotificationRequest notificationRequest = NotificationRequest.builder()
-                    .url("http://localhost:3000/sessionDetail/"+session.getId())
-                    .text(text)
-                    .userId(session.getBooking().getUser().getId())
-                    .isRead(false)
-                    .build();
-            notificationService.create(notificationRequest);
-
-            Booking booking = session.getBooking();
-            session.setStatus(BookingSessionStatus.COMPLETED);
-            //Check status of bookingService
-            updateSessionRemain(booking.getId());
-            if (booking.getSessionRemain() == 0) {
-                booking.setStatus(BookingStatus.COMPLETED);
-            }
-            //Decrease in use in room
-            int roomId = session.getRoom().getId();
-            roomService.decrementInUse(roomId);
-            bookingRepository.save(booking);
-            //Create feedback
-            FeedbackRequest feedbackRequest = FeedbackRequest.builder()
-                    .serviceId(booking.getService().getId())
-                    .bookingSessionId(session.getId())
-                    .userId(session.getBooking().getUser().getId())
-                    .therapistId(session.getTherapist().getId())
-                    .rated(false)
-                    .build();
-            feedbackService.createFeedback(feedbackRequest);
-
-        }
-
         bookingSessionRepository.save(session);
         bookingSessionRepository.flush();
         return bookingSessionMapper.toBookingSessionResponse(session);
@@ -229,8 +184,8 @@ public class  BookingSessionService {
 
 
     @Transactional
-    @PostAuthorize("hasRole('STAFF') or (hasRole('USER') and returnObject.user.username == authentication.name)")
-    public void updateStatus(int id, String status){
+    @PostAuthorize("hasRole('STAFF')")
+    public BookingSession updateStatus(int id, String status){
         BookingSession session = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
         try {
             BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(status.toUpperCase());
@@ -259,29 +214,38 @@ public class  BookingSessionService {
                 }
                 text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn sẽ được thực hiện tại phòng "+session.getRoom().getName();
             } else if (sessionStatus == BookingSessionStatus.COMPLETED) {
-                if (!isStaff) {
-                    throw new AppException(ErrorCode.NOT_HAVE_PERMISSIONS);
+                if (session.isFinished()) {
+                    //Notification
+                    text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã hoàn tất";
+                    NotificationRequest notificationRequest = NotificationRequest.builder()
+                            .url("http://localhost:3000/sessionDetail/"+session.getId())
+                            .text(text)
+                            .userId(session.getBooking().getUser().getId())
+                            .isRead(false)
+                            .build();
+                    notificationService.create(notificationRequest);
+
+                    Booking booking = session.getBooking();
+                    session.setStatus(BookingSessionStatus.COMPLETED);
+                    //Check status of bookingService
+                    updateSessionRemain(booking.getId());
+                    if (booking.getSessionRemain() == 0) {
+                        booking.setStatus(BookingStatus.COMPLETED);
+                    }
+                    //Decrease in use in room
+                    int roomId = session.getRoom().getId();
+                    roomService.decrementInUse(roomId);
+                    bookingRepository.save(booking);
+                    //Create feedback
+                    FeedbackRequest feedbackRequest = FeedbackRequest.builder()
+                            .serviceId(booking.getService().getId())
+                            .bookingSessionId(session.getId())
+                            .userId(session.getBooking().getUser().getId())
+                            .therapistId(session.getTherapist().getId())
+                            .rated(false)
+                            .build();
+                    feedbackService.createFeedback(feedbackRequest);
                 }
-                session.setStatus(sessionStatus);
-                //decrease room in use
-                Booking existingBooking = session.getBooking();
-                roomService.decrementInUse(session.getRoom().getId());
-                //Create feedback
-                FeedbackRequest feedbackRequest = FeedbackRequest.builder()
-                        .serviceId(service.getId())
-                        .bookingSessionId(session.getId())
-                        .userId(session.getBooking().getUser().getId())
-                        .therapistId(session.getTherapist().getId())
-                        .rated(false)
-                        .build();
-                feedbackService.createFeedback(feedbackRequest);
-                //Update session remain when completed
-                updateSessionRemain(existingBooking.getId());
-                if (existingBooking.getSessionRemain() == 0) {
-                    existingBooking.setStatus(BookingStatus.COMPLETED);
-                    bookingRepository.save(existingBooking);
-                }
-                text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã hoàn tất";
             } else if (sessionStatus == BookingSessionStatus.IS_CANCELED) {
                 if (session.getStatus() == BookingSessionStatus.ON_GOING) {
                     throw new AppException(ErrorCode.SESSION_ON_GOING);
@@ -298,7 +262,7 @@ public class  BookingSessionService {
                     .build();
             notificationService.create(notificationRequest);
             //Save session
-            bookingSessionRepository.save(session);
+            return bookingSessionRepository.save(session);
         }catch(IllegalArgumentException e){
             throw new AppException(ErrorCode.SESSION_STATUS_INVALID);
         }

@@ -9,5 +9,5 @@ import java.util.List;
 public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
     List<Feedback> findAllByService_Id(int id);
     List<Feedback> findAllByTherapist_Id(String id);
-    List<Feedback> findAllByUser(User user);
+    List<Feedback> findAllByUserAndRatedFalse(User user);
 }

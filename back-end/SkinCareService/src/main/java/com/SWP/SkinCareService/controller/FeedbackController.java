@@ -35,9 +35,9 @@ public class FeedbackController {
         );
     }
 
-    @GetMapping("/{userId}/all")
-    public ResponseEntity<ApiResponse<List<FeedbackResponse>>> getAllFeedbacksByUserId(@PathVariable String userId) {
-        var result = feedbackService.getFeedbackByUser(userId);
+    @GetMapping("/user-feedback")
+    public ResponseEntity<ApiResponse<List<FeedbackResponse>>> getAllUserFeedbacks() {
+        var result = feedbackService.getFeedbackByUser();
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<List<FeedbackResponse>>builder().result(result).build()
         );

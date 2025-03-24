@@ -211,7 +211,7 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
     @Transactional
-    @PostAuthorize("hasRole('STAFF') or (hasRole('USER') and returnObject.user.username == authentication.name)")
+    @PostAuthorize("hasRole('STAFF')")
     public Booking updateStatus(int id, String status){
         Booking booking = checkBooking(id);
         String text = "";
@@ -261,6 +261,7 @@ public class BookingService {
         }
     }
 
+    //Check in
     @Transactional
     @PostAuthorize("hasRole('STAFF')")
     public void updatePaymentStatus(int id, String paymentStatus){

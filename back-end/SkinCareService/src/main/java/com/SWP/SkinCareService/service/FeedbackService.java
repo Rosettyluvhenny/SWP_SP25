@@ -11,6 +11,8 @@ import com.SWP.SkinCareService.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,9 +110,11 @@ public class FeedbackService {
         return feedbackMapper.toFeedbackResponse(feedback);
     }
 
-    public List<FeedbackResponse> getFeedbackByUser(String userId) {
-        User user = getUserById(userId);
-        return feedbackRepository.findAllByUser(user).stream().map(feedbackMapper::toFeedbackResponse).toList();
+    @PreAuthorize("hasRole('USER')")
+    public List<FeedbackResponse> getFeedbackByUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(()-> new AppException(ErrorCode.UNAUTHENTICATED));
+        return feedbackRepository.findAllByUserAndRatedFalse(user).stream().map(feedbackMapper::toFeedbackResponse).toList();
     }
 
     @Transactional

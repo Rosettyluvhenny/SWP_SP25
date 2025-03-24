@@ -9,10 +9,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingSessionUpdateRequest {
-    String status;
     String note;
-    //String imgBefore;
-    //String imgAfter;
     Integer roomId;
-    String therapistId;
 }
