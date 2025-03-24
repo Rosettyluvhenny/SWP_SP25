@@ -17,7 +17,7 @@ import PaymentManagement from "./pages/PaymentManagement";
 import { UserContext} from "./context/UserContext";
 import { useContext } from "react";
 import Profile from "./pages/Profile";
-import Therapist from "./pages/Therapist";
+import TherapistPanel from "./pages/TherapistPanel";
 import YourBooking from "./pages/YourBooking";
 import BookingDetail from "./pages/BookingDetail";
 import Booking from "./pages/Booking";
@@ -79,9 +79,9 @@ function App() {
           <Route path="/blog" element={<MainLayout><Blog /></MainLayout>} />
           <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
           <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
-          <Route path="/therapist/:id" element={<Therapist />} />
           <Route path="/blog/:blogId" element={<MainLayout><BlogDetail /></MainLayout>} />
           <Route path="/skintest" element={<MainLayout><SkinTest /></MainLayout>} />
+          <Route path="/therapist" element={<TherapistPanel />} />
 
 
           
@@ -103,8 +103,12 @@ function App() {
           <Route element={<ProtectedRoute requiredRoles={['ADMIN']} />}>
             <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
             <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
-
           </Route>
+
+           {/* Therapist protected routes */}
+            {/* <Route element={<ProtectedRoute requiredRoles={['THERAPIST']} />}>
+              <Route path="/therapist/:id" element={<TherapistPanel />} />
+            </Route> */}
           
           {/* Admin protected routes */}
           <Route element={<ProtectedRoute requiredRoles={['ADMIN','THERAPIST']} />}>

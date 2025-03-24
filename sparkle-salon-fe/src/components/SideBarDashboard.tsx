@@ -5,7 +5,6 @@ import {
     FiShoppingCart,
     FiBarChart2,
     FiMenu,
-    
 } from "react-icons/fi";
 import { MdMeetingRoom, MdOutlinePayments } from "react-icons/md";
 import { TbPhysotherapist } from "react-icons/tb";

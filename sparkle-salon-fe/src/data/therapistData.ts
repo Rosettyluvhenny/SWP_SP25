@@ -134,8 +134,13 @@ const getTherapistById = async (id: string): Promise<Therapist | null> => {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       }
     });
-    console.log("API Response:", response);
-    return response.result;
+    if (response?.result) {
+      console.log("API Response:", response);
+      return response.result;
+    } else {
+      console.error("Therapist not found in the response");
+      return null;
+    }
   } catch (error: unknown) {
     console.error("Error fetching therapist by ID:", error);
     return null;
