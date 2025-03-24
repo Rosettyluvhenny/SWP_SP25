@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
 import {
-    getTherapists,
+    getAllTherapists,
     createTherapist,
     updateTherapist,
     deleteTherapist,
     disableTherapist,
+    enableTherapist,
 } from "../data/therapistData";
 
 interface Therapist {
@@ -26,32 +27,44 @@ export default function TherapistManagement() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [therapists, setTherapists] = useState<Therapist[]>([]);
     const [editingTherapist, setEditingTherapist] = useState<Therapist | null>(
         null
     );
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-    useEffect(() => {
-        const fetchTherapists = async () => {
-            setIsLoading(true);
-            try {
-                const therapistsData = await getTherapists();
-                console.log("API Response:", therapistsData);
-                setTherapists(therapistsData);
-                setError(null);
-            } catch (error) {
-                console.error("Error fetching therapists:", error);
-                setError(
-                    "Không thể tải danh sách chuyên viên. Vui lòng thử lại sau."
-                );
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    // Fetch therapists data
+    const fetchTherapists = async () => {
+        setIsLoading(true);
+        try {
+            const therapistsData = await getAllTherapists();
+            console.log("API Response:", therapistsData);
+            setTherapists(therapistsData);
+            setError(null);
+        } catch (error) {
+            console.error("Error fetching therapists:", error);
+            setError(
+                "Không thể tải danh sách chuyên viên. Vui lòng thử lại sau."
+            );
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchTherapists();
     }, []);
+
+    // Clear success message after 3 seconds
+    useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => {
+                setSuccessMessage(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage]);
 
     const openModal = (therapist: Therapist | null = null) => {
         setEditingTherapist(therapist);
@@ -110,6 +123,7 @@ export default function TherapistManagement() {
                                 : t
                         )
                     );
+                    setSuccessMessage("Cập nhật thông tin chuyên viên thành công");
                 } else {
                     setError("Không thể cập nhật thông tin chuyên viên");
                 }
@@ -129,8 +143,8 @@ export default function TherapistManagement() {
 
                 const success = await createTherapist(newTherapist);
                 if (success) {
-                    const updatedTherapists = await getTherapists();
-                    setTherapists(updatedTherapists);
+                    await fetchTherapists();
+                    setSuccessMessage("Thêm chuyên viên mới thành công");
                 } else {
                     setError("Không thể thêm chuyên viên mới");
                 }
@@ -143,60 +157,95 @@ export default function TherapistManagement() {
         closeModal();
     };
 
-    const handleDisable = async (id: string) => {
-        const confirmDisable = window.confirm(
-            "Bạn có chắc chắn muốn vô hiệu hóa chuyên viên này?"
-        );
-        if (confirmDisable) {
-            try {
-                const success = await disableTherapist(id);
-                if (success) {
-                    setTherapists((prev) =>
-                        prev.map((therapist) =>
-                            therapist.id === id
-                                ? { ...therapist, disabled: true }
-                                : therapist
-                        )
-                    );
-                    setError(null);
-                } else {
-                    setError("Không thể vô hiệu hóa chuyên viên");
-                }
-            } catch (error) {
-                console.error("Error disabling therapist:", error);
-                setError("Đã xảy ra lỗi khi vô hiệu hóa chuyên viên");
+    const handleToggleStatus = async (therapist: Therapist) => {
+        const isDisabling = !therapist.disabled;
+        const confirmMessage = isDisabling
+            ? "Bạn có chắc chắn muốn vô hiệu hóa chuyên viên này?"
+            : "Bạn có chắc chắn muốn kích hoạt lại chuyên viên này?";
+            
+        const confirmed = window.confirm(confirmMessage);
+        
+        if (!confirmed) return;
+        
+        try {
+            let success;
+            if (isDisabling) {
+                success = await disableTherapist(therapist.id);
+            } else {
+                success = await enableTherapist(therapist.id);
             }
+            
+            if (success) {
+                setTherapists((prev) =>
+                    prev.map((t) =>
+                        t.id === therapist.id
+                            ? { ...t, disabled: isDisabling }
+                            : t
+                    )
+                );
+                
+                setSuccessMessage(
+                    isDisabling
+                        ? "Đã vô hiệu hóa chuyên viên thành công"
+                        : "Đã kích hoạt chuyên viên thành công"
+                );
+                setError(null);
+            } else {
+                setError(
+                    isDisabling
+                        ? "Không thể vô hiệu hóa chuyên viên"
+                        : "Không thể kích hoạt chuyên viên"
+                );
+            }
+        } catch (error) {
+            console.error("Error toggling therapist status:", error);
+            setError(
+                isDisabling
+                    ? "Đã xảy ra lỗi khi vô hiệu hóa chuyên viên"
+                    : "Đã xảy ra lỗi khi kích hoạt chuyên viên"
+            );
         }
     };
 
     const handleDelete = async (id: string) => {
         const therapist = therapists.find((t) => t.id === id);
 
-        if (!therapist?.disabled) {
+        if (!therapist) {
+            setError("Không tìm thấy thông tin chuyên viên");
+            return;
+        }
+
+        if (!therapist.disabled) {
             setError(
-                "Không thể xóa chuyên viên chưa bị vô hiệu hóa. Vui lòng vô hiệu hóa trước."
+                "Không thể xóa chuyên viên đang hoạt động. Vui lòng vô hiệu hóa trước khi xóa."
             );
             return;
         }
 
         const confirmDelete = window.confirm(
-            "Bạn có chắc chắn muốn xóa chuyên viên này?"
+            "Bạn có chắc chắn muốn xóa chuyên viên này? Hành động này không thể hoàn tác."
         );
-        if (confirmDelete) {
-            try {
-                const success = await deleteTherapist(id);
-                if (success) {
-                    setTherapists((prev) =>
-                        prev.filter((therapist) => therapist.id !== id)
-                    );
-                    setError(null);
-                } else {
-                    setError("Không thể xóa chuyên viên");
-                }
-            } catch (error) {
-                console.error("Error deleting therapist:", error);
-                setError("Đã xảy ra lỗi khi xóa chuyên viên");
+        
+        if (!confirmDelete) return;
+        
+        try {
+            setIsLoading(true);
+            const success = await deleteTherapist(id);
+            
+            if (success) {
+                setTherapists((prev) =>
+                    prev.filter((therapist) => therapist.id !== id)
+                );
+                setSuccessMessage("Đã xóa chuyên viên thành công");
+                setError(null);
+            } else {
+                setError("Không thể xóa chuyên viên");
             }
+        } catch (error) {
+            console.error("Error deleting therapist:", error);
+            setError("Đã xảy ra lỗi khi xóa chuyên viên");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -219,6 +268,12 @@ export default function TherapistManagement() {
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         <p>{error}</p>
+                    </div>
+                )}
+
+                {successMessage && (
+                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                        <p>{successMessage}</p>
                     </div>
                 )}
 
@@ -292,27 +347,38 @@ export default function TherapistManagement() {
                                                     >
                                                         Chỉnh Sửa
                                                     </button>
-                                                    {!therapist.disabled && (
-                                                        <button
-                                                            onClick={() =>
-                                                                handleDisable(
-                                                                    therapist.id
-                                                                )
-                                                            }
-                                                            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-                                                        >
-                                                            Vô Hiệu Hóa
-                                                        </button>
-                                                    )}
+                                                    <button
+                                                        onClick={() =>
+                                                            handleToggleStatus(therapist)
+                                                        }
+                                                        className={`${
+                                                            therapist.disabled
+                                                                ? "bg-green-500 hover:bg-green-600"
+                                                                : "bg-yellow-500 hover:bg-yellow-600"
+                                                        } text-white px-3 py-1 rounded`}
+                                                    >
+                                                        {therapist.disabled
+                                                            ? "Kích Hoạt"
+                                                            : "Vô Hiệu Hóa"}
+                                                    </button>
                                                     <button
                                                         onClick={() =>
                                                             handleDelete(
                                                                 therapist.id
                                                             )
                                                         }
-                                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 disabled:opacity-50"
+                                                        className={`bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 ${
+                                                            !therapist.disabled
+                                                                ? "opacity-50 cursor-not-allowed"
+                                                                : ""
+                                                        }`}
                                                         disabled={
                                                             !therapist.disabled
+                                                        }
+                                                        title={
+                                                            !therapist.disabled
+                                                                ? "Vui lòng vô hiệu hóa chuyên viên trước khi xóa"
+                                                                : "Xóa chuyên viên"
                                                         }
                                                     >
                                                         Xóa
@@ -461,10 +527,6 @@ export default function TherapistManagement() {
                                     src={editingTherapist.img}
                                     alt="Therapist"
                                     className="mt-2 h-20 object-cover rounded"
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).src =
-                                            "https://via.placeholder.com/150";
-                                    }}
                                 />
                             </div>
                         )}

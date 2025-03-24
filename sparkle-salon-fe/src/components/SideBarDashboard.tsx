@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
     FiUsers,
     FiShoppingCart,
-    FiDollarSign,
     FiBarChart2,
     FiMenu,
     
@@ -60,17 +59,6 @@ const Sidebar = () => {
                         </li>
                     </Link>
                     
-
-                    {/* Orders Management */}
-                    <Link
-                        to="/manager/order"
-                        className={`${isOpen ? "block" : "hidden"}`}
-                    >
-                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
-                            <FiDollarSign />
-                            Quản Lý Đơn Đặt
-                        </li>
-                    </Link>
 
                     {/* Room Management */}
                     <Link

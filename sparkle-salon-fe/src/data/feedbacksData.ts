@@ -1,7 +1,7 @@
 import axios from "../services/customizedAxios";
 
 export interface Feedback {
-    id?: number;
+    feedbackId?: number;
     feedbackText: string;
     rating: number;
     serviceName: string;

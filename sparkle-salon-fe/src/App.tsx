@@ -9,7 +9,6 @@ import Manager from "./pages/Manager";
 import ScrollToTop from "./components/ScrollToTop";
 import UserManagement from "./pages/UserManagement";
 import ServiceManagement from "./pages/ServiceManagement";
-import OrderManagement from "./pages/OrderManagement";
 import Report from "./pages/Report";
 import ServiceDetail from "./pages/ServiceDetail";
 import Payment from "./pages/Payment";
@@ -109,10 +108,9 @@ function App() {
           
           {/* Admin protected routes */}
           <Route element={<ProtectedRoute requiredRoles={['ADMIN','THERAPIST']} />}>
-            <Route path="/manager" element={<MainLayout><Manager /></MainLayout>} />
+            <Route path="/manager" element={<Manager />} />
             <Route path="/manager/user" element={<UserManagement />} />
             <Route path="/manager/service" element={<ServiceManagement />} />
-            <Route path="/manager/order" element={<OrderManagement />} />
             <Route path="/manager/report" element={<Report />} />
             <Route path="/manager/room" element={<RoomManagement />} />
             <Route path="/manager/payment" element={<PaymentManagement />} />

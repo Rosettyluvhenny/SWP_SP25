@@ -27,6 +27,27 @@ const register = async (data: {username: string, password: string, fullName: str
     }
 };
 
+const getAllUser = async () => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        console.error("No token found! Cannot fetch users.");
+        return [];
+    }
+
+    try {
+        const response = await axios.get(`/users`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.result;   
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return []; 
+    }
+};
+
 const getUser = async () => {
     const token = localStorage.getItem('token');
 
@@ -134,6 +155,34 @@ const disableUser = async (userId: string) => {
     }
 }
 
+const deleteUser = async (userId: string) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        console.error("No token found! Update failed.");
+        return false;
+    }
+
+    const apiUrl = `/users/${userId}`;
+
+    try {
+        console.log("Sending Delete Request to:", apiUrl);
+
+        const response = await axios.delete(apiUrl, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        console.log("Delete Successful:", response.data);
+        return response.status === 200;
+    } catch (error) {
+        console.error("Delete Error:", error);
+        return false;
+    }
+}
+
 const introspect = async() =>{
     const token = localStorage.getItem('token')
     if(!token)
@@ -164,4 +213,4 @@ const refresh = async() =>{
 }
 
 
-export { login, getUser, register, updateUser, createUser, disableUser, introspect, refresh };
+export { login, getUser, register, updateUser, createUser, disableUser, introspect, refresh, getAllUser, deleteUser };

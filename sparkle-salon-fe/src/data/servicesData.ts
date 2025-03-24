@@ -63,4 +63,20 @@ const deleteServiceById = async (id:string) => {
     return false
 }
 
-export { servicesData , serviceDataById, deleteServiceById};
+const assignTherapist = async (id: string, therapistIds: string[]) => {
+    try {
+        const response = await axios.put(`/services/assign/${id}`, {
+            therapistId: therapistIds
+        }, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        });
+        return response.result ? true : false;
+    } catch (error) {
+        console.error("Error assigning therapist to service:", error);
+        return false;
+    }
+};
+
+export { servicesData , serviceDataById, deleteServiceById, assignTherapist };
