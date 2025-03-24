@@ -77,7 +77,7 @@ const UserProvider = ({ children }) => {
                 }
             } catch (error) {
                 // Handle error by clearing token and setting auth to false
-                toast.error("Your access is expired");
+                // toast.error("Your access is expired");
             } finally {
                 setIsLoading(false);
             }
@@ -114,7 +114,7 @@ const UserProvider = ({ children }) => {
       };
 
     return (
-        <UserContext.Provider value={{ user, loginContext, logout, loading, isLoginOpen, setIsLoginOpen, hasRole}}>
+        <UserContext.Provider value={{ user, loginContext, logout, loading,setIsLoading, isLoginOpen, setIsLoginOpen, hasRole}}>
             {children}
         </UserContext.Provider>
     );

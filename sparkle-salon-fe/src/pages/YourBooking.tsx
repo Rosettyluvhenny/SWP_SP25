@@ -11,22 +11,23 @@ export default function YourBooking() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
-    const [ServicePerPage] = useState(9);
-    const [totalAmountOfElements, setTotalAmountOfElements] = useState(0);
+    const [elementsPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
-    const [searchUrl, setSearchUrl] = useState('');
+    const [searchUrl, setSearchUrl] = useState(`?size=${elementsPerPage}`);
     const [status, setStatus] = useState("");
     const [sort, setsort] = useState("");
 
     const paginate = (pageNumber: number) => {
-        console.log(pageNumber);
         setCurrentPage(pageNumber)
     };
     useEffect(() => {
         const fetchBookings = async () => {
-            const bookings = await getUserBookings(searchUrl);
-            if (bookings) {
-                setBookings(bookings);
+            const response = await getUserBookings(searchUrl);
+
+            console.log("response", response);
+            if (response) {
+                setBookings(response.bookings);
+                setTotalPages(response.meta.totalPages);
             } else {
                 alert("Không thể lấy danh sách lịch đặt!");
             }
@@ -40,40 +41,25 @@ export default function YourBooking() {
             "Bạn có chắc chắn muốn huỷ lịch hẹn này?"
         );
         if (confirmDelete) {
-            try {
                 const response = await cancelBooking(id);
                 toast.success(response);
-                const bookings = await getUserBookings(searchUrl);
-                if (bookings) {
-                    setBookings(bookings);
-                }
-                // toast.success("Huỷ lịch thành công");
-            } catch (error) {
-                // console.error("Error deleting booking:", error);
-                toast.error("Hủy lịch thất bại")
-            }
+                navigate(`/bookingDetail/${id}`)
         }
     };
 
-    const handleRebook = (serviceId: number) => {
-        navigate(`/booking?service=${serviceId}`);
-    };
-
-    const handleSessionBooking = (bookingId :number) =>{
-        navigate(`/bookingSession?booking=${bookingId}`)
-    }
-    const handleFilter = () => {
-        setCurrentPage(1);
-        setSearchUrl(
-            `?${status ? `status=${status}&` : ""}page=${currentPage - 1}&size=${ServicePerPage}&sort=${sort}`
-        );
-    }
     useEffect(() => {
         setCurrentPage(1);
         setSearchUrl(
-            `?${status ? `status=${status}&` : ""}page=${currentPage - 1}&size=${ServicePerPage}&sort=${sort}`
+            `?${status ? `status=${status}&` : ""}page=${currentPage - 1}&size=${elementsPerPage}&sort=${sort}`
         );
-    }, [status, currentPage, sort])
+    },[status, sort])
+
+    useEffect(() => {
+        setSearchUrl(
+            `?${status ? `status=${status}&` : ""}page=${currentPage - 1}&size=${elementsPerPage}&sort=${sort}`
+        );
+    }, [currentPage])
+  
 
     const getStatusColor = (status: string) => {
         switch (status.toUpperCase()) {
@@ -98,22 +84,28 @@ export default function YourBooking() {
 
     ];
     const sorts = [
-        { value: "createAt,asc", label: "Newest" },
-        { value: "createAt,desc", label: "Oldest" }
+        { value: "createAt,desc", label: "Newest" },
+        { value: "createAt,asc", label: "Oldest" }
 
     ]
     async function handleCard(booking: any) {
-        if(booking.url)
+        if (booking.url)
             window.open(booking.url, "_self");
-        else{
+        else {
             const response = await getUrlPayment(booking.id);
             if (response && response.url) {
                 alert("Đang chuyển hướng đến trang thanh toán...");
                 window.open(response.url, "_self");
-            } 
+            }
         }
     }
+    const handleRebook = (serviceId: number) => {
+        navigate(`/booking?service=${serviceId}`);
+    };
 
+    const handleSessionBooking = (bookingId: number) => {
+        navigate(`/bookingSession?booking=${bookingId}`)
+    }
     return (
         <div className="bg-white min-h-screen">
             <div className="relative w-full h-[170px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
@@ -186,9 +178,10 @@ export default function YourBooking() {
                                         transition={{
                                             duration: 0.3,
                                         }}
-                                        onClick={(e) =>{ 
+                                        onClick={(e) => {
                                             e.stopPropagation();
-                                            navigate(`/bookingDetail/${booking.id}`)}}
+                                            navigate(`/bookingDetail/${booking.id}`)
+                                        }}
                                     >
                                         <td className="p-3 font-medium">
                                             {booking.serviceName}
@@ -231,9 +224,10 @@ export default function YourBooking() {
                                             {(booking.status == "ON_GOING" && booking.sessionRemain > 0) &&
                                                 <motion.button
                                                     onClick={(e) => {
-                                                        e.stopPropagation(); 
+                                                        e.stopPropagation();
                                                         e.preventDefault();
-                                                        handleSessionBooking(booking.id)}
+                                                        handleSessionBooking(booking.id)
+                                                    }
                                                     }
                                                     className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
                                                     whileHover={{ scale: 1.05 }}
@@ -244,7 +238,7 @@ export default function YourBooking() {
                                             }
                                             {booking.status == "PENDING" &&
                                                 <motion.button
-                                                    onClick={(e) =>{
+                                                    onClick={(e) => {
                                                         e.stopPropagation();
                                                         e.preventDefault();
                                                         handleCancelBooking(
@@ -261,10 +255,11 @@ export default function YourBooking() {
                                             }
                                             {(booking.status == "COMPLETED" || booking.status == "IS_CANCELED") &&
                                                 <motion.button
-                                                    onClick={(e) =>{ 
-                                                        e.stopPropagation(); 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
                                                         e.preventDefault();
-                                                        handleRebook(booking.serviceId)}}
+                                                        handleRebook(booking.serviceId)
+                                                    }}
                                                     className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
 
                                                     whileHover={{ scale: 1.05 }}
@@ -273,12 +268,13 @@ export default function YourBooking() {
                                                     <FaRedo size={14} /> Đặt lại
                                                 </motion.button>
                                             }
-                                             {(booking.status == "PENDING" && booking.paymentMethod=="Thanh toán qua thẻ ngân hàng") &&
+                                            {(booking.status == "PENDING" && booking.paymentMethod == "Thanh toán qua thẻ ngân hàng") &&
                                                 <motion.button
-                                                    onClick={(e) =>{ 
-                                                        e.stopPropagation(); 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
                                                         e.preventDefault();
-                                                        handleCard(booking)}}
+                                                        handleCard(booking)
+                                                    }}
                                                     className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 flex items-center gap-1"
 
                                                     whileHover={{ scale: 1.05 }}
