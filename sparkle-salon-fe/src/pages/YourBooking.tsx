@@ -41,18 +41,9 @@ export default function YourBooking() {
             "Bạn có chắc chắn muốn huỷ lịch hẹn này?"
         );
         if (confirmDelete) {
-            try {
                 const response = await cancelBooking(id);
                 toast.success(response);
-                const bookings = await getUserBookings(searchUrl);
-                if (bookings) {
-                    setBookings(bookings);
-                }
-                // toast.success("Huỷ lịch thành công");
-            } catch (error) {
-                // console.error("Error deleting booking:", error);
-                toast.error("Hủy lịch thất bại")
-            }
+                navigate(`/bookingDetail/${id}`)
         }
     };
 

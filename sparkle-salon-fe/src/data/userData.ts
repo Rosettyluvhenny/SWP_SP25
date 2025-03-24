@@ -72,8 +72,9 @@ const cancelBooking = async (id: string) => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
         }
     });
-    if (response.result) {
-        return response.result;
+    console.log(response);
+    if (response) {
+        return response.message;
     } else {
         return null;
     }

@@ -556,8 +556,6 @@ export default function Booking() {
             }
         } catch (error) {
             toast.error(error);
-            // console.error("Lỗi khi đặt lịch:", error);
-            // alert("Đặt lịch thất bại.");
         }
     };
 

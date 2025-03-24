@@ -85,7 +85,7 @@ export default function YourSession() {
         { value: "IS_CANCELED", label: "Cancelled" },
         { value: "PENDING", label: "Pending" },
         { value: "COMPLETED", label: "Completed" },
-
+        { value: "WAITING", label: "Waiting"}
     ];
     const sorts = [
         { value: "sessionDateTime,desc", label: "Newest" },

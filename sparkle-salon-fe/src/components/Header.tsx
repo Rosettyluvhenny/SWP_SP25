@@ -77,7 +77,7 @@ export default function Header() {
         }
         getNoti();
         // console.log("noti", notifications)
-    }, [loading])
+    }, [location])
     const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLoginData((prevData) => {
             const updatedData = { ...prevData, [e.target.name]: e.target.value };
