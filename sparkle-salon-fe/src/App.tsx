@@ -38,8 +38,8 @@ import BlogDetail from "./pages/BlogDetail";
 
 function App() {
   const {user} = useContext(UserContext);
-  console.log("token", localStorage.getItem("token"))
-  console.log("user app",user);
+  // console.log("token", localStorage.getItem("token"))
+  // console.log("user app",user);
   return (
     <>
       {/* <ScrollToTop />

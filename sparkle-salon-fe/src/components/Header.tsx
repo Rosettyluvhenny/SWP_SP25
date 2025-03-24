@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "../context/UserContext";
+import { getNotification, markRead } from "../data/notification";
 
 export default function Header() {
     const [loginData, setLoginData] = useState({ username: "", password: "" });
@@ -28,12 +29,13 @@ export default function Header() {
         phone: "",
         dob: "",
     });
-
-    const { user, logout, loginContext, loading, isLoginOpen, setIsLoginOpen } = useContext(UserContext);
+    const [notifications, setNotifications] = useState([]);
+    const { user, logout, loginContext, loading, setIsLoading, isLoginOpen, setIsLoginOpen } = useContext(UserContext);
     const [error, setError] = useState<string | null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+    const [isNotiOpen, setIsNotiOpen] = useState(false);
     const [validationError, setValidationError] = useState<{
         username: string | null, fullName: string | null, email: string | null,
         password: string | null, phone: string | null, dob: string | null
@@ -62,6 +64,20 @@ export default function Header() {
         logout();
         navigate('/');
     }
+
+    useEffect(() => {
+        const getNoti = async () => {
+            if ((!user && !user.auth) || user.role !== "USER") {
+                console.log("check true");
+            }
+            else {
+                const response = await getNotification();
+                setNotifications(response);
+            }
+        }
+        getNoti();
+        // console.log("noti", notifications)
+    }, [loading])
     const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLoginData((prevData) => {
             const updatedData = { ...prevData, [e.target.name]: e.target.value };
@@ -69,6 +85,7 @@ export default function Header() {
         });
         setError(null);
     };
+
 
     const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setRegisterData((prevData) => {
@@ -210,6 +227,15 @@ export default function Header() {
             // { path: "/feedback", label: "Feedback" },
             { path: "/schedule", label: "Schedule" }
         );
+    }
+    const toggleDropdown = () => {
+        setIsNotiOpen(!isNotiOpen);
+    };
+    const handleMarkread= async(id: number)=>{
+        const response = await markRead(id);
+        if(response){
+            setIsLoading(!loading)
+        }
     }
     return (
         <motion.header
@@ -445,25 +471,44 @@ export default function Header() {
                         </motion.div>
 
                         {/* Notifications Button */}
-                        <motion.button
-                            className={`text-3xl text-white p-2 transition-colors ${isScrolled ? "" : "text-white"
-                                } group-hover:text-[#f398d0]`}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                        >
                             <div className="relative">
-                                <FaBell />
-                                <span className="absolute text-sm top-3 bg-red-500 rounded-full px-1.5 min-w-[1.2rem] text-center">!</span>
-                            <ul className="absolute w-30 bg-white-500 h-30 text-sm">
-                                <li><p>title</p>
-                                    <p>your </p>
-                                </li>
-                                <li>asdas</li>
-                                <li>asdas</li>
-                                <li>asddas</li>
-                            </ul>
+                                <motion.button
+                                    className={`text-3xl text-white p-2 transition-colors ${isScrolled ? "" : "text-white"
+                                        } group-hover:text-[#f398d0]`}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={toggleDropdown}
+                                >
+                                    <div className="relative">
+                                        <FaBell />
+                                        {notifications.length >0 &&<span className="absolute text-sm top-3 bg-red-500 rounded-full px-1.5 min-w-[1.2rem] text-center">!</span>}
+                                    </div>
+                                </motion.button>
+
+                                {isNotiOpen && (
+                                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg overflow-hidden z-50">
+                                        <ul className="py-1">
+                                            {(notifications.length > 0) && notifications.map((notification) => (
+                                                <li key={notification.id} className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50" onClick={()=>
+                                                 {  handleMarkread(notification.id);
+                                                    window.open(notification.url,"_self")
+                                                    }}>
+                                                    <p className="font-medium text-gray-800">{notification.text || 'Notification'}</p>
+                                                    <p className="text-sm text-gray-600">
+                                                        <span>
+                                                    {notification.createdAt.slice(0,10) +" " +notification.createdAt.slice(11,16)}
+                                                    </span>
+                                                    </p>
+                                                </li>
+                                            ))}
+                                            {(notifications.length == 0) &&
+                                            <li className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50">
+                                                    <p className="font-medium text-gray-800">You don't have any notification</p>
+                                            </li> }
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
-                        </motion.button>
                     </motion.div>
                 ) : (
                     <div className="flex items-center space-x-4">
