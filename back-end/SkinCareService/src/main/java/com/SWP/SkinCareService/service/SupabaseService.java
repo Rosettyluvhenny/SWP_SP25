@@ -49,15 +49,24 @@ public class SupabaseService {
     }
 
     public boolean deleteImage(String fileName) throws IOException {
+        String urlReference = supabaseConfig.getUrl() + "/storage/v1/object/" + supabaseConfig.getBucket() + "/";
+        String deleteUrl = "";
+        if (fileName.contains(urlReference)) {
+            deleteUrl = fileName.replaceFirst(urlReference,"");
+        } else {
+            deleteUrl = fileName;
+        }
         Request request = new Request.Builder()
-                .url(supabaseConfig.getUrl() + "/storage/v1/object/" + supabaseConfig.getBucket() + "/" + fileName)
+                .url(supabaseConfig.getUrl() + "/storage/v1/object/" + supabaseConfig.getBucket() + "/" + deleteUrl)
                 .header("Authorization", "Bearer " + supabaseConfig.getKey())
                 .delete()
                 .build();
 
+
+
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new IOException(response.message());
+                throw new IOException(response.message()+" "+response.body().string());
             }
             return true;
         }
