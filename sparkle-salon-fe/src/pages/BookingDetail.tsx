@@ -3,11 +3,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Booking, getBookingById, getSessionByBookingId, getSessionById, getUrlPayment } from "../data/userData";
 import { FaCheck, FaTimes, FaCreditCard, FaMoneyBillWave, FaCalendarAlt, FaClipboardList, FaArrowLeft } from "react-icons/fa";
 import { motion } from "framer-motion";
+import BookingAction from "../components/BookingAction";
+import StaffSideBar from "../components/StaffSideBar";
+import { BookingInfo } from "../components/BookingInfo";
 
-export default function BookingDetail() {
+interface BookingDetailProps {
+    isStaff:boolean
+}
+export default function BookingDetail({isStaff}: BookingDetailProps) {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [booking, setBooking] = useState<Booking | null>(null);
+    const [booking, setBooking] = useState<any>();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [sessions, setSessions] = useState<[]>([]);
@@ -20,6 +26,7 @@ export default function BookingDetail() {
                     return;
                 }
                 const response = await getBookingById(id);
+                console.log(response);
                 if (response) {
                     setBooking(response);
                 } else {
@@ -74,19 +81,6 @@ export default function BookingDetail() {
                 return '';
         }
     };
-    async function handleCard(booking: any) {
-        if(booking.url){
-            alert("Đang chuyển hướng đến trang thanh toán...");
-            window.open(booking.url, "_self");
-        }
-        else{
-            const response = await getUrlPayment(booking.id);
-            if (response && response.url) {
-                alert("Đang chuyển hướng đến trang thanh toán...");
-                window.open(response.url, "_self");
-            } 
-        }
-    }
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -112,11 +106,11 @@ export default function BookingDetail() {
         );
     }
 
-    
     return (
         <>
         <div className="bg-gray-50 min-h-screen pb-12">
             {/* Hero section with payment status */}
+            {!isStaff &&
             <div className="relative w-full h-48 sm:h-64 flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
                 <div className="absolute inset-0 bg-black opacity-50"></div>
                     <div className="relative z-10 text-center">
@@ -126,76 +120,11 @@ export default function BookingDetail() {
                         </h1>
                     </div>
             </div>
-
+            }
             {/* Booking details content */}
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                    {/* Header with service name */}
-                    <div className="p-6 border-b border-gray-200 mt-16">
-                        <h2 className="text-2xl font-bold text-gray-800">{booking?.serviceName}</h2>
-                        <p className="text-sm text-gray-500">ID: {booking?.id}</p>
-                    </div>
-
-                    <div className="p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Service image */}
-                            <div className="mb-6 md:mb-0">
-                                <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
-                                    <img 
-                                        src={booking?.img} 
-                                        alt={booking?.serviceName} 
-                                        className="w-full h-64 object-cover rounded-lg" 
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Booking details */}
-                            <div className="flex flex-col justify-between">
-                                {/* Price */}
-                                <div className="mb-4 p-4 bg-purple-50 rounded-lg">
-                                    <p className="text-sm text-purple-700 font-medium">Giá dịch vụ</p>
-                                    <p className="text-2xl font-bold text-purple-900">{booking?.price.toLocaleString()} VND</p>
-                                </div>
-
-                                {/* Status badges */}
-                                <div className="mb-4 flex flex-wrap gap-3">
-                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking?.paymentStatus || "")}`}>
-                                        <FaCreditCard className="mr-1" /> {booking?.paymentStatus}
-                                    </span>
-                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking?.status || "")}`}>
-                                        <FaCalendarAlt className="mr-1" /> {booking?.status}
-                                    </span>
-                                </div>
-
-                                {/* Payment and sessions info */}
-                                <div className="mb-4 space-y-2">
-                                    <div className="flex items-center text-gray-700">
-                                        <FaMoneyBillWave className="mr-2 text-purple-600" />
-                                        <span className="font-medium">Phương thức thanh toán:</span>
-                                        <span className="ml-2">{booking?.paymentMethod}</span>
-                                    </div>
-                                    <div className="flex items-center text-gray-700">
-                                        <FaCalendarAlt className="mr-2 text-purple-600" />
-                                        <span className="font-medium">Số buổi còn lại:</span>
-                                        <span className="ml-2">{booking?.sessionRemain}</span>
-                                    </div>
-                                </div>
-
-                                {/* Notes */}
-                                {booking?.notes && (
-                                    <div className="mb-4">
-                                        <div className="flex items-start">
-                                            <FaClipboardList className="mr-2 text-purple-600 mt-1" />
-                                            <div>
-                                                <h3 className="font-medium text-gray-700">Ghi chú:</h3>
-                                                <p className="text-gray-600 mt-1">{booking.notes}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                <BookingInfo booking ={booking}/>
 
                     {/* Footer with back button */}
                     <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
@@ -214,23 +143,10 @@ export default function BookingDetail() {
                             </button>
                         )}
 
-                        {(booking?.sessionRemain>0 && booking?.status=="ON_GOING") && (
-                            <button 
-                                onClick={() => navigate(`/bookingSession?booking=${booking.id}`)} 
-                                className="px-4 py-2 border border-purple-600 text-purple-600 rounded-md hover:bg-purple-50 transition duration-300"
-                            >
-                                Đặt lịch
-                            </button>
-                        )}
-                         {(booking?.paymentMethod=="Thanh toán qua thẻ ngân hàng" && booking?.status=="PENDING") && (
-                            <button 
-                                onClick={() => handleCard(booking)} 
-                                className="px-4 py-2 border border-purple-600 text-purple-600 rounded-md hover:bg-purple-50 transition duration-300"
-                            >
-                                <FaMoneyBillWave/>
-                                Thanh toán
-                            </button>
-                        )}
+                        <BookingAction
+                            isStaff = {isStaff}
+                            booking = {booking}
+                         />
                     </div>
                 </div>
             </div>
@@ -259,7 +175,11 @@ export default function BookingDetail() {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ duration: 0.3 }}
-                                        onClick={() => { navigate(`/sessionDetail/${session.id}`) }}
+                                        onClick={() => { 
+                                            const link = isStaff?`/staff/sessionDetail/${session.id}` : `/sessionDetail/${session.id}`
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                            navigate(link) ;
+                                        }}
                                     >
                                         <td className="p-4 font-medium text-gray-700">
                                             {session.id}

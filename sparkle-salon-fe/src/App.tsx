@@ -34,6 +34,9 @@ import QuizManagement from "./pages/QuizManagement";
 import BlogManagement from "./pages/BlogManagement";
 import BlogDetail from "./pages/BlogDetail";
 import Staff from "./pages/Staff";
+import BookingByStaff from "./components/BookingByStaff";
+import Sidebar from "./components/SideBarDashboard";
+import StaffLayout from "./layouts/StaffLayout";
 
 
 function App() {
@@ -56,12 +59,12 @@ function App() {
           
           {/* User protected routes */}
           <Route element={<ProtectedRoute requiredRoles={['USER']} />}>
-            <Route path='/bookingDetail/:id' element={<MainLayout><BookingDetail /></MainLayout>} />
+            <Route path='/bookingDetail/:id' element={<MainLayout><BookingDetail isStaff = {false} /></MainLayout>} />
             <Route path="/booking" element={<MainLayout><Booking /></MainLayout>} />
             <Route path="/bookingSession" element={<MainLayout><BookingSession/></MainLayout>} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/schedule" element={<MainLayout><YourSession/></MainLayout>} />
-            <Route path="/sessionDetail/:id" element={<MainLayout><SessionDetail/></MainLayout>} />
+            <Route path="/sessionDetail/:id" element={<MainLayout><SessionDetail isStaff = {false}/></MainLayout>} />
             <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
             <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
             {/* <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} /> */}
@@ -72,10 +75,10 @@ function App() {
           <Route element={<ProtectedRoute requiredRoles={['ADMIN']} />}>
             <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
             <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
+          <Route path="/manager" element={<Manager />} />
 
           </Route>
           
-          <Route path="/manager" element={<Manager />} />
           {/* Admin protected routes */}
           <Route element={<ProtectedRoute requiredRoles={['ADMIN','THERAPIST']} />}>
             <Route path="/manager" element={<Manager />} />
@@ -93,6 +96,10 @@ function App() {
           {/* Fallback route */}
           <Route path="*" element={<MainLayout><Home /></MainLayout>} />
           <Route path='/staff' element= {<Staff/>}/>
+          <Route path='/staff/booking' element={<StaffLayout><BookingByStaff/></StaffLayout>}/>
+          <Route path='/staff/bookingDetail/:id' element={<StaffLayout><BookingDetail isStaff = {true}/></StaffLayout>}/>
+          <Route path='/staff/sessionDetail/:id' element={<StaffLayout><SessionDetail isStaff = {true}/></StaffLayout>}/>
+          
         </Routes>
           
         {/* </AuthWrapper> */}

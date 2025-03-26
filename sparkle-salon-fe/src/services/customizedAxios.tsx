@@ -30,7 +30,7 @@ instance.interceptors.response.use(function(response){
             localStorage.removeItem("user");
         }
     }else {
-        toast.error(error.response.message);
+        toast.error(error.response.data.message);
     }
     return Promise.reject(error);
 });
