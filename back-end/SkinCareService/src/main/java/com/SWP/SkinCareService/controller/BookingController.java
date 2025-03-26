@@ -15,12 +15,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -115,10 +117,14 @@ public class BookingController {
     }
 
     @Operation(summary = "Get all bookings for authenticated staff")
-    @GetMapping("/staff-bookings/{phone}")
+    @GetMapping("/staff-bookings")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<Page<BookingResponse>> getAllByStaff(@PathVariable(required = false) @Pattern(regexp = "^\\d{10}$", message = "PHONE_INVALID") String phone, Pageable pageable) {
-        return ResponseEntity.ok(bookingService.getAllByStaff(phone, pageable));
+    public ResponseEntity<Page<BookingResponse>> getAllByStaff(@RequestParam(required = false) @Pattern(regexp = "^\\d{10}$", message = "PHONE_INVALID") String phone,
+                                                               @RequestParam(required =false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                                               @RequestParam(required = false) String status,
+                                                               Pageable pageable) {
+        return ResponseEntity.ok(bookingService.getAllByStaff(phone,startDate, endDate, status , pageable));
     }
 
     @PutMapping("/cancel/{bookingId}")

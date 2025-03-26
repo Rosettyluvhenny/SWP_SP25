@@ -26,6 +26,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +65,9 @@ public class  BookingSessionService {
         // 2. Many session can't in the same day
         // 3. Total session (completed and waiting) can't more than the total session allow of service
         // 4. Time request if after now at least 30 minutes
+        if (booking.getSessionRemain() ==0){
+            throw new AppException(ErrorCode.BOOKING_IS_COMPLETED);
+        }
         if (!isAllowToCreate(request.getBookingId(), request.getSessionDateTime().toLocalDate()) || !allowTime.isBefore(request.getSessionDateTime())) {
             throw new AppException(ErrorCode.BOOKING_REJECTED);
         }
@@ -126,7 +130,37 @@ public class  BookingSessionService {
         return bookingSessionRepository.findAll(pageale).map(bookingSessionMapper::toBookingSessionResponse);
     }
     public BookingSessionResponse getBookingSessionById(int id) {
-        return bookingSessionMapper.toBookingSessionResponse(checkSession(id));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            if (canAccessSession(id, authentication.getName(), authority.getAuthority())) {
+                return bookingSessionMapper.toBookingSessionResponse(checkSession(id));
+            }
+        }
+
+        throw new AppException(ErrorCode.UNAUTHORIZED);
+    }
+
+    private boolean canAccessSession(int sessionId, String username, String role) {
+        Optional<BookingSession> sessionOpt = bookingSessionRepository.findById(sessionId);
+        if (sessionOpt.isEmpty()) return false;
+
+        BookingSession session = sessionOpt.get();
+        Booking booking = session.getBooking();
+
+        switch (role) {
+            case "ROLE_ADMIN":
+
+            case "ROLE_STAFF":
+                return true; // Staff can access all sessions
+            case "ROLE_THERAPIST":
+                return session.getTherapist() != null &&
+                        session.getTherapist().getUser().getUsername().equals(username);
+            case "ROLE_USER":
+                return booking.getUser().getUsername().equals(username);
+            default:
+                return false; // Default deny
+        }
     }
     @Transactional
     public BookingSessionResponse updateBookingSession(int id,
@@ -140,6 +174,10 @@ public class  BookingSessionService {
                 .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
 
         if(request.getRoomId()!=null) {
+            if(session.getRoom() != null){
+                int inUse = session.getRoom().getInUse()-1;
+                session.getRoom().setInUse(inUse);
+            }
             session.setRoom(getRoomById(request.getRoomId()));
             roomService.incrementInUse(request.getRoomId());
         } else {
@@ -164,6 +202,8 @@ public class  BookingSessionService {
                     .isRead(false)
                     .build();
             notificationService.create(notificationRequest);
+        }else {
+
         }
 
         bookingSessionMapper.updateBookingSession(session, request);
@@ -171,10 +211,14 @@ public class  BookingSessionService {
             session.setNote(request.getNote());
 
 
-        if(!imgBefore.isEmpty()) {
+        if(imgBefore !=null && !imgBefore.isEmpty()) {
+            if(session.getImgBefore()!=null)
+                supabaseService.deleteImage(session.getImgBefore());
             session.setImgBefore(supabaseService.uploadImage(imgBefore, "imgBefore_" + session.getId()));
         }
-        if(!imgAfter.isEmpty()) {
+        if(imgAfter !=null && !imgAfter.isEmpty()) {
+            if(session.getImgAfter()!=null)
+                supabaseService.deleteImage(session.getImgAfter());
             session.setImgAfter(supabaseService.uploadImage(imgAfter, "imgAfter_" + session.getId()));
         }
         bookingSessionRepository.save(session);
@@ -245,6 +289,8 @@ public class  BookingSessionService {
                             .rated(false)
                             .build();
                     feedbackService.createFeedback(feedbackRequest);
+                }else {
+                    throw new AppException(ErrorCode.NOT_FINISH);
                 }
             } else if (sessionStatus == BookingSessionStatus.IS_CANCELED) {
                 if (session.getStatus() == BookingSessionStatus.ON_GOING) {

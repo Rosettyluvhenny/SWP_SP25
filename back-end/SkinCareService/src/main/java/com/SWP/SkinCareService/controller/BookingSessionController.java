@@ -53,7 +53,6 @@ public class BookingSessionController {
                 ApiResponse.<Page<BookingSessionResponse>>builder().result(result).build()
         );
     }
-    @PreAuthorize("@customSecurityService.canAccessSession(#id, authentication.principal.id, authentication.authorities.iterator().next().authority)")
     @GetMapping("/{sessionId}")
     ResponseEntity<ApiResponse<BookingSessionResponse>> getBookingSession(@PathVariable int sessionId) {
         var result = bookingSessionService.getBookingSessionById(sessionId);
@@ -65,9 +64,9 @@ public class BookingSessionController {
     @PutMapping("/{sessionId}")
     @PreAuthorize("hasAnyRole('STAFF','THERAPIST')")
     ResponseEntity<ApiResponse<BookingSessionResponse>> updateBookingSession(@PathVariable int sessionId,
-                                                                             @RequestPart("data") BookingSessionUpdateRequest bookingSessionRequest,
-                                                                             @RequestPart("imgBefore")MultipartFile imgBefore,
-                                                                             @RequestPart("imgAfter") MultipartFile imgAfter) throws IOException {
+                                                                             @RequestPart(value = "data",required = false) BookingSessionUpdateRequest bookingSessionRequest,
+                                                                             @RequestPart(value = "imgBefore",required = false)MultipartFile imgBefore,
+                                                                             @RequestPart(value = "imgAfter",required = false) MultipartFile imgAfter) throws IOException {
         var result = bookingSessionService.updateBookingSession(sessionId, bookingSessionRequest, imgBefore, imgAfter);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingSessionResponse>builder().result(result).build()
@@ -143,9 +142,9 @@ public class BookingSessionController {
     @GetMapping("/therapist")
     @PreAuthorize("hasRole('THERAPIST')")
     public ApiResponse<List<BookingSessionResponse>> getByTherapist(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startdate, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ApiResponse.<List<BookingSessionResponse>>builder()
-                .result(bookingSessionService.getTherapistSchedule(startdate,endDate))
+                .result(bookingSessionService.getTherapistSchedule(startDate,endDate))
                 .build();
     }
 }

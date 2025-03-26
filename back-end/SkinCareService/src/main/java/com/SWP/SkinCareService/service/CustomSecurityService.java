@@ -10,6 +10,7 @@ import com.SWP.SkinCareService.repository.TherapistRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,6 +18,7 @@ import java.util.Optional;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class CustomSecurityService {
 
     BookingSessionRepository sessionRepository;
@@ -38,6 +40,8 @@ public class CustomSecurityService {
             return session.getTherapist() != null && session.getTherapist().getUser().getUsername().equals(username);
         }
         if ("ROLE_USER".equals(role)) {
+            log.info("booking Username" + booking.getUser().getUsername());
+            log.info("account username" + username);
             return booking.getUser().getUsername().equals(username);
         }
 

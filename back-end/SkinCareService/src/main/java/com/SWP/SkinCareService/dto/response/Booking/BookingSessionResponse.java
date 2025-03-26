@@ -18,6 +18,7 @@ public class BookingSessionResponse {
     LocalDateTime sessionDateTime;
     //
     String serviceName;
+    int serviceId;
     String status;
     String note;
     String imgBefore;
@@ -40,4 +41,5 @@ public class BookingSessionResponse {
 
     // img
     String img;
+
 }

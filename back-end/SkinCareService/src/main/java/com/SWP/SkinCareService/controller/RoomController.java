@@ -9,10 +9,14 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/rooms")
@@ -108,5 +112,13 @@ public class RoomController {
         return ApiResponse.<RoomResponse>builder()
                 .result(roomService.removeService(roomId, serviceId))
                 .build();
+    }
+    @GetMapping("/byService/{serviceId}")
+    public ResponseEntity<ApiResponse<List<RoomResponse>>> getByService(@PathVariable int serviceId) {
+        return ResponseEntity.ok(
+                ApiResponse.<List<RoomResponse>>builder()
+                        .result(roomService.getRoomAvailableForServiceId(serviceId))
+                        .build()
+        );
     }
 }

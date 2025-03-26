@@ -35,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 
@@ -341,8 +342,11 @@ public class BookingService {
             }
         }
 
-
-        if(user.getRoles().contains("ADMIN")|| user.getId().equals(booking.getUser().getId()))
+        Set<String> roleNames = user.getRoles().stream()
+                .map(Role::getName)  // Assuming Role has a getName() method
+                .collect(Collectors.toSet());
+        log.info("check"+user.getRoles());
+        if(roleNames.contains("ADMIN")|| roleNames.contains("STAFF") || user.getId().equals(booking.getUser().getId()))
             return bookingMapper.toBookingResponse(
                     bookingRepository.findById(id).orElseThrow(
                             () -> new AppException(ErrorCode.BOOKING_NOT_EXISTED)));
@@ -350,18 +354,49 @@ public class BookingService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
     }
 
-    public Page<BookingResponse> getAllByStaff(String phone, Pageable pageable) {
-        if(phone ==null)
-            return bookingRepository.findAll(pageable).map(bookingMapper::toBookingResponse);
-        else{
-            User user = userRepository.findByPhone(phone).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
-            Specification<Booking> spec = (root, query, cb) -> {
-                List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
-                predicates.add(cb.equal(root.get("userId"), user.getId()));
-                return cb.and(predicates.toArray(new Predicate[0]));
-            };
-            return bookingRepository.findAll(spec, pageable).map(bookingMapper::toBookingResponse);
+    public Page<BookingResponse> getAllByStaff(String phone, LocalDate startDate, LocalDate endDate,String status, Pageable pageable) {
+        User user;
+        if(phone!= null)
+             user =userRepository.findByPhone(phone)
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        else {
+            user = null;
         }
+
+        if(phone!=null && user == null)
+            return null;
+        Specification<Booking> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+                // Always add user ID filter
+            if(user !=null)
+                predicates.add(cb.equal(root.get("user").get("id"), user.getId()));
+
+                // Handle date filtering
+            if (startDate != null && endDate != null) {
+                    // Both start and end dates are provided
+                    predicates.add(cb.between(root.get("createAt"), startDate, endDate));
+            } else if (startDate != null) {
+                    // Only start date is provided
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("createAt"), startDate));
+            } else if (endDate != null) {
+                    // Only end date is provided
+                predicates.add(cb.lessThanOrEqualTo(root.get("createAt"), endDate));
+            }
+
+            if (status != null) {
+                try {
+                    BookingStatus bookingStatus = BookingStatus.valueOf(status.toUpperCase());
+                    predicates.add(cb.equal(root.get("status"), bookingStatus));
+                } catch (IllegalArgumentException e) {
+                    throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
+                }
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+            };
+
+            return bookingRepository.findAll(spec, pageable).map(bookingMapper::toBookingResponse);
+
     }
 
 

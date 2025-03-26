@@ -202,4 +202,13 @@ public class RoomService {
         }
         return availableRooms;
     }
+    public List<RoomResponse> getRoomAvailableForServiceId(int serviceId) {
+        List<Room> rooms = roomRepository.findAllByServicesId(serviceId);
+        List<Room> availableRooms = rooms.stream()
+                .filter(room -> room.getCapacity() > room.getInUse()) // Filter available rooms
+                .sorted(Comparator.comparingInt(Room::getInUse)) // Sort by inUse ascending
+                .toList();
+
+        return availableRooms.stream().map(roomMapper::toResponse).toList();
+    }
 }

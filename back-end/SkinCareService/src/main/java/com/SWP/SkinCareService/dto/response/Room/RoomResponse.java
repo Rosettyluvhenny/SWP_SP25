@@ -19,6 +19,4 @@ public class RoomResponse {
     int capacity;
     int inUse;
     List<ServiceSummaryResponse>  services;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
 } 

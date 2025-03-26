@@ -90,7 +90,9 @@ public enum ErrorCode {
     VNPAY_MISSING_PARAMS(2007, "Thiếu thông tin thanh toán", HttpStatus.BAD_REQUEST),
     PHONE_EXISTED(2008,"Phone number has been used" , HttpStatus.BAD_REQUEST ),
     BLOGPOST_NOT_APPROVED(2009, "Blog post is not approved yet" , HttpStatus.BAD_REQUEST ),
-    IS_DEFAULT_BLOG(2010, "The Blog post is default Blog" , HttpStatus.BAD_REQUEST );
+    IS_DEFAULT_BLOG(2010, "The Blog post is default Blog" , HttpStatus.BAD_REQUEST ),
+    BOOKING_IS_COMPLETED(2011,"This service is completed, select other service" , HttpStatus.BAD_REQUEST),
+    NOT_FINISH(2012,"The session is update completely" , HttpStatus.BAD_REQUEST );
     ;
 
     int code;
