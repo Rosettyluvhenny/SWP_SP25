@@ -31,7 +31,7 @@ public class TherapistController {
     TherapistMapper therapistMapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<TherapistResponse> create(
             @Valid @RequestPart("request") TherapistRequest request,
             @RequestPart("img") MultipartFile img) throws IOException {
@@ -59,7 +59,7 @@ public class TherapistController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<TherapistResponse> update(
             @PathVariable String id,
             @Valid @RequestPart("request") TherapistUpdateRequest request,
@@ -70,7 +70,7 @@ public class TherapistController {
     }
 
     @DeleteMapping("/{id}/disable")
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> disable(@PathVariable String id) {
         therapistService.disable(id);
         return ApiResponse.<Void>builder()
@@ -79,7 +79,7 @@ public class TherapistController {
     }
 
     @DeleteMapping("/{id}")
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> delete(@PathVariable String id) {
         therapistService.delete(id);
         return ApiResponse.<Void>builder()
@@ -88,7 +88,7 @@ public class TherapistController {
     }
 
     @GetMapping("/by-service/{serviceId}")
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
     public ApiResponse<Page<TherapistSummaryResponse>> getAllByServiceId(
             @PathVariable int serviceId,
             Pageable pageable) {
@@ -98,6 +98,7 @@ public class TherapistController {
     }
 
     @PostMapping("/schedule")
+    @PreAuthorize("hasAnyRole('ADMIN','THERAPIST')")
     ApiResponse<List<TherapistResponse>> getSchedule(@RequestBody GetScheduleRequest request){
         var result = therapistService.getTherapistAvailableInTime(request);
         return ApiResponse.<List<TherapistResponse>>builder().result(result).build();

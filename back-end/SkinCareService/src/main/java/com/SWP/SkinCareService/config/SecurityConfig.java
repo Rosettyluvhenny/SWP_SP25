@@ -33,7 +33,7 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS= {"/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-ui.html","/supabase/**","/serviceInfo/**", "/payment/vnpay/**"};
-    private final String[] PUBLIC_GET_ENDPOINTS={"/answer","/therapist/**","/category/**","/services/**","/blogpost/**",
+    private final String[] PUBLIC_GET_ENDPOINTS={"/answer","/therapists/**","/category/**","/services/**","/blogpost/**",
             "/feedback/**","/question/**","/quiz/**", "/quizResult/**", "/services/**","/payment/**"};
     @Autowired
     private CustomJwtDecoder jwtDecoder;
@@ -48,10 +48,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
 //                        request.anyRequest().permitAll())
-                        request.requestMatchers(HttpMethod.POST,PUBLIC_POST_ENDPOINTS).permitAll()
-                                .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
-                                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        request
                                 .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                                .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
+                                .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                                 .anyRequest().authenticated())
 
 
