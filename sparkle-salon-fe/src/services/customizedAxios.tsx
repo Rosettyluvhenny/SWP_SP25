@@ -6,10 +6,36 @@ const instance = axios.create({
     baseURL: 'http://localhost:8081/swp',
 });
 
+<<<<<<< HEAD
 instance.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
     if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
+=======
+instance.interceptors.response.use(function(response){
+    // console.log(response);
+    return response.data? response.data : {statusCode: response.status};
+}, async (error) => {
+    // const { setIsLoginOpen } = useContext(UserContext);
+    console.log("log out",error);
+    if (error.response&& error.status == 401) {
+        try {
+            const refreshResponse = await refresh();
+            if (refreshResponse.token) {
+                localStorage.setItem("token", refreshResponse.token);
+                // Retry the failed request with new token
+                error.config.headers["Authorization"] = `Bearer ${refreshResponse.token}`;
+                return instance(error.config);
+            }
+        } catch (refreshError) {
+            console.error("Refresh token failed:", refreshError);
+            toast.error(error.response.message);
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+        }
+    }else {
+        toast.error(error.response.data.message);
+>>>>>>> 10b7862e7cf8183a439acd31351f004efc9d830b
     }
     return config;
 }, (error) => {

@@ -19,8 +19,8 @@ export default function YourSession() {
     const [sort, setsort] = useState("");
     const [sessions, setSessions] = useState<{}>([]);
     const navigate = useNavigate();
-    // const [loading, setLoading] = useState(false);
-    const {loading, setIsLoading} = useContext(UserContext)
+    const [loading, setLoading] = useState(false);
+    // const {loading, setIsLoading} = useContext(UserContext)
     useEffect(() => {
 
         const fetchSession = async () => {
@@ -40,17 +40,7 @@ export default function YourSession() {
     const handleRebook = (id: number) => {
         navigate(`/bookingSession?booking=${id}`);
     };
-    const handleCancelSession = async (sessionId: number) => {
-        try {
-            const response = await cancelMySession(sessionId);
-            toast.success("Hủy lịch thành công")
-            setIsLoading(!loading);
-
-        } catch (error) {
-            console.log(error);
-            toast.error("Hủy lịch không thành công");
-        }
-    };
+    
     const getStatusColor = (status: string) => {
         switch (status.toUpperCase()) {
             case 'WAITING':
@@ -92,6 +82,7 @@ export default function YourSession() {
         { value: "sessionDateTime,asc", label: "Oldest" }
 
     ]
+    
     return (
         <div className="bg-white min-h-screen">
             <div className="relative w-full h-[170px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
@@ -141,7 +132,6 @@ export default function YourSession() {
                                 <th className="p-3 text-left">Ngày hẹn</th>
                                 <th className="p-3 text-left">Thời gian</th>
                                 <th className="p-3 text-left">Trạng Thái</th>
-                                <th className="p-3 text-left">Hành Động</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white">

@@ -1,15 +1,18 @@
-import { useContext, useState } from "react";
-import { FiMenu, FiUsers, FiShoppingCart, FiBarChart2, FiCalendar, FiLogOut } from "react-icons/fi";
-import { MdMeetingRoom, MdOutlinePayments, MdQuiz, MdNewspaper } from "react-icons/md";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from 'react';
+import { FiMenu, FiUsers, FiShoppingCart, FiCalendar, FiLogOut } from "react-icons/fi";
+import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 
-export default function StaffSideBar(){
-    const [isOpen, setIsOpen] = useState(true);
-    const {logout} = useContext(UserContext)
+// Correct component definition and export
+const StaffSideBar: React.FC<{ 
+    isOpen: boolean, 
+    setIsOpen: (check: boolean) => void 
+}> = ({ isOpen, setIsOpen}) => {
+    const {logout} = useContext(UserContext);
+    const navigate = useNavigate();
     return (
         <aside
-            className={`bg-gray-900 text-white p-5 flex flex-col space-y-4 shadow-lg transition-all duration-300 h-100% ${
+            className={`bg-gray-900 text-white p-5 space-y-4 shadow-lg transition-all duration-300 fixed top-0 bottom-0 z-30 ${
                 isOpen ? "w-64" : "w-20"
             }`}
         >
@@ -29,53 +32,61 @@ export default function StaffSideBar(){
             </h2>
             <nav>
                 <ul className="space-y-3">
-                    {/* User Management */}
-                    <Link
-                        to="/staff/Booking"
-                        className={`${isOpen ? "block" : "hidden"}`}
-                    >
-                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
-                        <FiShoppingCart />
-                            
-                            Quản Lý Đặt Lịch
-                        </li>
-                    </Link>
+                    {/* Booking Management */}
+                    <li>
+                        <Link
+                            to="/staff/Booking"
+                            className={`flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg ${
+                                isOpen ? "block" : "flex justify-center"
+                            }`}
+                        >
+                            <FiShoppingCart />
+                            {isOpen && "Quản Lý Đặt Lịch"}
+                        </Link>
+                    </li>
 
-                    {/* Service Management */}
-                    <Link
-                        to="/staff/Session"
-                        className={`${isOpen ? "block" : "hidden"}`}
-                    >
-                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                    {/* Session Management */}
+                    <li>
+                        <Link
+                            to="/staff/Session"
+                            className={`flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg ${
+                                isOpen ? "block" : "flex justify-center"
+                            }`}
+                        >
                             <FiCalendar/>
-                            Quản Lý Phiên Hẹn
-                        </li>
-                    </Link>
+                            {isOpen && "Quản Lý Phiên Hẹn"}
+                        </Link>
+                    </li>
                     
+                    {/* Account Management */}
+                    <li>
+                        <Link
+                            to="/manager/room"
+                            className={`flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg ${
+                                isOpen ? "block" : "flex justify-center"
+                            }`}
+                        >
+                            <FiUsers />
+                            {isOpen && "Tài Khoản"}
+                        </Link>
+                    </li>
 
-                    {/* Room Management */}
-                    <Link
-                        to="/manager/room"
-                        className={`${isOpen ? "block" : "hidden"}`}
-                    >
-                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
-                        <FiUsers />
-                            Tài Khoản
-                        </li>
-                    </Link>
-
-                    <Link
-                        to="/manager/room"
-                        className={`${isOpen ? "block" : "hidden"}`}
-                    >
-                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg" onClick={()=>logout()}>
-                        <FiLogOut />
-                            Đăng xuất
-                        </li>
-                    </Link>
-
+                    {/* Logout */}
+                    <li>
+                        <button
+                            onClick={()=>{console.log("logout");logout(); navigate("/")}}
+                            className={`w-full flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg text-left ${
+                                isOpen ? "block" : "flex justify-center"
+                            }`}
+                        >
+                            <FiLogOut />
+                            {isOpen && "Đăng xuất"}
+                        </button>
+                    </li>
                 </ul>
             </nav>
         </aside>
-    )
+    );
 }
+
+export default StaffSideBar;
