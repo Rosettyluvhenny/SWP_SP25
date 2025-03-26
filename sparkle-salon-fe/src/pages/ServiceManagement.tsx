@@ -11,7 +11,11 @@ import {
 import axios from "../services/customizedAxios";
 // import QuillTest from "../components/QuillTest";
 import ServiceInfoForm from "../components/ServiceForm";
-import { Therapist, getAllTherapists } from "../data/therapistData";
+import {
+    Therapist,
+    getAllTherapists,
+    getTherapists,
+} from "../data/therapistData";
 
 type Service = {
     id: number;
@@ -50,6 +54,12 @@ export default function ServiceManagement() {
         null
     );
     const [selectedTherapistIds, setSelectedTherapistIds] = useState<string[]>(
+        []
+    );
+    const [currentServiceTherapists, setCurrentServiceTherapists] = useState<
+        Therapist[]
+    >([]);
+    const [availableTherapists, setAvailableTherapists] = useState<Therapist[]>(
         []
     );
 
@@ -256,9 +266,35 @@ export default function ServiceManagement() {
         }
     };
 
-    const openAssignModal = (serviceId: number) => {
-        setSelectedServiceId(serviceId.toString());
+    const openAssignModal = async (serviceId: number) => {
+        const serviceIdString = serviceId.toString();
+        setSelectedServiceId(serviceIdString);
         setSelectedTherapistIds([]);
+
+        // Fetch current therapists for this service
+        try {
+            const currentTherapists = await getTherapists(serviceIdString);
+            setCurrentServiceTherapists(currentTherapists);
+
+            // Fetch all therapists
+            const allTherapists = await getAllTherapists();
+
+            // Filter out therapists already assigned to this service
+            const filteredTherapists = allTherapists.filter(
+                (therapist: Therapist) =>
+                    !currentTherapists.some(
+                        (currentTherapist: Therapist) =>
+                            currentTherapist.id === therapist.id
+                    )
+            );
+
+            setAvailableTherapists(filteredTherapists);
+        } catch (error) {
+            console.error("Error fetching therapists:", error);
+            setCurrentServiceTherapists([]);
+            setAvailableTherapists([]);
+        }
+
         setIsAssignModalOpen(true);
     };
 
@@ -918,49 +954,86 @@ export default function ServiceManagement() {
                     onSubmit={handleAssignTherapists}
                     title="Chỉ định Chuyên Viên"
                 >
-                    <div className="max-h-96 overflow-y-auto">
+                    {/* Current Therapists Section */}
+                    <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                            Chuyên Viên Hiện Tại
+                        </h3>
+                        {currentServiceTherapists.length > 0 ? (
+                            <div className="space-y-2 mb-6 max-h-32 overflow-y-auto">
+                                {currentServiceTherapists.map(
+                                    (therapist: Therapist) => (
+                                        <div
+                                            key={therapist.id}
+                                            className="bg-gray-100 p-2 rounded flex justify-between items-center"
+                                        >
+                                            <div>
+                                                <span className="font-medium">
+                                                    {therapist.fullName}
+                                                </span>
+                                                <span className="text-sm text-gray-500 ml-2">
+                                                    {therapist.experienceYears}{" "}
+                                                    năm kinh nghiệm
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )
+                                )}
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 mb-6">
+                                Chưa có chuyên viên được chỉ định cho dịch vụ
+                                này
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="border-t pt-4">
                         <p className="text-gray-700 mb-4">
                             Chọn chuyên viên để chỉ định cho dịch vụ này:
                         </p>
 
-                        {therapists.length > 0 ? (
-                            <div className="space-y-2">
-                                {therapists.map((therapist) => (
-                                    <div
-                                        key={therapist.id}
-                                        className="flex items-center p-2 border rounded hover:bg-gray-50"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            id={`therapist-${therapist.id}`}
-                                            checked={selectedTherapistIds.includes(
-                                                therapist.id
-                                            )}
-                                            onChange={() =>
-                                                handleTherapistSelection(
-                                                    therapist.id
-                                                )
-                                            }
-                                            className="mr-3 h-5 w-5 text-pink-500 focus:ring-pink-400"
-                                        />
-                                        <label
-                                            htmlFor={`therapist-${therapist.id}`}
-                                            className="flex-1 cursor-pointer"
+                        {availableTherapists.length > 0 ? (
+                            <div className="space-y-2 max-h-64 overflow-y-auto">
+                                {availableTherapists.map(
+                                    (therapist: Therapist) => (
+                                        <div
+                                            key={therapist.id}
+                                            className="flex items-center p-2 border rounded hover:bg-gray-50"
                                         >
-                                            <div className="font-medium">
-                                                {therapist.fullName}
-                                            </div>
-                                            <div className="text-sm text-gray-500">
-                                                {therapist.experienceYears} năm
-                                                kinh nghiệm • {therapist.phone}
-                                            </div>
-                                        </label>
-                                    </div>
-                                ))}
+                                            <input
+                                                type="checkbox"
+                                                id={`therapist-${therapist.id}`}
+                                                checked={selectedTherapistIds.includes(
+                                                    therapist.id
+                                                )}
+                                                onChange={() =>
+                                                    handleTherapistSelection(
+                                                        therapist.id
+                                                    )
+                                                }
+                                                className="mr-3 h-5 w-5 text-pink-500 focus:ring-pink-400"
+                                            />
+                                            <label
+                                                htmlFor={`therapist-${therapist.id}`}
+                                                className="flex-1 cursor-pointer"
+                                            >
+                                                <div className="font-medium">
+                                                    {therapist.fullName}
+                                                </div>
+                                                <div className="text-sm text-gray-500">
+                                                    {therapist.experienceYears}{" "}
+                                                    năm kinh nghiệm •{" "}
+                                                    {therapist.phone}
+                                                </div>
+                                            </label>
+                                        </div>
+                                    )
+                                )}
                             </div>
                         ) : (
                             <p className="text-gray-500 text-center">
-                                Không có chuyên viên nào
+                                Không có chuyên viên để chỉ định
                             </p>
                         )}
                     </div>

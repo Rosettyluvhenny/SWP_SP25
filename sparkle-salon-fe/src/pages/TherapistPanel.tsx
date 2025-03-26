@@ -48,18 +48,6 @@ export default function Therapist() {
 
     const renderTabContent = () => {
         switch (activeTab) {
-            case "account":
-                return (
-                    <div className="bg-pink-100 p-6 rounded-lg shadow-lg">
-                        <img src={therapist?.img} alt={therapist?.fullName} className="w-32 h-32 rounded-full mb-4" />
-                        <h2 className="text-xl font-semibold">{therapist?.fullName}</h2>
-                        <p className="text-gray-700">{therapist?.bio}</p>
-                        <p className="mt-2"><strong>Email:</strong> {therapist?.email}</p>
-                        <p><strong>Phone:</strong> {therapist?.phone}</p>
-                        <p><strong>DOB:</strong> {therapist?.dob}</p>
-                        <p><strong>Experience:</strong> {therapist?.experienceYears} years</p>
-                    </div>
-                );
             case "schedule":
                 return <div>Schedule content goes here</div>;
             case "notes":
@@ -79,7 +67,6 @@ export default function Therapist() {
             {/* Main Content */}
             <main className="flex-1 p-6 overflow-auto">
                 <h1 className="text-2xl font-bold text-gray-800 mb-4">
-                    {activeTab === "account" && "Therapist Information"}
                     {activeTab === "schedule" && "Work Schedule"}
                     {activeTab === "notes" && "Therapy Session Notes"}
                     {activeTab === "blog" && "Write Blog"}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiUsers, FiMenu } from "react-icons/fi";
+import { FiMenu } from "react-icons/fi";
 import { AiOutlineSchedule } from "react-icons/ai";
 import { LuNotebookPen } from "react-icons/lu";
 import { FaPencil } from "react-icons/fa6";
@@ -13,7 +13,6 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
     const [isOpen, setIsOpen] = useState(true);
 
     const tabs = [
-        { id: "account", label: "Tài Khoản", icon: <FiUsers /> },
         { id: "schedule", label: "Lịch Làm Việc", icon: <AiOutlineSchedule /> },
         { id: "notes", label: "Ghi Chú Phiên Trị Liệu", icon: <LuNotebookPen /> },
         { id: "blog", label: "Viết Blog", icon: <FaPencil /> }

@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
-import { getAllUser, createUser, disableUser, deleteUser } from "../data/authData";
+import {
+    getAllUser,
+    createUser,
+    disableUser,
+    deleteUser,
+} from "../data/authData";
 
 type Role = {
     name: string;
@@ -69,9 +74,14 @@ export default function UserManagement() {
         if (!editingUser) return;
 
         try {
-            if (editingUser.userId && users.some((u) => u.userId === editingUser.userId)) {
+            if (
+                editingUser.userId &&
+                users.some((u) => u.userId === editingUser.userId)
+            ) {
                 setUsers((prev) =>
-                    prev.map((u) => (u.userId === editingUser.userId ? editingUser : u))
+                    prev.map((u) =>
+                        u.userId === editingUser.userId ? editingUser : u
+                    )
                 );
             } else {
                 const success = await createUser({
@@ -96,22 +106,23 @@ export default function UserManagement() {
         }
     };
 
-    const handleDisable = async (userId: string | number) => {
-        if (userId === undefined || userId === null) {
+    const handleDisable = async (userId: string | number | undefined) => {
+        if (!userId || userId === "") { // Added extra check for empty string
             console.error("Invalid user ID:", userId);
+            alert("Lỗi: Không thể vô hiệu hóa người dùng do thiếu ID!");
             return;
         }
 
         const confirmDisable = window.confirm(
             "Bạn có chắc chắn muốn vô hiệu hóa người dùng này?"
         );
-        
+
         if (confirmDisable) {
             try {
                 const success = await disableUser(userId.toString());
 
                 if (success) {
-                    await fetchUsers(); 
+                    await fetchUsers();
                     alert("Vô hiệu hóa người dùng thành công!");
                 } else {
                     alert("Không thể vô hiệu hóa người dùng!");
@@ -124,23 +135,25 @@ export default function UserManagement() {
     };
 
     const handleDelete = async (userId: string | number) => {
-        const user = users.find(u => u.userId === userId);
-        const isDisabled = user?.roles?.some(role => role.name === "DISABLED");
-        
+        const user = users.find((u) => u.userId === userId);
+        const isDisabled = user?.roles?.some(
+            (role) => role.name === "DISABLED"
+        );
+
         if (!isDisabled) {
             alert("Bạn phải vô hiệu hóa người dùng trước khi xóa!");
             return;
         }
-        
+
         if (userId === undefined || userId === null) {
             console.error("Invalid user ID:", userId);
             return;
         }
-        
+
         const confirmDelete = window.confirm(
             "Bạn có chắc chắn muốn xóa người dùng này? Hành động này không thể hoàn tác."
         );
-        
+
         if (confirmDelete) {
             try {
                 const success = await deleteUser(userId.toString());
@@ -161,11 +174,13 @@ export default function UserManagement() {
     };
 
     const isEditingExistingUser = () => {
-        return editingUser ? users.some((u) => u.userId === editingUser.userId) : false;
+        return editingUser
+            ? users.some((u) => u.userId === editingUser.userId)
+            : false;
     };
 
     const isUserDisabled = (user: User) => {
-        return user.roles?.some(role => role.name === "DISABLED");
+        return user.roles?.some((role) => role.name === "DISABLED");
     };
 
     const filteredUsers = users.filter(
@@ -213,7 +228,7 @@ export default function UserManagement() {
                             <p>Đang tải dữ liệu...</p>
                         </div>
                     ) : (
-                        <div className="overflow-y-auto max-h-[500px] scrollbar-thin scrollbar-thumb-pink-300 scrollbar-track-pink-100">
+                        <div className="overflow-y-auto max-h-[400px] scrollbar-thin scrollbar-thumb-pink-300 scrollbar-track-pink-100">
                             <table className="w-full border-collapse rounded-lg overflow-hidden">
                                 <thead className="sticky top-0 bg-white shadow-md">
                                     <tr className="text-black">
@@ -239,8 +254,8 @@ export default function UserManagement() {
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white">
-                                    {filteredUsers.map((user) => (
-                                        <tr key={user.userId} className="border-t">
+                                    {filteredUsers.map((user, index) => (
+                                        <tr key={index}>
                                             <td className="p-3">
                                                 {user.username}
                                             </td>
@@ -255,12 +270,18 @@ export default function UserManagement() {
                                             </td>
                                             <td className="p-3">{user.dob}</td>
                                             <td className="p-3">
-                                                {user.roles?.map(role => role.name).join(", ") || "N/A"}
+                                                {user.roles
+                                                    ?.map((role) => role.name)
+                                                    .join(", ") || "N/A"}
                                             </td>
                                             <td className="p-3 flex space-x-2">
                                                 {!isUserDisabled(user) ? (
                                                     <button
-                                                        onClick={() => handleDisable(user.userId)}
+                                                        onClick={() =>
+                                                            handleDisable(
+                                                                user.userId
+                                                            )
+                                                        }
                                                         className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                                                     >
                                                         Vô hiệu hóa
@@ -268,7 +289,11 @@ export default function UserManagement() {
                                                 ) : (
                                                     <div className="flex space-x-2">
                                                         <button
-                                                            onClick={() => handleDelete(user.userId)}
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    user.userId
+                                                                )
+                                                            }
                                                             className="bg-red-700 text-white px-3 py-1 rounded hover:bg-red-800"
                                                         >
                                                             Xóa

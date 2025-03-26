@@ -115,6 +115,8 @@ export default function Header() {
                 setLoginData({ username: "", password: "" });
                 if (role == "ADMIN")
                     navigate('/manager');
+                if (role == "THERAPIST")
+                    navigate('/therapist');
                 setIsLoginOpen(false);
             } catch (error) {
                 console.error("Failed to fetch user info:", error);

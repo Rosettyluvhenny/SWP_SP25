@@ -6,7 +6,6 @@ import Service from "./pages/Service";
 import Blog from "./pages/Blog";
 import ForgotPassword from "./pages/ForgotPassword";
 import Manager from "./pages/Manager";
-import ScrollToTop from "./components/ScrollToTop";
 import UserManagement from "./pages/UserManagement";
 import ServiceManagement from "./pages/ServiceManagement";
 import Report from "./pages/Report";
@@ -14,8 +13,6 @@ import ServiceDetail from "./pages/ServiceDetail";
 import Payment from "./pages/Payment";
 import RoomManagement from "./pages/RoomManagement";
 import PaymentManagement from "./pages/PaymentManagement";
-import { UserContext} from "./context/UserContext";
-import { useContext } from "react";
 import Profile from "./pages/Profile";
 import TherapistPanel from "./pages/TherapistPanel";
 import YourBooking from "./pages/YourBooking";
@@ -35,73 +32,57 @@ import BlogManagement from "./pages/BlogManagement";
 import BlogDetail from "./pages/BlogDetail";
 import Staff from "./pages/Staff";
 
-
 function App() {
-  const {user} = useContext(UserContext);
   return (
-    <>
       <Routes>
-          {/* Public routes */}
-          <Route path="/about" element={<MainLayout><About /></MainLayout>} />
-          <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
-          <Route path="/service/:id" element={<MainLayout><ServiceDetail /></MainLayout>} />
-          <Route path="/blog" element={<MainLayout><Blog /></MainLayout>} />
-          <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
-          <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
-          <Route path="/blog/:blogId" element={<MainLayout><BlogDetail /></MainLayout>} />
-          <Route path="/skintest" element={<MainLayout><SkinTest /></MainLayout>} />
-          <Route path="/therapist" element={<TherapistPanel />} />
+        {/* Public routes */}
+        <Route path="/about" element={<MainLayout><About /></MainLayout>} />
+        <Route path="/service" element={<MainLayout><Service /></MainLayout>} />
+        <Route path="/service/:id" element={<MainLayout><ServiceDetail /></MainLayout>} />
+        <Route path="/blog" element={<MainLayout><Blog /></MainLayout>} />
+        <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
+        <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
+        <Route path="/blog/:blogId" element={<MainLayout><BlogDetail /></MainLayout>} />
+        <Route path="/skintest" element={<MainLayout><SkinTest /></MainLayout>} />
+        <Route path="/therapist" element={<TherapistPanel />} />
 
+        {/* User protected routes */}
+        <Route element={<ProtectedRoute requiredRoles={['USER']} />}>
+          <Route path='/bookingDetail/:id' element={<MainLayout><BookingDetail /></MainLayout>} />
+          <Route path="/booking" element={<MainLayout><Booking /></MainLayout>} />
+          <Route path="/bookingSession" element={<MainLayout><BookingSession/></MainLayout>} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/schedule" element={<MainLayout><YourSession/></MainLayout>} />
+          <Route path="/sessionDetail/:id" element={<MainLayout><SessionDetail/></MainLayout>} />
+          <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
+          <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
+          <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
+        </Route>
 
-          
-          {/* User protected routes */}
-          <Route element={<ProtectedRoute requiredRoles={['USER']} />}>
-            <Route path='/bookingDetail/:id' element={<MainLayout><BookingDetail /></MainLayout>} />
-            <Route path="/booking" element={<MainLayout><Booking /></MainLayout>} />
-            <Route path="/bookingSession" element={<MainLayout><BookingSession/></MainLayout>} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/schedule" element={<MainLayout><YourSession/></MainLayout>} />
-            <Route path="/sessionDetail/:id" element={<MainLayout><SessionDetail/></MainLayout>} />
-            <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
-            <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
-            {/* <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} /> */}
-            <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
-          </Route>
-          
-          {/* Admin protected routes */}
-          <Route element={<ProtectedRoute requiredRoles={['ADMIN']} />}>
-            <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
-            <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
-          </Route>
+        {/* Admin protected routes */}
+        <Route element={<ProtectedRoute requiredRoles={['ADMIN']} />}>
+          <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} />
+          <Route path="/feedback" element={<MainLayout><Feedback /></MainLayout>} />
+        </Route>
 
-           {/* Therapist protected routes */}
-            {/* <Route element={<ProtectedRoute requiredRoles={['THERAPIST']} />}>
-              <Route path="/therapist/:id" element={<TherapistPanel />} />
-            </Route> */}
-          
+        {/* Admin & Therapist routes */}
+        <Route element={<ProtectedRoute requiredRoles={['ADMIN', 'THERAPIST']} />}>
           <Route path="/manager" element={<Manager />} />
-          {/* Admin protected routes */}
-          <Route element={<ProtectedRoute requiredRoles={['ADMIN','THERAPIST']} />}>
-            <Route path="/manager" element={<Manager />} />
-            <Route path="/manager/user" element={<UserManagement />} />
-            <Route path="/manager/service" element={<ServiceManagement />} />
-            <Route path="/manager/report" element={<Report />} />
-            <Route path="/manager/room" element={<RoomManagement />} />
-            <Route path="/manager/payment" element={<PaymentManagement />} />
-            <Route path="/manager/therapist" element={<TherapistManagement />} />
-            <Route path="/managerstaff" element={<ManagerStaff />} />
-            <Route path="/manager/quiz" element={<QuizManagement />} />
-            <Route path="/manager/blog" element={<BlogManagement />} />
-          </Route>
-          
-          {/* Fallback route */}
-          <Route path="*" element={<MainLayout><Home /></MainLayout>} />
-          <Route path='/staff' element= {<Staff/>}/>
-        </Routes>
-          
-        {/* </AuthWrapper> */}
-      {/* </UserProvider> */}
-    </>
+          <Route path="/manager/user" element={<UserManagement />} />
+          <Route path="/manager/service" element={<ServiceManagement />} />
+          <Route path="/manager/report" element={<Report />} />
+          <Route path="/manager/room" element={<RoomManagement />} />
+          <Route path="/manager/payment" element={<PaymentManagement />} />
+          <Route path="/manager/therapist" element={<TherapistManagement />} />
+          <Route path="/managerstaff" element={<ManagerStaff />} />
+          <Route path="/manager/quiz" element={<QuizManagement />} />
+          <Route path="/manager/blog" element={<BlogManagement />} />
+        </Route>
+
+        {/* Fallback route */}
+        <Route path="*" element={<MainLayout><Home /></MainLayout>} />
+        <Route path='/staff' element= {<Staff/>}/>
+      </Routes>
   );
 }
 

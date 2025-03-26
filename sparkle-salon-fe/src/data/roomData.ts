@@ -1,45 +1,121 @@
 import axios from "../services/customizedAxios";
 
-const getRooms = async () => {
-    const response = await axios.get("/rooms");
-    if (response.result) {
-        return response.result.content;
-    }
-    return [];
+export interface Service {
+    id: string;
+    name: string;
 };
 
-const createRoom = async (name: string, capacity: string, serviceIds: []) => {
-    const response = await axios.post("/rooms", {
-        name,
-        capacity,
-        serviceIds,
-    });
+export interface Room {
+    id: string;
+    name: string;
+    capacity: string;
+    services: Service[];
+};
 
-    if (response.result) {
-        return true;
+const getRooms = async () => {
+    try {
+        const response = await axios.get("/rooms");
+        if (response.result && response.result.content) {
+            return response.result.content.map((room: Room) => ({
+                id: room.id,
+                name: room.name,
+                capacity: room.capacity || "",
+                services: room.services ? room.services.map((service: Service) => ({
+                    id: service.id,
+                    name: service.name
+                })) : [],
+            }));
+        }
+        return [];
+    } catch (error) {
+        console.error("Error fetching rooms:", error);
+        return [];
     }
-    return false;
+};
+
+const getRoomById = async (id: string) => {
+    try {
+        const response = await axios.get(`/rooms/${id}`);
+        return response.result;
+    } catch (error) {
+        console.error("Error fetching room by id:", error);
+        return null;
+    }
 }
 
-const updateRoom = async (id: string, name: string, capacity: string, serviceIds: []) => {
-    const response = await axios.put(`/rooms/${id}`, {
-        name,
-        capacity,
-        serviceIds,
-    });
+const createRoom = async (name: string, capacity: string, services: Service[]) => {
+    try {
+        const response = await axios.post("/rooms", {
+            name,
+            capacity,
+            services, 
+        });
 
-    if (response.result) {
-        return true;
+        return response.data && response.data.result;
+    } catch (error) {
+        console.error("Error creating room:", error);
+        return false;
     }
-    return false;
-}
+};
+
+const updateRoom = async (
+    id: string,
+    name: string,
+    capacity: string,
+    services: Service[]
+) => {
+    try {
+        const response = await axios.put(`/rooms/${id}`, {
+            name,
+            capacity,
+            services, 
+        });
+
+        return response.data && response.data.result;
+    } catch (error) {
+        console.error("Error updating room:", error);
+        return false;
+    }
+};
 
 const deleteRoom = async (id: string) => {
-    const response = await axios.delete(`/rooms/${id}`);
-    if (response.result) {
-        return true;
+    try {
+        const response = await axios.delete(`/rooms/${id}`);
+        return response.data && response.data.result;
+    } catch (error) {
+        console.error("Error deleting room:", error);
+        return false;
     }
-    return false;
 }
 
-export { getRooms , createRoom, updateRoom, deleteRoom };
+const assignService = async (roomId: string, serviceId: string) => {
+    try {
+        const response = await axios.post(`/rooms/${roomId}/services/${serviceId}`);
+        return response.result;
+    } catch (error) {
+        console.error("Error assigning service to room:", error);
+        return false;
+    }
+}
+
+const getRoomServices = async (serviceId: string) => {
+    try {
+        const response = await axios.get(`/rooms/service/${serviceId}`);
+        return response.result;
+    } catch (error) {
+        console.error("Error fetching services for room:", error);
+        return [];
+    }
+}
+
+const deleteAssignedService = async (roomId: string, serviceId: string) => {
+    try {
+        const response = await axios.delete(`/rooms/${roomId}/services/${serviceId}`);
+        return response.result;
+    } catch (error) {
+        console.error("Error deleting assigned service:", error);
+        return false;
+    }
+}
+
+export { getRooms, createRoom, updateRoom, deleteRoom, assignService, getRoomServices, deleteAssignedService, getRoomById };
