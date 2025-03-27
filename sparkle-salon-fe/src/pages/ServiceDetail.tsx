@@ -177,7 +177,7 @@ export default function ServiceDetail() {
                                 <div className="flex flex-wrap items-center gap-4 mb-6">
                                     <p className="flex items-center text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
                                         <FaClock className="mr-2 text-pink-500" />
-                                        {service.duration}
+                                        {service.duration} phút
                                     </p>
                                     <p className="flex items-center text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
                                         <FaCalendarAlt className="mr-2 text-pink-500" />

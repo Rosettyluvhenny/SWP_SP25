@@ -1,22 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { getUserFeedbacks, updateFeedbackById, Feedback } from "../data/feedbacksData";
-
-interface Booking {
-  id: string;
-  serviceId?: number;
-  serviceName: string;
-  img: string;
-  status: string;
-  sessionRemain: number;
-}
+import { 
+  getUserFeedbacks, 
+  updateFeedbackById,
+  Feedback 
+} from "../data/feedbacksData";
 
 const FeedbackPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"pending" | "completed">("pending");
+  const [activeTab, setActiveTab] = useState<"PENDING" | "COMPLETE">("PENDING");
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [userId, setUserId] = useState<string>("");
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -25,82 +19,54 @@ const FeedbackPage: React.FC = () => {
   const [rating, setRating] = useState<number>(5);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchFeedbacks = async () => {
       try {
         setLoading(true);
         
-        // Get current user ID from token
-        const token = localStorage.getItem("token");
-        if (!token) {
-          toast.error("Vui lòng đăng nhập để xem đánh giá");
-          setLoading(false);
-          return;
-        }
+        const userFeedbacks = await getUserFeedbacks();
         
-        // Extract user ID from token
-        const tokenParts = token.split('.');
-        if (tokenParts.length === 3) {
-          try {
-            const payload = JSON.parse(atob(tokenParts[1]));
-            if (payload && payload.sub) {
-              setUserId(payload.sub);
-              
-              // Get user's feedbacks
-              const userFeedbacks = await getUserFeedbacks(payload.sub);
-              setFeedbacks(userFeedbacks || []);
-            }
-          } catch (e) {
-            console.error("Error parsing token:", e);
-            toast.error("Không thể xác thực người dùng.");
-          }
+        if (userFeedbacks) {
+          setFeedbacks(userFeedbacks);
         } else {
-          toast.error("Token không hợp lệ.");
+          toast.error("Không thể tải dữ liệu đánh giá.");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("Không thể tải dữ liệu đánh giá.");
+        toast.error("Đã xảy ra lỗi khi tải dữ liệu.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchFeedbacks();
   }, []);
 
-  const handleEditFeedback = (feedback: Feedback) => {
-    setSelectedFeedback(feedback);
-    setFeedbackText(feedback.feedbackText || "");
-    setRating(feedback.rating);
-    setIsModalOpen(true);
-  };
-
-  const handleSubmitFeedback = async () => {
+  const handleUpdateFeedback = async () => {
     if (!selectedFeedback) return;
 
     try {
-      const feedbackId = selectedFeedback.feedbackId?.toString() || "";
-      
       const updatedFeedback: Feedback = {
         ...selectedFeedback,
         feedbackText,
         rating,
+        rated: true
       };
 
-      const success = await updateFeedbackById(feedbackId, updatedFeedback);
+      const success = await updateFeedbackById(
+        selectedFeedback.id, 
+        updatedFeedback
+      );
       
       if (success) {
-        toast.success("Cập nhật đánh giá thành công!");
+        toast.success("Gửi đánh giá thành công!");
 
-        // Update the feedbacks list
-        setFeedbacks(prevFeedbacks => 
-          prevFeedbacks.map(f => 
-            f.feedbackId === selectedFeedback.feedbackId
-              ? { ...f, feedbackText, rating }
-              : f
-          )
-        );
+        // Refresh feedbacks list
+        const updatedFeedbacks = await getUserFeedbacks();
+        if (updatedFeedbacks) {
+          setFeedbacks(updatedFeedbacks);
+        }
       } else {
-        toast.error("Không thể cập nhật đánh giá.");
+        toast.error("Không thể gửi đánh giá.");
       }
     } catch (error) {
       console.error("Error submitting feedback:", error);
@@ -110,12 +76,11 @@ const FeedbackPage: React.FC = () => {
     }
   };
 
-  // Convert feedbacks to bookings for the "pending" tab
-  // This is just for UI consistency with the original code
-  const getPendingFeedbacks = (): Booking[] => {
-    // In this simplified version, we don't have pending feedbacks
-    // as we're only using getUserFeedbacks and updateFeedbackById
-    return [];
+  const handlePrepareFeedback = (feedback: Feedback) => {
+    setSelectedFeedback(feedback);
+    setFeedbackText("");
+    setRating(5);
+    setIsModalOpen(true);
   };
 
   if (loading) {
@@ -131,8 +96,9 @@ const FeedbackPage: React.FC = () => {
     );
   }
 
-  const pendingServices = getPendingFeedbacks();
-  const completedFeedbacks = feedbacks;
+  // Separate pending and completed feedbacks
+  const pendingFeedbacks = feedbacks.filter(f => !f.rated);
+  const completedFeedbacks = feedbacks.filter(f => f.rated);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-pink-200 pt-24 px-4 md:px-8">
@@ -146,30 +112,30 @@ const FeedbackPage: React.FC = () => {
           <div className="flex border-b border-gray-200 mb-6">
             <button
               className={`flex-1 py-3 font-medium text-center ${
-                activeTab === "pending"
+                activeTab === "PENDING"
                   ? "text-pink-600 border-b-2 border-pink-600"
                   : "text-gray-500 hover:text-pink-400"
               }`}
-              onClick={() => setActiveTab("pending")}
+              onClick={() => setActiveTab("PENDING")}
             >
               Chưa đánh giá
             </button>
             <button
               className={`flex-1 py-3 font-medium text-center ${
-                activeTab === "completed"
+                activeTab === "COMPLETE"
                   ? "text-pink-600 border-b-2 border-pink-600"
                   : "text-gray-500 hover:text-pink-400"
               }`}
-              onClick={() => setActiveTab("completed")}
+              onClick={() => setActiveTab("COMPLETE")}
             >
               Đã đánh giá
             </button>
           </div>
 
           {/* Pending Feedbacks Tab */}
-          {activeTab === "pending" && (
+          {activeTab === "PENDING" && (
             <div>
-              {pendingServices.length === 0 ? (
+              {pendingFeedbacks.length === 0 ? (
                 <div className="text-center py-10">
                   <p className="text-gray-500">
                     Bạn không có dịch vụ nào cần đánh giá.
@@ -177,28 +143,29 @@ const FeedbackPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {pendingServices.map((service) => (
+                  {pendingFeedbacks.map((feedback) => (
                     <div
-                      key={service.id}
+                      key={feedback.id}
                       className="border border-gray-200 rounded-lg p-4 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 hover:shadow-md transition"
                     >
                       <img
-                        src={service.img}
-                        alt={service.serviceName}
+                        src={feedback.img}
+                        alt={feedback.serviceName}
                         className="w-24 h-24 rounded-lg object-cover"
                       />
                       <div className="flex-1 text-center md:text-left">
                         <h3 className="font-semibold text-lg">
-                          {service.serviceName}
+                          {feedback.serviceName}
                         </h3>
                         <p className="text-gray-500 text-sm mb-2">
-                          Trạng thái: {service.status}
+                          Ngày: {new Date(feedback.bookingDate).toLocaleDateString('vi-VN')}
                         </p>
                         <p className="text-gray-500 text-sm">
-                          Số buổi: {service.sessionRemain}
+                          Therapist: {feedback.therapistName}
                         </p>
                       </div>
                       <button
+                        onClick={() => handlePrepareFeedback(feedback)}
                         className="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition"
                       >
                         Đánh giá
@@ -211,7 +178,7 @@ const FeedbackPage: React.FC = () => {
           )}
 
           {/* Completed Feedbacks Tab */}
-          {activeTab === "completed" && (
+          {activeTab === "COMPLETE" && (
             <div>
               {completedFeedbacks.length === 0 ? (
                 <div className="text-center py-10">
@@ -223,7 +190,7 @@ const FeedbackPage: React.FC = () => {
                 <div className="grid grid-cols-1 gap-4">
                   {completedFeedbacks.map((feedback) => (
                     <div
-                      key={feedback.feedbackId}
+                      key={feedback.id}
                       className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
                     >
                       <div className="flex items-center space-x-4 mb-3">
@@ -238,39 +205,15 @@ const FeedbackPage: React.FC = () => {
                           </h3>
                           <p className="text-gray-500 text-sm">
                             Ngày đánh giá:{" "}
-                            {new Date(
-                              feedback.bookingDate
-                            ).toLocaleDateString(
-                              "vi-VN"
-                            )}
+                            {new Date(feedback.bookingDate).toLocaleDateString('vi-VN')}
                           </p>
                           <div className="flex items-center mt-1">
-                            {[...Array(5)].map(
-                              (_, i) => (
-                                <span
-                                  key={i}
-                                  className="text-yellow-400"
-                                >
-                                  {i <
-                                  feedback.rating ? (
-                                    <FaStar />
-                                  ) : (
-                                    <FaRegStar />
-                                  )}
-                                </span>
-                              )
-                            )}
+                            {[...Array(5)].map((_, i) => (
+                              <span key={i} className="text-yellow-400">
+                                {i < feedback.rating ? <FaStar /> : <FaRegStar />}
+                              </span>
+                            ))}
                           </div>
-                        </div>
-                        <div className="ml-auto">
-                          <button
-                            onClick={() =>
-                              handleEditFeedback(feedback)
-                            }
-                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
-                          >
-                            Sửa
-                          </button>
                         </div>
                       </div>
                       <p className="text-gray-700 mt-2">
@@ -290,7 +233,7 @@ const FeedbackPage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-lg w-full max-w-lg p-6">
             <h2 className="text-xl font-bold mb-4">
-              Chỉnh sửa đánh giá
+              Đánh giá
             </h2>
             <div className="mb-4">
               <p className="font-medium">
@@ -310,11 +253,7 @@ const FeedbackPage: React.FC = () => {
                     onClick={() => setRating(index + 1)}
                     className="focus:outline-none text-yellow-400"
                   >
-                    {index < rating ? (
-                      <FaStar />
-                    ) : (
-                      <FaRegStar />
-                    )}
+                    {index < rating ? <FaStar /> : <FaRegStar />}
                   </button>
                 ))}
               </div>
@@ -326,9 +265,7 @@ const FeedbackPage: React.FC = () => {
               </label>
               <textarea
                 value={feedbackText}
-                onChange={(e) =>
-                  setFeedbackText(e.target.value)
-                }
+                onChange={(e) => setFeedbackText(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pink-400"
                 rows={4}
                 placeholder="Chia sẻ trải nghiệm của bạn về dịch vụ này..."
@@ -343,10 +280,10 @@ const FeedbackPage: React.FC = () => {
                 Hủy
               </button>
               <button
-                onClick={handleSubmitFeedback}
+                onClick={handleUpdateFeedback}
                 className="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition"
               >
-                Cập nhật
+                Gửi
               </button>
             </div>
           </div>

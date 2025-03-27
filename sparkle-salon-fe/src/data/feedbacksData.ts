@@ -1,18 +1,15 @@
 import axios from "../services/customizedAxios";
 
 export interface Feedback {
-    feedbackId?: number;
+    id: number;
     feedbackText: string;
     rating: number;
     serviceName: string;
     img: string;
     bookingDate: string;
     therapistName: string;
-    serviceId?: number;
-    therapistId?: string;
-    userId?: string;
+    rated: boolean;
 }
-
 
 const getFeedback = async (): Promise<Feedback[]> => {
     try {
@@ -27,36 +24,47 @@ const getFeedback = async (): Promise<Feedback[]> => {
     }
 };
 
-const getUserFeedbacks = async (userId: string): Promise<Feedback[]> => {
-    if (!userId) {
+const getUserFeedbacks = async (): Promise<Feedback[]> => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.error("No token found");
         return [];
     }
-    
+
     try {
-        const response = await axios.get(`/feedback/${userId}/all`);
-        if (response.status === 200 && response.data && response.data.result) {
-            return response.data.result;
+        const response = await axios.get(`/feedback/user-feedback`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        
+        if (response.status === 200 && response.result) {
+            return response.result;
         }
         return [];
-    } catch (error) {
-        console.error(`Error fetching feedbacks for user ID ${userId}:`, error);
+    } catch (error: any) {
+        // if (error.response && error.response.status === 401) {
+        //     localStorage.removeItem("token");
+        //     window.location.href = "/login";
+        // }
+        console.error(`Error fetching user feedbacks:`, error);
         return [];
     }
 };
 
-const getFeedbackById = async (id: string | null): Promise<Feedback | null> => {
-    if (!id) {
+const getFeedbackById = async (feedbackId: string | null): Promise<Feedback | null> => {
+    if (!feedbackId) {
         return null;
     }
     
     try {
-        const response = await axios.get(`/feedback/${id}`);
-        if (response.status === 200 && response.data && response.data.result) {
-            return response.data.result;
+        const response = await axios.get(`/feedback/${feedbackId}`);
+        if (response.status === 200 && response.result) {
+            return response.result;
         }
         return null;
     } catch (error) {
-        console.error(`Error fetching feedback with ID ${id}:`, error);
+        console.error(`Error fetching feedback with ID ${feedbackId}:`, error);
         return null;
     }
 };
@@ -71,16 +79,30 @@ const createFeedback = async (feedback: Feedback): Promise<boolean> => {
     }
 };
 
-const updateFeedbackById = async (id: string | null, feedback: Feedback): Promise<boolean> => {
-    if (!id) {
+const updateFeedbackById = async (feedbackId: string | number | null, feedback: Feedback): Promise<boolean> => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.error("No token found");
+        return false;
+    }
+
+    if (!feedbackId) {
         return false;
     }
     
     try {
-        const response = await axios.put(`/feedback/${id}`, feedback);
-        return response.status === 200;
-    } catch (error) {
-        console.error(`Error updating feedback with ID ${id}:`, error);
+        const response = await axios.put(`/feedback/${feedbackId}`, feedback, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.status === 200;;
+    } catch (error: any) {
+        if (error.response && error.response.status === 401) {
+            // localStorage.removeItem("token");
+            // window.location.href = "/login";
+        }
+        console.error(`Error updating feedback with ID ${feedbackId}:`, error);
         return false;
     }
 };

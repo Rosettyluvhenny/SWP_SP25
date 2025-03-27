@@ -134,6 +134,7 @@ const getSessionById = async (id: number) => {
         return null;
     }
 }
+
 const getSessionByBookingId = async (id: number) => {
     const response = await axios.get(`/bookingSession/booking/${id}`, {
         headers: {

@@ -62,7 +62,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                 <div className="mt-3 space-y-3 flex-grow">
                     <p className="text-gray-600 flex items-center">
                         <IoMdTime className="mr-2 text-pink-500" />
-                        {service.duration}
+                        {service.duration} phút
                     </p>
                     <p className="text-pink-600 font-semibold text-lg flex items-center">
                         <FaMoneyBill className="mr-2" />
