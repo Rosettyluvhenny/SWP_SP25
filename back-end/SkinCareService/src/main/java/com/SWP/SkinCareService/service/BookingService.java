@@ -31,6 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class BookingService {
     private BookingSessionService bookingSessionService;
     private VNPayService vnPayService;
     private NotificationService notificationService;
+    private ReportService reportService;
 
     @Transactional
     @PreAuthorize("hasRole('USER')")
@@ -122,6 +124,7 @@ public class BookingService {
                 .isRead(false)
                 .build();
         notificationService.create(notificationRequest);
+        reportService.updateTotalBooking();
         return result;
     }
 
@@ -273,6 +276,8 @@ public class BookingService {
             booking.setPaymentStatus(status);
             if (status == PaymentStatus.PAID) {
                 updateStatus(id, "ON_GOING");
+                BigDecimal price = booking.getPrice();
+                reportService.updateRevenue(price);
             } else if (status == PaymentStatus.CANCELLED) {
                 updateStatus(id, "IS_CANCELED");
             }

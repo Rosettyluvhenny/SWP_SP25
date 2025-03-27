@@ -11,4 +11,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface ServicesRepository extends JpaRepository<Services, Integer>, JpaSpecificationExecutor {
     boolean existsByName(String name);
     Page<Services> findAllByActiveTrue(Specification spec, Pageable pageable);
+    int countByActiveTrue();
 }
