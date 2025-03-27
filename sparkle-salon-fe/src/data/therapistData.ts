@@ -135,7 +135,7 @@ const getTherapistById = async (id: string): Promise<Therapist | null> => {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       }
     });
-    if (response?.result) {
+    if (response.result) {
       console.log("API Response:", response);
       return response.result;
     } else {
