@@ -26,6 +26,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -353,8 +354,12 @@ public class BookingService {
         else
             throw new AppException(ErrorCode.UNAUTHORIZED);
     }
-
+    @PreAuthorize("hasRole('STAFF')")
     public Page<BookingResponse> getAllByStaff(String phone, LocalDate startDate, LocalDate endDate,String status, Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        for (GrantedAuthority author : authentication.getAuthorities()) {
+            log.info(author.getAuthority());
+        }
         User user;
         if(phone!= null)
              user =userRepository.findByPhone(phone)

@@ -246,16 +246,11 @@ public class UserService {
                 .map(userMapper::toUserResponse).toList();
     }
 
-    @PostAuthorize("returnObject.name == authentication.name")
+    @PostAuthorize("returnObject.username == authentication.name")
     public UserResponse getMyInfo(){
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        log.info("Authentication: "+authentication);
-//        log.info("name: "+ authentication.getName());
-//        log.info("Authorities: "+ authentication.getAuthorities());
-//        log.info("Principal: "+ authentication.getPrincipal());
-//        log.info("id: " + authentication.getPrincipal().toString());
         User user = userRepository.findByUsername(name).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);
@@ -267,7 +262,7 @@ public class UserService {
         return userRepository.findByUsername(userName).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
-    @PostAuthorize("returnObject.name == authentication.name")
+    @PostAuthorize("returnObject.username == authentication.name")
     @Transactional
     public UserResponse update(String userId, UserUpdateRequest request){
         var context = SecurityContextHolder.getContext().getAuthentication();

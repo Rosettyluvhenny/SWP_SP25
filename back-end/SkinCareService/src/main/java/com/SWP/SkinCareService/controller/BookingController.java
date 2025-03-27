@@ -108,7 +108,7 @@ public class BookingController {
 
     @Operation(summary = "Get all bookings for authenticated user")
     @GetMapping("/my-bookings")
-    @PreAuthorize("ROLE_USER")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Page<BookingResponse>> getAllByUser(@RequestParam(required = false) String status,
                                                               @RequestParam(required = false) String payStatus,
                                                               @PageableDefault(size = 10, sort = "id") Pageable pageable) {
@@ -118,7 +118,6 @@ public class BookingController {
 
     @Operation(summary = "Get all bookings for authenticated staff")
     @GetMapping("/staff-bookings")
-    @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<Page<BookingResponse>> getAllByStaff(@RequestParam(required = false) @Pattern(regexp = "^\\d{10}$", message = "PHONE_INVALID") String phone,
                                                                @RequestParam(required =false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,

@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,6 +29,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_POST_ENDPOINTS = {"/users", "/auth/introspect", "/auth/authenticate", "/auth/logout", "/auth/refresh"};
     private final String[] PUBLIC_ENDPOINTS= {"/swagger-ui/**",
@@ -62,7 +64,7 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-//                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                                 .accessDeniedHandler(accessDeniedHandler())
                 );
 
