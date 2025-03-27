@@ -174,7 +174,7 @@ export default function Therapist() {
                 )}
 
                 {/* Sessions Content */}
-                {!loading && therapist && activeTab === "schedule" && (
+                {activeTab === "schedule" && (
                     <div>
                         <div className="mb-4 flex space-x-4">
                             <div>
@@ -245,9 +245,9 @@ export default function Therapist() {
                         )}
                     </div>
                 )}
-
+                
                 {/* Notes Content */}
-                {!loading && therapist && activeTab === "notes" && (
+                {activeTab === "notes" && (
                     <div>
                         {selectedSession ? (
                             <form
