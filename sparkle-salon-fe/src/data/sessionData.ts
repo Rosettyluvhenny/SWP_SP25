@@ -63,10 +63,8 @@ export const updateBookingSession = async (
                 },
             }
         );
-
-        // console.log("Success:", response.data);
         console.log(response)
-        return null;
+        return response;
 };
 export const updateSessionRoom = async (
     sessionId: number,

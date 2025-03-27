@@ -5,9 +5,9 @@ import { toast } from 'react-toastify';
 import { getUser } from '../data/authData';
 
 export const ProtectedRoute = ({ requiredRoles = [] }) => {
-  // const { user, hasRole, setIsLoginOpen, loginContext } = useContext(UserContext);
-  // Check if user is logged in
+
   const {user, hasRole,setIsLoginOpen} = useContext(UserContext);
+  console.log(user);
   const checkAccess = () => {
     if (!user) {
       setIsLoginOpen(true);

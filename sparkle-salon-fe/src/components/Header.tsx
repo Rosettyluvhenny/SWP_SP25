@@ -457,6 +457,7 @@ export default function Header() {
                                     {/* Logout Button */}
                                     <motion.button
                                         onClick={() => {
+                                            navigate('/');
                                             handleLogout();
                                             setIsOpen(false);
                                         }}

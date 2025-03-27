@@ -32,7 +32,7 @@ export default function SessionDetail({isStaff}: SessionDetailProps) {
     const { id } = useParams();
     const navigate = useNavigate();
     const [session, setSession] = useState<Session | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     useEffect(() => {
@@ -57,7 +57,7 @@ export default function SessionDetail({isStaff}: SessionDetailProps) {
         };
 
         fetchSession();
-    }, [id]);
+    }, [id,isOpen]);
 
     const getStatusColor = (status: string) => {
         switch (status.toUpperCase()) {

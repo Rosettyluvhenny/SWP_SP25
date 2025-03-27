@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { introspect, getUser, refresh } from '../data/authData';
 import { toast } from 'react-toastify';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 const UserContext = React.createContext({
     // user: { name: '', auth: false, role: '' },
     // loginContext: () => {},
@@ -13,13 +13,11 @@ const UserContext = React.createContext({
   });
 
 const UserProvider = ({ children }) => {
-    const [user, setUser] = React.useState(() => {
-        const savedUser = localStorage.getItem("user");
-        return savedUser ? JSON.parse(savedUser) : { name: '', auth: false, role: '' };
-    });
+    const [user, setUser] = React.useState(
+       { name: '', auth: false, role: '' }
+    );
     const [loading, setIsLoading] = useState(true);
     const [isLoginOpen, setIsLoginOpen] = useState(false);
-    // const location = useLocation();
     const apiCallTracker = useRef({
         introspectCalled: false,
         refreshCalled: false
@@ -83,10 +81,10 @@ const UserProvider = ({ children }) => {
             }
         }
         validateAndSetUser();
-        console.log("user", user);
+        console.log("user", user); 
         console.log("user json",JSON.stringify(user));
 
-        localStorage.setItem("user", JSON.stringify(user)); 
+        // localStorage.setItem("user", JSON.stringify(user)); 
     }, [localStorage.getItem("token")]);
     const loginContext = (name, role) => {
             setUser({
@@ -98,7 +96,8 @@ const UserProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem("token");
-        localStorage.removeItem("user")
+        // localStorage.removeItem("user")
+        
         setUser((user) => ({
             name: '',
             auth: false,
