@@ -1,3 +1,4 @@
+import { head } from "lodash";
 import axios from "../services/customizedAxios";
 
 export interface Service {
@@ -14,7 +15,12 @@ export interface Room {
 
 const getRooms = async () => {
     try {
-        const response = await axios.get("/rooms");
+        const response = await axios.get("/rooms", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        });
+
         if (response.result && response.result.content) {
             return response.result.content.map((room: Room) => ({
                 id: room.id,
@@ -26,6 +32,7 @@ const getRooms = async () => {
                 })) : [],
             }));
         }
+        
         return [];
     } catch (error) {
         console.error("Error fetching rooms:", error);
@@ -48,7 +55,7 @@ const createRoom = async (name: string, capacity: string, services: Service[]) =
         const response = await axios.post("/rooms", {
             name,
             capacity,
-            services, 
+            services,
         });
 
         return response.data && response.data.result;
@@ -68,7 +75,7 @@ const updateRoom = async (
         const response = await axios.put(`/rooms/${id}`, {
             name,
             capacity,
-            services, 
+            services,
         });
 
         return response.data && response.data.result;

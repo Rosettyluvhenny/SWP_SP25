@@ -198,34 +198,19 @@ const introspect = async() =>{
     return response.result.valid;
 }
 
-const refresh = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('No token found');
-    }
-
-    try {
-        const response = await axios.post("/auth/refresh", 
-            { token }, // Send token in body
-            {
-                headers: {
-                    "Content-Type": "application/json"
-                }
+const refresh = async() =>{
+    const token = localStorage.getItem('token')
+    if(!token)
+        return;
+    const response = await axios.post("/auth/refresh", 
+        { token }, // Send token in body
+        {
+            headers: {
+                "Content-Type": "application/json"
             }
-        );
-
-        // Ensure the response has the expected structure
-        if (!response || !response.token) {
-            throw new Error('Invalid refresh token response');
         }
-        
-        return response;
-    } catch (error) {
-        console.error('Refresh token error:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        throw error;
-    }
+    );
+    return response.result;
 }
 
 

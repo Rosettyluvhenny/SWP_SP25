@@ -42,6 +42,7 @@ export interface BookingSessionUpdateRequest{
     note: string,
     roomId: number
 }
+
 export const updateBookingSession = async (
     sessionId: number,
     bookingSessionRequest: BookingSessionUpdateRequest,
@@ -68,6 +69,38 @@ export const updateBookingSession = async (
         console.log(response)
         return null;
 };
+
+export const getTherapistSessions = async (startDate?: string, endDate?: string) => {
+    const token = localStorage.getItem("accessToken") || localStorage.getItem("token") || sessionStorage.getItem("accessToken");
+    
+    if (!token) {
+        console.error("No authentication token found");
+        toast.error("Please log in again");
+        return null;
+    }
+
+    try {
+        const response = await axios.get(`/bookingSession/therapist`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            params: {
+                startDate,
+                endDate
+            }
+        });
+        return response.result;
+    } catch (error: any) {
+        if (error.response && error.response.status === 401) {
+            toast.error("Unauthorized. Please log in again.");
+        } else {
+            toast.error("Error fetching therapist sessions");
+        }
+        console.error("Session fetch error:", error);
+        return null;
+    }
+}
+
 export const updateSessionRoom = async (
     sessionId: number,
     roomId:number
