@@ -64,10 +64,8 @@ export const updateBookingSession = async (
                 },
             }
         );
-
-        // console.log("Success:", response.data);
         console.log(response)
-        return null;
+        return response;
 };
 
 export const getTherapistSessions = async (startDate?: string, endDate?: string) => {

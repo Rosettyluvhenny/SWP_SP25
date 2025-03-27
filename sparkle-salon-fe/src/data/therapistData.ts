@@ -14,7 +14,8 @@ export interface Therapist {
 }
 
 const getAllTherapists = async () => {
-  const response = await axios.get("/therapists");
+  const response = await axios.get("/therapists"
+  );
   if (response.result) {
     return response.result.content;
   }
