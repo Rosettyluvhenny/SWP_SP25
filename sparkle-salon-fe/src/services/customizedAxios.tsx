@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8081/swp',
+    baseURL: 'http://localhost:8080/swp',
 });
 
 instance.interceptors.response.use(function(response){
@@ -26,7 +26,6 @@ instance.interceptors.response.use(function(response){
         } catch (refreshError) {
             console.error("Refresh token failed:", refreshError);
             toast.error(error.response.message);
-            // localStorage.removeItem("token");
         }
     }else {
         toast.error(error.response.data.message);
