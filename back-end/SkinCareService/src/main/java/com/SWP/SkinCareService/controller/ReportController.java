@@ -37,8 +37,8 @@ public class ReportController {
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<ReportResponse>>> getAllReportsBetween(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+            @RequestParam (required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam (required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         var result = reportService.getAllReportsBetween(from, to);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<List<ReportResponse>>builder()
