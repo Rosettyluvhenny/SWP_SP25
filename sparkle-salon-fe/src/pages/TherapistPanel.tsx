@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getTherapistById } from "../data/therapistData";
 import {
     getTherapistSessions,
@@ -11,7 +11,8 @@ import {
     ClipboardDocumentListIcon, 
     DocumentPlusIcon, 
     CheckCircleIcon,
-    ExclamationTriangleIcon
+    ExclamationTriangleIcon,
+    PencilSquareIcon
 } from "@heroicons/react/24/outline";
 
 interface Therapist {
@@ -49,6 +50,7 @@ interface Session {
 
 export default function Therapist() {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate(); // For navigation to blog
     const [therapist, setTherapist] = useState<Therapist | null>(null);
     const [activeTab, setActiveTab] = useState("schedule");
     const [loading, setLoading] = useState<boolean>(true);
@@ -129,6 +131,13 @@ export default function Therapist() {
         fetchSessions();
     }, [activeTab, startDate, endDate]);
 
+
+    useEffect(() => {
+        if (activeTab === "blog") {
+            navigate(`/therapist/blog`);
+        }
+    }, [activeTab, navigate]);
+
     // Handle session update
     const handleSessionUpdate = async (
         sessionId: number,
@@ -171,9 +180,11 @@ export default function Therapist() {
                 <header className="flex items-center mb-6">
                     {activeTab === "schedule" && <CalendarIcon className="w-6 h-6 mr-3 text-blue-600" />}
                     {activeTab === "notes" && <ClipboardDocumentListIcon className="w-6 h-6 mr-3 text-blue-600" />}
+                    {activeTab === "blog" && <PencilSquareIcon className="w-6 h-6 mr-3 text-blue-600" />}
                     <h1 className="text-2xl font-bold text-gray-800">
                         {activeTab === "schedule" && "Work Schedule"}
                         {activeTab === "notes" && "Therapy Session Notes"}
+                        {activeTab === "blog" && "Blog Posts"}
                     </h1>
                 </header>
 
@@ -413,6 +424,12 @@ export default function Therapist() {
                                 </p>
                             </div>
                         )}
+                    </div>
+                )}
+                {/* Blog Content */}
+                {activeTab === "blog" && (
+                    <div className="bg-white shadow-md rounded-lg p-6">
+                        <p className="text-gray-600">Loading blog content...</p>
                     </div>
                 )}
             </main>

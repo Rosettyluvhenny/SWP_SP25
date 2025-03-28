@@ -59,31 +59,47 @@ const createTherapist = async (data: { username: string, fullName: string, email
   }
 }
 
-const updateTherapist = async (id: string, experienceYears: number, bio: string, phone: string, img: string) => {
+const updateTherapist = async (
+  id: string,
+  experienceYears: number,
+  bio: string,
+  phone: string,
+  img: File,
+  serviceIds: number[] = [1] // Giá trị mặc định hoặc lấy từ form
+) => {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No token available for update request");
+      console.error("Không có token để thực hiện yêu cầu cập nhật");
       return false;
     }
-    
-    const response = await axios.put(`/therapists/${id}`, {
-      experienceYears: experienceYears,
-      bio: bio,
-      phone: phone,
-      img: img
-    }, {
+
+    const formData = new FormData();
+
+    const requestData = {
+      experienceYears,
+      bio,
+      phone,
+      serviceIds // Thêm serviceIds
+    };
+    formData.append("request", new Blob([JSON.stringify(requestData)], { type: "application/json" }));
+
+    formData.append("img", img);
+
+    const response = await axios.put(`http://localhost:8080/swp/therapists/${id}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data"
       }
     });
 
-    return response.result ? true : false;
+    return response.status === 200 || (response.data && response.data.success === true);
   } catch (error) {
-    console.error("Error updating therapist:", error);
+    console.error("Lỗi khi cập nhật therapist:", error.response?.data || error.message);
     return false;
   }
-}
+};
+
 
 const deleteTherapist = async (id: string) => {
   try {

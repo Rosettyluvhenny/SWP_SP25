@@ -83,78 +83,101 @@ export default function TherapistManagement() {
             setSelectedFile(e.target.files[0]);
         }
     };
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    interface Therapist {
+        id?: string;
+        username: string;
+        fullName: string;
+        email: string;
+        experienceYears: number;
+        bio: string;
+        dob: string;
+        phone: string;
+        img: string;
+    }
+    
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData(e.target as HTMLFormElement);
-
+        const formData = new FormData(e.currentTarget);
+    
         try {
-            let imageUrl = editingTherapist?.img || "";
-            if (selectedFile) {
-                imageUrl = `/uploads/${selectedFile.name}`;
-            }
-
+            const imageUrl = selectedFile 
+                ? `/uploads/${selectedFile.name}`
+                : editingTherapist?.img || "";
+    
             if (editingTherapist) {
-                const experienceYears = parseInt(
-                    formData.get("experienceYears") as string
-                );
-                const bio = formData.get("bio") as string;
-                const phone = formData.get("phone") as string;
-
-                const success = await updateTherapist(
-                    editingTherapist.id,
+                const experienceYears = parseInt(formData.get("experienceYears") as string || "0");
+                const bio = formData.get("bio") as string || "";
+                const phone = formData.get("phone") as string || "";
+    
+                // Kiểm tra số điện thoại trước khi gửi
+                const phonePattern = /^\d{10}$/;
+                if (!phonePattern.test(phone)) {
+                    throw new Error("Số điện thoại phải gồm đúng 10 chữ số");
+                }
+    
+                const updatedData = {
                     experienceYears,
                     bio,
                     phone,
-                    imageUrl
+                    img: imageUrl
+                };
+    
+                console.log("Dữ liệu gửi đi:", { id: editingTherapist.id, ...updatedData });
+    
+                const success = await updateTherapist(
+                    editingTherapist.id,
+                    updatedData.experienceYears,
+                    updatedData.bio,
+                    updatedData.phone,
+                    updatedData.img
                 );
-
+    
                 if (success) {
-                    setTherapists((prev) =>
-                        prev.map((t) =>
-                            t.id === editingTherapist.id
-                                ? {
-                                      ...t,
-                                      experienceYears,
-                                      bio,
-                                      phone,
-                                      img: imageUrl,
-                                  }
-                                : t
-                        )
-                    );
+                    await fetchTherapists();
                     setSuccessMessage("Cập nhật thông tin chuyên viên thành công");
                 } else {
-                    setError("Không thể cập nhật thông tin chuyên viên");
+                    throw new Error("Cập nhật thất bại - Kiểm tra phản hồi từ server");
                 }
             } else {
-                const newTherapist = {
-                    username: formData.get("username") as string,
-                    fullName: formData.get("fullName") as string,
-                    email: formData.get("email") as string,
-                    experienceYears: parseInt(
-                        formData.get("experienceYears") as string
-                    ),
-                    bio: formData.get("bio") as string,
-                    dob: formData.get("dob") as string,
-                    phone: formData.get("phone") as string,
+                // Logic tạo mới (giữ nguyên)
+                const newTherapist: Therapist = {
+                    username: formData.get("username") as string || "",
+                    fullName: formData.get("fullName") as string || "",
+                    email: formData.get("email") as string || "",
+                    experienceYears: parseInt(formData.get("experienceYears") as string || "0"),
+                    bio: formData.get("bio") as string || "",
+                    dob: formData.get("dob") as string || "",
+                    phone: formData.get("phone") as string || "",
                     img: imageUrl,
                 };
-
+    
+                const phonePattern = /^\d{10}$/;
+                if (!phonePattern.test(newTherapist.phone)) {
+                    throw new Error("Số điện thoại phải gồm đúng 10 chữ số");
+                }
+    
+                if (!newTherapist.username || !newTherapist.email) {
+                    throw new Error("Thiếu các trường bắt buộc");
+                }
+    
                 const success = await createTherapist(newTherapist);
                 if (success) {
                     await fetchTherapists();
                     setSuccessMessage("Thêm chuyên viên mới thành công");
                 } else {
-                    setError("Không thể thêm chuyên viên mới");
+                    throw new Error("Tạo mới thất bại");
                 }
             }
         } catch (error) {
-            console.error("Error saving therapist:", error);
-            setError("Đã xảy ra lỗi khi lưu thông tin chuyên viên");
+            console.error("Lỗi chi tiết khi lưu thông tin chuyên viên:", error);
+            setError(
+                error instanceof Error 
+                    ? `Lỗi: ${error.message}` 
+                    : "Đã xảy ra lỗi khi lưu thông tin chuyên viên"
+            );
+        } finally {
+            closeModal();
         }
-
-        closeModal();
     };
 
     const handleToggleStatus = async (therapist: Therapist) => {
