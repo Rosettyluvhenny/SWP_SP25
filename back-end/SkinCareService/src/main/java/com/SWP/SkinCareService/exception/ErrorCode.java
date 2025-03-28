@@ -58,7 +58,7 @@ public enum ErrorCode {
     BLOGPOST_ALREADY_APPROVED(1042, "Blog post is already approved", HttpStatus.BAD_REQUEST),
     BLOGPOST_NOT_EXISTED(1043, "Blog post does not exist", HttpStatus.NOT_FOUND),
     EMAIL_EXISTED(1044,"Email is existed", HttpStatus.BAD_REQUEST),
-    BOOKING_DATE_NOT_ALLOWED(1045,"You are not allowed to book a treatment service while having uncompleted treatment service", HttpStatus.BAD_REQUEST),
+    BOOKING_DATE_NOT_ALLOWED(1045,"You are not allowed to book a treatment service while you're in the recovery period of another treatment or having uncompleted treatment service", HttpStatus.BAD_REQUEST),
     UPDATE_NOT_ALLOWED(1046,"Update is not allowed", HttpStatus.BAD_REQUEST),
     FEEDBACK_NOT_FOUND(1047,"Feedback not found", HttpStatus.NOT_FOUND),
     OUT_OF_THERAPIST(1048,"There are no available therapists at the moment.", HttpStatus.BAD_REQUEST),
@@ -92,8 +92,10 @@ public enum ErrorCode {
     BLOGPOST_NOT_APPROVED(2009, "Blog post is not approved yet" , HttpStatus.BAD_REQUEST ),
     IS_DEFAULT_BLOG(2010, "The Blog post is default Blog" , HttpStatus.BAD_REQUEST ),
     BOOKING_IS_COMPLETED(2011,"This service is completed, select other service" , HttpStatus.BAD_REQUEST),
-    NOT_FINISH(2012,"The session is update completely" , HttpStatus.BAD_REQUEST );
+    NOT_FINISH(2012,"The session is update completely" , HttpStatus.BAD_REQUEST ),
+    SESSION_COMPLETED(2014,"Can't update completed Session" , HttpStatus.BAD_REQUEST );
     ;
+
 
     int code;
     String message;

@@ -16,9 +16,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TherapistUpdateRequest {
 
-    @Pattern(regexp = "^\\d{10}$",message = "PHONE_NO_INVALID")
-    String phone;
-
     @Min(value = 0,message = "MIN")
     int  experienceYears;
 

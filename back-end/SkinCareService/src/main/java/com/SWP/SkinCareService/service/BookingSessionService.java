@@ -172,7 +172,8 @@ public class  BookingSessionService {
         User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         boolean isStaff = staff.getRoles().stream()
                 .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
-
+        if(session.getStatus() == BookingSessionStatus.COMPLETED)
+            throw new AppException(ErrorCode.SESSION_COMPLETED);
         if(request.getRoomId()!=null) {
             if(session.getRoom() != null){
                 int inUse = session.getRoom().getInUse()-1;

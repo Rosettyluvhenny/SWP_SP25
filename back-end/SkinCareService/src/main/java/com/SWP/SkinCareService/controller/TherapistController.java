@@ -40,6 +40,14 @@ public class TherapistController {
                 .build();
     }
 
+
+    @GetMapping("/getTherapistInfo")
+    @PreAuthorize("hasAnyRole('THERAPIST')")
+    public ApiResponse<TherapistResponse> getTherapistInfo() {
+        return ApiResponse.<TherapistResponse>builder()
+                .result(therapistService.getTheraInfo())
+                .build();
+    }
     @GetMapping
     //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<Page<TherapistResponse>> getAll(

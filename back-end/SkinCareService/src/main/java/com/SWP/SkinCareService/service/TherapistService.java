@@ -18,6 +18,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,6 +114,13 @@ public class TherapistService {
                 ()->new AppException(ErrorCode.THERAPIST_NOT_EXISTED)));
     }
 
+    @PreAuthorize("hasRole('THERAPIST')")
+    public TherapistResponse getTheraInfo(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user  = userRepository.findByUsername(authentication.getName()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Therapist therapist = user.getTherapist();
+        return therapistMapper.toResponse(therapist);
+    }
     @Transactional
     public TherapistResponse update (String id, TherapistUpdateRequest request, MultipartFile img) throws IOException {
         Therapist therapist = therapistRepository.findById(id)
@@ -131,6 +141,7 @@ public class TherapistService {
             try {
                 supabaseService.deleteImage(therapist.getImg());
                 String imgUrl = supabaseService.uploadImage(img,"therapist_" + therapist.getId());
+                therapist.setImg(imgUrl);
             }catch(IOException e){
                 log.info(e.getMessage());
             }
