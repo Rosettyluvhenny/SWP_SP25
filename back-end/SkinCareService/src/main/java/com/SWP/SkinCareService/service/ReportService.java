@@ -58,6 +58,10 @@ public class ReportService {
         return reportRepository.findByDate(today);
     }
 
+    public List<ReportResponse> getAllReportsBetween(LocalDate from, LocalDate to) {
+        return reportRepository.findByDateBetween(from, to).stream().map(reportMapper::toReportResponse).toList();
+    }
+
 
     public int totalNewBookingsBetween(LocalDate start, LocalDate end) {
         List<Report> reports = reportRepository.findByDateBetween(start, end);

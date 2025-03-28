@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/report")
@@ -29,6 +30,18 @@ public class ReportController {
         var result = reportService.getReportToDashboard();
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<ReportResponse>builder()
+                        .result(result)
+                        .build()
+        );
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<ReportResponse>>> getAllReportsBetween(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        var result = reportService.getAllReportsBetween(from, to);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<List<ReportResponse>>builder()
                         .result(result)
                         .build()
         );
