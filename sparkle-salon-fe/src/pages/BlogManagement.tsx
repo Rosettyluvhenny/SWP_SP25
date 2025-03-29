@@ -8,7 +8,12 @@ import { blogData } from "../data/blogData";
 import BlogInfoForm from "../components/BlogForm";
 import { jwtDecode } from "jwt-decode";
 import instance from "../services/customizedAxios";
+<<<<<<< HEAD
+import SidebarTherapist from "../components/SidebarTherapist";
+import { useNavigate } from "react-router-dom";
+=======
 import { toast } from "react-toastify";
+>>>>>>> fbfd63f153b1b1de864245debb997d6e7e6f0d63
 
 interface DecodedToken {
   scope: string;
@@ -24,7 +29,11 @@ interface PaginationProps {
 const axiosInstance = instance;
 
 // Pagination Component
-const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, paginate }) => {
+const Pagination: React.FC<PaginationProps> = ({
+  totalPages,
+  currentPage,
+  paginate,
+}) => {
   const pageNumbers = [];
 
   for (let i = 1; i <= totalPages; i++) {
@@ -43,7 +52,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, pagina
         >
           Trước
         </motion.button>
-        
+
         {pageNumbers.map((number) => (
           <motion.li
             key={number}
@@ -62,7 +71,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, pagina
             </button>
           </motion.li>
         ))}
-        
+
         <motion.button
           onClick={() => paginate(currentPage + 1)}
           disabled={currentPage === totalPages}
@@ -90,6 +99,8 @@ export default function BlogManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [blogsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -104,6 +115,16 @@ export default function BlogManagement() {
       }
     }
   }, []);
+  
+useEffect(() => {
+        if (activeTab === "blog") {
+            navigate("/therapist/blog");
+        } else if (activeTab === "notes") {
+            navigate("/therapist/notes");
+        } else if (activeTab === "schedule") {
+            navigate("/therapist/schedule");
+        }
+    }, [activeTab, navigate]);
 
   const handleOpenBlogForm = (blogId: string | null) => {
     setSelectedBlog(blogId);
@@ -178,7 +199,10 @@ export default function BlogManagement() {
     }
   };
 
-  const handleApproveChange = async (blogId: string, currentStatus: boolean) => {
+  const handleApproveChange = async (
+    blogId: string,
+    currentStatus: boolean
+  ) => {
     if (!isAdmin) {
       toast.error("Chỉ admin mới có quyền thay đổi trạng thái approve");
       return;
@@ -267,9 +291,15 @@ export default function BlogManagement() {
 
   return (
     <div className="flex h-screen bg-white">
-      <Sidebar />
+                {isAdmin ? <Sidebar />  : (
+  <SidebarTherapist activeTab={activeTab} setActiveTab={setActiveTab} />
+)}
+                
       <main className="flex-1 p-6 overflow-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">Quản Lý Blog</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">
+          {isAdmin ? "Quản Lý Blog" : "Write Blog"}
+        </h1>
+
         {isOpenCreateBlog ? (
           <BlogInfoForm
             selectedBlog={selectedBlog}
@@ -317,138 +347,152 @@ export default function BlogManagement() {
               </div>
             </div>
 
-              <table className="w-full border-collapse rounded-lg ">
-                <thead>
-                  <tr className="bg-white text-black">
-                    <th className="p-3 text-left">ID</th>
-                    <th className="p-3 text-left">Tiêu Đề</th>
-                    <th className="p-3 text-left">Hình Ảnh</th>
-                    <th className="p-3 text-left">Tác Giả</th>
-                    <th className="p-3 text-left">Trạng Thái</th>
-                    <th className="p-3 text-left">Danh Mục</th>
-                    <th className="p-3 text-left">Default</th>
-                    <th className="p-3 text-left">Hành Động</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  {currentBlogs.length > 0 ? (
-                    currentBlogs.map((blog) => (
-                      <motion.tr
-                        key={blog.blogId}
-                        className="border-t hover:bg-pink-50 transition-colors"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <td className="p-3">{blog.blogId}</td>
-                        <td className="p-3 font-medium">{blog.title}</td>
-                        <td className="p-3">
-                          <img
-                            src={blog.img || "/placeholder.jpg"}
-                            alt={blog.title}
-                            className="w-auto h-16 object-cover"
-                            onError={(e) => (e.currentTarget.src = "/placeholder.jpg")}
-                          />
-                        </td>
-                        <td className="p-3">{blog.therapistName || "Không có"}</td>
-                        <td className="p-3 flex items-center space-x-2">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              blog.approve
-                                ? "bg-green-100 text-green-800"
-                                : "bg-yellow-100 text-yellow-800"
-                            }`}
-                          >
-                            {blog.approve ? "Đã duyệt" : "Chưa duyệt"}
-                          </span>
-                          {isAdmin && !blog.approve && (
-                            <motion.button
-                              onClick={() =>
-                                handleApproveChange(
-                                  blog.blogId.toString(),
-                                  blog.approve
-                                )
-                              }
-                              className="px-2 py-1 rounded-lg text-white text-xs bg-green-500 hover:bg-green-600"
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              disabled={loadingBlogId === blog.blogId.toString()}
-                            >
-                              {loadingBlogId === blog.blogId.toString()
-                                ? "Đang xử lý..."
-                                : "Duyệt"}
-                            </motion.button>
-                          )}
-                        </td>
-                        <td className="p-3">
-                          <span className="bg-pink-100 text-pink-800 px-2 py-1 rounded-full text-xs">
-                            {blog.categoryName}
-                          </span>
-                        </td>
-                        <td className="p-3">
-                          {isAdmin && (
-                            <motion.button
-                              onClick={() => handleSetDefault(blog.blogId.toString())}
-                              className={`px-2 py-1 rounded-lg text-white text-xs ${
-                                blog.defaultBlog
-                                  ? "bg-blue-700 cursor-not-allowed"
-                                  : "bg-blue-500 hover:bg-blue-600"
-                              }`}
-                              whileHover={{ scale: blog.defaultBlog ? 1 : 1.05 }}
-                              whileTap={{ scale: blog.defaultBlog ? 1 : 0.95 }}
-                              disabled={
-                                blog.defaultBlog || loadingBlogId === blog.blogId.toString()
-                              }
-                            >
-                              {loadingBlogId === blog.blogId.toString()
-                                ? "Đang xử lý..."
-                                : blog.defaultBlog
-                                ? "Đã mặc định"
-                                : "Set mặc định"}
-                            </motion.button>
-                          )}
-                          {!isAdmin && (
-                            <span className={blog.defaultBlog ? "text-blue-700" : "text-gray-500"}>
-                              {blog.defaultBlog ? "Mặc định" : "Không"}
-                            </span>
-                          )}
-                        </td>
-                        <td className="p-3 flex space-x-2">
-                          <motion.button
-                            onClick={() => handleOpenBlogForm(blog.blogId.toString())}
-                            className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <FaEdit size={14} />
-                            Sửa
-                          </motion.button>
-                          <motion.button
-                            onClick={() => handleBlogDelete(blog.blogId)}
-                            className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <FaTrash size={14} /> Xóa
-                          </motion.button>
-                        </td>
-                      </motion.tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={8} className="p-4 text-center text-gray-500">
-                        Không tìm thấy blog nào
+            <table className="w-full border-collapse rounded-lg ">
+              <thead>
+                <tr className="bg-white text-black">
+                  <th className="p-3 text-left">ID</th>
+                  <th className="p-3 text-left">Tiêu Đề</th>
+                  <th className="p-3 text-left">Hình Ảnh</th>
+                  <th className="p-3 text-left">Tác Giả</th>
+                  <th className="p-3 text-left">Trạng Thái</th>
+                  <th className="p-3 text-left">Danh Mục</th>
+                  <th className="p-3 text-left">Default</th>
+                  <th className="p-3 text-left">Hành Động</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white">
+                {currentBlogs.length > 0 ? (
+                  currentBlogs.map((blog) => (
+                    <motion.tr
+                      key={blog.blogId}
+                      className="border-t hover:bg-pink-50 transition-colors"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <td className="p-3">{blog.blogId}</td>
+                      <td className="p-3 font-medium">{blog.title}</td>
+                      <td className="p-3">
+                        <img
+                          src={blog.img || "/placeholder.jpg"}
+                          alt={blog.title}
+                          className="w-auto h-16 object-cover"
+                          onError={(e) =>
+                            (e.currentTarget.src = "/placeholder.jpg")
+                          }
+                        />
                       </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-              <Pagination
-                totalPages={totalPages}
-                currentPage={currentPage}
-                paginate={paginate}
-              />
-            
+                      <td className="p-3">
+                        {blog.therapistName || "Không có"}
+                      </td>
+                      <td className="p-3 flex items-center space-x-2">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            blog.approve
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {blog.approve ? "Đã duyệt" : "Chưa duyệt"}
+                        </span>
+                        {isAdmin && !blog.approve && (
+                          <motion.button
+                            onClick={() =>
+                              handleApproveChange(
+                                blog.blogId.toString(),
+                                blog.approve
+                              )
+                            }
+                            className="px-2 py-1 rounded-lg text-white text-xs bg-green-500 hover:bg-green-600"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            disabled={loadingBlogId === blog.blogId.toString()}
+                          >
+                            {loadingBlogId === blog.blogId.toString()
+                              ? "Đang xử lý..."
+                              : "Duyệt"}
+                          </motion.button>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        <span className="bg-pink-100 text-pink-800 px-2 py-1 rounded-full text-xs">
+                          {blog.categoryName}
+                        </span>
+                      </td>
+                      <td className="p-3">
+                        {isAdmin && (
+                          <motion.button
+                            onClick={() =>
+                              handleSetDefault(blog.blogId.toString())
+                            }
+                            className={`px-2 py-1 rounded-lg text-white text-xs ${
+                              blog.defaultBlog
+                                ? "bg-blue-700 cursor-not-allowed"
+                                : "bg-blue-500 hover:bg-blue-600"
+                            }`}
+                            whileHover={{ scale: blog.defaultBlog ? 1 : 1.05 }}
+                            whileTap={{ scale: blog.defaultBlog ? 1 : 0.95 }}
+                            disabled={
+                              blog.defaultBlog ||
+                              loadingBlogId === blog.blogId.toString()
+                            }
+                          >
+                            {loadingBlogId === blog.blogId.toString()
+                              ? "Đang xử lý..."
+                              : blog.defaultBlog
+                              ? "Đã mặc định"
+                              : "Set mặc định"}
+                          </motion.button>
+                        )}
+                        {!isAdmin && (
+                          <span
+                            className={
+                              blog.defaultBlog
+                                ? "text-blue-700"
+                                : "text-gray-500"
+                            }
+                          >
+                            {blog.defaultBlog ? "Mặc định" : "Không"}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3 flex space-x-2">
+                        <motion.button
+                          onClick={() =>
+                            handleOpenBlogForm(blog.blogId.toString())
+                          }
+                          className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <FaEdit size={14} />
+                          Sửa
+                        </motion.button>
+                        <motion.button
+                          onClick={() => handleBlogDelete(blog.blogId)}
+                          className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <FaTrash size={14} /> Xóa
+                        </motion.button>
+                      </td>
+                    </motion.tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="p-4 text-center text-gray-500">
+                      Không tìm thấy blog nào
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              paginate={paginate}
+            />
           </>
         )}
 

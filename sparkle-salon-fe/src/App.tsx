@@ -204,9 +204,11 @@ function App() {
                 </Route>
 
                 {/* Therapist protected routes */}
-                {/* <Route element={<ProtectedRoute requiredRoles={['THERAPIST']} />}>
+                <Route element={<ProtectedRoute requiredRoles={['THERAPIST']} />}>
               <Route path="/therapist/:id" element={<TherapistPanel />} />
-            </Route> */}
+              <Route path="/therapist/blog" element={<BlogManagement />} />
+
+            </Route>
 
                 {/* Admin protected routes */}
                 <Route

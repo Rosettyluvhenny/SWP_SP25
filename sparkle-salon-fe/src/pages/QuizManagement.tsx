@@ -47,7 +47,7 @@ export default function QuizManagement() {
   const [loading, setLoading] = useState(true);
   const [mutationLoading, setMutationLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"quiz" | "result">("quiz");
+  const [activeTab, setActiveTab] = useState<"quiz" | "result">("quiz"); 
   const [editingQuizId, setEditingQuizId] = useState<number | null>(null);
   const [editQuizData, setEditQuizData] = useState<Quiz | null>(null);
   const [creatingQuiz, setCreatingQuiz] = useState<boolean>(false);
@@ -859,9 +859,9 @@ export default function QuizManagement() {
                                                       ),
                                                     })
                                                   }
-                                                  className="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600 ml-2"
-                                                >
-                                                  Xóa
+                                                  className="text-red-500 hover:text-red-700"
+                                                  >
+                                                  ✕
                                                 </button>
                                               </li>
                                             ))}
