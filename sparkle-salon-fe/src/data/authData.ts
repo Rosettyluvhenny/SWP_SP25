@@ -91,24 +91,13 @@ const updateUser = async (
     const apiUrl = `/users/${userId}`;; 
 
     const updatedData = { fullName, email, phone, dob: dob || "" };
-
-    try {
-        console.log("Sending Update Request to:", apiUrl);
-        console.log("Payload:", updatedData);
-
         const response = await axios.put(apiUrl, updatedData, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
         });
-
-        console.log("Update Successful:", response.data);
-        return response.status === 200;
-    } catch (error) {
-        console.error("Update Error:", error);
-        return false;
-    }
+        return response.result;
 };
 
 const createUser = async (data: { username: string, password: string, fullName: string, email: string, phone: string, dob: string }) => {

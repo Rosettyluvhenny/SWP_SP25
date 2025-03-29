@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Service, serviceDataById, servicesData } from "../data/servicesData";
-import { getFeedback } from "../data/feedbacksData";
+import { getFeedbackByServiceId } from "../data/feedbacksData";
 import { FaClock, FaMoneyBill, FaCalendarAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -47,6 +47,8 @@ export default function ServiceDetail() {
                     setError("Service not found");
                 } else {
                     setService(foundService);
+                    const feedbacks = await getFeedbackByServiceId(foundService.id);
+                    setFeedbacks(feedbacks);
                     setError(null);
                 }
             } catch (err) {
@@ -57,12 +59,6 @@ export default function ServiceDetail() {
             }
         };
 
-        const fetchFeedbacks = async () => {
-            const feedbacks = await getFeedback();
-            setFeedbacks(feedbacks);
-        };
-
-        fetchFeedbacks();
         fetchService();
     }, [id]);
 
@@ -75,10 +71,6 @@ export default function ServiceDetail() {
             navigate(`/booking?service=${id}`);
         }
     };
-
-    // const handleFeedbackSubmit = (newFeedback: Feedback) => {
-    //     setFeedbacks((prev) => [newFeedback, ...prev]);
-    // };
 
     // Loading state
     if (isLoading) {

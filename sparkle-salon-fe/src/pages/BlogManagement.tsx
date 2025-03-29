@@ -8,12 +8,9 @@ import { blogData } from "../data/blogData";
 import BlogInfoForm from "../components/BlogForm";
 import { jwtDecode } from "jwt-decode";
 import instance from "../services/customizedAxios";
-<<<<<<< HEAD
 import SidebarTherapist from "../components/SidebarTherapist";
 import { useNavigate } from "react-router-dom";
-=======
 import { toast } from "react-toastify";
->>>>>>> fbfd63f153b1b1de864245debb997d6e7e6f0d63
 
 interface DecodedToken {
   scope: string;

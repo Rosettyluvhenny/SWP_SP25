@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Booking, cancelMySession, getBookingById, getSessionById } from "../data/userData";
-import { FaCheck, FaTimes, FaCreditCard, FaMoneyBillWave, FaCalendarAlt, FaClipboardList, FaArrowLeft, FaTrash } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { FaCheck, FaTimes, FaCreditCard, FaMoneyBillWave, FaCalendarAlt, FaClipboardList, FaArrowLeft, FaTrash, FaStar, FaRegStar } from "react-icons/fa";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-toastify";
 import UpdateSessionModal from "../components/SessionAction";
+import SessionAction from "../components/SessionAction";
+import { createFeedback, Feedback } from "../data/feedbacksData";
+import FeedbackForm from "../components/FeedBackForm";
+import SessionFeedbackForm from "../components/FeedBackForm";
 
 // Define the Session interface
 interface Session {
@@ -24,40 +28,40 @@ interface Session {
     status: string;
     therapistName: string;
     userName: string;
+    rated: boolean;
 }
 interface SessionDetailProps {
     isStaff: boolean;
 }
-export default function SessionDetail({isStaff}: SessionDetailProps) {
+export default function SessionDetail({ isStaff }: SessionDetailProps) {
     const { id } = useParams();
     const navigate = useNavigate();
     const [session, setSession] = useState<Session | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isOpen, setIsOpen] = useState(false);
+    const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
     useEffect(() => {
-        const fetchSession = async () => {
-            try {
-                setIsLoading(true);
-                if (!id) {
-                    setError("Không tìm thấy ID đặt chỗ");
-                    return;
-                }
-                const response = await getSessionById(Number(id));
-                if (response) {
-                    setSession(response);
-                } else {
-                    setError("Không tìm thấy thông tin lịch hẹn");
-                }
-            } catch (err) {
-                setError("Có lỗi xảy ra khi lấy dữ liệu");
-            } finally {
-                setIsLoading(false);
-            }
-        };
+        if(isLoading == false) {
 
-        fetchSession();
-    }, [id,isOpen]);
+        }
+        else{
+        const fetchSession = async () => {
+                    if (!id) {
+                        setError("Không tìm thấy ID đặt chỗ");
+                        return;
+                    }
+                    const response = await getSessionById(Number(id));
+                    if (response) {
+                        setSession(response);
+                    } else {
+                        setError("Không tìm thấy thông tin lịch hẹn");
+                    }
+                }
+                fetchSession();
+                setIsLoading(false);
+        }
+    }, [id,isLoading]);
 
     const getStatusColor = (status: string) => {
         switch (status.toUpperCase()) {
@@ -86,14 +90,17 @@ export default function SessionDetail({isStaff}: SessionDetailProps) {
         try {
             const response = await cancelMySession(sessionId);
             toast.success("Hủy lịch thành công")
-            setIsLoading(!isLoading);
+            setIsLoading(true);
 
         } catch (error) {
             console.log(error);
             toast.error("Hủy lịch không thành công");
         }
     };
-    console.log("check", isStaff);
+    const handleFeedBack = () => {
+        setIsFeedbackOpen(true);
+    };
+
     if (error) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
@@ -133,14 +140,21 @@ export default function SessionDetail({isStaff}: SessionDetailProps) {
     const sessionTime = session.sessionDateTime.split('T')[1];
     return (
         <div className="bg-white min-h-screen">
-            {(isStaff === false) && 
-            <div className="relative w-full h-[170px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
-                <div className="absolute inset-0 bg-black opacity-40"></div>
-                <h1 className=" mt-10 relative z-10 text-white text-7xl font-bold">
-                    Chi tiết đặt lịch
-                </h1>
-            </div>
-            } 
+            {(isStaff === false) &&
+                <div className="relative w-full h-[170px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
+                    <div className="absolute inset-0 bg-black opacity-40"></div>
+                    <h1 className=" mt-10 relative z-10 text-white text-7xl font-bold">
+                        Chi tiết đặt lịch
+                    </h1>
+                </div>
+            }
+            {isFeedbackOpen && !isStaff && session.status === "COMPLETED" && !session.rated && (
+                    <SessionFeedbackForm
+                        sessionId={session.id}
+                        isOpen={isFeedbackOpen}
+                        onClose={() => setIsFeedbackOpen(false)}
+                    />
+            )}
             <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-2xl mx-auto mt-4 ">
                 <div className="bg-gradient-to-r from-purple-500 to-indigo-600 px-6 py-4">
                     <h2 className="text-xl font-bold text-white">Chi tiết phiên điều trị #{session.id} </h2>
@@ -161,16 +175,30 @@ export default function SessionDetail({isStaff}: SessionDetailProps) {
                                 <FaTrash size={14} /> Hủy
                             </motion.button>
                         )}
-                        
-                        {isStaff && 
-                        <button className="px-3 py-1 rounded-full text-md font-medium text-white bg-green-500 hover:bg-white hover:text-black"
-                         onClick = {()=> {setIsOpen(true); }}>Update</button>}
-                        {isOpen&&
-                        <UpdateSessionModal
-                            isOpen = {isOpen}
-                            setIsOpen={setIsOpen}
-                            session = {session}
-                        />}
+                        {!isStaff && session.status === "COMPLETED" && !session.rated && (
+                            <motion.button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleFeedBack(session.id);
+                                }}
+                                className="bg-green-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1.5 shadow-sm"
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                            >
+                                <FaStar size={14} /> Đánh giá
+                            </motion.button>
+                        )}
+                        {isStaff &&
+                            <button className="px-3 py-1 rounded-full text-md font-medium text-white bg-green-500 hover:bg-white hover:text-black"
+                                onClick={() => { setIsUpdateOpen(true); }}>Update</button>}
+                        {isUpdateOpen &&
+                            <UpdateSessionModal
+                                isOpen={isUpdateOpen}
+                                setIsOpen={setIsUpdateOpen}
+                                session={session}
+                                setIsLoading= {setIsLoading}
+                            />}
+
                     </div>
                 </div>
 
@@ -277,7 +305,6 @@ export default function SessionDetail({isStaff}: SessionDetailProps) {
                     </div>
                 </div>
             </div>
-            {/* <SessionAction/> */}
         </div>
     );
 }
