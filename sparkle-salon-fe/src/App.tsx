@@ -110,6 +110,16 @@ function App() {
                 />
                 <Route path="/therapist" element={<TherapistPanel />} />
 
+                <Route
+                        path="/feedback"
+                        element={
+                            <MainLayout>
+                                <Feedback />
+                            </MainLayout>
+                        }
+                    />
+
+
                 {/* User protected routes */}
                 <Route element={<ProtectedRoute requiredRoles={["USER"]} />}>
                     <Route
@@ -169,16 +179,8 @@ function App() {
                             </MainLayout>
                         }
                     />
-                    {/* <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} /> */}
-                    <Route
-                        path="/feedback"
-                        element={
-                            <MainLayout>
-                                <Feedback />
-                            </MainLayout>
-                        }
-                    />
                 </Route>
+                    {/* <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} /> */}
 
                 {/* Admin protected routes */}
                 <Route element={<ProtectedRoute requiredRoles={["ADMIN"]} />}>
@@ -202,9 +204,11 @@ function App() {
                 </Route>
 
                 {/* Therapist protected routes */}
-                {/* <Route element={<ProtectedRoute requiredRoles={['THERAPIST']} />}>
+                <Route element={<ProtectedRoute requiredRoles={['THERAPIST']} />}>
               <Route path="/therapist/:id" element={<TherapistPanel />} />
-            </Route> */}
+              <Route path="/therapist/blog" element={<BlogManagement />} />
+
+            </Route>
 
                 {/* Admin protected routes */}
                 <Route

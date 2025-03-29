@@ -28,7 +28,7 @@ export default function YourBooking() {
                 setBookings(response.bookings);
                 setTotalPages(response.meta.totalPages);
             } else {
-                alert("Không thể lấy danh sách lịch đặt!");
+                toast.error("Không thể lấy danh sách lịch đặt!");
             }
         };
         fetchBookings();
@@ -84,7 +84,7 @@ export default function YourBooking() {
         else {
             const response = await getUrlPayment(booking.id);
             if (response && response.url) {
-                alert("Đang chuyển hướng đến trang thanh toán...");
+                toast.success("Đang chuyển hướng đến trang thanh toán...");
                 window.open(response.url, "_self");
             }
         }

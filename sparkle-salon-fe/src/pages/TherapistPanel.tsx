@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getTherapistById } from "../data/therapistData";
 import {
     getTherapistSessions,
     updateBookingSession,
 } from "../data/sessionData";
 import SidebarTherapist from "../components/SidebarTherapist";
+import {
+    CalendarIcon,
+    ClipboardDocumentListIcon,
+    DocumentPlusIcon,
+    CheckCircleIcon,
+    ExclamationTriangleIcon,
+    PencilSquareIcon
+} from "@heroicons/react/24/outline";
+import { FaUser,FaBookMedical,FaAddressBook  } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 interface Therapist {
     id: string;
@@ -42,6 +52,7 @@ interface Session {
 
 export default function Therapist() {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate(); // For navigation to blog
     const [therapist, setTherapist] = useState<Therapist | null>(null);
     const [activeTab, setActiveTab] = useState("schedule");
     const [loading, setLoading] = useState<boolean>(true);
@@ -49,7 +60,9 @@ export default function Therapist() {
 
     // States for schedule and notes
     const [sessions, setSessions] = useState<Session[]>([]);
-    const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+    const [selectedSession, setSelectedSession] = useState<Session | null>(
+        null
+    );
 
     // Date range states
     const [startDate, setStartDate] = useState<string>(() => {
@@ -63,16 +76,28 @@ export default function Therapist() {
         return date.toISOString().split("T")[0];
     });
 
+    // Status color mapping
+    const getStatusColor = (status: string) => {
+        switch (status.toLowerCase()) {
+            case "completed":
+                return "bg-green-100 text-green-800";
+            case "pending":
+                return "bg-yellow-100 text-yellow-800";
+            case "cancelled":
+                return "bg-red-100 text-red-800";
+            default:
+                return "bg-gray-100 text-gray-800";
+        }
+    };
+
     // Fetch therapist data
     useEffect(() => {
         const fetchTherapistData = async () => {
-            console.log("Fetching therapist data for ID:", id);
             if (id) {
                 setLoading(true);
                 setError(null);
                 try {
                     const data = await getTherapistById(id);
-                    console.log("Therapist data:", data);
                     if (data) {
                         setTherapist(data);
                     } else {
@@ -97,7 +122,6 @@ export default function Therapist() {
                 setLoading(true);
                 try {
                     const data = await getTherapistSessions(startDate, endDate);
-                    console.log("Sessions data:", data);
                     if (data) {
                         setSessions(data);
                     } else {
@@ -114,6 +138,13 @@ export default function Therapist() {
 
         fetchSessions();
     }, [activeTab, startDate, endDate]);
+
+
+    useEffect(() => {
+        if (activeTab === "blog") {
+            navigate(`/therapist/blog`);
+        }
+    }, [activeTab, navigate]);
 
     // Handle session update
     const handleSessionUpdate = async (
@@ -134,21 +165,16 @@ export default function Therapist() {
                 imgBefore,
                 imgAfter
             );
-            alert("Session updated successfully!");
+
+            toast.success("Cập Nhật Thành Công!");
         } catch (error) {
             console.error("Error updating session:", error);
-            alert("Failed to update session.");
+            toast.error("Cập nhật không thành công. Vui lòng thử lại.");
         }
     };
 
-    // Debug logging
-    useEffect(() => {
-        console.log("Current therapist state:", therapist);
-        console.log("Current sessions state:", sessions);
-    }, [therapist, sessions]);
-
     return (
-        <div className="flex h-screen bg-white">
+        <div className="flex h-screen bg-gray-50">
             {/* Sidebar */}
             <SidebarTherapist
                 activeTab={activeTab}
@@ -157,130 +183,197 @@ export default function Therapist() {
 
             {/* Main Content */}
             <main className="flex-1 p-6 overflow-auto">
-                <h1 className="text-2xl font-bold text-gray-800 mb-4">
-                    {activeTab === "schedule" && "Work Schedule"}
-                    {activeTab === "notes" && "Therapy Session Notes"}
-                </h1>
+                {/* Header with Dynamic Icons */}
+                <header className="flex items-center mb-6">
+                    {activeTab === "schedule" && (
+                        <CalendarIcon className="w-6 h-6 mr-3 text-pink-600" />
+                    )}
+                    {activeTab === "notes" && (
+                        <ClipboardDocumentListIcon className="w-6 h-6 mr-3 text-pink-600" />
+                    )}
+                    <h1 className="text-2xl font-bold text-gray-800">
+                        {activeTab === "schedule" && "Work Schedule"}
+                        {activeTab === "notes" && "Therapy Session Notes"}
+                        {activeTab === "blog" && "Blog Posts"}
+                    </h1>
+                </header>
 
-                {/* Debugging Information */}
-                {loading && <p>Loading...</p>}
-                {error && <p className="text-red-600">{error}</p>}
+                {/* Loading and Error States with Enhanced Styling */}
+                {loading && (
+                    <div className="flex justify-center items-center h-64">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
+                    </div>
+                )}
 
-                {/* Therapist Not Found Message */}
-                {!loading && !therapist && (
-                    <div className="text-center text-gray-600">
-                        <p>No therapist found. Please check the therapist ID.</p>
+                {error && (
+                    <div
+                        className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative"
+                        role="alert"
+                    >
+                        <ExclamationTriangleIcon className="w-6 h-6 inline-block mr-2 text-red-500" />
+                        <span className="block sm:inline">{error}</span>
                     </div>
                 )}
 
                 {/* Sessions Content */}
                 {activeTab === "schedule" && (
-                    <div>
-                        <div className="mb-4 flex space-x-4">
-                            <div>
-                                <label className="block mb-2">Start Date</label>
-                                <input
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    className="border p-2 rounded"
-                                />
-                            </div>
-                            <div>
-                                <label className="block mb-2">End Date</label>
-                                <input
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    className="border p-2 rounded"
-                                />
+                    <div className="bg-white shadow-md rounded-lg p-6">
+                        <div className="mb-6 flex justify-between items-center">
+                            <div className="flex space-x-4">
+                                <div>
+                                    <label className="block mb-2 text-sm font-medium text-gray-700">
+                                        Start Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) =>
+                                            setStartDate(e.target.value)
+                                        }
+                                        className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-pink-500 focus:border-pink-500 block w-full p-2.5"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block mb-2 text-sm font-medium text-gray-700">
+                                        End Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) =>
+                                            setEndDate(e.target.value)
+                                        }
+                                        className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-pink-500 focus:border-pink-500 block w-full p-2.5"
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <h2 className="text-xl font-semibold mb-4">
-                            Your Sessions
-                        </h2>
                         {sessions.length === 0 ? (
-                            <p>No sessions found for the selected date range.</p>
+                            <div className="text-center py-8 bg-gray-50 rounded-lg">
+                                <DocumentPlusIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                                <p className="text-gray-600">
+                                    No sessions found for the selected date
+                                    range.
+                                </p>
+                            </div>
                         ) : (
-                            <table className="w-full border-collapse">
-                                <thead>
-                                    <tr className="bg-gray-100">
-                                        <th className="border p-2">Date</th>
-                                        <th className="border p-2">Service</th>
-                                        <th className="border p-2">Status</th>
-                                        <th className="border p-2">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {sessions.map((session) => (
-                                        <tr
-                                            key={session.id}
-                                            className="hover:bg-gray-50"
-                                        >
-                                            <td className="border p-2">
-                                                {new Date(session.sessionDateTime).toLocaleString()}
-                                            </td>
-                                            <td className="border p-2">
-                                                {session.serviceName}
-                                            </td>
-                                            <td className="border p-2">
-                                                {session.status}
-                                            </td>
-                                            <td className="border p-2">
-                                                <button
-                                                    className="bg-blue-500 text-white px-2 py-1 rounded"
-                                                    onClick={() => {
-                                                        setSelectedSession(session);
-                                                        setActiveTab("notes");
-                                                    }}
-                                                >
-                                                    View Details
-                                                </button>
-                                            </td>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left text-gray-500">
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                                        <tr>
+                                            <th className="px-6 py-3">Date</th>
+                                            <th className="px-6 py-3">
+                                                Service
+                                            </th>
+                                            <th className="px-6 py-3">
+                                                Status
+                                            </th>
+                                            <th className="px-6 py-3">
+                                                Actions
+                                            </th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {sessions.map((session) => (
+                                            <tr
+                                                key={session.id}
+                                                className="bg-white border-b hover:bg-gray-50 transition duration-200"
+                                            >
+                                                <td className="px-6 py-4">
+                                                    {new Date(
+                                                        session.sessionDateTime
+                                                    ).toLocaleString()}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {session.serviceName}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span
+                                                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                                            session.status
+                                                        )}`}
+                                                    >
+                                                        {session.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedSession(
+                                                                session
+                                                            );
+                                                            setActiveTab(
+                                                                "notes"
+                                                            );
+                                                        }}
+                                                        className="text-white bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:ring-pink-300 font-medium rounded-lg text-sm px-3 py-2 text-center inline-flex items-center transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110"
+                                                    >
+                                                        View Details
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         )}
                     </div>
                 )}
-                
+
                 {/* Notes Content */}
                 {activeTab === "notes" && (
-                    <div>
+                    <div className="bg-white shadow-md rounded-lg p-6">
                         {selectedSession ? (
                             <form
                                 onSubmit={async (e) => {
                                     e.preventDefault();
                                     const form = e.target as HTMLFormElement;
-                                    const noteElement = form.elements.namedItem("note") as HTMLTextAreaElement;
-                                    const imgBeforeElement = form.elements.namedItem("imgBefore") as HTMLInputElement;
-                                    const imgAfterElement = form.elements.namedItem("imgAfter") as HTMLInputElement;
+                                    const noteElement = form.elements.namedItem(
+                                        "note"
+                                    ) as HTMLTextAreaElement;
+                                    const imgBeforeElement =
+                                        form.elements.namedItem(
+                                            "imgBefore"
+                                        ) as HTMLInputElement;
+                                    const imgAfterElement =
+                                        form.elements.namedItem(
+                                            "imgAfter"
+                                        ) as HTMLInputElement;
 
                                     const note = noteElement.value.trim();
-                                    const imgBefore = imgBeforeElement.files?.[0];
+                                    const imgBefore =
+                                        imgBeforeElement.files?.[0];
                                     const imgAfter = imgAfterElement.files?.[0];
 
                                     // Validation
                                     if (!note) {
-                                        alert("Please enter session notes.");
+                                        toast.error(
+                                            "Please enter session notes."
+                                        );
                                         return;
                                     }
                                     if (!imgBefore) {
-                                        alert("Please upload an image before the session.");
+                                        toast.error(
+                                            "Please upload an image before the session."
+                                        );
                                         return;
                                     }
                                     if (!imgAfter) {
-                                        alert("Please upload an image after the session.");
+                                        toast.error(
+                                            "Please upload an image after the session."
+                                        );
                                         return;
                                     }
 
                                     try {
                                         // Disable submit button during upload
-                                        const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+                                        const submitButton = form.querySelector(
+                                            'button[type="submit"]'
+                                        ) as HTMLButtonElement;
                                         submitButton.disabled = true;
-                                        submitButton.textContent = "Updating...";
+                                        submitButton.textContent =
+                                            "Updating...";
 
                                         await handleSessionUpdate(
                                             selectedSession.id,
@@ -294,104 +387,153 @@ export default function Therapist() {
                                         imgBeforeElement.value = "";
                                         imgAfterElement.value = "";
                                     } catch (error) {
-                                        console.error("Error updating session:", error);
-                                        alert("Failed to update session. Please try again.");
+                                        console.error(
+                                            "Error updating session:",
+                                            error
+                                        );
+                                        toast.error(
+                                            "Failed to update session. Please try again."
+                                        );
                                     } finally {
                                         // Re-enable submit button
-                                        const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+                                        const submitButton = form.querySelector(
+                                            'button[type="submit"]'
+                                        ) as HTMLButtonElement;
                                         submitButton.disabled = false;
-                                        submitButton.textContent = "Update Session";
+                                        submitButton.textContent =
+                                            "Update Session";
                                     }
                                 }}
                             >
-                                {/* Form content remains the same as previous version */}
-                                <div className="mb-4">
-                                    <label className="block mb-2 font-medium">
-                                        Session Details
-                                    </label>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="text-gray-600">
-                                                Date: {new Date(selectedSession.sessionDateTime).toLocaleString()}
+                                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                                    <div>
+                                        <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                                            <CheckCircleIcon className="w-6 h-6 mr-2 text-pink-500" />
+                                            Session Details
+                                        </h2>
+                                        <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
+                                            <p className="text-gray-600 flex items-center">
+                                                <FaBookMedical className="w-5 h-5 mr-2 text-pink-500" />
+                                                Session ID: {selectedSession.id}
                                             </p>
-                                            <p className="text-gray-600">
-                                                Service: {selectedSession.serviceName}
+                                            <p className="text-gray-600 flex items-center">
+                                                <FaAddressBook className="w-5 h-5 mr-2 text-pink-500" />
+                                                Booking ID:{" "}
+                                                {selectedSession.bookingId}
                                             </p>
-                                            <p className="text-gray-600">
-                                                Room: {selectedSession.roomName || 'N/A'}
+                                            <p className="text-gray-600 flex items-center">
+                                                <FaUser className="w-5 h-5 mr-2 text-pink-500" />
+                                                Therapist:{" "}
+                                                {selectedSession.therapistName}
                                             </p>
+                                            <p className="text-gray-600 flex items-center">
+                                                <FaUser className="w-5 h-5 mr-2 text-pink-500" />
+                                                Client:{" "}
+                                                {selectedSession.userName}
+                                            </p>
+                                            <p className="text-gray-600 flex items-center">
+                                                <CalendarIcon className="w-5 h-5 mr-2 text-pink-500" />
+                                                Date:{" "}
+                                                {new Date(
+                                                    selectedSession.sessionDateTime
+                                                ).toLocaleString()}
+                                            </p>
+                                            <p className="text-gray-600 flex items-center">
+                                                <DocumentPlusIcon className="w-5 h-5 mr-2 text-pink-500" />
+                                                Service:{" "}
+                                                {selectedSession.serviceName}
+                                            </p>
+                                            <p className="text-gray-600 flex items-center">
+                                                <ClipboardDocumentListIcon className="w-5 h-5 mr-2 text-pink-500" />
+                                                Room:{" "}
+                                                {selectedSession.roomName ||
+                                                    "N/A"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                                            Upload Images
+                                        </h2>
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label
+                                                    htmlFor="imgBefore"
+                                                    className="block mb-2 text-sm font-medium text-gray-700"
+                                                >
+                                                    Before Session
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    id="imgBefore"
+                                                    name="imgBefore"
+                                                    accept="image/*"
+                                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    htmlFor="imgAfter"
+                                                    className="block mb-2 text-sm font-medium text-gray-700"
+                                                >
+                                                    After Session
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    id="imgAfter"
+                                                    name="imgAfter"
+                                                    accept="image/*"
+                                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                                                    required
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Rest of the form remains the same */}
                                 <div className="mb-4">
                                     <label
                                         htmlFor="note"
-                                        className="block mb-2 font-medium"
+                                        className="block mb-2 text-sm font-medium text-gray-700"
                                     >
                                         Session Notes
                                     </label>
                                     <textarea
                                         id="note"
                                         name="note"
-                                        className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"
+                                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                                         rows={6}
                                         placeholder="Enter detailed session notes here..."
-                                        defaultValue={selectedSession.note || ""}
+                                        defaultValue={
+                                            selectedSession.note || ""
+                                        }
                                         required
                                     ></textarea>
                                 </div>
 
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div className="mb-4">
-                                        <label
-                                            htmlFor="imgBefore"
-                                            className="block mb-2 font-medium"
-                                        >
-                                            Image Before Session
-                                        </label>
-                                        <input
-                                            type="file"
-                                            id="imgBefore"
-                                            name="imgBefore"
-                                            accept="image/*"
-                                            className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-4">
-                                        <label
-                                            htmlFor="imgAfter"
-                                            className="block mb-2 font-medium"
-                                        >
-                                            Image After Session
-                                        </label>
-                                        <input
-                                            type="file"
-                                            id="imgAfter"
-                                            name="imgAfter"
-                                            accept="image/*"
-                                            className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
                                 <button
                                     type="submit"
-                                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors duration-300"
+                                    className="w-full text-white bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105"
                                 >
                                     Update Session
                                 </button>
                             </form>
                         ) : (
-                            <div className="text-center py-8 bg-gray-100 rounded">
+                            <div className="text-center py-8 bg-gray-50 rounded-lg">
+                                <DocumentPlusIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                                 <p className="text-gray-600 text-lg">
                                     Select a session to view or edit notes
                                 </p>
                             </div>
                         )}
+                    </div>
+                )}
+                {/* Blog Content */}
+                {activeTab === "blog" && (
+                    <div className="bg-white shadow-md rounded-lg p-6">
+                        <p className="text-gray-600">Loading blog content...</p>
                     </div>
                 )}
             </main>

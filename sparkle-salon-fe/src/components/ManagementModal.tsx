@@ -26,7 +26,7 @@ export default function ManagementModal({
             onClick={onClose}
         >
             <div
-                className="bg-white p-6 rounded-lg shadow-lg w-96"
+                className="bg-white p-6 rounded-lg shadow-lg w-3/5"
                 onClick={(e) => e.stopPropagation()} 
             >
                 <h2 id="modal-title" className="text-lg font-semibold mb-4">

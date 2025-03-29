@@ -63,14 +63,14 @@ export default function BookingAction({ isStaff, booking, setReload, reload }: B
   const handleCard = React.useCallback(async (booking: Booking) => {
     try {
       if (booking.url) {
-        alert("Đang chuyển hướng đến trang thanh toán...");
+        toast.success("Đang chuyển hướng đến trang thanh toán...");
         window.open(booking.url, "_self");
         return;
       }
 
       const response = await getUrlPayment(String(booking.id));
       if (response && response.url) {
-        alert("Đang chuyển hướng đến trang thanh toán...");
+        toast.success("Đang chuyển hướng đến trang thanh toán...");
         window.open(response.url, "_self");
       } else {
         toast.error("Không thể tạo liên kết thanh toán.");

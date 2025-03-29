@@ -13,6 +13,7 @@ import {
     getRoomById,
 } from "../data/roomData";
 import { servicesData, Service as ServiceType } from "../data/servicesData";
+import { toast } from "react-toastify";
 
 export default function RoomManagement() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -81,13 +82,13 @@ export default function RoomManagement() {
             if (result) {
                 await fetchRooms();
                 await openServiceManagement(currentRoom);
-                alert("Dịch vụ đã được gán thành công!");
+                toast.success("Dịch vụ đã được gán thành công!");
             } else {
-                alert("Không thể gán dịch vụ. Vui lòng thử lại.");
+                toast.error("Không thể gán dịch vụ. Vui lòng thử lại.");
             }
         } catch (error) {
             console.error("Failed to assign service:", error);
-            alert("Có lỗi xảy ra khi gán dịch vụ.");
+            toast.error("Có lỗi xảy ra khi gán dịch vụ.");
         }
     };
 
@@ -102,13 +103,13 @@ export default function RoomManagement() {
             if (result) {
                 await fetchRooms();
                 await openServiceManagement(currentRoom);
-                alert("Dịch vụ đã được gỡ bỏ thành công!");
+                toast.success("Dịch vụ đã được gỡ bỏ thành công!");
             } else {
-                alert("Không thể gỡ bỏ dịch vụ. Vui lòng thử lại.");
+                toast.error("Không thể gỡ bỏ dịch vụ. Vui lòng thử lại.");
             }
         } catch (error) {
             console.error("Failed to remove service:", error);
-            alert("Có lỗi xảy ra khi gỡ bỏ dịch vụ.");
+            toast.error("Có lỗi xảy ra khi gỡ bỏ dịch vụ.");
         }
     };
 
@@ -158,7 +159,7 @@ export default function RoomManagement() {
             closeModal();
         } catch (error) {
             console.error("Failed to save room:", error);
-            alert("Có lỗi xảy ra khi lưu phòng. Vui lòng thử lại.");
+            toast.error("Có lỗi xảy ra khi lưu phòng. Vui lòng thử lại.");
         }
     };
 
@@ -172,7 +173,7 @@ export default function RoomManagement() {
                 fetchRooms();
             } catch (error) {
                 console.error("Failed to delete room:", error);
-                alert("Có lỗi xảy ra khi xóa phòng. Vui lòng thử lại.");
+                toast.error("Có lỗi xảy ra khi xóa phòng. Vui lòng thử lại.");
             }
         }
     };

@@ -30,7 +30,7 @@ export default function YourSession() {
                 setSessions(response.sessions);
                 setTotalPages(response.meta.totalPages)
             } else {
-                alert("Không thể lấy danh sách lịch đặt!");
+                toast.error("Không thể lấy danh sách lịch đặt!");
             }
         };
         fetchSession();
