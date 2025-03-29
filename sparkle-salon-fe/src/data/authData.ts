@@ -177,7 +177,7 @@ const introspect = async() =>{
     if(!token)
         return;
     const response = await axios.post("/auth/introspect", 
-        { token }, // Send token in body
+        { token }, 
         {
             headers: {
                 "Content-Type": "application/json"
@@ -192,7 +192,7 @@ const refresh = async() =>{
     if(!token)
         return;
     const response = await axios.post("/auth/refresh", 
-        { token }, // Send token in body
+        { token }, 
         {
             headers: {
                 "Content-Type": "application/json"

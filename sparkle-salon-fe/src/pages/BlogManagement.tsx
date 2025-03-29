@@ -117,9 +117,9 @@ useEffect(() => {
         if (activeTab === "blog") {
             navigate("/therapist/blog");
         } else if (activeTab === "notes") {
-            navigate("/therapist/notes");
+            navigate("/therapist");
         } else if (activeTab === "schedule") {
-            navigate("/therapist/schedule");
+            navigate("/therapist");
         }
     }, [activeTab, navigate]);
 
@@ -353,7 +353,6 @@ useEffect(() => {
                   <th className="p-3 text-left">Tác Giả</th>
                   <th className="p-3 text-left">Trạng Thái</th>
                   <th className="p-3 text-left">Danh Mục</th>
-                  <th className="p-3 text-left">Default</th>
                   <th className="p-3 text-left">Hành Động</th>
                 </tr>
               </thead>
@@ -416,8 +415,9 @@ useEffect(() => {
                           {blog.categoryName}
                         </span>
                       </td>
-                      <td className="p-3">
-                        {isAdmin && (
+                      <td className="p-3 flex space-x-2">
+
+                      {isAdmin && (
                           <motion.button
                             onClick={() =>
                               handleSetDefault(blog.blogId.toString())
@@ -452,8 +452,7 @@ useEffect(() => {
                             {blog.defaultBlog ? "Mặc định" : "Không"}
                           </span>
                         )}
-                      </td>
-                      <td className="p-3 flex space-x-2">
+
                         <motion.button
                           onClick={() =>
                             handleOpenBlogForm(blog.blogId.toString())

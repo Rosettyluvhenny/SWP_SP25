@@ -12,7 +12,6 @@ import {
     DocumentPlusIcon,
     CheckCircleIcon,
     ExclamationTriangleIcon,
-    PencilSquareIcon
 } from "@heroicons/react/24/outline";
 import { FaUser,FaBookMedical,FaAddressBook  } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -90,7 +89,6 @@ export default function Therapist() {
         }
     };
 
-    // Fetch therapist data
     useEffect(() => {
         const fetchTherapistData = async () => {
             if (id) {
@@ -367,7 +365,6 @@ export default function Therapist() {
                                     }
 
                                     try {
-                                        // Disable submit button during upload
                                         const submitButton = form.querySelector(
                                             'button[type="submit"]'
                                         ) as HTMLButtonElement;
@@ -382,7 +379,6 @@ export default function Therapist() {
                                             imgAfter
                                         );
 
-                                        // Clear form and reset
                                         noteElement.value = "";
                                         imgBeforeElement.value = "";
                                         imgAfterElement.value = "";
@@ -395,7 +391,6 @@ export default function Therapist() {
                                             "Failed to update session. Please try again."
                                         );
                                     } finally {
-                                        // Re-enable submit button
                                         const submitButton = form.querySelector(
                                             'button[type="submit"]'
                                         ) as HTMLButtonElement;
