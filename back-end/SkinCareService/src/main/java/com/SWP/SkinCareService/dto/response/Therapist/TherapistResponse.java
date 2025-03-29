@@ -28,7 +28,7 @@ public class TherapistResponse {
     Set<Role> roles;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime createdAt;
-
+    Integer rating;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt;
 

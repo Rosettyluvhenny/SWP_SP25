@@ -42,4 +42,5 @@ public class BookingSessionResponse {
     // img
     String img;
 
+    boolean rated;
 }

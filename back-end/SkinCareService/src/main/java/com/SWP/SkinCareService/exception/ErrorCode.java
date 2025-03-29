@@ -32,6 +32,7 @@ public enum ErrorCode {
     THERAPIST_NOT_EXISTED(1016, "Therapist not found", HttpStatus.NOT_FOUND),
     STILL_ACTIVE(1017,"The active entity can not be deleted", HttpStatus.BAD_REQUEST),
     MIN(1018, "The value must be at least {value}", HttpStatus.BAD_REQUEST),
+    MAX(2025, "The value must be at least {value}", HttpStatus.BAD_REQUEST),
     CATEGORY_EXISTED(1019, "Service category existed", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_EXISTED(1020, "Service category not found", HttpStatus.NOT_FOUND),
     SERVICE_EXIST(1021, "Service existed", HttpStatus.BAD_REQUEST),
@@ -74,7 +75,7 @@ public enum ErrorCode {
     THERAPIST_NOT_SUPPORTED(1058, "Therapist is not supported", HttpStatus.BAD_REQUEST),
     MAX_SESSION_REACHED(1059,"This service has reached the maximum number of sessions allowed.", HttpStatus.BAD_REQUEST),
     BOOKING_REJECTED(1060,"Booking rejected", HttpStatus.BAD_REQUEST),
-    CURRENT_SESSION_NOT_COMPLETED(1061,"Current session is not completed", HttpStatus.BAD_REQUEST),
+    CURRENT_SESSION_NOT_COMPLETED(1061,"Current session is not completed or is rated or ready", HttpStatus.BAD_REQUEST),
     NOTIFICATION_NOT_FOUND(1062,"Notification not found", HttpStatus.NOT_FOUND),
     NOT_HAVE_PERMISSIONS(1063,"You does not have permissions", HttpStatus.BAD_REQUEST),
     SESSION_ON_GOING(1064,"The session is on going, can't cancel", HttpStatus.BAD_REQUEST),
@@ -93,7 +94,10 @@ public enum ErrorCode {
     IS_DEFAULT_BLOG(2010, "The Blog post is default Blog" , HttpStatus.BAD_REQUEST ),
     BOOKING_IS_COMPLETED(2011,"This service is completed, select other service" , HttpStatus.BAD_REQUEST),
     NOT_FINISH(2012,"The session is update completely" , HttpStatus.BAD_REQUEST ),
-    SESSION_COMPLETED(2014,"Can't update completed Session" , HttpStatus.BAD_REQUEST );
+    SESSION_COMPLETED(2014,"Can't update completed Session" , HttpStatus.BAD_REQUEST ),
+    ACTIVE_EXCEPTION(2015,"The active state is already change" , HttpStatus.BAD_REQUEST ),
+    IS_DISABLE(2016, "Your account is disabled please contact our center directly" , HttpStatus.BAD_REQUEST ),
+    WRONG_PASSWORD(2017, "Your current password is not correct. Please try again" , HttpStatus.BAD_REQUEST);
     ;
 
 

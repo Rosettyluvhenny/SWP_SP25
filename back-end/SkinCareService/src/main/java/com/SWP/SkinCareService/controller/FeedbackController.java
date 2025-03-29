@@ -1,10 +1,13 @@
 package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.Feedback.FeedbackRequest;
-import com.SWP.SkinCareService.dto.request.Feedback.FeedbackUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Feedback.FeedbackResponse;
+import com.SWP.SkinCareService.entity.Feedback;
+import com.SWP.SkinCareService.entity.Services;
+import com.SWP.SkinCareService.entity.Therapist;
 import com.SWP.SkinCareService.service.FeedbackService;
+import kotlin.PublishedApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,13 +54,6 @@ public class FeedbackController {
         );
     }
 
-    @PutMapping("/{feedbackId}")
-    public ResponseEntity<ApiResponse<FeedbackResponse>> updateFeedback(@PathVariable int feedbackId, @RequestBody FeedbackUpdateRequest feedbackRequest) {
-        var result = feedbackService.updateFeedback(feedbackId, feedbackRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<FeedbackResponse>builder().result(result).build()
-        );
-    }
 
     @DeleteMapping("/{feedbackId}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -67,6 +63,21 @@ public class FeedbackController {
                 ApiResponse.builder().message("Feedback deleted").build()
         );
     }
+    @PublishedApi
+    @GetMapping("/serviceId/{serviceId}")
+    public ResponseEntity<ApiResponse<List<FeedbackResponse>>> getFeedbackByServiceId(@PathVariable int serviceId) {
+        var result = feedbackService.getByServiceId(serviceId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<List<FeedbackResponse>>builder().result(result).build()
+        );
+    }
 
-
+    @PublishedApi
+    @GetMapping("/therapistId/{therapistId}")
+    public ResponseEntity<ApiResponse<List<FeedbackResponse>>> getFeedbackByTherapistId(@PathVariable String therapistId) {
+        var result = feedbackService.getByTherapistId(therapistId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<List<FeedbackResponse>>builder().result(result).build()
+        );
+    }
 }

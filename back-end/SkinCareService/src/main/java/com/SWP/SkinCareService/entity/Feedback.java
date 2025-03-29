@@ -58,7 +58,5 @@ public class Feedback {
     @JoinColumn(name = "serviceId", nullable = false)
     private Services service;
 
-    @Column(nullable = false)
-    private boolean rated = false;
 
 }

@@ -68,6 +68,7 @@ public class BookingController {
     }
 
     @PutMapping("/{bookingId}")
+    @PreAuthorize("hasAnyRole('STAFF','THERAPIST')")
     ResponseEntity<ApiResponse<BookingResponse>> updateBooking(@PathVariable int bookingId, @RequestBody BookingUpdateRequest bookingRequest) {
         var result = bookingService.updateBooking(bookingId, bookingRequest);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -84,6 +85,7 @@ public class BookingController {
     }
 
     @PutMapping("/{bookingId}/status")
+    @PreAuthorize("hasRole('STAFF')")
     ResponseEntity<ApiResponse<BookingResponse>> updateStatus(@PathVariable int bookingId, @RequestParam String status) {
         bookingService.updateStatus(bookingId, status);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -92,6 +94,7 @@ public class BookingController {
     }
 
     @PutMapping("/{bookingId}/paymentStatus")
+    @PreAuthorize("hasRole('STAFF')")
     ResponseEntity<ApiResponse<BookingResponse>> updatePaymentStatus(@PathVariable int bookingId, @RequestParam String status) {
         bookingService.updatePaymentStatus(bookingId, status);
         return ResponseEntity.status(HttpStatus.OK).body(

@@ -48,7 +48,7 @@ public class User {
     private String phone;
 
     @Column(name = "is_active")
-    private boolean active = true;
+    boolean active = true;
     //
     LocalDate dob;
     @ManyToMany

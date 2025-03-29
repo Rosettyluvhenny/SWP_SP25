@@ -17,9 +17,21 @@ import java.util.List;
 public class TherapistUpdateRequest {
 
     @Min(value = 0,message = "MIN")
-    int  experienceYears;
+    @Max(value = 30, message ="MAX")
+    Integer  experienceYears;
 
     String bio;
 
     List<Integer> serviceIds = new ArrayList<>();
+
+    String fullName;
+
+    @Email(message = "EMAIL_INVALID")
+    String email;
+
+    @Pattern(regexp = "^\\d{10}$",message = "PHONE_NO_INVALID")
+    String phone;
+
+    @DobConstraint(min = 16, message ="INVALID_DOB")
+    LocalDate dob;
 }

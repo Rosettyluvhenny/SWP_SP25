@@ -81,6 +81,11 @@ public class AuthenticationService {
         if(!authenticated){
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+        else {
+            if(!user.isActive()){
+                throw new AppException(ErrorCode.IS_DISABLE);
+            }
+        }
         var token = generateToken(user);
     return AuthenticationResponse.builder()
             .token(token)

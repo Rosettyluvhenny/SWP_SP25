@@ -181,6 +181,7 @@ public class UserService {
  */
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.request.Identity.PasswordRequest;
 import com.SWP.SkinCareService.dto.request.Identity.UserRequest;
 import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Skin.AssignSkinRequest;
@@ -205,7 +206,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -218,6 +218,7 @@ public class UserService {
     UserMapper userMapper;
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
+
     RoleRepository roleRepository;
     QuizResultRepository quizResultRepository;
 
@@ -256,7 +257,7 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
     public User getById(String id) {
-        return userRepository.findById(id).orElseThrow(()-> new RuntimeException("user can not be found"));
+        return userRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
     public User getUserByUsername(String userName){
         return userRepository.findByUsername(userName).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -279,10 +280,12 @@ public class UserService {
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    public UserResponse disable(String userId){
+    public UserResponse changeActive(String userId, boolean check){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        user.setActive(false);
+        if(check == user.isActive())
+            throw new AppException(ErrorCode.ACTIVE_EXCEPTION);
+        user.setActive(check);
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
@@ -319,6 +322,23 @@ public class UserService {
         roles.add(roleUser);
         user.setRoles(roles);
         user = userRepository.save(user);
+        return userMapper.toUserResponse(user);
+    }
+
+    @Transactional
+//    @PostAuthorize("returnObject.username == authentication.name")
+    public UserResponse changePassword(String userId, PasswordRequest rq){
+        User user = getById(userId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User rqUser = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_EXISTED));
+        if(!user.getId().equals(rqUser.getId()))
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        if(!passwordEncoder.matches(rq.getOldPassword(),user.getPassword()))
+            throw new AppException(ErrorCode.WRONG_PASSWORD);
+        else {
+            user.setPassword(passwordEncoder.encode(rq.getNewPassword()));
+            userRepository.save(user);
+        }
         return userMapper.toUserResponse(user);
     }
 }

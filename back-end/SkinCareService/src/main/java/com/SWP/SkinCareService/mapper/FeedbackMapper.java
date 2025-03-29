@@ -21,7 +21,10 @@ public interface FeedbackMapper {
     @Mapping(target = "img", source = "service.img")
     @Mapping(target = "bookingDate", source = "bookingSession.bookingDate")
     @Mapping(target = "therapistName", source = "bookingSession.therapist.user.fullName")
-    @Mapping(target = "rated", source = "rated")
+    @Mapping(target = "rating", source = "rating")
+    @Mapping(target = "username", source ="user.username")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "fullName", source = "user.fullName")
     FeedbackResponse toFeedbackResponse(Feedback feedback);
 
     void updateFeedback(FeedbackRequest request,  @MappingTarget Feedback feedback);

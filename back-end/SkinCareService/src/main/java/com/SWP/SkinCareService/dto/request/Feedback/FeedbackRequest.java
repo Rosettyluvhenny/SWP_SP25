@@ -13,9 +13,11 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class FeedbackRequest {
-    int serviceId;
     int bookingSessionId;
-    String userId;
-    String therapistId;
-    boolean rated;
+    @NotBlank(message = "NOT_EMPTY")
+    @Min(value = 1, message = "MIN")
+    @Max(value = 5, message = "Rating cannot be more than 5")
+    int rating;
+    @NotBlank(message = "NOT_EMPTY")
+    String feedbackText;
 }

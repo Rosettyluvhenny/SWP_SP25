@@ -1,9 +1,9 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Feedback.FeedbackRequest;
-import com.SWP.SkinCareService.dto.request.Feedback.FeedbackUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Feedback.FeedbackResponse;
 import com.SWP.SkinCareService.entity.*;
+import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.FeedbackMapper;
@@ -11,6 +11,7 @@ import com.SWP.SkinCareService.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,39 +35,36 @@ public class FeedbackService {
 
     @Transactional
     public FeedbackResponse createFeedback(FeedbackRequest feedbackRequest) {
-        Feedback feedback = feedbackMapper.toFeedBack(feedbackRequest);
+
         //Get user
-        User user = getUserById(feedbackRequest.getUserId());
-        //Get service
-        Services services = getServiceById(feedbackRequest.getServiceId());
-        //Get session
         BookingSession session = getSessionById(feedbackRequest.getBookingSessionId());
+        if (session.getStatus() != BookingSessionStatus.COMPLETED || session.isRated())
+            throw new AppException(ErrorCode.CURRENT_SESSION_NOT_COMPLETED);
+        User user = session.getBooking().getUser();
+        //Get service
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User rqUser = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if(!user.getId().equals(rqUser.getId()))
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        Services services = session.getBooking().getService();
+        //Get session
+        Therapist therapist = session.getTherapist();
+
+        Feedback feedback = feedbackMapper.toFeedBack(feedbackRequest);
         //Get therapist
-        Therapist therapist = getTherapistById(feedbackRequest.getTherapistId());
+
         feedback.setService(services);
         feedback.setUser(user);
         feedback.setBookingSession(session);
         feedback.setTherapist(therapist);
-        feedback.setRating(0);
+        feedback.setRating(feedbackRequest.getRating());
+        feedback.setFeedbackText(feedback.getFeedbackText());
         feedbackRepository.save(feedback);
-        return feedbackMapper.toFeedbackResponse(feedback);
-
-    }
-    @Transactional
-    public FeedbackResponse updateFeedback(int id, FeedbackUpdateRequest request) {
-        Feedback feedback = getById(id);
-        feedback.setFeedbackText(request.getFeedbackText());
-        feedback.setRating(request.getRating());
-        feedback.setRated(true);
-        feedbackRepository.save(feedback);
-
-
-        //Get service
-        Services service = feedback.getService();
-        //Calculate rating for Service
+        session.setRated(true);
+        bookingSessionRepository.save(session);
         float serviceRating = 0;
 
-        Set<Feedback> feedbackListService = service.getFeedbacks();
+        Set<Feedback> feedbackListService = services.getFeedbacks();
         if (feedbackListService.isEmpty()) {
             serviceRating = (float) feedback.getRating();
         } else {
@@ -77,12 +75,8 @@ public class FeedbackService {
             }
             serviceRating = serviceRating / feedbackListService.size();
         }
-        service.setRating(serviceRating);
-        servicesRepository.save(service);
-
-
-        //Get therapist
-        Therapist therapist = feedback.getTherapist();
+        services.setRating(serviceRating);
+        servicesRepository.save(services);
         //Calculate rating for Therapist
         float therapistRating = 0;
         Set<Feedback> feedbackListTherapist = therapist.getFeedbacks();
@@ -99,6 +93,13 @@ public class FeedbackService {
         therapist.setRating(therapistRating);
         therapistRepository.save(therapist);
         return feedbackMapper.toFeedbackResponse(feedback);
+
+    }
+    public List<FeedbackResponse> getByServiceId(int serviceId){
+       return feedbackRepository.findAllByService_Id(serviceId).stream().map(feedbackMapper::toFeedbackResponse).toList();
+    }
+    public List<FeedbackResponse> getByTherapistId(String theraId){
+        return feedbackRepository.findAllByTherapist_Id(theraId).stream().map(feedbackMapper::toFeedbackResponse).toList();
     }
 
     public List<FeedbackResponse> getAllFeedback() {
@@ -110,11 +111,11 @@ public class FeedbackService {
         return feedbackMapper.toFeedbackResponse(feedback);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') && authentication.name == returnObject.user")
     public List<FeedbackResponse> getFeedbackByUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow(()-> new AppException(ErrorCode.UNAUTHENTICATED));
-        return feedbackRepository.findAllByUserAndRatedFalse(user).stream().map(feedbackMapper::toFeedbackResponse).toList();
+        return feedbackRepository.findAllByUser(user).stream().map(feedbackMapper::toFeedbackResponse).toList();
     }
 
     @Transactional

@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.service;
 
+import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.GetScheduleRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
@@ -11,6 +12,7 @@ import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.ServicesMapper;
 import com.SWP.SkinCareService.mapper.TherapistMapper;
+import com.SWP.SkinCareService.mapper.UserMapper;
 import com.SWP.SkinCareService.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +49,7 @@ public class TherapistService {
     ServicesMapper servicesMapper;
     PasswordEncoder passwordEncoder;
     BookingSessionRepository bookingSessionRepository;
-
+    UserMapper userMapper;
     @Transactional
     public TherapistResponse create(TherapistRequest request, MultipartFile img) throws IOException {
         // Validate user existence first
@@ -82,10 +84,10 @@ public class TherapistService {
         therapist.setImg(imageUrl);
         therapist = therapistRepository.save(therapist);
         therapistRepository.flush();
-        return therapistMapper.toResponse(therapist);
-
-
-
+        TherapistResponse response =  therapistMapper.toResponse(therapist);
+        response.setServices(therapist.getServices().stream().map(servicesMapper::toSummaryResponse).toList());
+        return response;
+//        return therapistMapper.toResponse(therapist);
     }
 
     public Page<TherapistResponse> findAll(boolean isActive, Pageable pageable){
@@ -123,9 +125,20 @@ public class TherapistService {
     }
     @Transactional
     public TherapistResponse update (String id, TherapistUpdateRequest request, MultipartFile img) throws IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         Therapist therapist = therapistRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.THERAPIST_NOT_EXISTED));
+        User user = therapist.getUser();
 
+        if(authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))){
+
+        }else {
+            if (!user.getUsername().equals(authentication.getName()))
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        UserUpdateRequest account = therapistMapper.toUserUpdateRequest(request);
+        userMapper.updateUser(account,user);
         therapistMapper.update(therapist, request);
         if(request.getServiceIds() == null || request.getServiceIds().isEmpty()){
 
@@ -146,6 +159,7 @@ public class TherapistService {
                 log.info(e.getMessage());
             }
         }
+        userRepository.save(user);
         therapistRepository.save(therapist);
         TherapistResponse response =  therapistMapper.toResponse(therapist);
         response.setServices(therapist.getServices().stream().map(servicesMapper::toSummaryResponse).toList());

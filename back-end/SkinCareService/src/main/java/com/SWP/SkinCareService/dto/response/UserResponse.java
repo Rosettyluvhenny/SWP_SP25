@@ -17,6 +17,8 @@ import java.util.Set;
 
 public class UserResponse {
 
+    String id;
+
     String username;
 
     String fullName;
@@ -30,4 +32,6 @@ public class UserResponse {
     Set<Role> roles;
 
     QuizResult quizResult;
+
+    boolean active;
 }

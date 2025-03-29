@@ -2,7 +2,6 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
-import com.SWP.SkinCareService.dto.request.Feedback.FeedbackRequest;
 import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TherapistAvailabilityResponse;
@@ -281,15 +280,6 @@ public class  BookingSessionService {
                     int roomId = session.getRoom().getId();
                     roomService.decrementInUse(roomId);
                     bookingRepository.save(booking);
-                    //Create feedback
-                    FeedbackRequest feedbackRequest = FeedbackRequest.builder()
-                            .serviceId(booking.getService().getId())
-                            .bookingSessionId(session.getId())
-                            .userId(session.getBooking().getUser().getId())
-                            .therapistId(session.getTherapist().getId())
-                            .rated(false)
-                            .build();
-                    feedbackService.createFeedback(feedbackRequest);
                 }else {
                     throw new AppException(ErrorCode.NOT_FINISH);
                 }
@@ -672,17 +662,20 @@ public class  BookingSessionService {
                     throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
                 }
             }
-            predicates.add(cb.between(root.get("sessionDateTime"), LocalDate.now(), LocalDate.now().plusDays(7)));
+//            predicates.add(cb.between(root.get("sessionDateTime"), LocalDate.now(), LocalDate.now().plusDays(7)));
             return cb.and(predicates.toArray(new Predicate[0]));
         };
         return bookingSessionRepository.findAll(spec,pageable).map(bookingSessionMapper::toBookingSessionResponse);
     }
 
-    @PostAuthorize("returnObject.booking.user.username === authentication.name")
+    @Transactional
     public BookingSession cancelByUser(int sessionId) {
         BookingSession session = checkSession(sessionId);
+        User user = session.getBooking().getUser();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(!user.getUsername().equals(authentication.getName()))
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         session.setStatus(BookingSessionStatus.IS_CANCELED);
-
         String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã được hủy.";
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .url("http://localhost:3000/sessionDetail/"+session.getId())

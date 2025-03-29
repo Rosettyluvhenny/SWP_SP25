@@ -49,15 +49,8 @@ public class SupabaseService {
     }
 
     public boolean deleteImage(String fileName) throws IOException {
-        String urlReference = supabaseConfig.getUrl() + "/storage/v1/object/" + supabaseConfig.getBucket() + "/";
-        String deleteUrl = "";
-        if (fileName.contains(urlReference)) {
-            deleteUrl = fileName.replaceFirst(urlReference,"");
-        } else {
-            deleteUrl = fileName;
-        }
         Request request = new Request.Builder()
-                .url(supabaseConfig.getUrl() + "/storage/v1/object/" + supabaseConfig.getBucket() + "/" + deleteUrl)
+                .url(fileName)
                 .header("Authorization", "Bearer " + supabaseConfig.getKey())
                 .delete()
                 .build();

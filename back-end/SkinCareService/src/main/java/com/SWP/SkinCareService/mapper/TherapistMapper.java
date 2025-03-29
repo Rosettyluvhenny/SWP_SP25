@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.mapper;
 
+import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Therapist.TherapistResponse;
@@ -29,6 +30,12 @@ public interface TherapistMapper {
     @Mapping(target = "dob", source = "dob")
     @Mapping(target = "active", constant = "true")
     User toUser(TherapistRequest request);
+
+    @Mapping(target = "fullName", source = "fullName")
+    @Mapping(target = "email", source = "email")
+    @Mapping(target = "phone", source = "phone")
+    @Mapping(target = "dob", source = "dob")
+    UserUpdateRequest toUserUpdateRequest(TherapistUpdateRequest request);
 
     @Mapping(target = "username", source = "user.username")
     @Mapping(target = "fullName", source = "user.fullName")

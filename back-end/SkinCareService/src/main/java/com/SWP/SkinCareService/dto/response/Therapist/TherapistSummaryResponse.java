@@ -12,6 +12,6 @@ public class TherapistSummaryResponse {
     String id;
     String fullName;
     Integer experienceYears;
-//    add rating field
+    Integer rating;
     String img;
 }

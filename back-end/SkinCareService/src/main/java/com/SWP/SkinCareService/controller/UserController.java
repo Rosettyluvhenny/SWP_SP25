@@ -123,6 +123,7 @@ public class UserController {
  */
 package com.SWP.SkinCareService.controller;
 
+import com.SWP.SkinCareService.dto.request.Identity.PasswordRequest;
 import com.SWP.SkinCareService.dto.request.Identity.UserRequest;
 import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
 import com.SWP.SkinCareService.dto.request.Skin.AssignSkinRequest;
@@ -134,8 +135,10 @@ import jakarta.validation.Valid;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -224,10 +227,19 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{userId}/disable")
-    public ResponseEntity<Void> disable(@PathVariable String userId) {
-        userService.disable(userId);
+    @PutMapping("/{userId}/active")
+    public ResponseEntity<Void> changeActive(@PathVariable String userId,@RequestParam boolean check) {
+        userService.changeActive(userId, check);
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/password/{userId}")
+    public ResponseEntity<ApiResponse<UserResponse>> changePassword(@PathVariable String userId, @RequestBody PasswordRequest rq){
+        var result = userService.changePassword(userId, rq);
+        return  ResponseEntity.ok().body(
+                ApiResponse.<UserResponse>builder()
+                .result(result)
+                .build()
+            );
+    }
 }

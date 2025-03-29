@@ -72,6 +72,7 @@ public class BookingSession {
     @JsonManagedReference
     Feedback feedbacks;
 
+    boolean rated = false;
 
 
     public boolean isFinished() {
@@ -92,4 +93,6 @@ public class BookingSession {
     public int hashCode() {
         return id;
     }
+
+
 }

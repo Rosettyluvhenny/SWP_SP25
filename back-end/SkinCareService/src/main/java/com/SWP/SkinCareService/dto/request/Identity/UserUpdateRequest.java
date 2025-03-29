@@ -18,9 +18,8 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateRequest {
 
-    @NotBlank(message = "NOT_EMPTY")
     String fullName;
-    @NotBlank(message = "NOT_EMPTY")
+
     @Email(message = "EMAIL_INVALID")
     String email;
 
