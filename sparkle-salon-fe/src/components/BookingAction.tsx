@@ -20,9 +20,11 @@ interface Booking {
 interface BookingActionProps {
   isStaff: boolean;
   booking: Booking;
+  setReload(check:boolean) : void;
+  reload :boolean
 }
 
-export default function BookingAction({ isStaff, booking }: BookingActionProps) {
+export default function BookingAction({ isStaff, booking, setReload, reload }: BookingActionProps) {
   const navigate = useNavigate();
 
   const handleRebook = React.useCallback((serviceId: number) => {
@@ -41,22 +43,22 @@ export default function BookingAction({ isStaff, booking }: BookingActionProps) 
       try {
         const response = await cancelBooking(String(id));
         toast.success(response);
-        navigate(`/bookingDetail/${id}`);
+        setReload(!reload)
       } catch (error) {
         toast.error("Không thể hủy lịch hẹn. Vui lòng thử lại.");
       }
     }
-  }, [navigate]);
+  }, []);
 
   const handleChecking = React.useCallback(async (booking: Booking) => {
     try {
       const rq = await checkInCash(String(booking.id), "PAID");
       toast.success(rq.message);
-      navigate(`bookingDetail/${booking.id}`);
+      setReload(!reload)
     } catch (error) {
       toast.error("Không thể check-in. Vui lòng thử lại.");
     }
-  }, [navigate]);
+  }, []);
 
   const handleCard = React.useCallback(async (booking: Booking) => {
     try {

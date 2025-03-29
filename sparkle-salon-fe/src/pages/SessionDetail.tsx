@@ -162,7 +162,9 @@ export default function SessionDetail({isStaff}: SessionDetailProps) {
                             </motion.button>
                         )}
                         
-                        {isStaff && <span onClick = {()=> {setIsOpen(true); console.log("click")}}>update</span>}
+                        {isStaff && 
+                        <button className="px-3 py-1 rounded-full text-md font-medium text-white bg-green-500 hover:bg-white hover:text-black"
+                         onClick = {()=> {setIsOpen(true); }}>Update</button>}
                         {isOpen&&
                         <UpdateSessionModal
                             isOpen = {isOpen}
