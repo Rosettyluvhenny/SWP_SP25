@@ -14,8 +14,8 @@ export interface Feedback {
 const getFeedback = async (): Promise<Feedback[]> => {
     try {
         const response = await axios.get("/feedback");
-        if (response.status === 200 && response.data && response.data.result) {
-            return response.data.result;
+        if (response.result) {
+            return response.result;
         }
         return [];
     } catch (error) {
@@ -31,32 +31,25 @@ const getUserFeedbacks = async (): Promise<Feedback[]> => {
         return [];
     }
 
-    try {
-        const response = await axios.get(`/feedback/user-feedback`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        
-        if (response.status === 200 && response.result) {
-            return response.result;
+    const response = await axios.get(`/feedback/user-feedback`, {
+        headers: {
+            Authorization: `Bearer ${token}`
         }
-        return [];
-    } catch (error: any) {
-        // if (error.response && error.response.status === 401) {
-        //     localStorage.removeItem("token");
-        //     window.location.href = "/login";
-        // }
-        console.error(`Error fetching user feedbacks:`, error);
-        return [];
-    }
+    });
+
+    // if (response.result) {
+    console.log(response)
+    return response.result;
+    // }
+
+
 };
 
 const getFeedbackById = async (feedbackId: string | null): Promise<Feedback | null> => {
     if (!feedbackId) {
         return null;
     }
-    
+
     try {
         const response = await axios.get(`/feedback/${feedbackId}`);
         if (response.status === 200 && response.result) {
@@ -86,32 +79,19 @@ const updateFeedbackById = async (feedbackId: string | number | null, feedback: 
         return false;
     }
 
-    if (!feedbackId) {
-        return false;
-    }
-    
-    try {
         const response = await axios.put(`/feedback/${feedbackId}`, feedback, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        return response.status === 200;;
-    } catch (error: any) {
-        if (error.response && error.response.status === 401) {
-            // localStorage.removeItem("token");
-            // window.location.href = "/login";
-        }
-        console.error(`Error updating feedback with ID ${feedbackId}:`, error);
-        return false;
-    }
+        return response.result;
 };
 
 const deleteFeedbackById = async (id: string | null): Promise<boolean> => {
     if (!id) {
         return false;
     }
-    
+
     try {
         const response = await axios.delete(`/feedback/${id}`);
         return response.status === 200;
@@ -121,11 +101,11 @@ const deleteFeedbackById = async (id: string | null): Promise<boolean> => {
     }
 };
 
-export { 
-    getFeedback, 
-    getFeedbackById, 
-    getUserFeedbacks, 
-    deleteFeedbackById, 
-    createFeedback, 
-    updateFeedbackById 
+export {
+    getFeedback,
+    getFeedbackById,
+    getUserFeedbacks,
+    deleteFeedbackById,
+    createFeedback,
+    updateFeedbackById
 };

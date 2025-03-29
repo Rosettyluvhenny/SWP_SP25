@@ -16,6 +16,7 @@ import {
     getAllTherapists,
     getTherapists,
 } from "../data/therapistData";
+import {toast} from "react-toastify";
 
 type Service = {
     id: number;
@@ -230,10 +231,10 @@ export default function ServiceManagement() {
         if (confirmDelete) {
             const deletedService = await deleteServiceById(id.toString());
             if (deletedService) {
-                alert("Xóa dịch vụ thành công");
+                toast.success("Xóa dịch vụ thành công");
                 setServices(services.filter((service) => service.id !== id));
             } else {
-                alert("Xóa dịch vụ thất bại");
+                toast.error("Xóa dịch vụ thất bại");
             }
         }
     };
@@ -246,10 +247,10 @@ export default function ServiceManagement() {
             try {
                 await axios.delete(`/category/${id}`);
                 fetchCategories();
-                alert("Xóa danh mục thành công");
+                toast.success("Xóa danh mục thành công");
             } catch (error) {
                 console.error("Error deleting category:", error);
-                alert("Xóa danh mục thất bại");
+                toast.error("Xóa danh mục thất bại");
             }
         }
     };
@@ -322,10 +323,10 @@ export default function ServiceManagement() {
         );
 
         if (success) {
-            alert("Chỉ định chuyên viên thành công");
+            toast.success("Chỉ định chuyên viên thành công");
             closeAssignModal();
         } else {
-            alert("Chỉ định chuyên viên thất bại");
+            toast.error("Chỉ định chuyên viên thất bại");
         }
     };
 

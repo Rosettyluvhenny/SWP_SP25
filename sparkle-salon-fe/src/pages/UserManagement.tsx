@@ -7,6 +7,7 @@ import {
     disableUser,
     deleteUser,
 } from "../data/authData";
+import { toast } from "react-toastify";
 
 type Role = {
     name: string;
@@ -92,12 +93,12 @@ export default function UserManagement() {
                     phone: editingUser.phone,
                     dob: editingUser.dob,
                 });
-
+                
                 if (success) {
                     await fetchUsers();
-                    alert("Tạo người dùng thành công");
+                    toast.success("Tạo người dùng thành công");
                 } else {
-                    alert("Tạo người dùng thành công");
+                    toast.success("Tạo người dùng thành công");
                 }
             }
             closeModal();
@@ -109,7 +110,7 @@ export default function UserManagement() {
     const handleDisable = async (userId: string | number | undefined) => {
         if (!userId || userId === "") { // Added extra check for empty string
             console.error("Invalid user ID:", userId);
-            alert("Lỗi: Không thể vô hiệu hóa người dùng do thiếu ID!");
+            toast.error("Lỗi: Không thể vô hiệu hóa người dùng do thiếu ID!");
             return;
         }
 
@@ -123,13 +124,13 @@ export default function UserManagement() {
 
                 if (success) {
                     await fetchUsers();
-                    alert("Vô hiệu hóa người dùng thành công!");
+                    toast.success("Vô hiệu hóa người dùng thành công!");
                 } else {
-                    alert("Không thể vô hiệu hóa người dùng!");
+                    toast.error("Không thể vô hiệu hóa người dùng!");
                 }
             } catch (err) {
                 console.error("Error disabling user:", err);
-                alert("Lỗi khi vô hiệu hóa người dùng!");
+                toast.error("Lỗi khi vô hiệu hóa người dùng!");
             }
         }
     };
@@ -141,7 +142,7 @@ export default function UserManagement() {
         );
 
         if (!isDisabled) {
-            alert("Bạn phải vô hiệu hóa người dùng trước khi xóa!");
+            toast.error("Bạn phải vô hiệu hóa người dùng trước khi xóa!");
             return;
         }
 
@@ -162,13 +163,13 @@ export default function UserManagement() {
                     setUsers((prevUsers) =>
                         prevUsers.filter((user) => user.userId !== userId)
                     );
-                    alert("Xóa người dùng thành công!");
+                    toast.success("Xóa người dùng thành công!");
                 } else {
-                    alert("Không thể xóa người dùng!");
+                    toast.error("Không thể xóa người dùng!");
                 }
             } catch (err) {
                 console.error("Error deleting user:", err);
-                alert("Lỗi khi xóa người dùng!");
+                toast.error("Lỗi khi xóa người dùng!");
             }
         }
     };

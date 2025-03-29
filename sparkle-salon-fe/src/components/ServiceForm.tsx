@@ -3,6 +3,7 @@ import axios from "../services/customizedAxios";
 import TextEditor from "./TextEditor";
 import FormData from "form-data";
 import { serviceDataById } from "../data/servicesData";
+import { toast } from "react-toastify";
 
 export interface Service {
     id: number;
@@ -119,11 +120,11 @@ const ServiceInfoForm = ({
               });
         response.then((res) => {
             if (res.result) {
-                alert("Đã lưu");
+                toast.success("Đã lưu");
             }
             handleCloseServiceForm();
         }).catch((err) => {
-            alert("Lưu thất bại");
+            toast.error("Lưu thất bại");
             console.log(err, "err")
         })
     };

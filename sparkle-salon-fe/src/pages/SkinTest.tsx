@@ -3,6 +3,7 @@ import QuizInterface from "../components/QuizInterface";
 import { useQuiz } from "../components/useQuiz";
 import { Blog, getDefaultByQuizResult } from "../data/blogData";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function KiemTraDa() {
   const {
@@ -34,7 +35,7 @@ export default function KiemTraDa() {
     if (foundBlog) {
       setShowBlogDetail(true);
     } else {
-      alert("Không tìm thấy blog phù hợp với kết quả");
+      toast.error("Không tìm thấy blog phù hợp với kết quả");
     }
   }, [foundBlog]);
 
