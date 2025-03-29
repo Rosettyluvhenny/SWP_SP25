@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { getUser, updateUser } from "../data/authData";
+import { toast } from "react-toastify";
 
 export interface UserInfo {
     id: string;
@@ -49,10 +50,10 @@ export default function Profile() {
         );
     
         if (success) {
-            alert("Cập nhật thành công!");
+            toast.success("Cập nhật thành công!");
             setIsEditModalOpen(false);
         } else {
-            alert("Lỗi khi cập nhật thông tin!");
+            toast.error("Lỗi khi cập nhật thông tin!");
         }
     };
 
@@ -91,7 +92,7 @@ export default function Profile() {
                     className="w-full mt-6 bg-red-500 text-white text-lg px-6 py-3 rounded-lg shadow-md hover:bg-red-600 transition"
                     onClick={() =>
                         window.confirm("Are you sure you want to log out?") &&
-                        alert("Logged out!")
+                        toast.success("Logged out!")
                     }
                 >
                     Đăng Xuất

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import TextEditor from "./TextEditor";
 import { serviceBlogById } from "../data/blogData";
+import { toast } from "react-toastify";
 
 // Define interface for QuizResult
 interface QuizResult {
@@ -13,7 +14,7 @@ interface QuizResult {
   quizName: string;
 }
 
-const API_BASE_URL = "http://localhost:8080/swp";
+const API_BASE_URL = "http://localhost:8081/swp";
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
@@ -85,7 +86,7 @@ const BlogInfoForm = ({
         }
       } catch (err) {
         console.error("Error fetching blog:", err);
-        alert("Không thể tải dữ liệu blog");
+        toast.error("Không thể tải dữ liệu blog");
       } finally {
         setIsLoading(false);
       }
@@ -111,13 +112,13 @@ const BlogInfoForm = ({
     const token = localStorage.getItem("token");
     console.log("Current token:", token);
     if (!token) {
-      alert("No authentication token found. Please log in again.");
+      toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       return;
     }
   
     const errors = validateForm();
     if (errors.length > 0) {
-      alert(errors.join("\n"));
+      toast.error(errors.join("\n"));
       return;
     }
   
@@ -156,7 +157,7 @@ const BlogInfoForm = ({
           });
   
       if (response.status === 200 || response.status === 201) {
-        alert(selectedBlog ? "Đã cập nhật blog" : "Đã lưu blog mới");
+        toast.success(selectedBlog ? "Đã cập nhật blog" : "Đã lưu blog mới");
         
         // Reset form states
         setSelectedQuizResult("0");
@@ -171,7 +172,7 @@ const BlogInfoForm = ({
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
-      alert(`Lưu thất bại: ${errorMessage}`);
+      toast.error(`Lưu thất bại: ${errorMessage}`);
       console.error("Save error:", err);
     } finally {
       setIsLoading(false);

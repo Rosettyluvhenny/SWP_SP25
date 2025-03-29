@@ -8,6 +8,7 @@ import { blogData } from "../data/blogData";
 import BlogInfoForm from "../components/BlogForm";
 import { jwtDecode } from "jwt-decode";
 import instance from "../services/customizedAxios";
+import { toast } from "react-toastify";
 
 interface DecodedToken {
   scope: string;
@@ -134,7 +135,7 @@ export default function BlogManagement() {
       setTotalPages(Math.ceil(blogListData.length / blogsPerPage));
     } catch (error) {
       console.error("Error fetching blogs:", error);
-      alert("Không thể tải danh sách blog");
+      toast.error("Không thể tải danh sách blog");
     }
   }, [blogsPerPage]);
 
@@ -165,21 +166,21 @@ export default function BlogManagement() {
       try {
         const deletedBlog = await deleteBlogById(blogId.toString());
         if (deletedBlog) {
-          alert("Xóa blog thành công");
+          toast.success("Xóa blog thành công");
           await getBlogList();
         } else {
-          alert("Xóa blog thất bại");
+          toast.error("Xóa blog thất bại");
         }
       } catch (error) {
         console.error("Error deleting blog:", error);
-        alert("Có lỗi xảy ra khi xóa blog");
+        toast.error("Có lỗi xảy ra khi xóa blog");
       }
     }
   };
 
   const handleApproveChange = async (blogId: string, currentStatus: boolean) => {
     if (!isAdmin) {
-      alert("Chỉ admin mới có quyền thay đổi trạng thái approve");
+      toast.error("Chỉ admin mới có quyền thay đổi trạng thái approve");
       return;
     }
     const token = localStorage.getItem("token");
@@ -200,19 +201,19 @@ export default function BlogManagement() {
 
       if (response.result) {
         await getBlogList();
-        alert(`Đã ${newStatus ? "duyệt" : "hủy duyệt"} blog thành công`);
+        toast.success(`Đã ${newStatus ? "duyệt" : "hủy duyệt"} blog thành công`);
         setLoadingBlogId(null);
       }
     } catch (error) {
       console.error("Error approving blog:", error);
       setLoadingBlogId(null);
-      alert("Có lỗi xảy ra khi thay đổi trạng thái");
+      toast.error("Có lỗi xảy ra khi thay đổi trạng thái");
     }
   };
 
   const handleSetDefault = async (blogId: string) => {
     if (!isAdmin) {
-      alert("Chỉ admin mới có quyền set default");
+      toast.error("Chỉ admin mới có quyền set default");
       return;
     }
 
@@ -234,14 +235,14 @@ export default function BlogManagement() {
       if (response.result) {
         await getBlogList();
         setLoadingBlogId(null);
-        alert("Đã set blog làm mặc định thành công");
+        toast.success("Đã set blog làm mặc định thành công");
       } else {
         throw new Error(response.data.message || "Failed to set default blog");
       }
     } catch (error) {
       console.error("Error setting default blog:", error);
       setLoadingBlogId(null);
-      alert("Có lỗi xảy ra khi set blog mặc định");
+      toast.error("Có lỗi xảy ra khi set blog mặc định");
     }
   };
 
