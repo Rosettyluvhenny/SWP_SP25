@@ -21,6 +21,10 @@ const getPayment = async () => {
 
 const updatePayment = async (paymentId: string, paymentName: string) => {
     const response = await axios.put(`/payment/${paymentId}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        
         paymentName
     });
     if (response.result) {
@@ -38,7 +42,11 @@ const getPaymentById = async (paymentId: string) => {
 };
 
 const deletePayment = async (paymentId: string) => {
-    const response = await axios.delete(`/payment/${paymentId}`);
+    const response = await axios.delete(`/payment/${paymentId}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
     if (response.result) {
         return true;
     }

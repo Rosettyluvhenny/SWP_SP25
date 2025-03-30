@@ -1,21 +1,29 @@
-import React, { useState } from "react";
-import { FiMenu } from "react-icons/fi";
+import { useState, useContext } from "react";
+import { FiMenu, FiLogOut } from "react-icons/fi";
 import { AiOutlineSchedule } from "react-icons/ai";
 import { LuNotebookPen } from "react-icons/lu";
 import { FaPencil } from "react-icons/fa6";
+import { UserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+    activeTab: string;
+    setActiveTab: (tab: string) => void;
 }
 
 const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
     const [isOpen, setIsOpen] = useState(true);
+    const { logout } = useContext(UserContext);
+     const navigate = useNavigate();
 
     const tabs = [
         { id: "schedule", label: "Lịch Làm Việc", icon: <AiOutlineSchedule /> },
-        { id: "notes", label: "Ghi Chú Phiên Trị Liệu", icon: <LuNotebookPen /> },
-        { id: "blog", label: "Viết Blog", icon: <FaPencil /> }
+        {
+            id: "notes",
+            label: "Ghi Chú Phiên Trị Liệu",
+            icon: <LuNotebookPen />,
+        },
+        { id: "blog", label: "Viết Blog", icon: <FaPencil /> },
     ];
 
     return (
@@ -42,10 +50,12 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
             <nav>
                 <ul className="space-y-3">
                     {tabs.map((tab) => (
-                        <li 
+                        <li
                             key={tab.id}
                             className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${
-                                activeTab === tab.id ? "bg-gray-700" : "hover:bg-gray-700"
+                                activeTab === tab.id
+                                    ? "bg-gray-700"
+                                    : "hover:bg-gray-700"
                             }`}
                             onClick={() => setActiveTab(tab.id)}
                         >
@@ -57,6 +67,21 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
                     ))}
                 </ul>
             </nav>
+
+            {/* Logout */}
+            <button
+                onClick={() => {
+                    console.log("logout");
+                    logout();
+                    navigate("/");
+                }}
+                className={`w-full flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg text-left ${
+                    isOpen ? "block" : "flex justify-center"
+                }`}
+            >
+                <FiLogOut />
+                {isOpen && "Đăng xuất"}
+            </button>
         </aside>
     );
 };

@@ -181,7 +181,7 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                                     e.stopPropagation();
                                     handleFeedBack(session.id);
                                 }}
-                                className="bg-green-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1.5 shadow-sm"
+                                className="bg-pink-400 text-white px-3 py-1.5 rounded-lg hover:bg-pink-500 transition-colors flex items-center gap-1.5 shadow-sm"
                                 whileHover={{ scale: 1.03 }}
                                 whileTap={{ scale: 0.97 }}
                             >

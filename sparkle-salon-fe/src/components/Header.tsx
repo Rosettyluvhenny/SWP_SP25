@@ -250,7 +250,7 @@ export default function Header() {
         navItems.push(
             { path: "/your-booking", label: "Booking" },
             { path: "/schedule", label: "Schedule" },
-            { path: "/feedback", label: "Feedback" }
+            // { path: "/feedback", label: "Feedback" }
         );
     }
     const toggleDropdown = () => {
