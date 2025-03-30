@@ -18,6 +18,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TherapistResponse {
     String id;
+    String userId;
     String username;
     String fullName;
     String email;

@@ -38,6 +38,7 @@ public class ApplicationInitCofig {
                         .username("admin")
                         .roles(roles)
                         .password(passwordEncoder.encode("admin"))
+                        .active(true)
                         .build();
                 userRepository.save(user);
                 log.warn("admin user has been created with default password: admin");
