@@ -1,5 +1,6 @@
 package com.SWP.SkinCareService.dto.request.Quiz;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -17,7 +18,7 @@ public class AnswerRequest {
     @NotBlank(message ="NOT_EMPTY")
     private String text;
 
-    @NotNull(message = "NOT_EMPTY")
+    @Min(value = 0, message = "MIN_VALUE")
     private int point;
 
 }
