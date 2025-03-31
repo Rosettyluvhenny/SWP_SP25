@@ -103,18 +103,7 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
       data: response.data,
     });
     console.log("respone:", response)
-    return response.result; // 201 thường dùng cho POST
-  // } catch (error) {
-  //   console.error("Lỗi khi tạo chuyên viên:", {
-  //     message: error.message,
-  //     response: error.response ? {
-  //       status: error.response.status,
-  //       data: error.response.data,
-  //     } : "Không có phản hồi từ server",
-  //   }
-  // );
-  //   return false;
-  // }
+    return response.result; 
 };
 
 

@@ -67,10 +67,7 @@ export default function Header() {
     }, [location]);
 
     const [isOpen, setIsOpen] = useState(false);
-    const handleLogout = () => {
-        logout();
-        navigate("/");
-    };
+
 
     useEffect(() => {
         const getNoti = async () => {
@@ -493,8 +490,8 @@ export default function Header() {
                                     {/* Logout Button */}
                                     <motion.button
                                         onClick={() => {
-                                            navigate("/");
-                                            handleLogout();
+                                            navigate("/home");
+                                            logout()
                                             setIsOpen(false);
                                         }}
                                         className="block w-full text-left px-4 py-2 text-[#f398d0] hover:text-[#ee8874] transition-colors"
