@@ -17,6 +17,7 @@ export default function BookingDetail({isStaff}: BookingDetailProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [sessions, setSessions] = useState<[]>([]);
+    const [reload, setReload] = useState(true);
     useEffect(() => {
         const fetchBooking = async () => {
             try {
@@ -50,7 +51,7 @@ export default function BookingDetail({isStaff}: BookingDetailProps) {
         }
         fetchBooking();
         fetchSession();
-    }, [id]);
+    }, [id,reload]);
 
     const getStatusColor = (status: string) => {
         switch (status.toUpperCase()) {
@@ -146,6 +147,7 @@ export default function BookingDetail({isStaff}: BookingDetailProps) {
                         <BookingAction
                             isStaff = {isStaff}
                             booking = {booking}
+                            setReload ={setReload}
                          />
                     </div>
                 </div>

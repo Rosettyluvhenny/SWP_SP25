@@ -32,7 +32,6 @@ export default function Profile() {
         setUserInfo((prev) => (prev ? { ...prev, [name]: value } : null));
     };
 
-    //todo : nhắc BE thêm field id vào response
     const handleUpdate = async () => {
         console.log("🔹 Current userInfo before update:", userInfo);
     
@@ -84,19 +83,6 @@ export default function Profile() {
                         </button>
                     ))}
                 </div>
-
-                {/* Logout Button */}
-                <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full mt-6 bg-red-500 text-white text-lg px-6 py-3 rounded-lg shadow-md hover:bg-red-600 transition"
-                    onClick={() =>
-                        window.confirm("Are you sure you want to log out?") &&
-                        toast.success("Logged out!")
-                    }
-                >
-                    Đăng Xuất
-                </motion.button>
             </motion.aside>
 
             {/* Main Content */}

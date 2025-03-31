@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
 import { createPayment, getPayment, deletePayment, updatePayment } from "../data/paymentData";
+import { toast } from "react-toastify";
 
 type PaymentMethod = {
     paymentId: string;
@@ -14,6 +15,8 @@ export default function PaymentManagement() {
     const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [nameInput, setNameInput] = useState("");
+    const [nameError, setNameError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchPayments = async () => {
@@ -26,6 +29,7 @@ export default function PaymentManagement() {
             } catch (error) {
                 console.error("Error fetching payment methods:", error);
                 setError("Không thể tải phương thức thanh toán. Vui lòng thử lại sau.");
+                toast.error("Không thể tải phương thức thanh toán");
             } finally {
                 setIsLoading(false);
             }
@@ -36,41 +40,99 @@ export default function PaymentManagement() {
 
     const openModal = (method: PaymentMethod | null = null) => {
         setEditingMethod(method);
+        setNameInput(method?.paymentName || "");
+        setNameError(null);
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingMethod(null);
+        setNameInput("");
+        setNameError(null);
+    };
+
+    const validatePaymentName = (name: string): boolean => {
+        // Trim the name to check if it's empty after trimming
+        const trimmedName = name.trim();
+        
+        if (!trimmedName) {
+            setNameError("Tên phương thức không được để trống");
+            return false;
+        }
+        
+        if (trimmedName.length < 2) {
+            setNameError("Tên phương thức phải có ít nhất 2 ký tự");
+            return false;
+        }
+        
+        if (trimmedName.length > 50) {
+            setNameError("Tên phương thức không được vượt quá 50 ký tự");
+            return false;
+        }
+        
+        // Check if name already exists (except for the current method being edited)
+        const nameExists = paymentMethods.some(
+            method => method.paymentName.toLowerCase() === trimmedName.toLowerCase() && 
+                     (!editingMethod || method.paymentId !== editingMethod.paymentId)
+        );
+        
+        if (nameExists) {
+            setNameError("Phương thức thanh toán này đã tồn tại");
+            return false;
+        }
+        
+        setNameError(null);
+        return true;
+    };
+
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setNameInput(value);
+        
+        // Optional: validate in real-time
+        if (value) {
+            validatePaymentName(value);
+        } else {
+            setNameError(null); // Clear error when input is empty
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const formData = new FormData(e.target as HTMLFormElement);
-        const paymentName = formData.get("name") as string;
-
+        
+        // Final validation before submission
+        if (!validatePaymentName(nameInput)) {
+            return; // Stop submission if validation fails
+        }
+        
         try {
             if (editingMethod) {
-                const success = await updatePayment(editingMethod.paymentId, paymentName);
+                const success = await updatePayment(editingMethod.paymentId, nameInput.trim());
                 if (success) {
                     setPaymentMethods((prev) => 
-                        prev.map((m) => (m.paymentId === editingMethod.paymentId ? { ...m, paymentName: paymentName } : m))
+                        prev.map((m) => (m.paymentId === editingMethod.paymentId ? { ...m, paymentName: nameInput.trim() } : m))
                     );
+                    toast.success("Cập nhật phương thức thanh toán thành công");
                 } else {
                     setError("Không thể cập nhật phương thức thanh toán");
+                    toast.error("Không thể cập nhật phương thức thanh toán");
                 }
             } else {
-                const success = await createPayment(paymentName);
+                const success = await createPayment(nameInput.trim());
                 if (success) {
                     const updatedPayments = await getPayment();
                     setPaymentMethods(updatedPayments);
+                    toast.success("Thêm phương thức thanh toán thành công");
                 } else {
                     setError("Không thể thêm phương thức thanh toán mới");
+                    toast.error("Không thể thêm phương thức thanh toán mới");
                 }
             }
         } catch (error) {
             console.error("Error saving payment method:", error);
             setError("Đã xảy ra lỗi khi lưu phương thức thanh toán");
+            toast.error("Đã xảy ra lỗi khi lưu phương thức thanh toán");
         }
 
         closeModal();
@@ -84,12 +146,14 @@ export default function PaymentManagement() {
                 if (success) {
                     setPaymentMethods((prev) => prev.filter((method) => method.paymentId !== paymentId));
                     setError(null);
+                    toast.success("Xóa phương thức thanh toán thành công");
                 } else {
-                    setError("Không thể xóa phương thức thanh toán");
+                    toast.error("Không thể xóa phương thức thanh toán");
                 }
             } catch (error) {
                 console.error("Error deleting payment method:", error);
                 setError("Đã xảy ra lỗi khi xóa phương thức thanh toán");
+                toast.error("Đã xảy ra lỗi khi xóa phương thức thanh toán");
             }
         }
     };
@@ -168,14 +232,19 @@ export default function PaymentManagement() {
                 onClose={closeModal}
                 onSubmit={handleSubmit}
             >
-                <input
-                    type="text"
-                    name="name"
-                    defaultValue={editingMethod?.paymentName || ""}
-                    placeholder="Tên phương thức"
-                    className="w-full p-2 border rounded"
-                    required
-                />
+                <div className="mb-4">
+                    <input
+                        type="text"
+                        name="name"
+                        value={nameInput}
+                        onChange={handleNameChange}
+                        placeholder="Tên phương thức"
+                        className={`w-full p-2 border rounded ${nameError ? 'border-red-500' : 'border-gray-300'}`}
+                    />
+                    {nameError && (
+                        <p className="text-red-500 text-sm mt-1">{nameError}</p>
+                    )}
+                </div>
             </ManagementModal>
         </div>
     );

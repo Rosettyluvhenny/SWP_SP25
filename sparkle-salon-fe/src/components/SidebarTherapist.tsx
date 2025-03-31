@@ -8,8 +8,8 @@ import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+    activeTab: string;
+    setActiveTab: (tab: string) => void;
 }
 
 const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {

@@ -103,7 +103,7 @@ export const updateSessionRoom = async (
     sessionId: number,
     roomId:number
 ) => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("token");
     const formData = new FormData();
     
     // Create a data object explicitly
