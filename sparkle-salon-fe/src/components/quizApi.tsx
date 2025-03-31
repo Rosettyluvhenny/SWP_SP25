@@ -88,6 +88,8 @@ export const handleApiError = (error: unknown): string => {
   return "Lỗi không mong muốn.";
 };
 
+
+
 // Các hàm API
 export const fetchQuizzes = async (): Promise<Quiz[]> => {
   try {
@@ -317,7 +319,7 @@ export const createNewQuiz = async (quizData: Partial<Quiz>): Promise<Quiz> => {
     "Bạn có chắc chắn muốn tạo quiz mới không?"
   );
   if (!isConfirmed) return Promise.reject("Hủy tạo quiz");
-
+console.log(quizData.categoryId)
   try {
     const response = await axiosInstance.post<ApiResponse<Quiz>>("/quiz", {
       serviceCategoryId: quizData.categoryId || 1,
@@ -341,7 +343,7 @@ export const updateQuiz = async (quiz: Quiz): Promise<Quiz> => {
     const response = await axiosInstance.put<ApiResponse<Quiz>>(
       `/quiz/${quiz.id}`,
       {
-        serviceCategoryId: quiz.categoryId || 1,
+        serviceCategoryId: quiz.categoryId,
         name: quiz.name,
       }
     );

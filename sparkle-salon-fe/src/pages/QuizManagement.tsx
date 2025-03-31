@@ -25,6 +25,8 @@ import {
 import QuestionItem from "../components/QuestionItem";
 import QuestionEditor from "../components/QuestionEditor";
 import { motion } from "framer-motion";
+import { Category, CategoryData } from "../data/categoryData.ts";
+import { toast } from "react-toastify";
 
 export default function QuizManagement() {
   const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
@@ -35,22 +37,33 @@ export default function QuizManagement() {
     index: number;
   } | null>(null);
   const [answer, setAnswer] = useState<Answer[]>([]);
-  const [editQuestionData, setEditQuestionData] = useState<Question | null>(null);
-  const [creatingQuestionForQuiz, setCreatingQuestionForQuiz] = useState<number | null>(null);
+  const [editQuestionData, setEditQuestionData] = useState<Question | null>(
+    null
+  );
+  const [creatingQuestionForQuiz, setCreatingQuestionForQuiz] = useState<
+    number | null
+  >(null);
   const [editingResult, setEditingResult] = useState<number | null>(null);
   const [editResultData, setEditResultData] = useState<QuizResult | null>(null);
-  const [creatingResultForQuiz, setCreatingResultForQuiz] = useState<number | null>(null);
-  const [newResultData, setNewResultData] = useState<Omit<QuizResult, "id"> | null>(null);
+  const [creatingResultForQuiz, setCreatingResultForQuiz] = useState<
+    number | null
+  >(null);
+  const [newResultData, setNewResultData] = useState<Omit<
+    QuizResult,
+    "id"
+  > | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [mutationLoading, setMutationLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"quiz" | "result">("quiz"); 
+  const [activeTab, setActiveTab] = useState<"quiz" | "result">("quiz");
   const [editingQuizId, setEditingQuizId] = useState<number | null>(null);
   const [editQuizData, setEditQuizData] = useState<Quiz | null>(null);
   const [creatingQuiz, setCreatingQuiz] = useState<boolean>(false);
+  const [selectedCategory, setSelectedCategory] = useState("0");
+  const [categories, setCategories] = useState<Category[]>([]);
 
   // Hàm lấy dữ liệu quizzes
   const fetchQuizzesData = async () => {
@@ -66,7 +79,7 @@ export default function QuizManagement() {
       const allAnswers = normalizedQuizzes.flatMap((quiz) =>
         quiz.questions.flatMap((question) => question.answers || [])
       );
-      console.log(answer)
+      console.log(answer);
       setAnswer(allAnswers);
     } catch (err) {
       setError(handleApiError(err));
@@ -74,7 +87,17 @@ export default function QuizManagement() {
       setLoading(false);
     }
   };
-
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await CategoryData();
+        setCategories(response);
+      } catch (error) {
+        console.error("Error fetching categories", error);
+      }
+    };
+    fetchCategories();
+  }, []);
   // Hàm lấy dữ liệu quiz results
   const fetchQuizResultsData = async () => {
     try {
@@ -141,7 +164,10 @@ export default function QuizManagement() {
       setQuizzes((prev) =>
         prev.map((q) =>
           q.id === quizId
-            ? { ...q, questions: q.questions.filter((q) => q.id !== questionId) }
+            ? {
+                ...q,
+                questions: q.questions.filter((q) => q.id !== questionId),
+              }
             : q
         )
       );
@@ -196,24 +222,37 @@ export default function QuizManagement() {
         setQuizzes((prev) =>
           prev.map((q) =>
             q.id === creatingQuestionForQuiz
-              ? { ...q, questions: [...q.questions, { ...newQuestion, answers: updatedAnswers }] }
+              ? {
+                  ...q,
+                  questions: [
+                    ...q.questions,
+                    { ...newQuestion, answers: updatedAnswers },
+                  ],
+                }
               : q
           )
         );
         setAnswer((prev) => [...prev, ...updatedAnswers]);
         setCreatingQuestionForQuiz(null);
       } else if (editingQuestion) {
-        const quiz = quizzes.find((q) => q.questions.some((qs) => qs.id === editQuestionData.id));
+        const quiz = quizzes.find((q) =>
+          q.questions.some((qs) => qs.id === editQuestionData.id)
+        );
         if (!quiz) throw new Error("Không tìm thấy quiz chứa câu hỏi này!");
         await updateQuestionText(quiz, editQuestionData);
-        const updatedAnswers = await updateAnswers(editQuestionData, editQuestionData.answers);
+        const updatedAnswers = await updateAnswers(
+          editQuestionData,
+          editQuestionData.answers
+        );
         setQuizzes((prev) =>
           prev.map((quiz) =>
             quiz.questions.some((q) => q.id === editQuestionData.id)
               ? {
                   ...quiz,
                   questions: quiz.questions.map((q) =>
-                    q.id === editQuestionData.id ? { ...editQuestionData, answers: updatedAnswers } : q
+                    q.id === editQuestionData.id
+                      ? { ...editQuestionData, answers: updatedAnswers }
+                      : q
                   ),
                 }
               : quiz
@@ -221,7 +260,14 @@ export default function QuizManagement() {
         );
         setAnswer((prev) =>
           prev
-            .filter((a) => !quiz.questions.some((q) => q.id === editQuestionData.id && q.answers.some((ans) => ans.id === a.id)))
+            .filter(
+              (a) =>
+                !quiz.questions.some(
+                  (q) =>
+                    q.id === editQuestionData.id &&
+                    q.answers.some((ans) => ans.id === a.id)
+                )
+            )
             .concat(updatedAnswers)
         );
         setEditingQuestion(null);
@@ -233,7 +279,6 @@ export default function QuizManagement() {
       setMutationLoading(false);
     }
   };
-
 
   // Xóa kết quả bài quiz
   const handleDeleteQuizResult = async (resultId: number) => {
@@ -264,7 +309,9 @@ export default function QuizManagement() {
       setMutationLoading(true);
       const updatedResult = await updateQuizResult(editResultData);
       setQuizResults((prev) =>
-        prev.map((result) => (result.id === updatedResult.id ? updatedResult : result))
+        prev.map((result) =>
+          result.id === updatedResult.id ? updatedResult : result
+        )
       );
       setEditingResult(null);
       setEditResultData(null);
@@ -326,9 +373,21 @@ export default function QuizManagement() {
     try {
       setMutationLoading(true);
       if (creatingQuiz) {
-        const newQuiz = await createNewQuiz({ name: editQuizData.name });
-        if (!newQuiz.id) throw new Error("Không nhận được ID từ bài quiz mới tạo");
-        const normalizedNewQuiz = { ...newQuiz, questions: newQuiz.questions || [] };
+        const data = {
+          categoryId: editQuizData.categoryId,
+          name: editQuizData.name,
+        };
+
+        const newQuiz = await createNewQuiz(data);
+        if (!newQuiz.id)
+          throw new Error("Không nhận được ID từ bài quiz mới tạo");
+        const normalizedNewQuiz = {
+          ...newQuiz,
+          questions: newQuiz.questions || [],
+        };
+        if(newQuiz){
+                  toast.success("Tạo quiz thành công");
+                       }
         setQuizzes((prev) => [...prev, normalizedNewQuiz]);
         setSelectedQuizId(normalizedNewQuiz.id);
         setCreatingQuiz(false);
@@ -336,14 +395,17 @@ export default function QuizManagement() {
         const updatedQuiz = await updateQuiz(editQuizData);
         setQuizzes((prev) =>
           prev.map((q) =>
-            q.id === updatedQuiz.id ? { ...updatedQuiz, questions: updatedQuiz.questions || [] } : q
+            q.id === updatedQuiz.id
+              ? { ...updatedQuiz, questions: updatedQuiz.questions || [] }
+              : q
           )
         );
         setEditingQuizId(null);
       }
       setEditQuizData(null);
-    } catch (err) {
-      setError(handleApiError(err));
+    } catch (error) {
+          toast.error(error instanceof Error ? error.message : "Chưa nhập tên quiz");
+          console.error("Submit error:", error);
     } finally {
       setMutationLoading(false);
     }
@@ -369,14 +431,18 @@ export default function QuizManagement() {
     setEditQuizData({
       id: 0,
       name: "",
-      categoryId: 0,
+      categoryId: Number(selectedCategory),
       categoryName: "",
       questions: [],
     });
   };
 
   if (loading) {
-    return <div className="flex h-screen justify-center items-center">Đang tải dữ liệu...</div>;
+    return (
+      <div className="flex h-screen justify-center items-center">
+        Đang tải dữ liệu...
+      </div>
+    );
   }
 
   if (error) {
@@ -407,12 +473,16 @@ export default function QuizManagement() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Quản Lý Bài Kiểm Tra</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+            Quản Lý Bài Kiểm Tra
+          </h1>
           <div className="flex space-x-4 mb-6">
             <button
               onClick={() => setActiveTab("quiz")}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === "quiz" ? "bg-pink-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                activeTab === "quiz"
+                  ? "bg-pink-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
               Bài Kiểm Tra
@@ -420,7 +490,9 @@ export default function QuizManagement() {
             <button
               onClick={() => setActiveTab("result")}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === "result" ? "bg-pink-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                activeTab === "result"
+                  ? "bg-pink-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
               Kết Quả
@@ -436,7 +508,9 @@ export default function QuizManagement() {
               transition={{ delay: 0.2, duration: 0.5 }}
             >
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Danh Sách Bài Kiểm Tra</h2>
+                <h2 className="text-xl font-semibold">
+                  Danh Sách Bài Kiểm Tra
+                </h2>
                 <motion.button
                   onClick={handleCreateNewQuiz}
                   className="bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600"
@@ -449,31 +523,75 @@ export default function QuizManagement() {
 
               {creatingQuiz && editQuizData && (
                 <motion.div
-                  className="bg-gray-50 p-3 rounded-lg shadow-sm mb-4"
+                  className="bg-gray-50 p-6 rounded-lg shadow-sm mb-4"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <input
-                    type="text"
-                    value={editQuizData.name}
-                    onChange={(e) => setEditQuizData({ ...editQuizData, name: e.target.value })}
-                    className="w-full p-2 mb-2 border rounded"
-                    placeholder="Tên bài kiểm tra"
-                  />
-                  <div className="flex space-x-2 justify-end">
-                    <button
-                      onClick={saveQuiz}
-                      className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
-                    >
-                      Lưu
-                    </button>
-                    <button
-                      onClick={() => setCreatingQuiz(false)}
-                      className="bg-gray-500 text-white px-3 py-1 rounded-md hover:bg-gray-600"
-                    >
-                      Hủy
-                    </button>
+                  <div className="flex flex-col space-y-4">
+                    <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
+                      {/* Quiz name input */}
+                      <div className="flex flex-col  w-full md:w-4/5 relative">
+                        <label className="pr-2 mb-2 font-medium text-gray-700">
+                          Quiz Name
+                        </label>
+                        <input
+                          type="text"
+                          value={editQuizData.name}
+                          onChange={(e) =>
+                            setEditQuizData({
+                              ...editQuizData,
+                              name: e.target.value,
+                            })
+                          }
+                          className="p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 h-12"
+                          placeholder="Nhập tên quiz"
+                        />
+                      </div>
+
+                      {/* Category select */}
+                      <div className="flex flex-col  w-1/5">
+                        <label className="pr-2 mb-2 font-medium text-gray-700">
+                          Category
+                        </label>
+                        <select
+                          value={selectedCategory}
+                          onChange={(e) => setSelectedCategory(e.target.value)}
+                          className="p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 h-12"
+                        >
+                          {categories.length > 0 ? (
+                            categories.map((category) => (
+                              <option
+                                key={category.id}
+                                value={category.id.toString()}
+                              >
+                                {category.name}
+                              </option>
+                            ))
+                          ) : (
+                            <option value="0" disabled>
+                              Không có category nào 
+                            </option>
+                          )}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="flex justify-end space-x-2 mt-2">
+                      <button
+                        onClick={saveQuiz}
+                        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-300 font-medium"
+                      >
+                        Tạo
+                      </button>
+                      <button
+                        onClick={() => setCreatingQuiz(false)}
+                        className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-300 font-medium"
+                      >
+                        Đóng
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -492,7 +610,10 @@ export default function QuizManagement() {
                           type="text"
                           value={editQuizData.name}
                           onChange={(e) =>
-                            setEditQuizData({ ...editQuizData, name: e.target.value })
+                            setEditQuizData({
+                              ...editQuizData,
+                              name: e.target.value,
+                            })
                           }
                           className="w-full p-2 mb-2 border rounded"
                           placeholder="Tên bài kiểm tra"
@@ -519,12 +640,18 @@ export default function QuizManagement() {
                           className="text-lg font-semibold cursor-pointer flex justify-between items-center bg-white p-3 shadow rounded-lg flex-1"
                         >
                           {quiz.name}
+
+                          <p className="px-2 text-sm flex  flex-1 opacity-40">
+                            ({quiz.categoryName})
+                          </p>
                           <p className="text-sm flex justify-end items-center flex-1 opacity-40">
                             {quiz.questions.length} câu hỏi
                           </p>
                           <svg
                             className={`w-6 h-6 ml-2 transform transition-transform duration-300 ${
-                              selectedQuizId === quiz.id ? "rotate-180" : "rotate-0"
+                              selectedQuizId === quiz.id
+                                ? "rotate-180"
+                                : "rotate-0"
                             }`}
                             fill="none"
                             stroke="currentColor"
@@ -567,11 +694,15 @@ export default function QuizManagement() {
                                 editData={editQuestionData}
                                 setEditData={setEditQuestionData}
                                 saveQuestion={saveQuestion}
-                                cancelEdit={() => setCreatingQuestionForQuiz(null)}
+                                cancelEdit={() =>
+                                  setCreatingQuestionForQuiz(null)
+                                }
                               />
                             ) : (
                               <>
-                                <h3 className="text-lg font-semibold">Danh sách câu hỏi</h3>
+                                <h3 className="text-lg font-semibold">
+                                  Danh sách câu hỏi
+                                </h3>
                                 {quiz.questions && quiz.questions.length > 0 ? (
                                   quiz.questions.map((q, idx) =>
                                     editingQuestion?.quizId === quiz.id &&
@@ -581,14 +712,20 @@ export default function QuizManagement() {
                                         editData={editQuestionData}
                                         setEditData={setEditQuestionData}
                                         saveQuestion={saveQuestion}
-                                        cancelEdit={() => setEditingQuestion(null)}
+                                        cancelEdit={() =>
+                                          setEditingQuestion(null)
+                                        }
                                       />
                                     ) : (
                                       <QuestionItem
                                         key={q.id}
                                         question={q}
-                                        onEdit={() => editQuestion(quiz.id, idx)}
-                                        onDelete={() => handleDeleteQuestion(quiz.id, q.id)}
+                                        onEdit={() =>
+                                          editQuestion(quiz.id, idx)
+                                        }
+                                        onDelete={() =>
+                                          handleDeleteQuestion(quiz.id, q.id)
+                                        }
                                       />
                                     )
                                   )
@@ -596,7 +733,9 @@ export default function QuizManagement() {
                                   <p>Chưa có câu hỏi nào.</p>
                                 )}
                                 <motion.button
-                                  onClick={() => handleCreateNewQuestion(quiz.id)}
+                                  onClick={() =>
+                                    handleCreateNewQuestion(quiz.id)
+                                  }
                                   className="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600"
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
@@ -657,7 +796,8 @@ export default function QuizManagement() {
                           <div>Đang xử lý...</div>
                         ) : (
                           <>
-                            {creatingResultForQuiz === quiz.id && newResultData ? (
+                            {creatingResultForQuiz === quiz.id &&
+                            newResultData ? (
                               <motion.div
                                 className="bg-gray-50 p-3 rounded-lg shadow-sm mt-2"
                                 initial={{ opacity: 0 }}
@@ -717,9 +857,10 @@ export default function QuizManagement() {
                                           onClick={() =>
                                             setNewResultData({
                                               ...newResultData,
-                                              services: newResultData.services.filter(
-                                                (s) => s.id !== service.id
-                                              ),
+                                              services:
+                                                newResultData.services.filter(
+                                                  (s) => s.id !== service.id
+                                                ),
                                             })
                                           }
                                           className="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600 ml-2"
@@ -730,7 +871,9 @@ export default function QuizManagement() {
                                     ))}
                                   </ul>
                                 ) : (
-                                  <p className="mb-2">Chưa có dịch vụ nào được thêm.</p>
+                                  <p className="mb-2">
+                                    Chưa có dịch vụ nào được thêm.
+                                  </p>
                                 )}
                                 <p>
                                   <strong>Tìm kiếm và chọn dịch vụ:</strong>
@@ -738,7 +881,9 @@ export default function QuizManagement() {
                                 <input
                                   type="text"
                                   value={searchTerm}
-                                  onChange={(e) => setSearchTerm(e.target.value)}
+                                  onChange={(e) =>
+                                    setSearchTerm(e.target.value)
+                                  }
                                   className="w-full p-2 mb-2 border rounded"
                                   placeholder="Nhập tên dịch vụ để tìm kiếm"
                                 />
@@ -755,12 +900,17 @@ export default function QuizManagement() {
                                           ) {
                                             setNewResultData({
                                               ...newResultData,
-                                              services: [...newResultData.services, service],
+                                              services: [
+                                                ...newResultData.services,
+                                                service,
+                                              ],
                                             });
                                           }
                                         }}
                                         className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${
-                                          newResultData.services.some((s) => s.id === service.id)
+                                          newResultData.services.some(
+                                            (s) => s.id === service.id
+                                          )
                                             ? "text-gray-400 cursor-not-allowed"
                                             : "text-black"
                                         }`}
@@ -770,7 +920,9 @@ export default function QuizManagement() {
                                     ))}
                                   </ul>
                                 ) : (
-                                  <p className="mb-2">Không tìm thấy dịch vụ nào.</p>
+                                  <p className="mb-2">
+                                    Không tìm thấy dịch vụ nào.
+                                  </p>
                                 )}
                                 <div className="flex space-x-2 justify-end">
                                   <button
@@ -780,7 +932,9 @@ export default function QuizManagement() {
                                     Lưu
                                   </button>
                                   <button
-                                    onClick={() => setCreatingResultForQuiz(null)}
+                                    onClick={() =>
+                                      setCreatingResultForQuiz(null)
+                                    }
                                     className="bg-gray-500 text-white px-3 py-1 rounded-md hover:bg-gray-600"
                                   >
                                     Hủy
@@ -789,11 +943,14 @@ export default function QuizManagement() {
                               </motion.div>
                             ) : (
                               <>
-                                <h3 className="text-lg font-semibold">Danh sách kết quả</h3>
+                                <h3 className="text-lg font-semibold">
+                                  Danh sách kết quả
+                                </h3>
                                 {quizResults
                                   .filter((result) => result.quizId === quiz.id)
                                   .map((result) =>
-                                    editingResult === result.id && editResultData ? (
+                                    editingResult === result.id &&
+                                    editResultData ? (
                                       <motion.div
                                         key={result.id}
                                         className="bg-gray-50 p-3 rounded-lg shadow-sm mt-2"
@@ -803,7 +960,9 @@ export default function QuizManagement() {
                                       >
                                         <input
                                           type="text"
-                                          value={editResultData.resultText || ""}
+                                          value={
+                                            editResultData.resultText || ""
+                                          }
                                           onChange={(e) =>
                                             setEditResultData({
                                               ...editResultData,
@@ -820,7 +979,8 @@ export default function QuizManagement() {
                                           onChange={(e) =>
                                             setEditResultData({
                                               ...editResultData,
-                                              minPoint: parseInt(e.target.value) || 0,
+                                              minPoint:
+                                                parseInt(e.target.value) || 0,
                                             })
                                           }
                                           className="w-full p-2 mb-2 border rounded"
@@ -833,7 +993,8 @@ export default function QuizManagement() {
                                           onChange={(e) =>
                                             setEditResultData({
                                               ...editResultData,
-                                              maxPoint: parseInt(e.target.value) || 0,
+                                              maxPoint:
+                                                parseInt(e.target.value) || 0,
                                             })
                                           }
                                           className="w-full p-2 mb-2 border rounded"
@@ -844,38 +1005,49 @@ export default function QuizManagement() {
                                         </p>
                                         {editResultData.services.length > 0 ? (
                                           <ul className="list-disc pl-5 mb-2">
-                                            {editResultData.services.map((service) => (
-                                              <li
-                                                key={service.id}
-                                                className="flex justify-between items-center"
-                                              >
-                                                {service.name}
-                                                <button
-                                                  onClick={() =>
-                                                    setEditResultData({
-                                                      ...editResultData,
-                                                      services: editResultData.services.filter(
-                                                        (s) => s.id !== service.id
-                                                      ),
-                                                    })
-                                                  }
-                                                  className="text-red-500 hover:text-red-700"
+                                            {editResultData.services.map(
+                                              (service) => (
+                                                <li
+                                                  key={service.id}
+                                                  className="flex justify-between items-center"
+                                                >
+                                                  {service.name}
+                                                  <button
+                                                    onClick={() =>
+                                                      setEditResultData({
+                                                        ...editResultData,
+                                                        services:
+                                                          editResultData.services.filter(
+                                                            (s) =>
+                                                              s.id !==
+                                                              service.id
+                                                          ),
+                                                      })
+                                                    }
+                                                    className="text-red-500 hover:text-red-700"
                                                   >
-                                                  ✕
-                                                </button>
-                                              </li>
-                                            ))}
+                                                    ✕
+                                                  </button>
+                                                </li>
+                                              )
+                                            )}
                                           </ul>
                                         ) : (
-                                          <p className="mb-2">Chưa có dịch vụ nào được thêm.</p>
+                                          <p className="mb-2">
+                                            Chưa có dịch vụ nào được thêm.
+                                          </p>
                                         )}
                                         <p>
-                                          <strong>Tìm kiếm và chọn dịch vụ:</strong>
+                                          <strong>
+                                            Tìm kiếm và chọn dịch vụ:
+                                          </strong>
                                         </p>
                                         <input
                                           type="text"
                                           value={searchTerm}
-                                          onChange={(e) => setSearchTerm(e.target.value)}
+                                          onChange={(e) =>
+                                            setSearchTerm(e.target.value)
+                                          }
                                           className="w-full p-2 mb-2 border rounded"
                                           placeholder="Nhập tên dịch vụ để tìm kiếm"
                                         />
@@ -892,12 +1064,17 @@ export default function QuizManagement() {
                                                   ) {
                                                     setEditResultData({
                                                       ...editResultData,
-                                                      services: [...editResultData.services, service],
+                                                      services: [
+                                                        ...editResultData.services,
+                                                        service,
+                                                      ],
                                                     });
                                                   }
                                                 }}
                                                 className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${
-                                                  editResultData.services.some((s) => s.id === service.id)
+                                                  editResultData.services.some(
+                                                    (s) => s.id === service.id
+                                                  )
                                                     ? "text-gray-400 cursor-not-allowed"
                                                     : "text-black"
                                                 }`}
@@ -907,7 +1084,9 @@ export default function QuizManagement() {
                                             ))}
                                           </ul>
                                         ) : (
-                                          <p className="mb-2">Không tìm thấy dịch vụ nào.</p>
+                                          <p className="mb-2">
+                                            Không tìm thấy dịch vụ nào.
+                                          </p>
                                         )}
                                         <div className="flex space-x-2 justify-end">
                                           <button
@@ -917,7 +1096,9 @@ export default function QuizManagement() {
                                             Lưu
                                           </button>
                                           <button
-                                            onClick={() => setEditingResult(null)}
+                                            onClick={() =>
+                                              setEditingResult(null)
+                                            }
                                             className="bg-gray-500 text-white px-3 py-1 rounded-md hover:bg-gray-600"
                                           >
                                             Hủy
@@ -934,7 +1115,8 @@ export default function QuizManagement() {
                                       >
                                         <div>
                                           <p>
-                                            <strong>Kết quả:</strong> {result.resultText}
+                                            <strong>Kết quả:</strong>{" "}
+                                            {result.resultText}
                                           </p>
                                           <p>
                                             <strong>Khoảng Điểm:</strong>
@@ -944,19 +1126,25 @@ export default function QuizManagement() {
                                           <p>
                                             <strong>Dịch vụ:</strong>{" "}
                                             {result.services.length > 0
-                                              ? result.services.map((s) => s.name).join(", ")
+                                              ? result.services
+                                                  .map((s) => s.name)
+                                                  .join(", ")
                                               : "Chưa có dịch vụ"}
                                           </p>
                                         </div>
                                         <div className="flex space-x-2">
                                           <button
-                                            onClick={() => editQuizResult(result.id)}
+                                            onClick={() =>
+                                              editQuizResult(result.id)
+                                            }
                                             className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                                           >
                                             Sửa
                                           </button>
                                           <button
-                                            onClick={() => handleDeleteQuizResult(result.id)}
+                                            onClick={() =>
+                                              handleDeleteQuizResult(result.id)
+                                            }
                                             className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
                                           >
                                             Xóa
@@ -965,8 +1153,12 @@ export default function QuizManagement() {
                                       </motion.div>
                                     )
                                   )}
-                                {quizResults.filter((result) => result.quizId === quiz.id).length === 0 && (
-                                  <p className="text-gray-500 mt-2">Chưa có kết quả nào.</p>
+                                {quizResults.filter(
+                                  (result) => result.quizId === quiz.id
+                                ).length === 0 && (
+                                  <p className="text-gray-500 mt-2">
+                                    Chưa có kết quả nào.
+                                  </p>
                                 )}
                                 <motion.button
                                   onClick={() => handleCreateNewResult(quiz.id)}
@@ -985,7 +1177,9 @@ export default function QuizManagement() {
                   </div>
                 ))}
                 {quizzes.length === 0 && (
-                  <p className="text-gray-500 mt-2">Chưa có bài kiểm tra nào.</p>
+                  <p className="text-gray-500 mt-2">
+                    Chưa có bài kiểm tra nào.
+                  </p>
                 )}
               </div>
             </motion.div>

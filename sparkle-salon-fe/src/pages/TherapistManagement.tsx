@@ -4,7 +4,6 @@ import ManagementModal from "../components/ManagementModal";
 import {
   getAllTherapists,
   createTherapist,
-  updateTherapist,
   deleteTherapist,
   disableTherapist,
   enableTherapist,

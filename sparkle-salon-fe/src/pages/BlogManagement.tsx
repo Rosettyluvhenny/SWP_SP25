@@ -344,7 +344,7 @@ export default function BlogManagement() {
               </div>
             )}
             <div className="mb-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-pink-100 p-4 rounded-lg shadow">
-              <div className="w-full md:w-1/4 relative">
+              <div className="w-full md:w-1/5 relative">
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
@@ -354,7 +354,7 @@ export default function BlogManagement() {
                   className="w-full p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400"
                 />
               </div>
-              <div className="w-full md:w-3/4">
+              <div className="w-full md:w-4/5">
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
@@ -498,7 +498,7 @@ export default function BlogManagement() {
                             View
                           </motion.button>
                         )}
-                        ;
+                        
                         <motion.button
                           onClick={() => handleBlogDelete(blog.blogId)}
                           className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"

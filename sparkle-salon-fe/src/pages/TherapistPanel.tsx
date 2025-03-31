@@ -166,12 +166,12 @@ export default function Therapist() {
         roomId: selectedSession?.roomId || 0,
       };
       await updateBookingSession(sessionId, updateRequest, imgBefore, imgAfter);
-      toast.success("Session updated successfully");
+      toast.success("Đã được cập nhật thành công");
       await fetchSessions();
       setSelectedSession(null);
     } catch (error) {
-      toast.error("Failed to update session");
-      console.error("Session update error:", error);
+      toast.error("Không cập nhật được");
+      console.error("Lỗi cập nhật:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -209,7 +209,7 @@ export default function Therapist() {
         );
         console.log(success);
         if(success){
-          toast.success("Therapist updated successfully");
+          toast.success("Nhà trị liệu đã cập nhật thành công");
                }
         await fetchTherapistInfoData();
       } else if (modalType === "changePassword") {
@@ -242,7 +242,7 @@ export default function Therapist() {
       setIsModalOpen(false);
       setModalType(null);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Error saving data");
+      toast.error(error instanceof Error ? error.message : "Lỗi khi lưu dữ liệu");
       console.error("Submit error:", error);
     } finally {
       setIsSubmitting(false);
