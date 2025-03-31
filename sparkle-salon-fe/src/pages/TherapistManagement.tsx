@@ -38,12 +38,91 @@ export default function TherapistManagement() {
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [therapists, setTherapists] = useState<Therapist[]>([]);
-    const [editingTherapist, setEditingTherapist] = useState<Therapist | null>(null);
+    const [editingTherapist, setEditingTherapist] = useState<Therapist | null>(
+        null
+    );
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [services, setServices] = useState<Service[]>([]);
     const [filteredServices, setFilteredServices] = useState<Service[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+    const [validationErrors, setValidationErrors] = useState<
+        Record<string, string>
+    >({});
+
+    // Validation function
+    const validateForm = (formData: FormData): boolean => {
+        const newErrors: Record<string, string> = {};
+
+        // For new therapists, validate required fields
+        if (!editingTherapist) {
+            // Username validation
+            const username = formData.get("username") as string;
+            if (!username || username.trim() === "") {
+                newErrors.username = "Tên người dùng không được để trống";
+            } else if (username.length < 3) {
+                newErrors.username = "Tên người dùng phải có ít nhất 3 ký tự";
+            }
+
+            // Password validation
+            const password = formData.get("pass") as string;
+            if (!password || password.trim() === "") {
+                newErrors.password = "Mật khẩu không được để trống";
+            } else if (password.length < 6) {
+                newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+            }
+
+            // Full name validation
+            const fullName = formData.get("fullName") as string;
+            if (!fullName || fullName.trim() === "") {
+                newErrors.fullName = "Họ và tên không được để trống";
+            }
+
+            // Email validation
+            const email = formData.get("email") as string;
+            if (!email || email.trim() === "") {
+                newErrors.email = "Email không được để trống";
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                newErrors.email = "Email không hợp lệ";
+            }
+
+            // Phone validation
+            const phone = formData.get("phone") as string;
+            if (phone && !/^[0-9]{10,11}$/.test(phone)) {
+                newErrors.phone = "Số điện thoại phải có 10-11 chữ số";
+            }
+
+            // DOB validation
+            const dob = formData.get("dob") as string;
+            if (!dob) {
+                newErrors.dob = "Ngày sinh không được để trống";
+            }
+        }
+
+        // Experience years validation (required for both new and editing)
+        const experienceYears = parseInt(
+            (formData.get("experienceYears") as string) || "0"
+        );
+        if (isNaN(experienceYears) || experienceYears < 0) {
+            newErrors.experienceYears = "Số năm kinh nghiệm phải là số dương";
+        }
+
+        // Bio validation (required for both new and editing)
+        const bio = formData.get("bio") as string;
+        if (!bio || bio.trim() === "") {
+            newErrors.bio = "Tiểu sử không được để trống";
+        } else if (bio.length > 10) {
+            newErrors.bio = "Tiểu sử phải có ít nhất 10 ký tự";
+        }
+
+        // Services validation
+        if (selectedServices.length === 0) {
+            newErrors.services = "Phải chọn ít nhất một dịch vụ";
+        }
+
+        setValidationErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     // Fetch therapists data
     const fetchTherapists = async () => {
@@ -96,7 +175,6 @@ export default function TherapistManagement() {
         }
     }, [successMessage]);
 
-    // Modal functions remain the same
     const openModal = (therapist: Therapist | null = null) => {
         setEditingTherapist(therapist ? { ...therapist } : null);
         setSelectedFile(null);
@@ -111,6 +189,7 @@ export default function TherapistManagement() {
         setSelectedFile(null);
         setSearchTerm("");
         setSelectedServices([]);
+        setValidationErrors({});
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,6 +211,12 @@ export default function TherapistManagement() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
+
+        // Validate form before submitting
+        if (!validateForm(formData)) {
+            // Return early if validation fails
+            return;
+        }
 
         try {
             setIsLoading(true);
@@ -175,12 +260,6 @@ export default function TherapistManagement() {
                     img: selectedFile || new File([], "default.jpg"),
                 };
 
-                if (!newTherapist.username || !newTherapist.email) {
-                    throw new Error(
-                        "Thiếu các trường bắt buộc (tên người dùng hoặc email)"
-                    );
-                }
-
                 const success = await createTherapist(newTherapist);
                 if (success) {
                     console.log(success);
@@ -196,9 +275,12 @@ export default function TherapistManagement() {
             setError(errorMessage);
         } finally {
             setIsLoading(false);
-            closeModal();
-            await fetchTherapists();
-            await fetchServices();
+            // Only close modal if no validation errors
+            if (Object.keys(validationErrors).length === 0) {
+                closeModal();
+                await fetchTherapists();
+                await fetchServices();
+            }
         }
     };
 
@@ -327,31 +409,58 @@ export default function TherapistManagement() {
                                     <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-white sticky top-0 z-10">
                                             <tr>
-                                                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap"
+                                                >
                                                     Họ Tên
                                                 </th>
-                                                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap"
+                                                >
                                                     Hình ảnh
                                                 </th>
-                                                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap"
+                                                >
                                                     Email
                                                 </th>
-                                                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap"
+                                                >
                                                     SĐT
                                                 </th>
-                                                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap"
+                                                >
                                                     Bio
                                                 </th>
-                                                <th scope="col" className="px-4 py-3 text-center text-sm font-medium text-gray-700 whitespace-nowrap">
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-3 text-center text-sm font-medium text-gray-700 whitespace-nowrap"
+                                                >
                                                     KN
                                                 </th>
-                                                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap"
+                                                >
                                                     Dịch vụ
                                                 </th>
-                                                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap"
+                                                >
                                                     Trạng Thái
                                                 </th>
-                                                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap"
+                                                >
                                                     Hành Động
                                                 </th>
                                             </tr>
@@ -368,7 +477,9 @@ export default function TherapistManagement() {
                                                         </td>
                                                         <td className="px-4 py-3 text-sm text-gray-900">
                                                             <img
-                                                                src={therapist.img}
+                                                                src={
+                                                                    therapist.img
+                                                                }
                                                                 alt="Therapist"
                                                                 className="h-16 w-16 object-cover rounded-md shadow"
                                                             />
@@ -382,31 +493,45 @@ export default function TherapistManagement() {
                                                         <td className="px-4 py-3 text-sm text-gray-900">
                                                             <div className="max-h-20 overflow-y-auto max-w-xs">
                                                                 <p className="line-clamp-3 hover:line-clamp-none cursor-pointer">
-                                                                    {therapist.bio}
+                                                                    {
+                                                                        therapist.bio
+                                                                    }
                                                                 </p>
                                                             </div>
                                                         </td>
                                                         <td className="px-4 py-3 text-sm text-gray-900 text-center">
-                                                            {therapist.experienceYears}
+                                                            {
+                                                                therapist.experienceYears
+                                                            }
                                                         </td>
                                                         <td className="px-4 py-3 text-sm text-gray-900">
                                                             <div className="max-h-20 overflow-y-auto max-w-sm">
-                                                                {therapist?.services?.length > 0 ? (
+                                                                {therapist
+                                                                    ?.services
+                                                                    ?.length >
+                                                                0 ? (
                                                                     <ul className="list-disc list-inside">
                                                                         {therapist.services.map(
-                                                                            (service) => (
+                                                                            (
+                                                                                service
+                                                                            ) => (
                                                                                 <li
-                                                                                    key={service.id}
+                                                                                    key={
+                                                                                        service.id
+                                                                                    }
                                                                                     className="truncate hover:text-clip"
                                                                                 >
-                                                                                    {service.name}
+                                                                                    {
+                                                                                        service.name
+                                                                                    }
                                                                                 </li>
                                                                             )
                                                                         )}
                                                                     </ul>
                                                                 ) : (
                                                                     <p className="text-gray-500 italic text-center">
-                                                                        Không có dịch vụ
+                                                                        Không có
+                                                                        dịch vụ
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -427,13 +552,21 @@ export default function TherapistManagement() {
                                                         <td className="px-4 py-3 text-sm text-gray-900">
                                                             <div className="flex flex-col space-y-2">
                                                                 <button
-                                                                    onClick={() => openModal(therapist)}
+                                                                    onClick={() =>
+                                                                        openModal(
+                                                                            therapist
+                                                                        )
+                                                                    }
                                                                     className="bg-blue-500 text-white px-2 py-1 text-xs rounded hover:bg-blue-600 transition-colors flex items-center justify-center"
                                                                 >
                                                                     Chỉnh Sửa
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => handleToggleStatus(therapist)}
+                                                                    onClick={() =>
+                                                                        handleToggleStatus(
+                                                                            therapist
+                                                                        )
+                                                                    }
                                                                     className={`${
                                                                         therapist.disabled
                                                                             ? "bg-green-500 hover:bg-green-600"
@@ -445,13 +578,19 @@ export default function TherapistManagement() {
                                                                         : "Vô Hiệu Hóa"}
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => handleDelete(therapist.id)}
+                                                                    onClick={() =>
+                                                                        handleDelete(
+                                                                            therapist.id
+                                                                        )
+                                                                    }
                                                                     className={`bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600 transition-colors flex items-center justify-center ${
                                                                         !therapist.disabled
                                                                             ? "opacity-50 cursor-not-allowed"
                                                                             : ""
                                                                     }`}
-                                                                    disabled={!therapist.disabled}
+                                                                    disabled={
+                                                                        !therapist.disabled
+                                                                    }
                                                                     title={
                                                                         !therapist.disabled
                                                                             ? "Vui lòng vô hiệu hóa trước khi xóa"
@@ -506,9 +645,18 @@ export default function TherapistManagement() {
                                         type="text"
                                         name="username"
                                         placeholder="Tên người dùng"
-                                        className="w-full p-2 border rounded"
+                                        className={`w-full p-2 border rounded ${
+                                            validationErrors.username
+                                                ? "border-red-500"
+                                                : ""
+                                        }`}
                                         required
                                     />
+                                    {validationErrors.username && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {validationErrors.username}
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -518,9 +666,18 @@ export default function TherapistManagement() {
                                         type="text"
                                         name="pass"
                                         placeholder="Password"
-                                        className="w-full p-2 border rounded"
+                                        className={`w-full p-2 border rounded ${
+                                            validationErrors.password
+                                                ? "border-red-500"
+                                                : ""
+                                        }`}
                                         required
                                     />
+                                    {validationErrors.password && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {validationErrors.password}
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -530,9 +687,18 @@ export default function TherapistManagement() {
                                         type="text"
                                         name="fullName"
                                         placeholder="Họ và tên"
-                                        className="w-full p-2 border rounded"
+                                        className={`w-full p-2 border rounded ${
+                                            validationErrors.fullName
+                                                ? "border-red-500"
+                                                : ""
+                                        }`}
                                         required
                                     />
+                                    {validationErrors.fullName && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {validationErrors.fullName}
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -542,9 +708,18 @@ export default function TherapistManagement() {
                                         type="email"
                                         name="email"
                                         placeholder="Email"
-                                        className="w-full p-2 border rounded"
+                                        className={`w-full p-2 border rounded ${
+                                            validationErrors.email
+                                                ? "border-red-500"
+                                                : ""
+                                        }`}
                                         required
                                     />
+                                    {validationErrors.email && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {validationErrors.email}
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -557,9 +732,18 @@ export default function TherapistManagement() {
                                             editingTherapist?.phone || ""
                                         }
                                         placeholder="Số điện thoại"
-                                        className="w-full p-2 border rounded"
+                                        className={`w-full p-2 border rounded ${
+                                            validationErrors.phone
+                                                ? "border-red-500"
+                                                : ""
+                                        }`}
                                         required
                                     />
+                                    {validationErrors.phone && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {validationErrors.phone}
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -568,9 +752,18 @@ export default function TherapistManagement() {
                                     <input
                                         type="date"
                                         name="dob"
-                                        className="w-full p-2 border rounded"
+                                        className={`w-full p-2 border rounded ${
+                                            validationErrors.dob
+                                                ? "border-red-500"
+                                                : ""
+                                        }`}
                                         required
                                     />
+                                    {validationErrors.dob && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {validationErrors.dob}
+                                        </p>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -585,9 +778,18 @@ export default function TherapistManagement() {
                                     editingTherapist?.experienceYears || ""
                                 }
                                 placeholder="Số năm"
-                                className="w-full p-2 border rounded"
+                                className={`w-full p-2 border rounded ${
+                                    validationErrors.experienceYears
+                                        ? "border-red-500"
+                                        : ""
+                                }`}
                                 required
                             />
+                            {validationErrors.experienceYears && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {validationErrors.experienceYears}
+                                </p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -625,22 +827,15 @@ export default function TherapistManagement() {
                     <div className="space-y-3">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Tiểu sử *
-                            </label>
-                            <textarea
-                                name="bio"
-                                defaultValue={editingTherapist?.bio || ""}
-                                placeholder="Tiểu sử"
-                                className="w-full p-2 border rounded h-24"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Dịch vụ *
                             </label>
-                            <div className="space-y-2">
+                            <div
+                                className={`space-y-2 ${
+                                    validationErrors.services
+                                        ? "border-red-500"
+                                        : ""
+                                }`}
+                            >
                                 <div className="max-h-24 overflow-y-auto border rounded p-2">
                                     {selectedServices.length > 0 ? (
                                         selectedServices.map((service) => (
@@ -670,6 +865,11 @@ export default function TherapistManagement() {
                                         </p>
                                     )}
                                 </div>
+                                {validationErrors.services && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {validationErrors.services}
+                                    </p>
+                                )}
                                 <input
                                     type="text"
                                     value={searchTerm}

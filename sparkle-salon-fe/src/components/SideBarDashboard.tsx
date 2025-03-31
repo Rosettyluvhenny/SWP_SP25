@@ -1,17 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import {
     FiUsers,
     FiShoppingCart,
     FiBarChart2,
     FiMenu,
+    FiLogOut
 } from "react-icons/fi";
 import { MdMeetingRoom, MdOutlinePayments } from "react-icons/md";
 import { TbPhysotherapist } from "react-icons/tb";
 import { MdNewspaper,MdQuiz  } from "react-icons/md";
+import { UserContext } from "../context/UserContext";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
+    const {logout} = useContext(UserContext);
 
     return (
         <aside
@@ -127,6 +130,21 @@ const Sidebar = () => {
                     </Link>
                 </ul>
             </nav>
+            <div className="flex-grow"></div>
+            
+            {/* Logout */}
+            <button
+                onClick={() => {
+                    console.log("logout");
+                    logout();
+                }}
+                className={`w-full flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg text-left ${
+                    isOpen ? "block" : "flex justify-center"
+                }`}
+            >
+                <FiLogOut />
+                {isOpen && "Đăng xuất"}
+            </button>
         </aside>
     );
 };

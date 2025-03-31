@@ -5,7 +5,6 @@ import { createFeedback, Feedback } from "../data/feedbacksData";
 import { AnimatePresence, motion } from "framer-motion";
 
 
-// Props interface for the component
 interface SessionFeedbackFormProps {
     sessionId: number;
     isOpen: boolean;
@@ -39,7 +38,6 @@ const SessionFeedbackForm: React.FC<SessionFeedbackFormProps> = ({
             feedbackText
         };
 
-        // Call the createFeedback function with proper error handling
         const rq = await createFeedback(feedback);
 
         if (rq) {

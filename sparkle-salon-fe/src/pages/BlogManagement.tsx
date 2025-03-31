@@ -23,6 +23,12 @@ interface PaginationProps {
   paginate: (pageNumber: number) => void;
 }
 
+// Validation errors interface
+interface ValidationErrors {
+  title?: string;
+  categoryName?: string;
+}
+
 const axiosInstance = instance;
 
 // Pagination Component
@@ -97,6 +103,8 @@ export default function BlogManagement() {
   const [blogsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -113,15 +121,34 @@ export default function BlogManagement() {
     }
   }, []);
   
-useEffect(() => {
-        if (activeTab === "blog") {
-            navigate("/therapist/blog");
-        } else if (activeTab === "notes") {
-            navigate("/therapist");
-        } else if (activeTab === "schedule") {
-            navigate("/therapist");
-        }
-    }, [activeTab, navigate]);
+  useEffect(() => {
+    if (activeTab === "blog") {
+      navigate("/therapist/blog");
+    } else if (activeTab === "notes") {
+      navigate("/therapist");
+    } else if (activeTab === "schedule") {
+      navigate("/therapist");
+    }
+  }, [activeTab, navigate]);
+
+  // Validate blog form
+  const validateBlog = (blog: Blog): ValidationErrors => {
+    const errors: ValidationErrors = {};
+    
+    if (!blog.title || blog.title.trim() === '') {
+      errors.title = "Tiêu đề không được để trống";
+    } else if (blog.title.length < 5) {
+      errors.title = "Tiêu đề phải có ít nhất 5 ký tự";
+    } else if (blog.title.length > 1000) {
+      errors.title = "Tiêu đề không được vượt quá 1000 ký tự";
+    }
+    
+    if (!blog.categoryName || blog.categoryName.trim() === '') {
+      errors.categoryName = "Danh mục không được để trống";
+    }
+    
+    return errors;
+  };
 
   const handleOpenBlogForm = (blogId: string | null) => {
     setSelectedBlog(blogId);
@@ -160,20 +187,34 @@ useEffect(() => {
   useEffect(() => {
     getBlogList();
   }, [getBlogList]);
+  
   const closeBlogModal = () => {
     setIsModalOpen(false);
     setEditingBlog(null);
+    setValidationErrors({});
   };
 
   const handleBlogSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingBlog) return;
 
+    // Validate before saving
+    setIsSubmitting(true);
+    const errors = validateBlog(editingBlog);
+    setValidationErrors(errors);
+    
+    if (Object.keys(errors).length > 0) {
+      setIsSubmitting(false);
+      return;
+    }
+
     setBlogs((prev) =>
       prev.some((b) => b.blogId === editingBlog.blogId)
         ? prev.map((b) => (b.blogId === editingBlog.blogId ? editingBlog : b))
         : [...prev, editingBlog]
     );
+    
+    setIsSubmitting(false);
     closeBlogModal();
     getBlogList();
   };
@@ -204,7 +245,19 @@ useEffect(() => {
       toast.error("Chỉ admin mới có quyền thay đổi trạng thái approve");
       return;
     }
+    
+    // Validate blogId
+    if (!blogId || blogId.trim() === '') {
+      toast.error("ID blog không hợp lệ");
+      return;
+    }
+    
     const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Vui lòng đăng nhập lại");
+      return;
+    }
+    
     setLoadingBlogId(blogId);
     const newStatus = !currentStatus;
 
@@ -238,7 +291,18 @@ useEffect(() => {
       return;
     }
 
+    // Validate blogId
+    if (!blogId || blogId.trim() === '') {
+      toast.error("ID blog không hợp lệ");
+      return;
+    }
+    
     const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Vui lòng đăng nhập lại");
+      return;
+    }
+    
     setLoadingBlogId(blogId);
 
     try {
@@ -271,6 +335,16 @@ useEffect(() => {
     setCurrentPage(pageNumber);
   };
 
+  // Sanitize search term
+  const sanitizeInput = (input: string): string => {
+    return input.replace(/[<>]/g, '');
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = sanitizeInput(e.target.value);
+    setSearchTerm(sanitizedValue);
+  };
+
   const filteredBlogs = blogs.filter(
     (blog) =>
       blog.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -288,9 +362,9 @@ useEffect(() => {
 
   return (
     <div className="flex h-screen bg-white">
-                {isAdmin ? <Sidebar />  : (
-  <SidebarTherapist activeTab={activeTab} setActiveTab={setActiveTab} />
-)}
+      {isAdmin ? <Sidebar />  : (
+        <SidebarTherapist activeTab={activeTab} setActiveTab={setActiveTab} />
+      )}
                 
       <main className="flex-1 p-6 overflow-auto">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">
@@ -322,8 +396,9 @@ useEffect(() => {
                   type="text"
                   placeholder="Tìm kiếm blog theo tiêu đề..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleSearchChange}
                   className="w-full p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  maxLength={100}
                 />
               </div>
               <div className="w-full md:w-3/4">
@@ -508,8 +583,14 @@ useEffect(() => {
                   onChange={(e) =>
                     setEditingBlog({ ...editingBlog, title: e.target.value })
                   }
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
+                    validationErrors.title ? 'border-red-500' : ''
+                  }`}
+                  maxLength={200}
                 />
+                {validationErrors.title && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.title}</p>
+                )}
               </label>
               <label className="block mb-2">
                 <span className="text-gray-700">Danh Mục</span>
@@ -522,9 +603,24 @@ useEffect(() => {
                       categoryName: e.target.value,
                     })
                   }
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
+                    validationErrors.categoryName ? 'border-red-500' : ''
+                  }`}
+                  maxLength={50}
                 />
+                {validationErrors.categoryName && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.categoryName}</p>
+                )}
               </label>
+              <div className="flex justify-end mt-4">
+                <button
+                  type="submit"
+                  className="bg-pink-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Đang lưu...' : 'Lưu'}
+                </button>
+              </div>
             </form>
           </ManagementModal>
         )}

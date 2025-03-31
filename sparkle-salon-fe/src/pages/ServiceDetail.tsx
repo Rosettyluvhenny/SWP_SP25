@@ -346,9 +346,6 @@ export default function ServiceDetail() {
                                     <p className="text-gray-500 text-base">
                                         Chưa có đánh giá nào cho dịch vụ này.
                                     </p>
-                                    <p className="text-gray-400 text-sm mt-2">
-                                        Hãy là người đầu tiên đánh giá dịch vụ!
-                                    </p>
                                 </div>
                             )}
                         </div>
@@ -411,10 +408,7 @@ export default function ServiceDetail() {
                                                         </p>
                                                         <p className="text-pink-500 font-medium mt-1">
                                                             {related.price.toLocaleString()}{" "}
-                                                            đ
-                                                        </p>
-                                                        <p className="text-gray-500 text-sm mt-1">
-                                                            {related.duration}
+                                                            vnđ
                                                         </p>
                                                     </div>
                                                 </div>

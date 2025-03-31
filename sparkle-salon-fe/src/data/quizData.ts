@@ -30,7 +30,7 @@ interface ApiResponse<T> {
 }
 
 // Cấu hình Axios instance
-const API_BASE_URL = "http://localhost:8080/swp";
+const API_BASE_URL = "http://localhost:8081/swp";
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
@@ -76,14 +76,17 @@ const handleApiError = (error: unknown): never => {
 // Hàm lấy danh sách quizzes từ API
 const quizData = async (): Promise<Quiz[]> => {
   try {
-    const response = await axiosInstance.get<ApiResponse<Quiz[]>>("/quiz");
+    const response = await axiosInstance.get<ApiResponse<Quiz[]>>("/quiz", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-    // Kiểm tra response từ API
-    if (response.data.code !== 0) {
-      throw new Error(response.data.message || "Lỗi không xác định từ server");
+    if (response.code !== 0) {
+      throw new Error(response.message || "Lỗi không xác định từ server");
     }
 
-    const result = response.data.result;
+    const result = response.result;
     if (Array.isArray(result)) {
       return result;
     }
@@ -91,8 +94,10 @@ const quizData = async (): Promise<Quiz[]> => {
     console.warn("Dữ liệu trả về không phải là mảng:", result);
     return [];
   } catch (error) {
-    handleApiError(error); // Ném lỗi để caller xử lý
+    handleApiError(error);
+    return []; 
   }
 };
+
 
 export default quizData;

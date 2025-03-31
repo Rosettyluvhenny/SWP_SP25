@@ -6,6 +6,7 @@ import SortButtons from "../components/SortButton";
 import Pagination from "../components/Pagination.tsx";
 import ServiceList from "../components/ServiceList";
 import { Category, CategoryData } from "../data/categoryData.ts";
+import { FaSearch } from "react-icons/fa";
 
 export default function Service() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -17,7 +18,7 @@ export default function Service() {
     const [totalAmountOfElements, setTotalAmountOfElements] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [rating, setRating] = useState<number>();
-    const [searchUrl, setSearchUrl] = useState('?size=9');
+    const [searchUrl, setSearchUrl] = useState("?size=9");
     const [services, setServices] = useState<Service[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<number>();
@@ -43,26 +44,28 @@ export default function Service() {
         setTotalAmountOfElements(meta.totalElements);
         setTotalPages(meta.totalPages);
         // setIsLoading(true);
-
     };
     useEffect(() => {
         setSearchUrl(
-            `?${rating ? `rating=${rating}&` : ""}${selectedCategory ? `categoryId=${selectedCategory}&` : ""}page=${currentPage-1}&size=${ServicePerPage}&sort=${sortBy}`
+            `?${rating ? `rating=${rating}&` : ""}${
+                selectedCategory ? `categoryId=${selectedCategory}&` : ""
+            }page=${currentPage - 1}&size=${ServicePerPage}&sort=${sortBy}`
         );
     }, [currentPage]);
 
     const handleFilter = () => {
         setCurrentPage(1);
         setSearchUrl(
-            `?${rating ? `rating=${rating}&` : ""}${selectedCategory ? `categoryId=${selectedCategory}&` : ""}page=${currentPage-1}&size=${ServicePerPage}&sort=${sortBy}`
+            `?${rating ? `rating=${rating}&` : ""}${
+                selectedCategory ? `categoryId=${selectedCategory}&` : ""
+            }page=${currentPage - 1}&size=${ServicePerPage}&sort=${sortBy}`
         );
-    }
+    };
     useEffect(() => {
         fetchServices().catch((error: any) => {
             setHttpError(error.message);
-
-        })
-        window.scroll(0, 0);;
+        });
+        window.scroll(0, 0);
     }, [searchUrl]);
 
     const indexOfLast: number = currentPage * ServicePerPage;
@@ -70,10 +73,11 @@ export default function Service() {
     let lastItem: number =
         ServicePerPage * currentPage <= totalAmountOfElements
             ? ServicePerPage * currentPage
-            : totalAmountOfElements
+            : totalAmountOfElements;
     const paginate = (pageNumber: number) => {
         console.log(pageNumber);
-        setCurrentPage(pageNumber)};
+        setCurrentPage(pageNumber);
+    };
     return (
         <div className="bg-gradient-to-t from-white to-pink-200 min-h-screen">
             {/* Banner Section */}
@@ -93,30 +97,41 @@ export default function Service() {
                     <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
                     <select
                         value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(Number(e.target.value))}
+                        onChange={(e) =>
+                            setSelectedCategory(Number(e.target.value))
+                        }
                         className="border p-2 rounded"
                     >
-                        <option value="">Select a Category</option>
-                        {categories && categories.map((category) => (
-                            <option key={category.id} value={category.id}>
-                                {category.name}
-                            </option>
-                        ))}
+                        <option value="">Tất Cả</option>
+                        {categories &&
+                            categories.map((category) => (
+                                <option key={category.id} value={category.id}>
+                                    {category.name}
+                                </option>
+                            ))}
                     </select>
-                        
-                    <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
-                        <option value="">Select a Rating</option>
+
+                    <select
+                        value={rating}
+                        onChange={(e) => setRating(Number(e.target.value))}
+                        className="border p-2 rounded"
+                    >
+                        <option value="">
+                            Đánh Giá
+                        </option>
                         {[1, 2, 3, 4, 5].map((star) => (
                             <option key={star} value={star}>
                                 {"⭐".repeat(star)} ({star})
-
-                                
                             </option>
-                            
                         ))}
                     </select>
-                    <button className="bg-violet hover:bg-gray" onClick={handleFilter}>Search</button>
-
+                    <button
+                        className="bg-violet hover:bg-gray border p-2 rounded flex flex-row items-center gap-4"
+                        onClick={handleFilter}
+                    >
+                        <FaSearch />
+                        Tìm Kiếm
+                    </button>
                 </div>
 
                 {/* Results Summary */}
@@ -124,11 +139,14 @@ export default function Service() {
                     {totalAmountOfElements > 0 ? (
                         <>
                             <div className="mt-3">
-                                <h5> Number of results: ({totalAmountOfElements})</h5>
+                                <h5>
+                                    {" "}
+                                    Number of results: ({totalAmountOfElements})
+                                </h5>
                             </div>
                             <p>
-                                {indexOfFirst + 1} to {lastItem} of {totalAmountOfElements}{" "}
-                                items:
+                                {indexOfFirst + 1} to {lastItem} of{" "}
+                                {totalAmountOfElements} items:
                             </p>
                         </>
                     ) : (
