@@ -230,6 +230,7 @@ export default function ServiceManagement() {
         );
         if (confirmDelete) {
             const deletedService = await deleteServiceById(id.toString());
+            console.log(deletedService)
             if (deletedService) {
                 toast.success("Xóa dịch vụ thành công");
                 setServices(services.filter((service) => service.id !== id));
