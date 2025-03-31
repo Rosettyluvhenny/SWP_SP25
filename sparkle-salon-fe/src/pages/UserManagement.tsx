@@ -25,6 +25,15 @@ type User = {
     roles?: Role[];
 };
 
+interface ValidationErrors {
+    username?: string;
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    dob?: string;
+    password?: string;
+}
+
 export default function UserManagement() {
     const [searchTerm, setSearchTerm] = useState("");
     const [users, setUsers] = useState<User[]>([]);
@@ -32,6 +41,9 @@ export default function UserManagement() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
+
+    const [errors, setErrors] = useState<ValidationErrors>({});
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         fetchUsers();
@@ -62,17 +74,87 @@ export default function UserManagement() {
                 dob: "",
             }
         );
+        // Reset errors when opening modal
+        setErrors({});
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingUser(null);
+        setErrors({});
+    };
+
+    const validateForm = (): boolean => {
+        const newErrors: ValidationErrors = {};
+        let isValid = true;
+
+        if (!editingUser) return false;
+
+        // Username validation
+        if (!editingUser.username || editingUser.username.trim() === "") {
+            newErrors.username = "Tên người dùng không được để trống";
+            isValid = false;
+        } else if (editingUser.username.length < 5) {
+            newErrors.username = "Tên người dùng phải có ít nhất 5 ký tự";
+            isValid = false;
+        }
+
+        // Full name validation
+        if (!editingUser.fullName || editingUser.fullName.trim() === "") {
+            newErrors.fullName = "Họ tên không được để trống";
+            isValid = false;
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!editingUser.email || editingUser.email.trim() === "") {
+            newErrors.email = "Email không được để trống";
+            isValid = false;
+        } else if (!emailRegex.test(editingUser.email)) {
+            newErrors.email = "Định dạng email không hợp lệ";
+            isValid = false;
+        }
+
+        // Phone validation - Vietnamese format
+        const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
+        if (!editingUser.phone || editingUser.phone.trim() === "") {
+            newErrors.phone = "Số điện thoại không được để trống";
+            isValid = false;
+        } else if (!phoneRegex.test(editingUser.phone)) {
+            newErrors.phone = "Số điện thoại không hợp lệ (phải theo định dạng Việt Nam +84 hoặc 0)";
+            isValid = false;
+        }
+
+        // Password validation for new users
+        if (!isEditingExistingUser()) {
+            if (!editingUser.password || editingUser.password.trim() === "") {
+                newErrors.password = "Mật khẩu không được để trống";
+                isValid = false;
+            } else if (editingUser.password.length < 6) {
+                newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+                isValid = false;
+            }else if (editingUser.password.length > 20) {
+                newErrors.password = "Mật khẩu không được quá 20 ký tự";
+                isValid = false;
+            }
+        }
+
+        setErrors(newErrors);
+        return isValid;
     };
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingUser) return;
+        
+        setSubmitting(true);
+        
+        if (!validateForm()) {
+            setSubmitting(false);
+            toast.error("Vui lòng kiểm tra lại thông tin!");
+            return;
+        }
 
         try {
             if (
@@ -104,6 +186,9 @@ export default function UserManagement() {
             closeModal();
         } catch (err) {
             console.error("Error saving user:", err);
+            toast.error("Lỗi khi lưu thông tin người dùng");
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -320,8 +405,8 @@ export default function UserManagement() {
                             : "Thêm Người Dùng"
                     }
                 >
-                    <div className="flex flex-col space-y-3">
-                        <label className="font-semibold">Tên Người Dùng</label>
+                    <div className="flex flex-col space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+                        <label className="font-semibold">Tên Người Dùng <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             value={editingUser?.username || ""}
@@ -332,11 +417,14 @@ export default function UserManagement() {
                                         : null
                                 )
                             }
-                            className="p-2 border rounded"
+                            className={`p-2 border rounded ${errors.username ? 'border-red-500' : ''}`}
                             disabled={isEditingExistingUser()}
                         />
+                        {errors.username && (
+                            <p className="text-red-500 text-sm">{errors.username}</p>
+                        )}
 
-                        <label className="font-semibold">Họ Tên</label>
+                        <label className="font-semibold">Họ Tên <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             name="fullName"
@@ -348,10 +436,13 @@ export default function UserManagement() {
                                         : null
                                 )
                             }
-                            className="w-full p-2 border border-gray-300 rounded"
+                            className={`w-full p-2 border rounded ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
                         />
+                        {errors.fullName && (
+                            <p className="text-red-500 text-sm">{errors.fullName}</p>
+                        )}
 
-                        <label className="font-semibold">Email</label>
+                        <label className="font-semibold">Email <span className="text-red-500">*</span></label>
                         <input
                             type="email"
                             value={editingUser?.email || ""}
@@ -362,10 +453,13 @@ export default function UserManagement() {
                                         : null
                                 )
                             }
-                            className="p-2 border rounded"
+                            className={`p-2 border rounded ${errors.email ? 'border-red-500' : ''}`}
                         />
+                        {errors.email && (
+                            <p className="text-red-500 text-sm">{errors.email}</p>
+                        )}
 
-                        <label className="font-semibold">Ngày Sinh</label>
+                        <label className="font-semibold">Ngày Sinh <span className="text-red-500">*</span></label>
                         <input
                             type="date"
                             value={editingUser?.dob || ""}
@@ -376,10 +470,13 @@ export default function UserManagement() {
                                         : null
                                 )
                             }
-                            className="p-2 border rounded"
+                            className={`p-2 border rounded ${errors.dob ? 'border-red-500' : ''}`}
                         />
+                        {errors.dob && (
+                            <p className="text-red-500 text-sm">{errors.dob}</p>
+                        )}
 
-                        <label className="font-semibold">Số Điện Thoại</label>
+                        <label className="font-semibold">Số Điện Thoại <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             value={editingUser?.phone || ""}
@@ -390,13 +487,16 @@ export default function UserManagement() {
                                         : null
                                 )
                             }
-                            className="p-2 border rounded"
+                            className={`p-2 border rounded ${errors.phone ? 'border-red-500' : ''}`}
                         />
+                        {errors.phone && (
+                            <p className="text-red-500 text-sm">{errors.phone}</p>
+                        )}
 
                         {!isEditingExistingUser() && (
                             <>
                                 <label className="font-semibold">
-                                    Mật Khẩu
+                                    Mật Khẩu <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="password"
@@ -410,9 +510,12 @@ export default function UserManagement() {
                                                 : null
                                         )
                                     }
-                                    className="p-2 border rounded"
+                                    className={`p-2 border rounded ${errors.password ? 'border-red-500' : ''}`}
                                     placeholder="Nhập mật khẩu cho người dùng mới"
                                 />
+                                {errors.password && (
+                                    <p className="text-red-500 text-sm">{errors.password}</p>
+                                )}
                             </>
                         )}
                     </div>

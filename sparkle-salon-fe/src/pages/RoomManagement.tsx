@@ -27,6 +27,10 @@ export default function RoomManagement() {
         []
     );
     const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
+    const [validationErrors, setValidationErrors] = useState<{
+        name?: string;
+        capacity?: string;
+    }>({});
 
     useEffect(() => {
         fetchRooms();
@@ -122,12 +126,14 @@ export default function RoomManagement() {
                 services: [],
             }
         );
+        setValidationErrors({});
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingRoom(null);
+        setValidationErrors({});
     };
 
     const closeServiceModal = () => {
@@ -136,9 +142,45 @@ export default function RoomManagement() {
         setSelectedRoomServices([]);
     };
 
+    const validateForm = (): boolean => {
+        const errors: {
+            name?: string;
+            capacity?: string;
+        } = {};
+
+        // Validate room name
+        if (!editingRoom?.name || editingRoom.name.trim() === "") {
+            errors.name = "Tên phòng không được để trống";
+        } else if (editingRoom.name.length > 50) {
+            errors.name = "Tên phòng không được vượt quá 50 ký tự";
+        }
+
+        // Validate capacity
+        if (!editingRoom?.capacity || editingRoom.capacity.trim() === "") {
+            errors.capacity = "Sức chứa không được để trống";
+        } else {
+            const capacityNum = Number(editingRoom.capacity);
+            if (isNaN(capacityNum)) {
+                errors.capacity = "Sức chứa phải là số";
+            } else if (capacityNum <= 0) {
+                errors.capacity = "Sức chứa phải lớn hơn 0";
+            } else if (capacityNum > 100) {
+                errors.capacity = "Sức chứa không được vượt quá 100";
+            }
+        }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingRoom) return;
+
+        if (!validateForm()) {
+            toast.error("Vui lòng kiểm tra thông tin nhập");
+            return;
+        }
 
         try {
             if (editingRoom.id) {
@@ -148,12 +190,14 @@ export default function RoomManagement() {
                     editingRoom.capacity,
                     editingRoom.services
                 );
+                toast.success("Cập nhật phòng thành công!");
             } else {
                 await createRoom(
                     editingRoom.name,
                     editingRoom.capacity,
                     editingRoom.services
                 );
+                toast.success("Thêm phòng thành công!");
             }
             fetchRooms();
             closeModal();
@@ -171,9 +215,40 @@ export default function RoomManagement() {
             try {
                 await deleteRoom(id);
                 fetchRooms();
+                toast.success("Xóa phòng thành công!");
             } catch (error) {
                 console.error("Failed to delete room:", error);
                 toast.error("Có lỗi xảy ra khi xóa phòng. Vui lòng thử lại.");
+            }
+        }
+    };
+
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement>,
+        field: "name" | "capacity"
+    ) => {
+        const value = e.target.value;
+        
+        // Clear the specific error when the user starts typing
+        if (validationErrors[field]) {
+            setValidationErrors((prev) => ({
+                ...prev,
+                [field]: undefined
+            }));
+        }
+
+        // Update the field value
+        setEditingRoom((prev) =>
+            prev ? { ...prev, [field]: value } : null
+        );
+        
+        // Real-time validation for capacity field
+        if (field === "capacity" && value.trim() !== "") {
+            if (!/^\d*$/.test(value)) {
+                setValidationErrors((prev) => ({
+                    ...prev,
+                    capacity: "Sức chứa phải là số"
+                }));
             }
         }
     };
@@ -215,7 +290,7 @@ export default function RoomManagement() {
                             Đang tải dữ liệu...
                         </div>
                     ) : (
-                        <div className="overflow-y-auto max-h-[400px] scrollbar-thin scrollbar-thumb-pink-300 scrollbar-track-pink-100">
+                        <div className="overflow-y-auto max-h-[600px] scrollbar-thin scrollbar-thumb-pink-300 scrollbar-track-pink-100">
                             <table className="w-full border-collapse rounded-lg overflow-hidden">
                                 <thead className="sticky top-0 bg-white shadow-md">
                                     <tr className="bg-white text-black">
@@ -322,33 +397,35 @@ export default function RoomManagement() {
                     title={editingRoom?.id ? "Chỉnh Sửa Phòng" : "Thêm Phòng"}
                 >
                     <div className="flex flex-col space-y-3">
-                        <label className="font-semibold">Tên Phòng</label>
+                        <label className="font-semibold">Tên Phòng <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             value={editingRoom?.name || ""}
-                            onChange={(e) =>
-                                setEditingRoom((prev) =>
-                                    prev
-                                        ? { ...prev, name: e.target.value }
-                                        : null
-                                )
-                            }
-                            className="p-2 border rounded"
+                            onChange={(e) => handleInputChange(e, "name")}
+                            className={`p-2 border rounded ${
+                                validationErrors.name ? "border-red-500" : ""
+                            }`}
                         />
+                        {validationErrors.name && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {validationErrors.name}
+                            </p>
+                        )}
 
-                        <label className="font-semibold">Sức Chứa</label>
+                        <label className="font-semibold">Sức Chứa <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             value={editingRoom?.capacity || ""}
-                            onChange={(e) =>
-                                setEditingRoom((prev) =>
-                                    prev
-                                        ? { ...prev, capacity: e.target.value }
-                                        : null
-                                )
-                            }
-                            className="p-2 border rounded"
+                            onChange={(e) => handleInputChange(e, "capacity")}
+                            className={`p-2 border rounded ${
+                                validationErrors.capacity ? "border-red-500" : ""
+                            }`}
                         />
+                        {validationErrors.capacity && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {validationErrors.capacity}
+                            </p>
+                        )}
                     </div>
                 </ManagementModal>
 

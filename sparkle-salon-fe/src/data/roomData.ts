@@ -32,7 +32,7 @@ const getRooms = async () => {
                 })) : [],
             }));
         }
-        
+
         return [];
     } catch (error) {
         console.error("Error fetching rooms:", error);
@@ -42,7 +42,11 @@ const getRooms = async () => {
 
 const getRoomById = async (id: string) => {
     try {
-        const response = await axios.get(`/rooms/${id}`);
+        const response = await axios.get(`/rooms/${id}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        })
         return response.result;
     } catch (error) {
         console.error("Error fetching room by id:", error);
@@ -53,12 +57,16 @@ const getRoomById = async (id: string) => {
 const createRoom = async (name: string, capacity: string, services: Service[]) => {
     try {
         const response = await axios.post("/rooms", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+
             name,
             capacity,
             services,
         });
 
-        return response.data && response.data.result;
+        return response.result;
     } catch (error) {
         console.error("Error creating room:", error);
         return false;
@@ -73,12 +81,13 @@ const updateRoom = async (
 ) => {
     try {
         const response = await axios.put(`/rooms/${id}`, {
+
             name,
             capacity,
             services,
         });
 
-        return response.data && response.data.result;
+        return response.result;
     } catch (error) {
         console.error("Error updating room:", error);
         return false;
@@ -87,8 +96,13 @@ const updateRoom = async (
 
 const deleteRoom = async (id: string) => {
     try {
-        const response = await axios.delete(`/rooms/${id}`);
-        return response.data && response.data.result;
+        const response = await axios.delete(`/rooms/${id}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
+        );
+        return response.result;
     } catch (error) {
         console.error("Error deleting room:", error);
         return false;
@@ -97,7 +111,12 @@ const deleteRoom = async (id: string) => {
 
 const assignService = async (roomId: string, serviceId: string) => {
     try {
-        const response = await axios.post(`/rooms/${roomId}/services/${serviceId}`);
+        const response = await axios.post(`/rooms/${roomId}/services/${serviceId}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
+        );
         return response.result;
     } catch (error) {
         console.error("Error assigning service to room:", error);
@@ -107,7 +126,12 @@ const assignService = async (roomId: string, serviceId: string) => {
 
 const getRoomServices = async (serviceId: string) => {
     try {
-        const response = await axios.get(`/rooms/service/${serviceId}`);
+        const response = await axios.get(`/rooms/service/${serviceId}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
+        );
         return response.result;
     } catch (error) {
         console.error("Error fetching services for room:", error);
@@ -117,7 +141,12 @@ const getRoomServices = async (serviceId: string) => {
 
 const deleteAssignedService = async (roomId: string, serviceId: string) => {
     try {
-        const response = await axios.delete(`/rooms/${roomId}/services/${serviceId}`);
+        const response = await axios.delete(`/rooms/${roomId}/services/${serviceId}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
+        );
         return response.result;
     } catch (error) {
         console.error("Error deleting assigned service:", error);

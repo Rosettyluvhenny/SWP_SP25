@@ -56,7 +56,11 @@ const serviceDataById = async (id:string) => {
 }
 
 const deleteServiceById = async (id:string) => {
-    const deleteServiceResponse = await axios.delete(`/services/${id}`)
+    const deleteServiceResponse = await axios.delete(`/services/${id}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
     if (deleteServiceResponse.status === 200) {
         return true
     }

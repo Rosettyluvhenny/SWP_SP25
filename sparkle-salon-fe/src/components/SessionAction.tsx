@@ -35,18 +35,19 @@ interface UpdateSessionModalProps {
     isOpen: boolean;
     setIsOpen: (check: boolean) => void;
     session: Session;
+    setIsLoading : (check: boolean) => void
 }
 
 export default function UpdateSessionModal({
     isOpen,
     setIsOpen,
     session,
+    setIsLoading
 }: UpdateSessionModalProps) {
     const [isCompleted, setIsCompleted] = useState(false);
     const [selectedRoomId, setSelectedRoomId] = useState(session.roomId);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [rooms, setRooms] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
     // Reset form when modal opens
     useEffect(() => {
         if (isOpen) {
@@ -60,7 +61,7 @@ export default function UpdateSessionModal({
             setRooms(rq);
         }
         fetchRoom();
-    }, [session,isLoading])
+    }, [session])
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -83,12 +84,13 @@ export default function UpdateSessionModal({
                 toast.error('Có lỗi xảy ra khi cập nhật');
             } finally {
                 setIsSubmitting(false);
+                setIsLoading(true);
             }
         }else{
             await updateSessionStatus(session.id,"COMPLETED");
             toast.success('Cập nhật phiên thành công');
                 setIsOpen(false);
-                setIsLoading(!isLoading);
+                setIsLoading(true);
         }
     };
 

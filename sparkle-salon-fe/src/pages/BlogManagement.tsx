@@ -23,6 +23,12 @@ interface PaginationProps {
   paginate: (pageNumber: number) => void;
 }
 
+// Validation errors interface
+interface ValidationErrors {
+  title?: string;
+  categoryName?: string;
+}
+
 const axiosInstance = instance;
 
 // Pagination Component
@@ -182,21 +188,33 @@ export default function BlogManagement() {
   useEffect(() => {
     getBlogList();
   }, [getBlogList]);
-
   const closeBlogModal = () => {
     setIsModalOpen(false);
     setEditingBlog(null);
+    setValidationErrors({});
   };
 
   const handleBlogSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingBlog) return;
 
+    // Validate before saving
+    setIsSubmitting(true);
+    const errors = validateBlog(editingBlog);
+    setValidationErrors(errors);
+    
+    if (Object.keys(errors).length > 0) {
+      setIsSubmitting(false);
+      return;
+    }
+
     setBlogs((prev) =>
       prev.some((b) => b.blogId === editingBlog.blogId)
         ? prev.map((b) => (b.blogId === editingBlog.blogId ? editingBlog : b))
         : [...prev, editingBlog]
     );
+    
+    setIsSubmitting(false);
     closeBlogModal();
     getBlogList();
   };
@@ -227,7 +245,19 @@ export default function BlogManagement() {
       toast.error("Chỉ admin mới có quyền thay đổi trạng thái approve");
       return;
     }
+    
+    // Validate blogId
+    if (!blogId || blogId.trim() === '') {
+      toast.error("ID blog không hợp lệ");
+      return;
+    }
+    
     const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Vui lòng đăng nhập lại");
+      return;
+    }
+    
     setLoadingBlogId(blogId);
     const newStatus = !currentStatus;
 
@@ -263,7 +293,18 @@ export default function BlogManagement() {
       return;
     }
 
+    // Validate blogId
+    if (!blogId || blogId.trim() === '') {
+      toast.error("ID blog không hợp lệ");
+      return;
+    }
+    
     const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Vui lòng đăng nhập lại");
+      return;
+    }
+    
     setLoadingBlogId(blogId);
 
     try {
@@ -294,6 +335,16 @@ export default function BlogManagement() {
 
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+  };
+
+  // Sanitize search term
+  const sanitizeInput = (input: string): string => {
+    return input.replace(/[<>]/g, '');
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = sanitizeInput(e.target.value);
+    setSearchTerm(sanitizedValue);
   };
 
   const filteredBlogs = blogs.filter(
@@ -350,8 +401,9 @@ export default function BlogManagement() {
                   type="text"
                   placeholder="Tìm kiếm blog theo tiêu đề..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleSearchChange}
                   className="w-full p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  maxLength={100}
                 />
               </div>
               <div className="w-full md:w-4/5">
@@ -381,7 +433,6 @@ export default function BlogManagement() {
                   <th className="p-3 text-left">Tác Giả</th>
                   <th className="p-3 text-left">Trạng Thái</th>
                   <th className="p-3 text-left">Danh Mục</th>
-                  <th className="p-3 text-left">Default</th>
                   <th className="p-3 text-left">Hành Động</th>
                 </tr>
               </thead>
@@ -441,8 +492,9 @@ export default function BlogManagement() {
                           {blog.categoryName}
                         </span>
                       </td>
-                      <td className="p-3">
-                        {isAdmin && (
+                      <td className="p-3 flex space-x-2">
+
+                      {isAdmin && (
                           <motion.button
                             onClick={() => handleSetDefault(blog.blogId)}
                             className={`px-2 py-1 rounded-lg text-white text-xs ${
@@ -543,8 +595,14 @@ export default function BlogManagement() {
                   onChange={(e) =>
                     setEditingBlog({ ...editingBlog, title: e.target.value })
                   }
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
+                    validationErrors.title ? 'border-red-500' : ''
+                  }`}
+                  maxLength={200}
                 />
+                {validationErrors.title && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.title}</p>
+                )}
               </label>
               <label className="block mb-2">
                 <span className="text-gray-700">Danh Mục</span>
@@ -557,9 +615,24 @@ export default function BlogManagement() {
                       categoryName: e.target.value,
                     })
                   }
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
+                    validationErrors.categoryName ? 'border-red-500' : ''
+                  }`}
+                  maxLength={50}
                 />
+                {validationErrors.categoryName && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.categoryName}</p>
+                )}
               </label>
+              <div className="flex justify-end mt-4">
+                <button
+                  type="submit"
+                  className="bg-pink-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Đang lưu...' : 'Lưu'}
+                </button>
+              </div>
             </form>
           </ManagementModal>
         )}

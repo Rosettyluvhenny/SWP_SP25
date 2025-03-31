@@ -171,7 +171,7 @@ export default function YourSession() {
                                                 {session.status}
                                             </span>
                                         </td>
-                                        <td className="p-4">
+                                        {/* <td className="p-4">
                                             <div className="flex space-x-2">
                                                 {session.status === "WAITING" && (
                                                     <motion.button
@@ -215,7 +215,7 @@ export default function YourSession() {
                                                     </motion.button>
                                                 )}
                                             </div>
-                                        </td>
+                                        </td> */}
                                     </motion.tr>
                                 ))
                             ) : (

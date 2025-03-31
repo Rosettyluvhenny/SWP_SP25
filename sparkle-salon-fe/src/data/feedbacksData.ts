@@ -1,27 +1,19 @@
 import axios from "../services/customizedAxios";
 
 export interface Feedback {
-    id: number;
-    feedbackText: string;
-    rating: number;
-    serviceName: string;
-    img: string;
-    bookingDate: string;
-    therapistName: string;
-    rated: boolean;
+    bookingSessionId: number,
+    rating: number,
+    feedbackText : String
 }
 
-const getFeedback = async (): Promise<Feedback[]> => {
-    try {
-        const response = await axios.get("/feedback");
+const getFeedbackByServiceId = async (serviceId: number) => {
+
+        const response = await axios.get(`/feedback/serviceId/${serviceId}`);
+
         if (response.result) {
             return response.result;
         }
-        return [];
-    } catch (error) {
-        console.error("Error fetching feedbacks:", error);
-        return [];
-    }
+        
 };
 
 const getUserFeedbacks = async (): Promise<Feedback[]> => {
@@ -63,13 +55,16 @@ const getFeedbackById = async (feedbackId: string | null): Promise<Feedback | nu
 };
 
 const createFeedback = async (feedback: Feedback): Promise<boolean> => {
-    try {
-        const response = await axios.post("/feedback", feedback);
-        return response.status === 200;
-    } catch (error) {
-        console.error("Error creating feedback:", error);
-        return false;
-    }
+    const token = localStorage.getItem("token");
+        const response = await axios.post("/feedback", feedback,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            } 
+        );
+        
+        return response.result;
 };
 
 const updateFeedbackById = async (feedbackId: string | number | null, feedback: Feedback): Promise<boolean> => {
@@ -102,10 +97,10 @@ const deleteFeedbackById = async (id: string | null): Promise<boolean> => {
 };
 
 export {
-    getFeedback,
     getFeedbackById,
     getUserFeedbacks,
     deleteFeedbackById,
     createFeedback,
-    updateFeedbackById
+    updateFeedbackById,
+    getFeedbackByServiceId
 };
