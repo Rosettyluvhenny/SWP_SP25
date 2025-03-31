@@ -14,14 +14,16 @@ import java.util.Optional;
 @Repository
 public interface TherapistRepository extends JpaRepository<Therapist, String> {
     boolean existsByUserId(String userId);
-    Page<Therapist> findAllByServicesId(int serviceId, Pageable pageable);
+    Page<Therapist> findAllByServicesIdAndUserActiveTrue(int serviceId, Pageable pageable);
+    List<Therapist> findAllByServicesIdAndUserActiveTrue(int serviceId);
     @Query("SELECT t FROM Therapist t WHERE t.user.active = false")
     Page<Therapist> findInactiveTherapists(Pageable pageable);
+    Page<Therapist> findTherapistByUserActiveTrue(Pageable pageable);
+    List<Therapist> findTherapistByUserActiveTrue();
 
     Optional<Therapist> findByUserId(String id);
     List<Therapist> findTherapistByServices(List<Services> services);
+    List<Therapist> findTherapistByServicesAndUserActiveTrue(List<Services> services);
 
     boolean existsByIdAndServices_Id(String therapistId, int serviceId);
-
-    List<Therapist> findAllByServicesId(int serviceId);
 }
