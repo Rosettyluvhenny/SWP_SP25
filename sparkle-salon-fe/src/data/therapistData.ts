@@ -5,6 +5,7 @@ export interface Therapist {
   id: string;
   username: string;
   fullName: string;
+  userId :string;
   email: string;
   experienceYears: number;
   bio: string;
@@ -30,6 +31,8 @@ const getAllTherapists = async (): Promise<Therapist[]> => {
     return [];
   }
 };
+
+
 
 const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
   try {
@@ -119,6 +122,10 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
   id: string,
   experienceYears: number,
   bio: string,
+  dob: string,
+  fullName: string,
+  email: string,
+  phone: string,
   img: File,
   serviceIds: number[]
 ): Promise<boolean> => {
@@ -134,9 +141,46 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
     const requestData = {
       experienceYears,
       bio,
+      fullName,
+      email,
+      phone,
+      dob,
       serviceIds: Array.isArray(serviceIds) ? serviceIds : [],
     };
 
+
+    console.log("Dữ liệu JSON trước khi gửi (update):", requestData);
+    formData.append("request", new Blob([JSON.stringify(requestData)], { type: "application/json" }));
+    formData.append("img", img);
+
+    const response = await axios.put(`/therapists/${id}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+console.log("day la response :",response)
+    return response.result;
+  } catch (error) {
+    console.error("Lỗi khi cập nhật chuyên viên:", error.response?.data || error.message);
+    return false;
+  }
+};
+const updateTherapistSv = async (
+  id: string,
+  img: File,
+  serviceIds: number[]
+): Promise<boolean> => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Không tìm thấy token để thực hiện yêu cầu cập nhật");
+      return false;
+    }
+    const formData = new FormData();
+    const requestData = {
+      serviceIds: Array.isArray(serviceIds) ? serviceIds : [],
+    };
     console.log("Dữ liệu JSON trước khi gửi (update):", requestData);
     formData.append("request", new Blob([JSON.stringify(requestData)], { type: "application/json" }));
     formData.append("img", img);
@@ -217,6 +261,24 @@ const getTherapistById = async (id: string): Promise<Therapist | null> => {
   }
 };
 
+const getTherapistInfo = async (): Promise<Therapist | null> => {
+  try {
+    const response = await axios.get("/therapists/getTherapistInfo");
+
+    if (response.result) {
+      console.log("Phản hồi API:", response.data);
+      return response.result; 
+    }
+
+    console.error("Không tìm thấy chuyên viên trong phản hồi");
+    return null;
+  } catch (error) {
+    console.error("Lỗi khi lấy info chuyên viên:", error);
+    return null;
+  }
+};
+
+
 const getTherapistSlots = async (
   therapistId: string,
   serviceId: string,
@@ -255,7 +317,15 @@ const getFreeSlots = async (serviceId: string, date: string): Promise<any[]> => 
   }
 };
 
+
+
+
+
+
+
+
 export {
+  getTherapistInfo,
   createTherapist,
   updateTherapist,
   deleteTherapist,
@@ -266,4 +336,5 @@ export {
   getTherapistSlots,
   getFreeSlots,
   getAllTherapists,
+  updateTherapistSv,
 };

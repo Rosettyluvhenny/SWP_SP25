@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
 import { motion } from "framer-motion";
-import { FaEdit, FaTrash, FaSearch, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaSearch, FaPlus, FaEye } from "react-icons/fa"; // Thêm FaEye
 import { deleteBlogById, type Blog } from "../data/blogData";
 import { blogData } from "../data/blogData";
 import BlogInfoForm from "../components/BlogForm";
@@ -96,15 +96,15 @@ export default function BlogManagement() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
-  const [selectedBlog, setSelectedBlog] = useState<string | null>(null);
+  const [selectedBlog, setSelectedBlog] = useState<number | null>(null); // Sửa thành number
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loadingBlogId, setLoadingBlogId] = useState<string | null>(null);
+  const [loadingBlogId, setLoadingBlogId] = useState<number | null>(null); // Sửa thành number
   const [currentPage, setCurrentPage] = useState(1);
   const [blogsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false); // Thêm state cho modal xem chi tiết
+  const [viewingBlog, setViewingBlog] = useState<Blog | null>(null); // Thêm state cho bài blog đang xem
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -120,7 +120,7 @@ export default function BlogManagement() {
       }
     }
   }, []);
-  
+
   useEffect(() => {
     if (activeTab === "blog") {
       navigate("/therapist/blog");
@@ -131,28 +131,29 @@ export default function BlogManagement() {
     }
   }, [activeTab, navigate]);
 
-  // Validate blog form
-  const validateBlog = (blog: Blog): ValidationErrors => {
-    const errors: ValidationErrors = {};
-    
-    if (!blog.title || blog.title.trim() === '') {
-      errors.title = "Tiêu đề không được để trống";
-    } else if (blog.title.length < 5) {
-      errors.title = "Tiêu đề phải có ít nhất 5 ký tự";
-    } else if (blog.title.length > 1000) {
-      errors.title = "Tiêu đề không được vượt quá 1000 ký tự";
-    }
-    
-    if (!blog.categoryName || blog.categoryName.trim() === '') {
-      errors.categoryName = "Danh mục không được để trống";
-    }
-    
-    return errors;
-  };
-
-  const handleOpenBlogForm = (blogId: string | null) => {
+  const handleOpenBlogForm = (blogId: number | null) => {
     setSelectedBlog(blogId);
     setIsOpenBlogForm(true);
+  };
+
+  const handleViewBlog = (blogId: number | null) => {
+    if (!blogId) {
+      toast.error("Không có blog được chọn");
+      return;
+    }
+
+    const blog = blogs.find((b) => b.blogId === blogId);
+    if (blog) {
+      setViewingBlog(blog);
+      setIsViewModalOpen(true);
+    } else {
+      toast.error("Không tìm thấy blog với ID: " + blogId);
+    }
+  };
+
+  const closeViewModal = () => {
+    setIsViewModalOpen(false);
+    setViewingBlog(null);
   };
 
   const handleCloseBlogForm = () => {
@@ -187,7 +188,6 @@ export default function BlogManagement() {
   useEffect(() => {
     getBlogList();
   }, [getBlogList]);
-  
   const closeBlogModal = () => {
     setIsModalOpen(false);
     setEditingBlog(null);
@@ -223,7 +223,7 @@ export default function BlogManagement() {
     const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa blog này?");
     if (confirmDelete) {
       try {
-        const deletedBlog = await deleteBlogById(blogId.toString());
+        const deletedBlog = await deleteBlogById(blogId);
         if (deletedBlog) {
           toast.success("Xóa blog thành công");
           await getBlogList();
@@ -238,7 +238,7 @@ export default function BlogManagement() {
   };
 
   const handleApproveChange = async (
-    blogId: string,
+    blogId: number,
     currentStatus: boolean
   ) => {
     if (!isAdmin) {
@@ -275,7 +275,9 @@ export default function BlogManagement() {
 
       if (response.result) {
         await getBlogList();
-        toast.success(`Đã ${newStatus ? "duyệt" : "hủy duyệt"} blog thành công`);
+        toast.success(
+          `Đã ${newStatus ? "duyệt" : "hủy duyệt"} blog thành công`
+        );
         setLoadingBlogId(null);
       }
     } catch (error) {
@@ -285,7 +287,7 @@ export default function BlogManagement() {
     }
   };
 
-  const handleSetDefault = async (blogId: string) => {
+  const handleSetDefault = async (blogId: number) => {
     if (!isAdmin) {
       toast.error("Chỉ admin mới có quyền set default");
       return;
@@ -362,10 +364,12 @@ export default function BlogManagement() {
 
   return (
     <div className="flex h-screen bg-white">
-      {isAdmin ? <Sidebar />  : (
+      {isAdmin ? (
+        <Sidebar />
+      ) : (
         <SidebarTherapist activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
-                
+
       <main className="flex-1 p-6 overflow-auto">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">
           {isAdmin ? "Quản Lý Blog" : "Write Blog"}
@@ -378,19 +382,20 @@ export default function BlogManagement() {
           />
         ) : (
           <>
-            <div className="flex justify-end mb-4">
-              <motion.button
-                onClick={() => handleOpenBlogForm(null)}
-                className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FaPlus /> Thêm Blog
-              </motion.button>
-            </div>
-
+            {!isAdmin && (
+              <div className="flex justify-end mb-4">
+                <motion.button
+                  onClick={() => handleOpenBlogForm(null)}
+                  className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center gap-2"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FaPlus /> Thêm Blog
+                </motion.button>
+              </div>
+            )}
             <div className="mb-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-pink-100 p-4 rounded-lg shadow">
-              <div className="w-full md:w-1/4 relative">
+              <div className="w-full md:w-1/5 relative">
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
@@ -401,7 +406,7 @@ export default function BlogManagement() {
                   maxLength={100}
                 />
               </div>
-              <div className="w-full md:w-3/4">
+              <div className="w-full md:w-4/5">
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
@@ -419,7 +424,7 @@ export default function BlogManagement() {
               </div>
             </div>
 
-            <table className="w-full border-collapse rounded-lg ">
+            <table className="w-full border-collapse rounded-lg">
               <thead>
                 <tr className="bg-white text-black">
                   <th className="p-3 text-left">ID</th>
@@ -469,17 +474,14 @@ export default function BlogManagement() {
                         {isAdmin && !blog.approve && (
                           <motion.button
                             onClick={() =>
-                              handleApproveChange(
-                                blog.blogId.toString(),
-                                blog.approve
-                              )
+                              handleApproveChange(blog.blogId, blog.approve)
                             }
                             className="px-2 py-1 rounded-lg text-white text-xs bg-green-500 hover:bg-green-600"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            disabled={loadingBlogId === blog.blogId.toString()}
+                            disabled={loadingBlogId === blog.blogId}
                           >
-                            {loadingBlogId === blog.blogId.toString()
+                            {loadingBlogId === blog.blogId
                               ? "Đang xử lý..."
                               : "Duyệt"}
                           </motion.button>
@@ -494,9 +496,7 @@ export default function BlogManagement() {
 
                       {isAdmin && (
                           <motion.button
-                            onClick={() =>
-                              handleSetDefault(blog.blogId.toString())
-                            }
+                            onClick={() => handleSetDefault(blog.blogId)}
                             className={`px-2 py-1 rounded-lg text-white text-xs ${
                               blog.defaultBlog
                                 ? "bg-blue-700 cursor-not-allowed"
@@ -505,11 +505,10 @@ export default function BlogManagement() {
                             whileHover={{ scale: blog.defaultBlog ? 1 : 1.05 }}
                             whileTap={{ scale: blog.defaultBlog ? 1 : 0.95 }}
                             disabled={
-                              blog.defaultBlog ||
-                              loadingBlogId === blog.blogId.toString()
+                              blog.defaultBlog || loadingBlogId === blog.blogId
                             }
                           >
-                            {loadingBlogId === blog.blogId.toString()
+                            {loadingBlogId === blog.blogId
                               ? "Đang xử lý..."
                               : blog.defaultBlog
                               ? "Đã mặc định"
@@ -527,18 +526,31 @@ export default function BlogManagement() {
                             {blog.defaultBlog ? "Mặc định" : "Không"}
                           </span>
                         )}
+                      </td>
 
-                        <motion.button
-                          onClick={() =>
-                            handleOpenBlogForm(blog.blogId.toString())
-                          }
-                          className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <FaEdit size={14} />
-                          Sửa
-                        </motion.button>
+                      <td className="p-3 flex space-x-2">
+                        {!isAdmin ? (
+                          <motion.button
+                            onClick={() => handleOpenBlogForm(blog.blogId)}
+                            className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <FaEdit size={14} />
+                            Sửa
+                          </motion.button>
+                        ) : (
+                          <motion.button
+                            onClick={() => handleViewBlog(blog.blogId)}
+                            className="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600 flex items-center gap-1"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <FaEye size={14} />
+                            View
+                          </motion.button>
+                        )}
+                        
                         <motion.button
                           onClick={() => handleBlogDelete(blog.blogId)}
                           className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
@@ -623,6 +635,88 @@ export default function BlogManagement() {
               </div>
             </form>
           </ManagementModal>
+        )}
+
+        {isViewModalOpen && viewingBlog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={closeViewModal}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              className="bg-white p-6 max-w-7xl w-full max-h-[90vh] overflow-hidden rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="overflow-y-auto max-h-[80vh]">
+                <h2 className="text-5xl flex items-center justify-center font-bold mb-4 text-blue-600">Chi tiết Blog</h2>
+                <div className="space-y-4">
+                  <div>
+                    <strong>ID:</strong> {viewingBlog.blogId}
+                  </div>
+                  <div>
+                    <strong>Tiêu đề:</strong> {viewingBlog.title}
+                  </div>
+                  <div>
+                    <strong>Danh mục:</strong> {viewingBlog.categoryName} (ID:{" "}
+                    {viewingBlog.categoryId})
+                  </div>
+                  <div>
+                    <strong>Tác giả:</strong>{" "}
+                    {viewingBlog.therapistName || "Không có"}
+                  </div>
+                  <div>
+                    <strong>Trạng thái:</strong>
+                    <span
+                      className={`ml-2 px-2 py-1 rounded-full text-xs ${
+                        viewingBlog.approve
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {viewingBlog.approve ? "Đã duyệt" : "Chưa duyệt"}
+                    </span>
+                  </div>
+                  <div>
+                    <strong>Mặc định:</strong>{" "}
+                    {viewingBlog.defaultBlog ? "Có" : "Không"}
+                  </div>
+                  {viewingBlog.img && (
+                    <div>
+                      <strong>Hình ảnh:</strong>
+                      <img
+                        src={viewingBlog.img}
+                        alt={viewingBlog.title}
+                        className="mt-2 w-full max-h-64 object-contain"
+                        onError={(e) =>
+                          (e.currentTarget.src = "/placeholder.jpg")
+                        }
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <strong>Nội dung:</strong>
+                    <p
+                      className="text-lg text-gray-700 leading-relaxed mt-6 p-2 border rounded-lg bg-gray-50"
+                      dangerouslySetInnerHTML={{ __html: viewingBlog.content }}
+                    ></p>{" "}
+                  </div>
+                </div>
+                <div className="mt-6 flex justify-end">
+                  <motion.button
+                    onClick={closeViewModal}
+                    className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Đóng
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </main>
     </div>
