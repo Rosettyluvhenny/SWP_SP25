@@ -34,7 +34,7 @@ public class SupabaseService {
                 .build();
 
         Request request = new Request.Builder()
-                .url(supabaseConfig.getUrl() + "/storage/v1/object/" + supabaseConfig.getBucket() + "/" + fileName)
+                .url(supabaseConfig.getUrl() + "/storage/v1/object/public" + supabaseConfig.getBucket() + "/" + fileName)
                 .header("Authorization", "Bearer " + supabaseConfig.getKey())
                 .header("Content-Type", "multipart/form-data")
                 .post(requestBody)
@@ -44,13 +44,21 @@ public class SupabaseService {
             if (!response.isSuccessful()) {
                 throw new IOException("Failed to upload image: " + response.body().string());
             }
-            return supabaseConfig.getUrl() + "/storage/v1/object/" + supabaseConfig.getBucket() + "/" + fileName;
+            return supabaseConfig.getUrl() + "/storage/v1/object/public" + supabaseConfig.getBucket() + "/" + fileName;
         }
     }
 
     public boolean deleteImage(String fileName) throws IOException {
+        String urlReference = supabaseConfig.getUrl() + "/storage/v1/object/public/" + supabaseConfig.getBucket();
+        String deleteUrl = "";
+        if (fileName.contains(urlReference)) {
+            deleteUrl = fileName.replaceFirst(urlReference,"");
+        } else {
+            deleteUrl = fileName;
+        }
+        System.out.println(deleteUrl);
         Request request = new Request.Builder()
-                .url(fileName)
+                .url(supabaseConfig.getUrl() + "/storage/v1/object/" + supabaseConfig.getBucket()+ deleteUrl)
                 .header("Authorization", "Bearer " + supabaseConfig.getKey())
                 .delete()
                 .build();

@@ -32,7 +32,7 @@ public enum ErrorCode {
     THERAPIST_NOT_EXISTED(1016, "Therapist not found", HttpStatus.NOT_FOUND),
     STILL_ACTIVE(1017,"The active entity can not be deleted", HttpStatus.BAD_REQUEST),
     MIN(1018, "The value must be at least {value}", HttpStatus.BAD_REQUEST),
-    MAX(2025, "The value must be at least {value}", HttpStatus.BAD_REQUEST),
+    MAX(2025, "The value must be at most {value}", HttpStatus.BAD_REQUEST),
     CATEGORY_EXISTED(1019, "Service category existed", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_EXISTED(1020, "Service category not found", HttpStatus.NOT_FOUND),
     SERVICE_EXIST(1021, "Service existed", HttpStatus.BAD_REQUEST),

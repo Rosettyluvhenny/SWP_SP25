@@ -31,7 +31,9 @@ public class UserResponse {
 
     Set<Role> roles;
 
-    QuizResult quizResult;
+    int quizResultId;
+
+    String resultText;
 
     boolean active;
 }

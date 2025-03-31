@@ -49,7 +49,7 @@ public class BlogPostController {
     }
 
     @Operation(summary = "Update a blog post", description = "Update a blog post by ID")
-    @PreAuthorize("hasRole('THERAPIST') and @customSecurityService.canEditBlogPost(#blogPostId, authentication.name)")
+    @PreAuthorize("hasRole('THERAPIST')")
     @PutMapping(value = "/{blogPostId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BlogPostResponse>> updateBlogPost(
             @PathVariable Integer blogPostId,
