@@ -82,6 +82,7 @@ export default function Therapist() {
   const [modalType, setModalType] = useState<"edit" | "changePassword" | null>(
     null
   );
+  const timestamp = Date.now();
   const [startDate, setStartDate] = useState<string>(() => {
     const date = new Date();
     date.setDate(1);
@@ -211,13 +212,11 @@ export default function Therapist() {
         if(success){
           toast.success("Nhà trị liệu đã cập nhật thành công");
                }
-        await fetchTherapistInfoData();
       } else if (modalType === "changePassword") {
         // Logic đổi mật khẩu
         const currentPassword = formData.get("currentPassword") as string;
         const newPassword = formData.get("newPassword") as string;
         const confirmPassword = formData.get("confirmPassword") as string;
-  
         // Kiểm tra mật khẩu mới và xác nhận mật khẩu có khớp không
         if (currentPassword == newPassword) {
           toast.error("Mật khẩu mới và mật khẩu cũ không được giống nhau!");
@@ -245,6 +244,7 @@ export default function Therapist() {
       toast.error(error instanceof Error ? error.message : "Lỗi khi lưu dữ liệu");
       console.error("Submit error:", error);
     } finally {
+      fetchTherapistInfoData();
       setIsSubmitting(false);
       setSelectedFile(null);
     }
@@ -285,7 +285,7 @@ export default function Therapist() {
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-6">
                     <div className="relative">
                       <img
-                        src={therapist.img || "/default-avatar.png"}
+                        src={therapist.img+`?t=${timestamp}` || "/default-avatar.png"}
                         alt={therapist.fullName}
                         className="w-56 h-56 rounded-full object-cover border-4 border-white shadow-md"
                       />
@@ -767,7 +767,7 @@ export default function Therapist() {
                   {therapist?.img && !selectedFile && (
                     <div className="mt-2">
                       <img
-                        src={therapist.img}
+                        src={therapist.img+`?t=${timestamp}`}
                         alt="Current therapist"
                         className="mt-2 h-40 object-cover rounded"
                       />

@@ -12,6 +12,7 @@ export interface Therapist {
   dob: string;
   img: string;
   phone: string;
+  rating: number;
   password:string;
   disabled: boolean;
   services: Service[];
@@ -263,7 +264,16 @@ const getTherapistById = async (id: string): Promise<Therapist | null> => {
 
 const getTherapistInfo = async (): Promise<Therapist | null> => {
   try {
-    const response = await axios.get("/therapists/getTherapistInfo");
+    const response = await axios.get("/therapists/getTherapistInfo",{
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+      },
+    })
+      
+    ;
 
     if (response.result) {
       console.log("Phản hồi API:", response.data);
