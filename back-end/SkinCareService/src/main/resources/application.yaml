@@ -31,7 +31,7 @@ openapi:
   title: API document
   version: v1.0.0
   description: API service
-  serverUrl: https://localhost:8443/swp
+  serverUrl: https://localhost:8080/swp
   serverName: Test Server
 
 springdoc:
