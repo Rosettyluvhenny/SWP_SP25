@@ -1,18 +1,21 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
 import {
     FiUsers,
     FiShoppingCart,
     FiBarChart2,
     FiMenu,
+    FiLogOut,
 } from "react-icons/fi";
 import { MdMeetingRoom, MdOutlinePayments } from "react-icons/md";
 import { TbPhysotherapist } from "react-icons/tb";
 import { MdNewspaper,MdQuiz  } from "react-icons/md";
+import { UserContext } from "../context/UserContext";
+import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
-
+    const {logout} = useContext(UserContext);
+    const navigate = useNavigate();
     return (
         <aside
             className={`bg-gray-900 text-white p-5 flex flex-col space-y-4 shadow-lg transition-all duration-300 h-100% ${
@@ -125,6 +128,18 @@ const Sidebar = () => {
                             Quản lí bài đăng
                         </li>
                     </Link>
+                    {/* Logout */}
+                                        <li>
+                                            <button
+                                                onClick={()=>{console.log("logout");logout(); navigate("/")}}
+                                                className={`w-full flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg text-left ${
+                                                    isOpen ? "block" : "flex justify-center"
+                                                }`}
+                                            >
+                                                <FiLogOut />
+                                                {isOpen && "Đăng xuất"}
+                                            </button>
+                                        </li>
                 </ul>
             </nav>
         </aside>

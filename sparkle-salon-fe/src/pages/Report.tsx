@@ -13,7 +13,7 @@ import {
     Legend,
 } from "recharts";
 import { Calendar, TrendingUp, BarChart as BarChartIcon } from "lucide-react";
-import { getAllReport, Report } from "../data/reportData";
+ import { getAllReport, Report } from "../data/reportData";
 
 export default function Reports() {
     const [reportData, setReportData] = useState<Report[]>([]);

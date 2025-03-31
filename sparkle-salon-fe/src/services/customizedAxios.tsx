@@ -40,7 +40,7 @@ import { refresh } from "../data/authData";
 import { toast } from "react-toastify";
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8081/swp',
+    baseURL: 'http://localhost:8080/swp',
 });
 
 instance.interceptors.request.use((config) => {

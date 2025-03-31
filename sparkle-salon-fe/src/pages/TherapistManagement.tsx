@@ -8,6 +8,7 @@ import {
   deleteTherapist,
   disableTherapist,
   enableTherapist,
+  updateTherapistSv,
 } from "../data/therapistData";
 import { fetchServices } from "../components/quizApi";
 
@@ -21,7 +22,7 @@ export interface Therapist {
   dob: string;
   phone: string;
   img: string;
-  password:string;
+  password: string;
   disabled: boolean;
   services: Service[];
 }
@@ -111,11 +112,10 @@ export default function TherapistManagement() {
     setSelectedServices([]);
   };
 
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-        setSelectedFile(file);
+      setSelectedFile(file);
     }
   };
 
@@ -126,73 +126,67 @@ export default function TherapistManagement() {
         : [...prev, service]
     );
   };
-  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-  
+
     try {
       setIsLoading(true);
-  
-      const experienceYears = parseInt(formData.get("experienceYears") as string || "0");
-      const bio = formData.get("bio") as string || "";
+
+      const experienceYears = parseInt(
+        (formData.get("experienceYears") as string) || "0"
+      );
+      const bio = (formData.get("bio") as string) || "";
       const serviceIds = selectedServices.map((s) => s.id);
-  
+      
       console.log("Dữ liệu trước khi gửi:", {
-        experienceYears,
-        bio,
         serviceIds,
         img: selectedFile ? selectedFile.name : "default.jpg",
         therapistId: editingTherapist?.id,
       });
-  
+
       if (editingTherapist) {
-        const success = await updateTherapist(
+        const success = await updateTherapistSv(
           editingTherapist.id,
-          experienceYears,
-          bio,
           selectedFile || new File([], "default.jpg"),
           serviceIds
         );
-  
-      
-          console.log("success: ", success)
-          setSuccessMessage("Cập nhật thông tin chuyên viên thành công");
 
-        
+        console.log("success: ", success);
+        setSuccessMessage("Cập nhật thông tin chuyên viên thành công");
+
         // if (!success) {
         //   throw new Error("Cập nhật thất bại - Kiểm tra phản hồi từ server");
         // }
-  
       } else {
         const newTherapist = {
-          username: formData.get("username") as string || "",
-          fullName: formData.get("fullName") as string || "",
-          email: formData.get("email") as string || "",
-          password: formData.get("pass") as string || "",
-          phone: formData.get("phone") as string || "",
+          username: (formData.get("username") as string) || "",
+          fullName: (formData.get("fullName") as string) || "",
+          email: (formData.get("email") as string) || "",
+          password: (formData.get("pass") as string) || "",
+          phone: (formData.get("phone") as string) || "",
           experienceYears,
           bio,
-          dob: formData.get("dob") as string || "",
+          dob: (formData.get("dob") as string) || "",
           serviceIds, // Truyền serviceIds trực tiếp
           img: selectedFile || new File([], "default.jpg"), // Gửi File
         };
-  
+
         if (!newTherapist.username || !newTherapist.email) {
-          throw new Error("Thiếu các trường bắt buộc (tên người dùng hoặc email)");
+          throw new Error(
+            "Thiếu các trường bắt buộc (tên người dùng hoặc email)"
+          );
         }
-  
+
         const success = await createTherapist(newTherapist);
         // if (!success) {
         //   throw new Error("Tạo mới thất bại - Kiểm tra phản hồi từ server");
         // }
-        if(success){
-          console.log(success)
+        if (success) {
+          console.log(success);
           setSuccessMessage("Thêm chuyên viên mới thành công");
-
         }
-
       }
     } catch (error) {
       const errorMessage =
@@ -344,11 +338,13 @@ export default function TherapistManagement() {
                     therapists.map((therapist) => (
                       <tr key={therapist.id} className="border-t">
                         <td className="p-3">{therapist.fullName}</td>
-                        <td className="p-3"> <img
-                    src={therapist.img}
-                    alt="Therapist"
-                    className="mt-8 h-60 object-cover rounded"
-                  />
+                        <td className="p-3">
+                          {" "}
+                          <img
+                            src={therapist.img}
+                            alt="Therapist"
+                            className="mt-8 h-60 object-cover rounded"
+                          />
                         </td>
 
                         <td className="p-3">{therapist.email}</td>
@@ -441,145 +437,153 @@ export default function TherapistManagement() {
         onClose={closeModal}
         onSubmit={handleSubmit}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Left Column */}
+        <div
+          className={
+            editingTherapist
+              ? "space-y-3"
+              : "grid grid-cols-1 md:grid-cols-2 gap-4"
+          }
+        >
+          {/* Left Column - Chỉ hiển thị khi thêm mới */}
+          {!editingTherapist && (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tên người dùng *
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Tên người dùng"
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password *
+                </label>
+                <input
+                  type="text"
+                  name="pass"
+                  placeholder="Password"
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Họ và tên *
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  placeholder="Họ và tên"
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Số điện thoại
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  defaultValue={editingTherapist?.phone || ""}
+                  placeholder="Số điện thoại"
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ngày sinh *
+                </label>
+                <input
+                  type="date"
+                  name="dob"
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Hình ảnh
+                </label>
+                <input
+                  type="file"
+                  name="img"
+                  onChange={handleFileChange}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                  accept="image/*"
+                />
+                {editingTherapist?.img && !selectedFile && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                      Ảnh hiện tại: {editingTherapist.img.split("/").pop()}
+                    </p>
+                    <img
+                      src={editingTherapist.img}
+                      alt="Therapist"
+                      className="mt-8 h-60 object-cover rounded"
+                    />
+                  </div>
+                )}
+                {selectedFile && (
+                  <p className="mt-2 text-sm text-gray-500">
+                    Đã chọn: {selectedFile.name}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Right Column - Chỉ hiển thị Số năm kinh nghiệm và Tiểu sử khi thêm mới */}
           <div className="space-y-3">
             {!editingTherapist && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tên người dùng *
+                    Số năm kinh nghiệm *
                   </label>
                   <input
-                    type="text"
-                    name="username"
-                    placeholder="Tên người dùng"
+                    type="number"
+                    name="experienceYears"
+                    defaultValue={editingTherapist?.experienceYears || ""}
+                    placeholder="Số năm"
                     className="w-full p-2 border rounded"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password *
+                    Tiểu sử *
                   </label>
-                  <input
-                    type="text"
-                    name="pass"
-                    placeholder="Password"
-                    className="w-full p-2 border rounded"
+                  <textarea
+                    name="bio"
+                    defaultValue={editingTherapist?.bio || ""}
+                    placeholder="Tiểu sử"
+                    className="w-full p-2 border rounded h-24"
                     required
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Họ và tên *
-                  </label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    placeholder="Họ và tên"
-                    className="w-full p-2 border rounded"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    className="w-full p-2 border rounded"
-                    required
-                  />
-                </div>
-                <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Số điện thoại
-                        </label>
-                        <input
-                            type="tel"
-                            name="phone"
-                            defaultValue={editingTherapist?.phone || ""}
-                            placeholder="Số điện thoại"
-                            className="w-full p-2 border rounded"
-                            required
-                        />
-                    </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ngày sinh *
-                  </label>
-                  <input
-                    type="date"
-                    name="dob"
-                    className="w-full p-2 border rounded"
-                    required
-                  />
-                </div>
-                
               </>
             )}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Số năm kinh nghiệm *
-              </label>
-              <input
-                type="number"
-                name="experienceYears"
-                defaultValue={editingTherapist?.experienceYears || ""}
-                placeholder="Số năm"
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Hình ảnh
-              </label>
-              <input
-                type="file"
-                name="img"
-                onChange={handleFileChange}
-                className="w-full p-2 border rounded"
-                accept="image/*"
-              />
-              {editingTherapist?.img && !selectedFile && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">
-                    Ảnh hiện tại: {editingTherapist.img.split("/").pop()}
-                  </p>
-                  <img
-                    src={editingTherapist.img}
-                    alt="Therapist"
-                    className="mt-8 h-60 object-cover rounded"
-                  />
-                </div>
-              )}
-              {selectedFile && (
-                <p className="mt-2 text-sm text-gray-500">
-                  Đã chọn: {selectedFile.name}
-                </p>
-              )}
-            </div>
-          </div>
 
-          {/* Right Column */}
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tiểu sử *
-              </label>
-              <textarea
-                name="bio"
-                defaultValue={editingTherapist?.bio || ""}
-                placeholder="Tiểu sử"
-                className="w-full p-2 border rounded h-24"
-                required
-              />
-            </div>
-
+            {/* Phần Dịch vụ luôn hiển thị */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Dịch vụ *

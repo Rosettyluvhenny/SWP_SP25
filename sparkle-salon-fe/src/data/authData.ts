@@ -212,6 +212,28 @@ const refresh = async() =>{
     );
     return response.result;
 }
+const changePassword = async (userId: string ,oldPassword: string, newPassword: string ) => {
+    const token = localStorage.getItem("token");
 
+    if (!token) {
+        console.error("No token found! Update failed.");
+        return false;
+    }
+const data = {
+    oldPassword,
+    newPassword,
+};
+console.log(data)
+        const response = await axios.put(`/users/password/${userId}`, data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
 
-export { login, getUser, register, updateUser, createUser, disableUser, introspect, refresh, getAllUser, deleteUser };
+        console.log("Change Pass Successful:", response.data);
+        return response.result;
+   
+}
+
+export { changePassword, login, getUser, register, updateUser, createUser, disableUser, introspect, refresh, getAllUser, deleteUser };
