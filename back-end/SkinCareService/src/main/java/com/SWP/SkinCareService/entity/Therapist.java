@@ -41,6 +41,7 @@ public class Therapist {
 
     float rating = 0.0f;
 
+    @Column(columnDefinition = "TEXT")
     String bio;
 
     @ManyToMany

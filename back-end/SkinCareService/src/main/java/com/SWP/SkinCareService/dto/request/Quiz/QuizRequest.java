@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class QuizRequest {
-    //@NotBlank(message = "NOT_EMPTY")
+    @NotBlank(message = "NOT_EMPTY")
     private int serviceCategoryId;
     @NotBlank(message = "NOT_EMPTY")
     private String name;

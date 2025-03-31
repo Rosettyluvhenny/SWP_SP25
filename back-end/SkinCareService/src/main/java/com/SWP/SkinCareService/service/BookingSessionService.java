@@ -700,4 +700,11 @@ public class  BookingSessionService {
 
         return sessions.stream().map(bookingSessionMapper::toBookingSessionResponse).toList();
     }
+
+    private void autoCancel(BookingSession session){
+        LocalDateTime now = LocalDateTime.now();
+        if (session.getStatus().equals(BookingSessionStatus.WAITING)||session.getStatus().equals(BookingSessionStatus.PENDING)){
+
+        }
+    }
 }

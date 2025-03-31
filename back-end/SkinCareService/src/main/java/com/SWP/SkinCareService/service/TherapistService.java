@@ -29,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,7 +55,7 @@ public class TherapistService {
     @Transactional
     public TherapistResponse create(TherapistRequest request, MultipartFile img) throws IOException {
         // Validate user existence first
-        if(userRepository.existsByUsername(request.getUsername()) || userRepository.existsByEmail(request.getEmail())){
+        if(userRepository.existsByUsername(request.getUsername()) || userRepository.existsByEmail(request.getEmail()) || userRepository.existsByPhone(request.getPhone())){
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
@@ -66,6 +68,9 @@ public class TherapistService {
         account.setActive(true);
         account.setPassword(passwordEncoder.encode(account.getPassword()));
         log.info(account.getPassword());
+        long year = ChronoUnit.YEARS.between(account.getDob(), LocalDate.now());
+        if (!(year - 20 > request.getExperienceYears()))
+            throw new AppException(ErrorCode.INVALID_EXPERIENCE_YEARS);
         account = userRepository.save(account);
         Therapist therapist = therapistMapper.toTherapist(request);
         therapist.setUser(account);

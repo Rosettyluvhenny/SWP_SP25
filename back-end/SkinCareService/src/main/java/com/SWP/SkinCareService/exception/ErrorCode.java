@@ -97,7 +97,8 @@ public enum ErrorCode {
     SESSION_COMPLETED(2014,"Can't update completed Session" , HttpStatus.BAD_REQUEST ),
     ACTIVE_EXCEPTION(2015,"The active state is already change" , HttpStatus.BAD_REQUEST ),
     IS_DISABLE(2016, "Your account is disabled please contact our center directly" , HttpStatus.BAD_REQUEST ),
-    WRONG_PASSWORD(2017, "Your current password is not correct. Please try again" , HttpStatus.BAD_REQUEST);
+    WRONG_PASSWORD(2017, "Your current password is not correct. Please try again" , HttpStatus.BAD_REQUEST),
+    INVALID_EXPERIENCE_YEARS(2018, "Experience year invalid" , HttpStatus.BAD_REQUEST );
     ;
 
 

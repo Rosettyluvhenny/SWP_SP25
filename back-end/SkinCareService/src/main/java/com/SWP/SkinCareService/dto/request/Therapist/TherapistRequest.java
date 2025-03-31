@@ -36,7 +36,8 @@ public class TherapistRequest {
     @DobConstraint(min = 22, message ="INVALID_DOB")
     LocalDate dob;
 
-    @Min(value = 1, message = "MIN")
+    @Min(value = 0,message = "MIN")
+    @Max(value = 30, message ="MAX")
     int  experienceYears;
 
     @NotBlank(message = "NOT_EMPTY")

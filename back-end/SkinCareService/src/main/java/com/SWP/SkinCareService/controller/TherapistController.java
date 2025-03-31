@@ -67,7 +67,7 @@ public class TherapistController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','THERAPIST')")
     public ApiResponse<TherapistResponse> update(
             @PathVariable String id,
             @Valid @RequestPart("request") TherapistUpdateRequest request,
