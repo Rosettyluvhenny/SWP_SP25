@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { getAllTherapists, type Therapist } from "../data/therapistData";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaStar } from "react-icons/fa";
 
 export default function About() {
   const [therapists, setTherapists] = useState<Therapist[]>([]);
@@ -15,7 +16,6 @@ export default function About() {
   const cardsPerSlide = 3; // Số card hiển thị trên mỗi slide
   const totalSlides = Math.ceil(therapists.length / cardsPerSlide); // Tổng số slide thực tế
   const carouselRef = useRef<HTMLDivElement>(null); // Ref để điều khiển carousel
-
   // Nhóm các card thành từng nhóm 3 card
   const groupedTherapists: Therapist[][] = [];
   for (let i = 0; i < therapists.length; i += cardsPerSlide) {
@@ -262,6 +262,11 @@ export default function About() {
                           </div>
                           <div className="p-6">
                             <h3 className="text-xl font-semibold text-gray-800">{therapist.fullName}</h3>
+
+                            {therapist.rating != 0 ?<h4 className="text-xl font-semibold text-gray-800" ><span>{therapist.rating}<FaStar/> </span></h4> :
+                                                          <h4 className="text-xl font-semibold text-gray-800" >chua co danh gia</h4>}
+
+                            
                             <motion.button
                               onClick={() => handleViewTherapist(therapist)}
                               className="mt-4 w-full bg-[#ee8874] text-white py-2 rounded-lg hover:bg-[#e67a66] transition-colors"
@@ -361,7 +366,7 @@ export default function About() {
                       </div>
                     </div>
                   )}
-
+  
                   <div className="space-y-1">
                     <p className="text-sm text-gray-500">Họ tên</p>
                     <p className="font-medium text-lg">{selectedTherapist.fullName}</p>
