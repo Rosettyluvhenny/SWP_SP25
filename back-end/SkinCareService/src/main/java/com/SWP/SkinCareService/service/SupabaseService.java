@@ -6,7 +6,6 @@ import okhttp3.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 
 @Service
@@ -34,7 +33,7 @@ public class SupabaseService {
                 .build();
 
         Request request = new Request.Builder()
-                .url(supabaseConfig.getUrl() + "/storage/v1/object/public" + supabaseConfig.getBucket() + "/" + fileName)
+                .url(supabaseConfig.getUrl() + "/storage/v1/object/" + supabaseConfig.getBucket() + "/" + fileName)
                 .header("Authorization", "Bearer " + supabaseConfig.getKey())
                 .header("Content-Type", "multipart/form-data")
                 .post(requestBody)
@@ -44,7 +43,7 @@ public class SupabaseService {
             if (!response.isSuccessful()) {
                 throw new IOException("Failed to upload image: " + response.body().string());
             }
-            return supabaseConfig.getUrl() + "/storage/v1/object/public" + supabaseConfig.getBucket() + "/" + fileName;
+            return supabaseConfig.getUrl() + "/storage/v1/object/public/" + supabaseConfig.getBucket() + "//" + fileName;
         }
     }
 

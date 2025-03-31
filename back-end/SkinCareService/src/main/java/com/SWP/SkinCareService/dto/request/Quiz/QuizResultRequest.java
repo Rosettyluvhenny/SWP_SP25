@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.dto.request.Quiz;
 
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -16,14 +17,15 @@ public class QuizResultRequest {
     @NotBlank(message ="NOT_EMPTY")
     String resultText;
 
-    @NotNull(message = "NOT_EMPTY")
+    @Min(value = 0, message = "MIN_VALUE")
     int minPoint;
 
-    @NotNull(message = "NOT_EMPTY")
+    @Min(value = 0, message = "MIN_VALUE")
     int maxPoint;
 
     @NotNull(message = "NOT_EMPTY")
     List<Integer> serviceId;
 
+    @Min(value = 1, message = "MIN_VALUE")
     int quizId;
 }

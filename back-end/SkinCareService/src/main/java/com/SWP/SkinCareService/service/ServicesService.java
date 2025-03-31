@@ -4,16 +4,12 @@ import com.SWP.SkinCareService.dto.request.Services.AssignTherapistRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServicesRequest;
 import com.SWP.SkinCareService.dto.request.Services.ServicesUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Services.ServicesResponse;
-import com.SWP.SkinCareService.entity.ServiceCategory;
-import com.SWP.SkinCareService.entity.Services;
-import com.SWP.SkinCareService.entity.Therapist;
+import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.exception.MultipleParameterValidationException;
 import com.SWP.SkinCareService.mapper.ServicesMapper;
-import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
-import com.SWP.SkinCareService.repository.ServicesRepository;
-import com.SWP.SkinCareService.repository.TherapistRepository;
+import com.SWP.SkinCareService.repository.*;
 import jakarta.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +35,8 @@ public class ServicesService {
     ServiceCategoryRepository serviceCategoryRepository;
     SupabaseService supabaseService;
     TherapistRepository therapistRepository;
+    RoomRepository roomRepository;
+    QuizResultRepository quizResultRepository;
 
     @Transactional
     public ServicesResponse create(ServicesRequest request, MultipartFile img) throws IOException {
@@ -133,6 +131,24 @@ public class ServicesService {
         if(!service.isActive())
             throw new AppException(ErrorCode.DEACTIVATED);
         service.setActive(false);
+        //Remove service in therapist
+        List<Therapist> therapistList = new ArrayList<>(service.getTherapists());
+        for (Therapist therapist : therapistList) {
+            therapist.getServices().remove(service);
+            therapistRepository.save(therapist);
+        }
+        //Remove service in room
+        List<Room> roomList = new ArrayList<>(service.getRooms());
+        for (Room room : roomList) {
+            room.getServices().remove(service);
+            roomRepository.save(room);
+        }
+        //Remove service in quiz_result
+        List<QuizResult> quizResultList = new ArrayList<>(service.getQuizResults());
+        for (QuizResult quizResult : quizResultList) {
+            quizResult.getServices().remove(service);
+            quizResultRepository.save(quizResult);
+        }
         servicesRepository.save(service);
     }
 
@@ -140,6 +156,24 @@ public class ServicesService {
     public void delete(int id) throws IOException {
         Services service = checkService(id);
         supabaseService.deleteImage(service.getImg());
+        //Remove service in therapist
+        List<Therapist> therapistList = new ArrayList<>(service.getTherapists());
+        for (Therapist therapist : therapistList) {
+            therapist.getServices().remove(service);
+            therapistRepository.save(therapist);
+        }
+        //Remove service in room
+        List<Room> roomList = new ArrayList<>(service.getRooms());
+        for (Room room : roomList) {
+            room.getServices().remove(service);
+            roomRepository.save(room);
+        }
+        //Remove service in quiz_result
+        List<QuizResult> quizResultList = new ArrayList<>(service.getQuizResults());
+        for (QuizResult quizResult : quizResultList) {
+            quizResult.getServices().remove(service);
+            quizResultRepository.save(quizResult);
+        }
         servicesRepository.delete(service);
     }
 
