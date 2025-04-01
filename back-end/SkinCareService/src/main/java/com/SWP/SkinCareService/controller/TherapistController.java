@@ -77,14 +77,6 @@ public class TherapistController {
                 .build();
     }
 
-    @DeleteMapping("/{id}/disable")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<Void> disable(@PathVariable String id) {
-        therapistService.disable(id);
-        return ApiResponse.<Void>builder()
-                .message("Therapist disabled successfully")
-                .build();
-    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

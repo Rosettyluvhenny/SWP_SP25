@@ -34,7 +34,7 @@ public class TherapistResponse {
     LocalDateTime updatedAt;
 
     String img;
-
+    boolean active;
     List<ServiceSummaryResponse> services;
 
 }

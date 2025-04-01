@@ -44,6 +44,7 @@ public interface TherapistMapper {
     @Mapping(target = "phone", source = "user.phone")
     @Mapping(target = "roles", source = "user.roles")
     @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "active", source = "user.active")
     TherapistResponse toResponse(Therapist therapist);
 
     @Mapping(target = "id", ignore = true)

@@ -96,7 +96,7 @@ public class TherapistService {
     }
 
     public Page<TherapistResponse> findAll(boolean isActive, Pageable pageable){
-        Page<Therapist> therapists = isActive ? therapistRepository.findTherapistByUserActiveTrue(pageable): therapistRepository.findInactiveTherapists(pageable);
+        Page<Therapist> therapists = isActive ? therapistRepository.findTherapistByUserActiveTrue(pageable): therapistRepository.findAll(pageable);
 
         return therapists
                 .map(therapist -> {
@@ -171,13 +171,13 @@ public class TherapistService {
         return response;
     }
 
-    @Transactional
-    public void disable (String id){
-        Therapist therapist = therapistCheck(id);
-        User user = therapist.getUser();
-        user.setActive(false);
-        userRepository.save(user);
-    }
+//    @Transactional
+//    public void disable (String id){
+//        Therapist therapist = therapistCheck(id);
+//        User user = therapist.getUser();
+//        user.setActive(false);
+//        userRepository.save(user);
+//    }
 
     @Transactional
     public void delete (String id) {
