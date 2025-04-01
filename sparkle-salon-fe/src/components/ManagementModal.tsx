@@ -23,7 +23,6 @@ export default function ManagementModal({
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
-            onClick={onClose}
         >
             <div
                 className="bg-white p-6 rounded-lg shadow-lg w-3/5"

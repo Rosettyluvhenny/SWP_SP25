@@ -181,35 +181,13 @@ export const updateAnswers = async (
   question: Question,
   answers: Answer[]
 ): Promise<Answer[]> => {
+   
   try {
     const newAnswerIds = new Set<number>(
       (answers || []).map((a) => a.id).filter((id): id is number => id != null)
     );
 
-    // const response = await axiosInstance.get<ApiResponse<Answer[]>>(
-    //   `/answer/${question.id}/question`
-    // );
-    // if (response.data.code !== 0) {
-    //   throw new Error(response.data.message || "Failed to fetch current answers");
-    // }
-    // const currentAnswers = response.data.result || [];
-    // const currentAnswerIds = new Set<number>(
-    //   currentAnswers.map((a) => a.id).filter((id): id is number => id != null)
-    // );
-    // const answerIdsToDelete = [...currentAnswerIds].filter(
-    //   (id) => !newAnswerIds.has(id)
-    // );
-
-    // if (answerIdsToDelete.length > 0) {
-    //   await Promise.all(
-    //     answerIdsToDelete.map((answerId) =>
-    //       deleteAnswer(answerId).catch((err) => {
-    //         console.error(`Lỗi khi xóa đáp án ID: ${answerId}`, err);
-    //         throw err;
-    //       })
-    //     )
-    //   );
-    // }
+   
 
     const answerPromises = answers.map((answer) => {
       const data = {
@@ -234,6 +212,8 @@ export const updateAnswers = async (
 };
 
 export const deleteAnswer = async (answerId: number) => {
+
+
   try {
     const response = await axiosInstance.delete(`/answer/${answerId}`);
     if (response.data.code !== 0)
@@ -270,6 +250,10 @@ export const deleteQuizResult = async (resultId: number) => {
 export const updateQuizResult = async (
   updatedResult: QuizResult
 ): Promise<QuizResult> => {
+  const isConfirmed = window.confirm(
+    "Bạn có chắc chắn muốn lưu kết quả bài kiểm tra không?"
+  );
+  if (!isConfirmed) return Promise.reject("Hủy lưu kết quả bài kiểm tra");
   try {
     const serviceIds = updatedResult.services.map((s) => s.id);
     const response = await axiosInstance.put<ApiResponse<QuizResult>>(
@@ -294,6 +278,10 @@ export const createQuizResult = async (
   quizId: number,
   resultData: Omit<QuizResult, "id">
 ): Promise<QuizResult> => {
+  const isConfirmed = window.confirm(
+    "Bạn có chắc chắn muốn tạo kết quả bài kiểm tra mới không?"
+  );
+  if (!isConfirmed) return Promise.reject("Hủy tạo kết quả bài kiểm tra");
   try {
     const serviceIds = resultData.services.map((s) => s.id);
     const response = await axiosInstance.post<ApiResponse<QuizResult>>(
@@ -356,6 +344,10 @@ export const updateQuiz = async (quiz: Quiz): Promise<Quiz> => {
 };
 
 export const deleteQuiz = async (quizId: number) => {
+  const isConfirmed = window.confirm(
+    "Bạn có chắc chắn muốn xóa quiz này không?"
+  );
+  if (!isConfirmed) return Promise.reject("Hủy xóa quiz");
   try {
     const response = await axiosInstance.delete(`/quiz/${quizId}`);
     if (response.data.code !== 0)

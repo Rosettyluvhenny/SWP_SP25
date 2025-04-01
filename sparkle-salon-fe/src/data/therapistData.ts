@@ -14,18 +14,18 @@ export interface Therapist {
   phone: string;
   rating: number;
   password:string;
-  disabled: boolean;
+  active: boolean;
   services: Service[];
 }
 
 export interface Service {
   id: number;
-  name: string;s
+  name: string;
 }
 
 const getAllTherapists = async (): Promise<Therapist[]> => {
   try {
-    const response = await axios.get("/therapists");
+    const response = await axios.get("/therapists?isActive=false");
     return response.result?.content || [];
   } catch (error) {
     console.error("Lỗi khi lấy danh sách chuyên viên:", error);
@@ -63,6 +63,10 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
   img: File; // Đổi thành File thay vì string
   serviceIds: number[]; // Đổi từ services thành serviceIds
 }): Promise<boolean> => {
+  const isConfirmed = window.confirm(
+    "Bạn có chắc chắn muốn tạo chuyên viên mới không?"
+  );
+  if (!isConfirmed) return Promise.reject("Hủy tạo chuyên viên mới");
   // try {
     const token = localStorage.getItem("token");
     console.log("Token sử dụng:", token); // Log token để kiểm tra
@@ -104,22 +108,11 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
       data: response.data,
     });
     console.log("respone:", response)
-    return response.result; // 201 thường dùng cho POST
-  // } catch (error) {
-  //   console.error("Lỗi khi tạo chuyên viên:", {
-  //     message: error.message,
-  //     response: error.response ? {
-  //       status: error.response.status,
-  //       data: error.response.data,
-  //     } : "Không có phản hồi từ server",
-  //   }
-  // );
-  //   return false;
-  // }
+    return response.result; 
 };
 
 
- const updateTherapist = async (
+const updateTherapist = async (
   id: string,
   experienceYears: number,
   bio: string,
@@ -127,7 +120,7 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
   fullName: string,
   email: string,
   phone: string,
-  img: File,
+  img: File | undefined,
   serviceIds: number[]
 ): Promise<boolean> => {
   try {
@@ -149,10 +142,14 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
       serviceIds: Array.isArray(serviceIds) ? serviceIds : [],
     };
 
-
     console.log("Dữ liệu JSON trước khi gửi (update):", requestData);
+
     formData.append("request", new Blob([JSON.stringify(requestData)], { type: "application/json" }));
-    formData.append("img", img);
+
+    // Chỉ thêm img vào formData nếu nó tồn tại (không undefined)
+    if (img) {
+      formData.append("img", img);
+    }
 
     const response = await axios.put(`/therapists/${id}`, formData, {
       headers: {
@@ -160,7 +157,8 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
         "Content-Type": "multipart/form-data",
       },
     });
-console.log("day la response :",response)
+
+    console.log("Response từ server:", response.data);
     return response.result;
   } catch (error) {
     console.error("Lỗi khi cập nhật chuyên viên:", error.response?.data || error.message);
@@ -169,9 +167,12 @@ console.log("day la response :",response)
 };
 const updateTherapistSv = async (
   id: string,
-  img: File,
   serviceIds: number[]
 ): Promise<boolean> => {
+  const isConfirmed = window.confirm(
+    "Bạn có chắc chắn muốn lưu dịch vụ không?"
+  );
+  if (!isConfirmed) return Promise.reject("Hủy lưu dịch vụ");
   try {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -184,7 +185,6 @@ const updateTherapistSv = async (
     };
     console.log("Dữ liệu JSON trước khi gửi (update):", requestData);
     formData.append("request", new Blob([JSON.stringify(requestData)], { type: "application/json" }));
-    formData.append("img", img);
 
     const response = await axios.put(`/therapists/${id}`, formData, {
       headers: {
@@ -214,13 +214,14 @@ const deleteTherapist = async (id: string): Promise<boolean> => {
   }
 };
 
-const disableTherapist = async (id: string): Promise<boolean> => {
+const disableTherapist = async (userId: string): Promise<boolean> => {
   try {
-    const response = await axios.put(`/therapists/${id}/disable`, {}, {
+    const response = await axios.put(`/users/${userId}/active?check=false`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
+    console.log(userId)
     return !!response.result;
   } catch (error) {
     console.error("Lỗi khi vô hiệu hóa chuyên viên:", error);
@@ -228,13 +229,15 @@ const disableTherapist = async (id: string): Promise<boolean> => {
   }
 };
 
-const enableTherapist = async (id: string): Promise<boolean> => {
+const enableTherapist = async (userId: string): Promise<boolean> => {
   try {
-    const response = await axios.put(`/therapists/${id}/enable`, {}, {
+    const response = await axios.put(`/users/${userId}/active?check=true`, {}, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
+    console.log(userId)
+
     return !!response.result;
   } catch (error) {
     console.error("Lỗi khi kích hoạt chuyên viên:", error);
