@@ -215,14 +215,15 @@ const deleteTherapist = async (id: string): Promise<boolean> => {
 };
 
 const disableTherapist = async (userId: string): Promise<boolean> => {
+  const token = localStorage.getItem("token");
   try {
-    const response = await axios.put(`/users/${userId}/active?check=false`, {
+    const response = await axios.put(`/users/${userId}/active?check=false`,  null, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
       },
-    });
-    console.log(userId)
-    return !!response.result;
+  });
+     return response.statusCode ==204;
   } catch (error) {
     console.error("Lỗi khi vô hiệu hóa chuyên viên:", error);
     return false;
@@ -230,15 +231,15 @@ const disableTherapist = async (userId: string): Promise<boolean> => {
 };
 
 const enableTherapist = async (userId: string): Promise<boolean> => {
+  const token = localStorage.getItem("token");
   try {
-    const response = await axios.put(`/users/${userId}/active?check=true`, {}, {
+    const response = await axios.put(`/users/${userId}/active?check=true`,  null, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
       },
-    });
-    console.log(userId)
-
-    return !!response.result;
+  });
+    return response.statusCode ==204;
   } catch (error) {
     console.error("Lỗi khi kích hoạt chuyên viên:", error);
     return false;

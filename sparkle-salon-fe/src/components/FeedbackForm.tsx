@@ -9,12 +9,14 @@ interface SessionFeedbackFormProps {
     sessionId: number;
     isOpen: boolean;
     onClose: () => void;
+    setIsLoading: (isLoading: boolean) => void;
 }
 
 const SessionFeedbackForm: React.FC<SessionFeedbackFormProps> = ({
     sessionId,
     isOpen,
     onClose,
+    setIsLoading
 }) => {
     const [rating, setRating] = useState(0);
     const [feedbackText, setFeedbackText] = useState('');
@@ -51,6 +53,7 @@ const SessionFeedbackForm: React.FC<SessionFeedbackFormProps> = ({
             }, 2000);
         }
         setIsSubmitting(false);
+        setIsLoading(true);
     }
 
     return (

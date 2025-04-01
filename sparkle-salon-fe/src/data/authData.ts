@@ -36,7 +36,7 @@ const getAllUser = async () => {
     }
 
     try {
-        const response = await axios.get(`/users`, {
+        const response = await axios.get(`/users?isActive=false`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -110,8 +110,9 @@ const updateUser = async (
     }
 };
 
-const createUser = async (data: { username: string, password: string, fullName: string, email: string, phone: string, dob: string }) => {
-    const response = await axios.post(`/users`, {
+const createUser = async (isStaff: boolean ,data: { username: string, password: string, fullName: string, email: string, phone: string, dob: string }) => {
+    let url = isStaff? "/users/staff" :"/users";
+    const response = await axios.post(`${url}`, {
         username: data.username,
         password: data.password,
         fullName: data.fullName,
@@ -119,7 +120,7 @@ const createUser = async (data: { username: string, password: string, fullName: 
         phone: data.phone,
         dob: data.dob,
     });
-    if (response.status === 200) {
+    if (response.result) {
         return true;
     } else {
         return false;

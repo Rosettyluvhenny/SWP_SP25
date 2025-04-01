@@ -153,6 +153,8 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                         sessionId={session.id}
                         isOpen={isFeedbackOpen}
                         onClose={() => setIsFeedbackOpen(false)}
+                        setIsLoading = {setIsLoading}
+                    
                     />
             )}
             <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-2xl mx-auto mt-4 ">

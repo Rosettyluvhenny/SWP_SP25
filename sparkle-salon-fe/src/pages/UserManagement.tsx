@@ -44,10 +44,10 @@ export default function UserManagement() {
 
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submitting, setSubmitting] = useState(false);
-
+  const [isStaff, setIsStaff] = useState(false);
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [submitting]);
 
   const fetchUsers = async () => {
     try {
@@ -164,7 +164,7 @@ export default function UserManagement() {
           prev.map((u) => (u.id === editingUser.id ? editingUser : u))
         );
       } else {
-        const success = await createUser({
+        const success = await createUser(isStaff,{
           username: editingUser.username,
           password: editingUser.password || "defaultPassword",
           fullName: editingUser.fullName,
@@ -172,13 +172,8 @@ export default function UserManagement() {
           phone: editingUser.phone,
           dob: editingUser.dob,
         });
-
-        if (success) {
           await fetchUsers();
           toast.success("Tạo người dùng thành công");
-        } else {
-          toast.success("Tạo người dùng thành công");
-        }
       }
       closeModal();
     } catch (err) {
@@ -202,6 +197,7 @@ export default function UserManagement() {
       ? await enableTherapist(user.id)
       : await disableTherapist(user.id);
 
+      console.log(success);
     if (success) {
       toast.success("Vô hiệu hóa người dùng thành công!");
     } else {
@@ -276,12 +272,20 @@ export default function UserManagement() {
           <h1 className="text-2xl font-bold text-gray-800">
             Quản Lý Người Dùng
           </h1>
+          <div className="flex gap-4">
           <button
-            onClick={() => openModal(null)}
+            onClick={() => {setIsStaff(false);openModal(null)}}
             className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600"
-          >
+            >
             + Thêm Người Dùng
           </button>
+          <button
+            onClick={() =>{setIsStaff(true); openModal(null)}}
+            className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600"
+            >
+            + Thêm Nhân Viên
+          </button>
+          </div>
         </div>
 
         {/* Search Bar */}

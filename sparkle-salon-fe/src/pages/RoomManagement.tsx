@@ -370,16 +370,6 @@ export default function RoomManagement() {
                                                     >
                                                         Chỉnh Sửa
                                                     </button>
-                                                    <button
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                room.id
-                                                            )
-                                                        }
-                                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                                                    >
-                                                        Xóa
-                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
