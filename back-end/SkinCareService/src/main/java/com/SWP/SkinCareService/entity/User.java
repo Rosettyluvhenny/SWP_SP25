@@ -55,6 +55,7 @@ public class User {
     Set<Role> roles;
     //
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     Therapist therapist;
     //
     @ManyToOne

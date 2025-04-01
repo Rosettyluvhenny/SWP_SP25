@@ -35,6 +35,7 @@ public class Therapist {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JsonManagedReference
     User user;
 
     int experienceYears;
@@ -76,7 +77,6 @@ public class Therapist {
     @OneToMany(mappedBy = "therapist", cascade = CascadeType.PERSIST)
     @JsonManagedReference
     List<BookingSession> bookingSessions;
-
 
     String img;
 
