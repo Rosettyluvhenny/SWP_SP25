@@ -176,12 +176,12 @@ public class UserController {
         );
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsers() {
+    @GetMapping()
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsers(@RequestParam(defaultValue="true", required = false) boolean isActive) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(
                 ApiResponse.<List<UserResponse>>builder()
-                        .result(userService.getAll())
+                        .result(userService.getAll(isActive))
                         .build()
         );
     }

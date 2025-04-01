@@ -241,9 +241,9 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public List<UserResponse> getAll() {
-
-        return userRepository.findAll().stream()
+    public List<UserResponse> getAll(boolean isActive) {
+        var result = isActive ? userRepository.findAllByActiveTrue(): userRepository.findAll();
+        return result.stream()
                 .map(userMapper::toUserResponse).toList();
     }
 
