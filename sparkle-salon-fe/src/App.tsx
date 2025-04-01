@@ -37,6 +37,8 @@ import Staff from "./pages/Staff";
 import BookingByStaff from "./components/BookingByStaff";
 import Sidebar from "./components/SideBarDashboard";
 import StaffLayout from "./layouts/StaffLayout";
+import Session from "./components/Session";
+import ManagerLayout from "./layouts/ManagerLayout";
 
 function App() {
     const { user } = useContext(UserContext);
@@ -237,6 +239,12 @@ function App() {
                     <Route path="/managerstaff" element={<ManagerStaff />} />
                     <Route path="/manager/quiz" element={<QuizManagement />} />
                     <Route path="/manager/blog" element={<BlogManagement />} />
+                    <Route path="/manager/booking" element={<ManagerLayout> <BookingByStaff /></ManagerLayout>} />
+                    <Route path="/manager/session" element={<ManagerLayout><Session /></ManagerLayout>} />
+                    <Route path="/manager/feedback" element={<ManagerLayout> <Feedback /></ManagerLayout>} />
+                    <Route path="/manager/bookingDetail/:id" element={<ManagerLayout> <BookingDetail isStaff={true} /></ManagerLayout>} />
+                    <Route path="/manager/sessionDetail/:id" element={<ManagerLayout> <SessionDetail isStaff={true} /></ManagerLayout>} />
+
                 </Route>
 
                 {/* Fallback route */}
@@ -248,7 +256,6 @@ function App() {
                         </MainLayout>
                     }
                 />
-                <Route path="/staff" element={<Staff />} />
                 <Route
                     path="/staff/booking"
                     element={
@@ -265,11 +272,27 @@ function App() {
                         </StaffLayout>
                     }
                 />
+                 <Route
+                    path="/staff/session"
+                    element={
+                        <StaffLayout>
+                            <Session />
+                        </StaffLayout>
+                    }
+                />
                 <Route
                     path="/staff/sessionDetail/:id"
                     element={
                         <StaffLayout>
                             <SessionDetail isStaff={true} />
+                        </StaffLayout>
+                    }
+                />
+                  <Route
+                    path="/staff/Profile"
+                    element={
+                        <StaffLayout>
+                            <Profile/>
                         </StaffLayout>
                     }
                 />

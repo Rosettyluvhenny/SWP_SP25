@@ -61,7 +61,7 @@ const StaffSideBar: React.FC<{
                     {/* Account Management */}
                     <li>
                         <Link
-                            to="/manager/room"
+                            to="/staff/Profile"
                             className={`flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg ${
                                 isOpen ? "block" : "flex justify-center"
                             }`}

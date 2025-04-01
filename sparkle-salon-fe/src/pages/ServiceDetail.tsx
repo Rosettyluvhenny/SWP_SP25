@@ -277,23 +277,15 @@ export default function ServiceDetail() {
                                             className="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-sm transition-all"
                                         >
                                             <div className="flex items-center mb-3">
-                                                <img
-                                                    src={feedback.img}
-                                                    alt={feedback.therapistName}
-                                                    className="w-12 h-12 rounded-full mr-4 object-cover border-2 border-pink-100"
-                                                    onError={(e) => {
-                                                        (
-                                                            e.target as HTMLImageElement
-                                                        ).src =
-                                                            "/placeholder.jpg";
-                                                    }}
-                                                />
                                                 <div>
                                                     <p className="font-semibold text-gray-900 text-base">
-                                                        {feedback.therapistName}
+                                                        {feedback.fullName}
+                                                    </p>
+                                                    <p className="font-semi text-gray-500 text-base text-sm mt-2">
+                                                        Chuyên viên: <span>{feedback.therapistName}</span>
                                                     </p>
                                                     <p className="text-xs text-gray-500 flex items-center">
-                                                        
+
                                                         {feedback.bookingDate}
                                                     </p>
                                                 </div>
@@ -304,12 +296,11 @@ export default function ServiceDetail() {
                                                     <svg
                                                         key={star}
                                                         xmlns="http://www.w3.org/2000/svg"
-                                                        className={`h-5 w-5 ${
-                                                            star <=
-                                                            feedback.rating
+                                                        className={`h-5 w-5 ${star <=
+                                                                feedback.rating
                                                                 ? "text-yellow-500"
                                                                 : "text-gray-300"
-                                                        }`}
+                                                            }`}
                                                         viewBox="0 0 24 24"
                                                         fill="currentColor"
                                                     >

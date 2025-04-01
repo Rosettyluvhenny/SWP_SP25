@@ -8,7 +8,6 @@ import Pagination from "../components/Pagination";
 import BookingTableRow from "../components/BookingTableRow";
 import { checkInCash, getBookings } from "../data/staffData";
 import { cancelBooking } from "../data/userData";
-import StaffSideBar from "./StaffSideBar";
 
 export default function BookingByStaff() {
     const [bookings, setBookings] = useState([]);
@@ -141,7 +140,8 @@ export default function BookingByStaff() {
 
     async function handleChecking(booking: any) {
         const rq = await checkInCash(booking.id, "PAID");
-        toast.success(rq.message);
+        // toast.success(rq.message);
+        console.log("request",rq);
         setStatus("ON_GOING");
     }
 

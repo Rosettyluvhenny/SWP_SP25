@@ -49,7 +49,7 @@ export const updateBookingSession = async (
     imgBefore: File,
     imgAfter: File
 ) => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("token");
         const formData = new FormData();
         formData.append("data", new Blob([JSON.stringify(bookingSessionRequest)], { type: "application/json" }));
         formData.append("imgBefore", imgBefore);
@@ -140,7 +140,7 @@ export const updateSessionStatus = async (
     sessionId: number,
     status: string
 ) => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("token");
         const response = await axios.put(`/bookingSession/${sessionId}/status`,
             null,
             {
@@ -155,3 +155,15 @@ export const updateSessionStatus = async (
         console.log("response",response)
         return response;
 };
+
+export const getAll = async (url: string) =>{
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`/bookingSession${url}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+    return response.result;
+}

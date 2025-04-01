@@ -6,7 +6,7 @@ import {
     FiMenu,
     FiLogOut,
 } from "react-icons/fi";
-import { MdMeetingRoom, MdOutlinePayments } from "react-icons/md";
+import { MdMeetingRoom, MdOutlineMedicalServices, MdOutlinePayments, MdOutlineSchedule, MdStar } from "react-icons/md";
 import { TbPhysotherapist } from "react-icons/tb";
 import { MdNewspaper,MdQuiz  } from "react-icons/md";
 import { UserContext } from "../context/UserContext";
@@ -127,7 +127,36 @@ const Sidebar = () => {
                             Quản lí bài đăng
                         </li>
                     </Link>
-                                        
+                    <Link
+                        to="/manager/booking"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                        <MdOutlineMedicalServices />
+
+                            Quản lí Booking
+                        </li>
+                    </Link>
+                    <Link
+                        to="/manager/session"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                        <MdOutlineSchedule/>
+
+                            Quản lí Session
+                        </li>
+                    </Link>     
+                    <Link
+                        to="/manager/feedback"
+                        className={`${isOpen ? "block" : "hidden"}`}
+                    >
+                        <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
+                        <MdStar />
+
+                            Quản lí Feedback
+                        </li>
+                    </Link>            
                 </ul>
             </nav>
             <div className="flex-grow"></div>

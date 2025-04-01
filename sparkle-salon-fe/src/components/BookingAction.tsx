@@ -53,7 +53,8 @@ export default function BookingAction({ isStaff, booking, setReload, reload }: B
   const handleChecking = React.useCallback(async (booking: Booking) => {
     try {
       const rq = await checkInCash(Number(booking.id), "PAID");
-      // toast.success(rq.message);
+      console.log("request",rq);
+      toast.success(rq.message);
       setReload(!reload)
     } catch (error) {
       toast.error("Không thể check-in. Vui lòng thử lại.");

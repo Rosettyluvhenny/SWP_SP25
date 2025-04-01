@@ -1,4 +1,4 @@
-import { FaCreditCard, FaCalendarAlt, FaMoneyBillWave, FaClipboardList } from "react-icons/fa";
+import { FaCreditCard, FaCalendarAlt, FaMoneyBillWave, FaClipboardList, FaUser, FaClock } from "react-icons/fa";
 
 // Define a comprehensive interface for the booking object
 interface Booking {
@@ -11,6 +11,7 @@ interface Booking {
   paymentMethod?: string;
   sessionRemain?: number;
   notes?: string;
+  createAt: string;
 }
 
 interface BookingInfoProps {
@@ -69,7 +70,6 @@ export function BookingInfo({ booking }: BookingInfoProps) {
               </p>
             </div>
 
-            {/* Status badges */}
             <div className="mb-4 flex flex-wrap gap-3">
               <span 
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.paymentStatus || '')}`}
@@ -81,6 +81,7 @@ export function BookingInfo({ booking }: BookingInfoProps) {
               >
                 <FaCalendarAlt className="mr-1" /> {booking.status || 'Unknown'}
               </span>
+              
             </div>
 
             {/* Payment and sessions info */}
@@ -94,6 +95,16 @@ export function BookingInfo({ booking }: BookingInfoProps) {
                 <FaCalendarAlt className="mr-2 text-purple-600" />
                 <span className="font-medium">Số buổi còn lại:</span>
                 <span className="ml-2">{booking.sessionRemain ?? 'N/A'}</span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <FaUser className="mr-2 text-purple-600" />
+                <span className="font-medium">Khách hàng:</span>
+                <span className="ml-2">{booking.fullName}</span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <FaClock className="mr-2 text-purple-600" />
+                <span className="font-medium">Đặt lúc:</span>
+                <span className="ml-2">{new Date(booking.createAt).toLocaleDateString()} {new Date(booking.createAt).toLocaleTimeString()}</span>
               </div>
             </div>
 

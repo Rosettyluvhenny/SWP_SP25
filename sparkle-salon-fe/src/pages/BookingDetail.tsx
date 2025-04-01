@@ -148,6 +148,7 @@ export default function BookingDetail({isStaff}: BookingDetailProps) {
                             isStaff = {isStaff}
                             booking = {booking}
                             setReload ={setReload}
+                            reload = {reload}
                          />
                     </div>
                 </div>

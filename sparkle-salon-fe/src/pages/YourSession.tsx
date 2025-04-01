@@ -22,7 +22,6 @@ export default function YourSession() {
     const [loading, setLoading] = useState(false);
     // const {loading, setIsLoading} = useContext(UserContext)
     useEffect(() => {
-
         const fetchSession = async () => {
             const response = await getMySession(searchUrl);
             // console.log("fetch", response);
@@ -171,51 +170,6 @@ export default function YourSession() {
                                                 {session.status}
                                             </span>
                                         </td>
-                                        {/* <td className="p-4">
-                                            <div className="flex space-x-2">
-                                                {session.status === "WAITING" && (
-                                                    <motion.button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleCancelSession(session.id);
-                                                        }}
-                                                        className="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1.5 shadow-sm"
-                                                        whileHover={{ scale: 1.03 }}
-                                                        whileTap={{ scale: 0.97 }}
-                                                    >
-                                                        <FaTrash size={14} /> Hủy
-                                                    </motion.button>
-                                                )}
-                                                {session.status === "COMPLETED" && (
-                                                    <motion.button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            e.preventDefault();
-                                                            handleRebook(session.bookingId);
-                                                        }}
-                                                        className="bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-1.5 shadow-sm"
-                                                        whileHover={{ scale: 1.03 }}
-                                                        whileTap={{ scale: 0.97 }}
-                                                    >
-                                                        <FaRedo size={14} /> Đặt lại
-                                                    </motion.button>
-                                                )}
-                                                {session.status === "IS_CANCELED" && (
-                                                    <motion.button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            e.preventDefault();
-                                                            handleRebook(session.bookingId);
-                                                        }}
-                                                        className="bg-green-500 text-white px-3 py-1.5 rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-1.5 shadow-sm"
-                                                        whileHover={{ scale: 1.03 }}
-                                                        whileTap={{ scale: 0.97 }}
-                                                    >
-                                                        <FaRedo size={14} /> Đặt lại
-                                                    </motion.button>
-                                                )}
-                                            </div>
-                                        </td> */}
                                     </motion.tr>
                                 ))
                             ) : (

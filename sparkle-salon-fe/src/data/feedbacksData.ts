@@ -95,8 +95,26 @@ const deleteFeedbackById = async (id: string | null): Promise<boolean> => {
         return false;
     }
 };
+const getFeedbacks = async (url :string) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.error("No token found");
+        return [];
+    }
 
+    const response = await axios.get(`/feedback${url}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    console.log(response)
+    if (response.result) 
+    return response.result;
+
+};
 export {
+    getFeedbacks,
     getFeedbackById,
     getUserFeedbacks,
     deleteFeedbackById,

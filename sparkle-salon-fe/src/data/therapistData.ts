@@ -60,7 +60,7 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
   bio: string;
   dob: string;
   phone: string;
-  img: File; // Đổi thành File thay vì string
+  img: File | null; // Đổi thành File thay vì string
   serviceIds: number[]; // Đổi từ services thành serviceIds
 }): Promise<boolean> => {
   // try {
@@ -116,7 +116,7 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
   fullName: string,
   email: string,
   phone: string,
-  img: File,
+  img: File | null,
   serviceIds: number[]
 ): Promise<boolean> => {
   try {
@@ -141,6 +141,7 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
 
     console.log("Dữ liệu JSON trước khi gửi (update):", requestData);
     formData.append("request", new Blob([JSON.stringify(requestData)], { type: "application/json" }));
+    if(img !=null)
     formData.append("img", img);
 
     const response = await axios.put(`/therapists/${id}`, formData, {

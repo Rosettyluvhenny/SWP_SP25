@@ -4,14 +4,14 @@ import axios from "../services/customizedAxios";
 const login = async (username: string, password: string) => {
     try {
         const response = await axios.post(`/auth/authenticate`, { username, password });
-        return response; 
+        return response;
     } catch (error) {
         toast.error(error.response.data.message);
-        return null; 
+        return null;
     }
 };
 
-const register = async (data: {username: string, password: string, fullName: string, email: string, phone: string, dob: string}) => {
+const register = async (data: { username: string, password: string, fullName: string, email: string, phone: string, dob: string }) => {
     const response = await axios.post(`/users`, {
         username: data.username,
         password: data.password,
@@ -41,10 +41,10 @@ const getAllUser = async () => {
                 Authorization: `Bearer ${token}`,
             },
         });
-        return response.result;   
+        return response.result;
     } catch (error) {
         console.error("Error fetching users:", error);
-        return []; 
+        return [];
     }
 };
 
@@ -62,18 +62,18 @@ const getUser = async () => {
                 Authorization: `Bearer ${token}`,
             },
         });
-        return response.result;   
+        return response.result;
     } catch (error) {
         console.error("Error fetching users:", error);
-        return null; 
+        return null;
     }
 };
 
 const updateUser = async (
-    userId: string | undefined, 
-    fullName: string, 
-    email: string, 
-    phone: string, 
+    userId: string | undefined,
+    fullName: string,
+    email: string,
+    phone: string,
     dob: string
 ) => {
     if (!userId) {
@@ -88,16 +88,26 @@ const updateUser = async (
         return false;
     }
 
-    const apiUrl = `/users/${userId}`;; 
+    const apiUrl = `/users/${userId}`;;
 
     const updatedData = { fullName, email, phone, dob: dob || "" };
+    try{
+
         const response = await axios.put(apiUrl, updatedData, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
         });
+        console.log("response",response);
         return response.result;
+    }catch(error){
+        let errors = error.response.data.errors;
+        console.log(errors);
+        for(let err of errors){
+            toast.error(err.result)
+        }
+    }
 };
 
 const createUser = async (data: { username: string, password: string, fullName: string, email: string, phone: string, dob: string }) => {
@@ -172,12 +182,12 @@ const deleteUser = async (userId: string) => {
     }
 }
 
-const introspect = async() =>{
+const introspect = async () => {
     const token = localStorage.getItem('token')
-    if(!token)
+    if (!token)
         return;
-    const response = await axios.post("/auth/introspect", 
-        { token }, 
+    const response = await axios.post("/auth/introspect",
+        { token },
         {
             headers: {
                 "Content-Type": "application/json"
@@ -187,12 +197,12 @@ const introspect = async() =>{
     return response.result.valid;
 }
 
-const refresh = async() =>{
+const refresh = async () => {
     const token = localStorage.getItem('token')
-    if(!token)
+    if (!token)
         return;
-    const response = await axios.post("/auth/refresh", 
-        { token }, 
+    const response = await axios.post("/auth/refresh",
+        { token },
         {
             headers: {
                 "Content-Type": "application/json"
@@ -201,28 +211,26 @@ const refresh = async() =>{
     );
     return response.result;
 }
-const changePassword = async (userId: string ,oldPassword: string, newPassword: string ) => {
+const changePassword = async (userId: string, oldPassword: string, newPassword: string) => {
     const token = localStorage.getItem("token");
 
     if (!token) {
         console.error("No token found! Update failed.");
         return false;
     }
-const data = {
-    oldPassword,
-    newPassword,
-};
-console.log(data)
-        const response = await axios.put(`/users/password/${userId}`, data, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        });
+    const data = {
+        oldPassword,
+        newPassword,
+    };
+    const response = await axios.put(`/users/password/${userId}`, data, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+    });
 
-        console.log("Change Pass Successful:", response.data);
-        return response.result;
-   
+    return response.result;
+
 }
 
 export { changePassword, login, getUser, register, updateUser, createUser, disableUser, introspect, refresh, getAllUser, deleteUser };

@@ -85,7 +85,7 @@ export default function Therapist() {
   const timestamp = Date.now();
   const [startDate, setStartDate] = useState<string>(() => {
     const date = new Date();
-    date.setDate(1);
+    // date.setDate(1);
     return date.toISOString().split("T")[0];
   });
   const [endDate, setEndDate] = useState<string>(() => {
@@ -205,7 +205,7 @@ export default function Therapist() {
           fullName,
           email,
           phone,
-          selectedFile || new File([], "default.jpg"),
+          selectedFile,
           serviceId
         );
         console.log(success);
