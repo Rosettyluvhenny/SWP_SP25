@@ -23,7 +23,8 @@ public class TherapistUpdateRequest {
     String bio;
 
     List<Integer> serviceIds = new ArrayList<>();
-
+    @Pattern(regexp = "^[a-zA-ZAÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬEÉÈẺẼẸÊẾỀỂỄỆIÍÌỈĨỊOÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢUÚÙỦŨỤƯỨỪỬỮỰYÝỲỶỸỴaáàảãạăắằẳẵặâấầẩẫậeéèẻẽẹêếềểễệiíìỉĩịoóòỏõọôốồổỗộơớờởỡợuúùủũụưứừửữựyýỳỷỹỵ ]+$",
+            message = "LETTER_ONLY")
     String fullName;
 
     @Email(message = "EMAIL_INVALID")

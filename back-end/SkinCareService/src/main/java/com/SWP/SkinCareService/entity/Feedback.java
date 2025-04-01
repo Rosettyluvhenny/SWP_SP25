@@ -31,7 +31,7 @@ public class Feedback {
     private String feedbackText;
 
     @Column(nullable = false)
-    private Integer rating = 0;
+    private Integer rating =0;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -51,11 +51,13 @@ public class Feedback {
     // Many-to-One - Therapist (One feedback belongs to one therapist)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "therapistId", nullable = false)
+    @JsonBackReference
     private Therapist therapist;
 
     // Many-to-One - Service (One feedback belongs to one service)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "serviceId", nullable = false)
+    @JsonBackReference
     private Services service;
 
 

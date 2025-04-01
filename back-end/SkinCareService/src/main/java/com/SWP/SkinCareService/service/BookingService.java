@@ -359,7 +359,7 @@ public class BookingService {
         else
             throw new AppException(ErrorCode.UNAUTHORIZED);
     }
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     public Page<BookingResponse> getAllByStaff(String phone, LocalDate startDate, LocalDate endDate,String status, Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         for (GrantedAuthority author : authentication.getAuthorities()) {

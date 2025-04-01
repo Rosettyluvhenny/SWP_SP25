@@ -21,7 +21,7 @@ public class TherapistRequest {
     @Size(min=8, message = "PASSWORD_INVALID")
     String password;
     @NotBlank(message = "NOT_EMPTY")
-    @Pattern(regexp = "^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơĂẸẻẽềếểưỲÝỶỸỳýỷỹƯỨỪễ ]+$",
+    @Pattern(regexp = "^[a-zA-Za-zA-ZAÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬEÉÈẺẼẸÊẾỀỂỄỆIÍÌỈĨỊOÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢUÚÙỦŨỤƯỨỪỬỮỰYÝỲỶỸỴaáàảãạăắằẳẵặâấầẩẫậeéèẻẽẹêếềểễệiíìỉĩịoóòỏõọôốồổỗộơớờởỡợuúùủũụưứừửữựyýỳỷỹỵ ]+$",
             message = "LETTER_ONLY")
     String fullName;
 

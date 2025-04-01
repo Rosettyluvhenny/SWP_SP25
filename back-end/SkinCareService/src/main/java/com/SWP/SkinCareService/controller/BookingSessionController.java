@@ -39,13 +39,13 @@ public class BookingSessionController {
         );
     }
 
-    @GetMapping()
-    ResponseEntity<ApiResponse<Page<BookingSessionResponse>>> getAllBookingSessions(Pageable pageable) {
-        var result = bookingSessionService.getAllBookingSessions(pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.<Page<BookingSessionResponse>>builder().result(result).build()
-        );
-    }
+//    @GetMapping()
+//    ResponseEntity<ApiResponse<Page<BookingSessionResponse>>> getAllBookingSessions(Pageable pageable) {
+//        var result = bookingSessionService.getAllBookingSessions(pageable);
+//        return ResponseEntity.status(HttpStatus.OK).body(
+//                ApiResponse.<Page<BookingSessionResponse>>builder().result(result).build()
+//        );
+//    }
     @GetMapping("/mySession")
     ResponseEntity<ApiResponse<Page<BookingSessionResponse>>> getAllByUser(@RequestParam(required = false) String status, Pageable pageable) {
         var result = bookingSessionService.getByUser(status, pageable);
@@ -146,5 +146,15 @@ public class BookingSessionController {
         return ApiResponse.<List<BookingSessionResponse>>builder()
                 .result(bookingSessionService.getTherapistSchedule(startDate,endDate))
                 .build();
+    }
+    @GetMapping()
+    ResponseEntity<ApiResponse<Page<BookingSessionResponse>>> getAllBookingSessions(@RequestParam(required = false) String status,
+                                                                                    @RequestParam(required = false) LocalDate startDate,
+                                                                                    @RequestParam(required = false) LocalDate endDate,
+                                                                                    Pageable pageable) {
+        var result = bookingSessionService.getAll(status, startDate, endDate,pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.<Page<BookingSessionResponse>>builder().result(result).build()
+        );
     }
 }

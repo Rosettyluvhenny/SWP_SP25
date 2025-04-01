@@ -207,7 +207,7 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserResponse>> update(
             @PathVariable String userId,
-            @RequestBody UserUpdateRequest request) {
+            @RequestBody @Valid UserUpdateRequest request) {
         return ResponseEntity.ok(
                 ApiResponse.<UserResponse>builder()
                         .result(userService.update(userId, request))

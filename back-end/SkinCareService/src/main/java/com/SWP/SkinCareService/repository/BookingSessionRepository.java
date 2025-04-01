@@ -50,4 +50,6 @@ public interface BookingSessionRepository extends JpaRepository<BookingSession, 
     List<BookingSession> findByTherapist_IdAndSessionDateTimeBetweenAndStatusNotIn(String therapistId,LocalDateTime startOfDay,
                                                                                    LocalDateTime endOfDay,
                                                                                    List<BookingSessionStatus> excludeStatuses);
+
+    List<BookingSession> findByStatusInAndSessionDateTimeBefore(List<BookingSessionStatus> waiting, LocalDateTime threshold);
 }

@@ -8,9 +8,13 @@ import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.FeedbackMapper;
 import com.SWP.SkinCareService.repository.*;
+import jakarta.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -18,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -102,8 +107,23 @@ public class FeedbackService {
         return feedbackRepository.findAllByTherapist_Id(theraId).stream().map(feedbackMapper::toFeedbackResponse).toList();
     }
 
-    public List<FeedbackResponse> getAllFeedback() {
-        return feedbackRepository.findAll().stream().map(feedbackMapper::toFeedbackResponse).toList();
+    public Page<FeedbackResponse> getAll(String therapistId, Integer serviceId, Integer rating, Pageable pageable) {
+        Specification<Booking> spec = (root, query, cb) -> {
+            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+            if(therapistId != null){
+                Therapist therapist = getTherapistById(therapistId);
+                predicates.add(cb.equal(root.get("therapist").get("id"),therapistId));
+            }
+            if(serviceId !=null){
+                Services service = getServiceById(serviceId);
+                predicates.add(cb.equal(root.get("service").get("id"),serviceId));
+            }
+            if(rating != null){
+                predicates.add(cb.equal(root.get("rating"),rating));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        return feedbackRepository.findAll(spec, pageable).map(feedbackMapper::toFeedbackResponse);
     }
 
     public FeedbackResponse getFeedbackById(int id) {

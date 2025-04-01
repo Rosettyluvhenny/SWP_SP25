@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -662,12 +663,36 @@ public class  BookingSessionService {
                     throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
                 }
             }
-//            predicates.add(cb.between(root.get("sessionDateTime"), LocalDate.now(), LocalDate.now().plusDays(7)));
             return cb.and(predicates.toArray(new Predicate[0]));
         };
         return bookingSessionRepository.findAll(spec,pageable).map(bookingSessionMapper::toBookingSessionResponse);
     }
 
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+    public Page<BookingSessionResponse> getAll(String status, LocalDate startDate, LocalDate endDate, Pageable pageable){
+        Specification<Booking> spec = (root, query, cb) -> {
+            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+            if (status != null && !status.isEmpty()) {
+                try {
+                    BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(status.toUpperCase());
+                    predicates.add(cb.equal(root.get("status"), sessionStatus));
+                } catch (IllegalArgumentException e) {
+                    throw new AppException(ErrorCode.BOOKING_STATUS_INVALID);
+                }
+            }
+            if (startDate != null && endDate != null) {
+                predicates.add(cb.between(root.get("sessionDateTime"), startDate.atStartOfDay(), endDate.atTime(23, 59, 59)));
+            } else if (startDate != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("sessionDateTime"), startDate.atStartOfDay()));
+            } else if (endDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("sessionDateTime"), endDate.atTime(23, 59, 59)));
+            } else {
+                predicates.add(cb.between(root.get("sessionDateTime"), LocalDate.now().atStartOfDay(), LocalDate.now().plusDays(7).atTime(23, 59, 59)));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        return bookingSessionRepository.findAll(spec,pageable).map(bookingSessionMapper::toBookingSessionResponse);
+    }
     @Transactional
     public BookingSession cancelByUser(int sessionId) {
         BookingSession session = checkSession(sessionId);
@@ -701,10 +726,20 @@ public class  BookingSessionService {
         return sessions.stream().map(bookingSessionMapper::toBookingSessionResponse).toList();
     }
 
-    private void autoCancel(BookingSession session){
-        LocalDateTime now = LocalDateTime.now();
-        if (session.getStatus().equals(BookingSessionStatus.WAITING)||session.getStatus().equals(BookingSessionStatus.PENDING)){
+    @Scheduled(fixedRate = 60000) // Runs every 60 seconds (adjust as needed)
+    public void autoCancelExpiredSessions() {
+        LocalDateTime threshold = LocalDateTime.now().minusMinutes(30);
 
-        }
+        List<BookingSession> expiredSessions = bookingSessionRepository
+                .findByStatusInAndSessionDateTimeBefore(
+                        List.of(BookingSessionStatus.WAITING, BookingSessionStatus.PENDING),
+                        threshold
+                );
+
+        expiredSessions.forEach(session -> session.setStatus(BookingSessionStatus.IS_CANCELED));
+        bookingSessionRepository.saveAll(expiredSessions);
+
+        System.out.println("Auto-canceled " + expiredSessions.size() + " expired sessions.");
     }
+
 }
