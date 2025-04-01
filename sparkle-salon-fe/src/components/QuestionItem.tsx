@@ -8,9 +8,14 @@ interface QuestionItemProps {
   onDelete: () => void;
 }
 
-const QuestionItem: React.FC<QuestionItemProps> = ({ question, onEdit, onDelete }) => {
+const QuestionItem: React.FC<QuestionItemProps> = ({
+  question,
+  onEdit,
+  onDelete,
+}) => {
   return (
     <div className="bg-white p-4 rounded-lg shadow">
+      <p className="font-semibold ">Câu hỏi</p>
       <div className="flex justify-between items-center">
         <span>{question.text}</span>
         <div>
@@ -28,6 +33,9 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onEdit, onDelete 
           </button>
         </div>
       </div>
+      <p className="font-semibold">
+       Câu trả lời                             
+         </p>
       <ul className="mt-2">
         {question.answers.map((answer) => (
           <li key={answer.id}>

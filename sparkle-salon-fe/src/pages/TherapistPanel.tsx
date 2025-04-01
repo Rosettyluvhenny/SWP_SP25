@@ -1,8 +1,6 @@
 import React, { useEffect, useState, FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  createTherapist,
-  getTherapistById,
   getTherapistInfo,
   updateTherapist,
   type Therapist,
@@ -178,77 +176,87 @@ export default function Therapist() {
     }
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-  
-    try {
-      setIsSubmitting(true);
-  
-      if (modalType === "edit" && therapist) {
-        // Logic cập nhật thông tin chuyên viên
-        const experienceYears = parseInt(
-          (formData.get("experienceYears") as string) || "0"
-        );
-        const bio = (formData.get("bio") as string) || "";
-        const fullName = (formData.get("fullName") as string) || "";
-        const phone = (formData.get("phone") as string) || "";
-        const email = (formData.get("email") as string) || "";
-        const dob = (formData.get("dob") as string) || "";
-        const serviceId = selectedServiceIds || [];
-  
-        const success = await updateTherapist(
-          therapist.id,
-          experienceYears,
-          bio,
-          dob,
-          fullName,
-          email,
-          phone,
-          selectedFile,
-          serviceId
-        );
-        console.log(success);
-        if(success){
-          toast.success("Nhà trị liệu đã cập nhật thành công");
-               }
-      } else if (modalType === "changePassword") {
-        // Logic đổi mật khẩu
-        const currentPassword = formData.get("currentPassword") as string;
-        const newPassword = formData.get("newPassword") as string;
-        const confirmPassword = formData.get("confirmPassword") as string;
-        // Kiểm tra mật khẩu mới và xác nhận mật khẩu có khớp không
-        if (currentPassword == newPassword) {
-          toast.error("Mật khẩu mới và mật khẩu cũ không được giống nhau!");
-          return;
-        }
-        if (newPassword !== confirmPassword) {
-          toast.error("Mật khẩu mới và xác nhận mật khẩu không khớp!");
-          return;
-        }
-  
-        const therapistId = therapist?.userId; 
-        if (!therapistId) {
-          toast.error("Không tìm thấy thông tin chuyên viên để đổi mật khẩu!");
-          return;
-        }
-  
-        // Gọi API đổi mật khẩu
-        await changePassword(therapistId, currentPassword, newPassword); // Đã sửa tham số
-        toast.success("Đổi mật khẩu thành công!");
+
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+
+  try {
+    setIsSubmitting(true);
+
+    if (modalType === "edit" && therapist) {
+      const experienceYears = parseInt((formData.get("experienceYears") as string) || "0");
+      const bio = (formData.get("bio") as string) || "";
+      const fullName = (formData.get("fullName") as string) || "";
+      const phone = (formData.get("phone") as string) || "";
+      const email = (formData.get("email") as string) || "";
+      const dob = (formData.get("dob") as string) || "";
+      const serviceId = selectedServiceIds || [];
+      const imageToSend = selectedFile !== null ? selectedFile : undefined;
+
+
+      const success = await updateTherapist(
+        therapist.id,
+        experienceYears,
+        bio,
+        dob,
+        fullName,
+        email,
+        phone,
+        imageToSend, // Gửi undefined để giữ hình cũ nếu cần
+        serviceId
+      );
+
+      console.log("Update result:", success);
+      if (success) {
+        toast.success("Nhà trị liệu đã cập nhật thành công");
+      } else {
+        throw new Error("Cập nhật thất bại");
       }
-  
-      setIsModalOpen(false);
-      setModalType(null);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Lỗi khi lưu dữ liệu");
-      console.error("Submit error:", error);
-    } finally {
-      fetchTherapistInfoData();
-      setIsSubmitting(false);
-      setSelectedFile(null);
+    } else if (modalType === "changePassword" && therapist) {
+      const currentPassword = formData.get("currentPassword") as string;
+      const newPassword = formData.get("newPassword") as string;
+      const confirmPassword = formData.get("confirmPassword") as string;
+
+      // Validation
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        toast.error("Vui lòng điền đầy đủ các trường mật khẩu");
+        return;
+      }
+      if (currentPassword === newPassword) {
+        toast.error("Mật khẩu mới không được trùng với mật khẩu cũ");
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        toast.error("Mật khẩu mới và xác nhận mật khẩu không khớp");
+        return;
+      }
+
+      const therapistId = therapist.userId;
+      if (!therapistId) {
+        throw new Error("Không tìm thấy ID chuyên viên");
+      }
+
+      const success = await changePassword(therapistId, currentPassword, newPassword);
+      if (success) {
+        toast.success("Đổi mật khẩu thành công!");
+      } else {
+        throw new Error("Đổi mật khẩu thất bại");
+      }
     }
-  };
+
+    setIsModalOpen(false);
+    setModalType(null);
+
+  } catch (error: any) {
+    console.error("Submit error:", error);
+    toast.error(error.message || "Có lỗi xảy ra khi lưu dữ liệu");
+  } finally {
+    await fetchTherapistInfoData(); // Đảm bảo fetch lại dữ liệu sau khi hoàn tất
+    setIsSubmitting(false);
+    setSelectedFile(null);
+  }
+};
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

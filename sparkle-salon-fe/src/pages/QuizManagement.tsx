@@ -1,32 +1,32 @@
-import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import QuestionEditor from "../components/QuestionEditor";
+import QuestionItem from "../components/QuestionItem";
 import Sidebar from "../components/SideBarDashboard";
 import {
-  fetchQuizzes,
-  deleteQuestion,
-  handleApiError,
-  Quiz,
-  Question,
-  updateQuestionText,
-  updateAnswers,
-  fetchQuizResults,
-  QuizResult,
-  deleteQuizResult,
-  updateQuizResult,
+  Answer,
   createNewQuestion,
   createNewQuiz,
-  updateQuiz,
-  deleteQuiz,
-  Answer,
-  deleteAnswer,
   createQuizResult,
+  deleteAnswer,
+  deleteQuestion,
+  deleteQuiz,
+  deleteQuizResult,
+  fetchQuizResults,
+  fetchQuizzes,
   fetchServices,
+  handleApiError,
+  Question,
+  Quiz,
+  QuizResult,
   Service,
+  updateAnswers,
+  updateQuestionText,
+  updateQuiz,
+  updateQuizResult,
 } from "../components/quizApi";
-import QuestionItem from "../components/QuestionItem";
-import QuestionEditor from "../components/QuestionEditor";
-import { motion } from "framer-motion";
 import { Category, CategoryData } from "../data/categoryData.ts";
-import { toast } from "react-toastify";
 
 export default function QuizManagement() {
   const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
@@ -81,8 +81,9 @@ export default function QuizManagement() {
       );
       console.log(answer);
       setAnswer(allAnswers);
-    } catch (err) {
-      setError(handleApiError(err));
+    } catch (error) {
+      setError(handleApiError(error));
+
     } finally {
       setLoading(false);
     }
@@ -105,8 +106,8 @@ export default function QuizManagement() {
       setError(null);
       const resultsData = await fetchQuizResults();
       setQuizResults(resultsData);
-    } catch (err) {
-      setError(handleApiError(err));
+    } catch (error) {
+      setError(handleApiError(error));
     } finally {
       setLoading(false);
     }
@@ -148,6 +149,10 @@ export default function QuizManagement() {
 
   // Xóa câu hỏi
   const handleDeleteQuestion = async (quizId: number, questionId: number) => {
+    const isConfirmed = window.confirm(
+      "Bạn có chắc chắn muốn xóa câu hỏi này không?"
+    );
+    if (!isConfirmed) return Promise.reject("Hủy xóa câu hỏi");
     try {
       setMutationLoading(true);
       const quiz = quizzes.find((q) => q.id === quizId);
@@ -158,7 +163,9 @@ export default function QuizManagement() {
         .map((a) => a.id)
         .filter((id): id is number => id !== undefined);
       if (answerIds.length > 0) {
+      
         await Promise.all(answerIds.map((answerId) => deleteAnswer(answerId)));
+       
       }
       await deleteQuestion(questionId);
       setQuizzes((prev) =>
@@ -172,9 +179,10 @@ export default function QuizManagement() {
         )
       );
       setAnswer((prev) => prev.filter((a) => !answerIds.includes(a.id)));
-    } catch (err) {
-      setError(handleApiError(err));
-    } finally {
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Xóa câu hỏi không thành công"
+      );     } finally {
       setMutationLoading(false);
     }
   };
@@ -201,6 +209,10 @@ export default function QuizManagement() {
 
   // Lưu câu hỏi
   const saveQuestion = async () => {
+    const isConfirmed = window.confirm(
+      "Bạn có chắc chắn muốn lưu không?"
+    );
+    if (!isConfirmed) return Promise.reject("Hủy xóa câu hỏi");
     if (!editQuestionData) return;
     try {
       setMutationLoading(true);
@@ -232,6 +244,9 @@ export default function QuizManagement() {
               : q
           )
         );
+        if(newQuestion){
+          toast.success("Tạo câu hỏi mới thành công");
+        }
         setAnswer((prev) => [...prev, ...updatedAnswers]);
         setCreatingQuestionForQuiz(null);
       } else if (editingQuestion) {
@@ -258,6 +273,9 @@ export default function QuizManagement() {
               : quiz
           )
         );
+        if(updatedAnswers){
+          toast.success("Cập nhật câu hỏi thành công");
+        }
         setAnswer((prev) =>
           prev
             .filter(
@@ -273,9 +291,10 @@ export default function QuizManagement() {
         setEditingQuestion(null);
       }
       setEditQuestionData(null);
-    } catch (err) {
-      setError(handleApiError(err));
-    } finally {
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Không để trống tên quiz"
+      );    } finally {
       setMutationLoading(false);
     }
   };
@@ -286,8 +305,8 @@ export default function QuizManagement() {
       setMutationLoading(true);
       await deleteQuizResult(resultId);
       setQuizResults((prev) => prev.filter((result) => result.id !== resultId));
-    } catch (err) {
-      setError(handleApiError(err));
+    } catch (error) {
+      setError(handleApiError(error));
     } finally {
       setMutationLoading(false);
     }
@@ -313,11 +332,15 @@ export default function QuizManagement() {
           result.id === updatedResult.id ? updatedResult : result
         )
       );
+      if (updatedResult) {
+        toast.success("Cập nhật kết quả thành công");
+      }
       setEditingResult(null);
       setEditResultData(null);
-    } catch (err) {
-      setError(handleApiError(err));
-    } finally {
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Cập nhật kết quả thất bại"
+      );    } finally {
       setMutationLoading(false);
     }
   };
@@ -348,12 +371,17 @@ export default function QuizManagement() {
         quizName: newResultData.quizName,
         services: newResultData.services,
       });
+      if (createdResult) {
+        toast.success("Tạo kết quả thành công");
+      }
       setQuizResults((prev) => [...prev, createdResult]);
       setCreatingResultForQuiz(null);
       setNewResultData(null);
-    } catch (err) {
-      setError(handleApiError(err));
-    } finally {
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Tạo kết quả thất bại"
+      );
+        } finally {
       setMutationLoading(false);
     }
   };
@@ -364,6 +392,7 @@ export default function QuizManagement() {
     if (quiz) {
       setEditingQuizId(quizId);
       setEditQuizData({ ...quiz });
+      setSelectedCategory(quiz.categoryId.toString());
     }
   };
 
@@ -372,12 +401,11 @@ export default function QuizManagement() {
     if (!editQuizData) return;
     try {
       setMutationLoading(true);
+      const data = {
+        categoryId: editQuizData.categoryId,
+        name: editQuizData.name,
+      };
       if (creatingQuiz) {
-        const data = {
-          categoryId: editQuizData.categoryId,
-          name: editQuizData.name,
-        };
-
         const newQuiz = await createNewQuiz(data);
         if (!newQuiz.id)
           throw new Error("Không nhận được ID từ bài quiz mới tạo");
@@ -385,9 +413,9 @@ export default function QuizManagement() {
           ...newQuiz,
           questions: newQuiz.questions || [],
         };
-        if(newQuiz){
-                  toast.success("Tạo quiz thành công");
-                       }
+        if (newQuiz) {
+          toast.success("Tạo quiz thành công");
+        }
         setQuizzes((prev) => [...prev, normalizedNewQuiz]);
         setSelectedQuizId(normalizedNewQuiz.id);
         setCreatingQuiz(false);
@@ -400,12 +428,16 @@ export default function QuizManagement() {
               : q
           )
         );
+        if (updatedQuiz) {
+          toast.success("Cập nhật quiz thành công");
+        }
         setEditingQuizId(null);
       }
       setEditQuizData(null);
     } catch (error) {
-          toast.error(error instanceof Error ? error.message : "Chưa nhập tên quiz");
-          console.error("Submit error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Chưa nhập tên quiz"
+      );
     } finally {
       setMutationLoading(false);
     }
@@ -418,9 +450,13 @@ export default function QuizManagement() {
       await deleteQuiz(quizId);
       setQuizzes((prev) => prev.filter((q) => q.id !== quizId));
       if (selectedQuizId === quizId) setSelectedQuizId(null);
-    } catch (err) {
-      setError(handleApiError(err));
-    } finally {
+      if (quizId) {
+        toast.success("Xóa quiz thành công");
+      }
+    } catch (error) {
+toast.error(
+        error instanceof Error ? error.message : "Xóa quiz thất bại"
+      );    } finally {
       setMutationLoading(false);
     }
   };
@@ -570,7 +606,7 @@ export default function QuizManagement() {
                             ))
                           ) : (
                             <option value="0" disabled>
-                              Không có category nào 
+                              Không có category nào
                             </option>
                           )}
                         </select>
@@ -606,6 +642,12 @@ export default function QuizManagement() {
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.3 }}
                       >
+                    <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
+
+                        <div className="flex flex-col  w-full md:w-4/5 relative">
+                        <label className="pr-2 mb-2 font-medium text-gray-700">
+                          Quiz Name
+                        </label>
                         <input
                           type="text"
                           value={editQuizData.name}
@@ -615,10 +657,42 @@ export default function QuizManagement() {
                               name: e.target.value,
                             })
                           }
-                          className="w-full p-2 mb-2 border rounded"
+                          className="p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 h-12"
                           placeholder="Tên bài kiểm tra"
                         />
-                        <div className="flex space-x-2 justify-end">
+                        </div>
+                        <div className="flex flex-col  w-1/5">
+                        <label className="pr-2 mb-2 font-medium text-gray-700">
+                          Category
+                        </label>
+                          <select
+                            value={selectedCategory}
+                            onChange={(e) => {
+                              setSelectedCategory(e.target.value);
+                              setEditQuizData({
+                                ...editQuizData,
+                                categoryId: Number(e.target.value),
+                              });
+                            }}
+                            className="p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 h-12"
+                          >
+                            {categories.length > 0 ? (
+                              categories.map((category) => (
+                                <option
+                                  key={category.id}
+                                  value={category.id.toString()}
+                                >
+                                  {category.name}
+                                </option>
+                              ))
+                            ) : (
+                              <option value="0" disabled>
+                                Không có category nào
+                              </option>
+                            )}
+                          </select>
+                        </div></div>
+                        <div className="flex space-x-2 justify-end mt-2">
                           <button
                             onClick={saveQuiz}
                             className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
@@ -715,8 +789,10 @@ export default function QuizManagement() {
                                         cancelEdit={() =>
                                           setEditingQuestion(null)
                                         }
+                                       
                                       />
                                     ) : (
+                                      
                                       <QuestionItem
                                         key={q.id}
                                         question={q}
@@ -772,6 +848,10 @@ export default function QuizManagement() {
                       className="text-lg font-semibold cursor-pointer flex justify-between items-center bg-white p-3 shadow rounded-lg flex-1"
                     >
                       {quiz.name}
+                      <p className="px-2 text-sm flex  flex-1 opacity-40">
+                            ({quiz.categoryName})
+                          </p>
+                         
                       <svg
                         className={`w-6 h-6 ml-2 transform transition-transform duration-300 ${
                           selectedQuizId === quiz.id ? "rotate-180" : "rotate-0"

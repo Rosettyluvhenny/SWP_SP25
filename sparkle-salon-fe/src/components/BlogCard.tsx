@@ -19,9 +19,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onSelectService }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const displayName = blog.title || "Tiêu đề không xác định";
-    const contentPreview1 = (
-        <div dangerouslySetInnerHTML={{ __html: blog.content }} />
-      );
+   
 
     useEffect(() => {
         const validate = async () => {
