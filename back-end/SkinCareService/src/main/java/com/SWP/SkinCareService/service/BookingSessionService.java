@@ -370,11 +370,17 @@ public class  BookingSessionService {
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_EXISTED));
         int serviceDuration = service.getDuration();
 
-        // Verify therapist can perform this service
-        boolean canProvideService = therapistRepository.existsByIdAndServices_Id(therapistId, serviceId);
-        if (!canProvideService) {
-            throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
+        //If therapist is active
+        if (therapist.getUser().isActive()) {
+            // Verify therapist can perform this service
+            boolean canProvideService = therapistRepository.existsByIdAndServices_Id(therapistId, serviceId);
+            if (!canProvideService) {
+                throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
+            }
+        } else {
+            throw new AppException(ErrorCode.THERAPIST_INACTIVE);
         }
+
 
         // Generate all possible time slots for the day
         List<LocalTime> allTimeSlots = generateTimeSlots();
@@ -447,7 +453,7 @@ public class  BookingSessionService {
         int serviceDuration = service.getDuration();
 
         // Get all therapists who can provide this service
-        List<Therapist> qualifiedTherapists = therapistRepository.findAllByServicesId(serviceId);
+        List<Therapist> qualifiedTherapists =  therapistRepository.findAllByServicesIdAndUserActiveTrue(serviceId);
 
         if (qualifiedTherapists.isEmpty()) {
             return new ArrayList<>(); // No therapists can provide this service

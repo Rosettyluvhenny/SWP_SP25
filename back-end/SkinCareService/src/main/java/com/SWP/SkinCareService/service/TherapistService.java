@@ -96,7 +96,7 @@ public class TherapistService {
     }
 
     public Page<TherapistResponse> findAll(boolean isActive, Pageable pageable){
-        Page<Therapist> therapists = isActive ? therapistRepository.findAll(pageable): therapistRepository.findInactiveTherapists(pageable);
+        Page<Therapist> therapists = isActive ? therapistRepository.findTherapistByUserActiveTrue(pageable): therapistRepository.findInactiveTherapists(pageable);
 
         return therapists
                 .map(therapist -> {
@@ -194,7 +194,7 @@ public class TherapistService {
 
     @Transactional(readOnly = true)
     public Page<TherapistSummaryResponse> getAllByServiceId(int therapistId, Pageable pageable) {
-        return therapistRepository.findAllByServicesId(therapistId, pageable)
+        return therapistRepository.findAllByServicesIdAndUserActiveTrue(therapistId, pageable)
                 .map(therapist -> {
                     List<Services> services = new ArrayList<>(therapist.getServices());
                     TherapistSummaryResponse response = therapistMapper.toTherapistSummary(therapist);
@@ -217,7 +217,7 @@ public class TherapistService {
         LocalDateTime endOfDay = startOfDay.plusDays(1);
         List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
         List<BookingSession> bookingSessionList = bookingSessionRepository.findAllBySessionDateTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
-        List<Therapist> therapistList = therapistRepository.findTherapistByServices(findByService);
+        List<Therapist> therapistList = therapistRepository.findTherapistByServicesAndUserActiveTrue(findByService);
         Set<Therapist> therapistsNotAvailable = new HashSet<>();
 
         for (BookingSession bookingSession : bookingSessionList) {
@@ -248,7 +248,7 @@ public class TherapistService {
         LocalDateTime endOfDay = startOfDay.plusDays(1);
         List<BookingSessionStatus> excludeStatus = List.of(BookingSessionStatus.IS_CANCELED);
         List<BookingSession> bookingSessionList = bookingSessionRepository.findAllBySessionDateTimeBetweenAndStatusNotIn(startOfDay, endOfDay, excludeStatus);
-        List<Therapist> therapistList = therapistRepository.findAll();
+        List<Therapist> therapistList = therapistRepository.findTherapistByUserActiveTrue();
         Set<Therapist> therapistsNotAvailable = new HashSet<>();
 
         for (BookingSession bookingSession : bookingSessionList) {
