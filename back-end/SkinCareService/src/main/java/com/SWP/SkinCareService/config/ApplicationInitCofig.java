@@ -30,12 +30,15 @@ public class ApplicationInitCofig {
             if (userRepository.findByUsername("admin").isEmpty()){
                 Role userRole = roleRepository.save(Role.builder().name("USER").description("User role").build());
                 Role adminRole   = roleRepository.save(Role.builder().name("ADMIN").description("Admin role").build());
+                Role therapistRole   = roleRepository.save(Role.builder().name("THERAPIST").description("Therapist role").build());
+                Role staffRole   = roleRepository.save(Role.builder().name("STAFF").description("Staff role").build());
                 Set<Role> roles = new HashSet<>();
                 roles.add(adminRole);
                 User user = User.builder()
                         .username("admin")
                         .roles(roles)
                         .password(passwordEncoder.encode("admin"))
+                        .active(true)
                         .build();
                 userRepository.save(user);
                 log.warn("admin user has been created with default password: admin");

@@ -1,9 +1,9 @@
 package com.SWP.SkinCareService.service;
 
-import com.SWP.SkinCareService.dto.request.AuthenticationRequest;
-import com.SWP.SkinCareService.dto.request.IntrospectRequest;
-import com.SWP.SkinCareService.dto.request.LogoutRequest;
-import com.SWP.SkinCareService.dto.request.RefreshRequest;
+import com.SWP.SkinCareService.dto.request.Identity.AuthenticationRequest;
+import com.SWP.SkinCareService.dto.request.Identity.IntrospectRequest;
+import com.SWP.SkinCareService.dto.request.Identity.LogoutRequest;
+import com.SWP.SkinCareService.dto.request.Identity.RefreshRequest;
 import com.SWP.SkinCareService.dto.response.AuthenticationResponse;
 import com.SWP.SkinCareService.dto.response.IntrospectResponse;
 import com.SWP.SkinCareService.entity.InvalidatedToken;
@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
@@ -80,6 +81,11 @@ public class AuthenticationService {
         if(!authenticated){
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+        else {
+            if(!user.isActive()){
+                throw new AppException(ErrorCode.IS_DISABLE);
+            }
+        }
         var token = generateToken(user);
     return AuthenticationResponse.builder()
             .token(token)
@@ -94,11 +100,12 @@ public class AuthenticationService {
             // Create JWT Claims
             JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                     .subject(user.getUsername())
-                    .issuer("devteria.com")
+                    .issuer("swpsp25.com")
                     .issueTime(Date.from(Instant.now()))
                     .expirationTime(new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
                     .jwtID(UUID.randomUUID().toString())
                     .claim("scope", buildScope(user))
+                    .claim("userId",user.getId())
                     .build();
 
             // Create Payload
@@ -126,6 +133,7 @@ public class AuthenticationService {
 
         return stringJoiner.toString();
     }
+    @Transactional
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
         try {
             var signToken = verifyToken(request.getToken(), false);
@@ -164,6 +172,7 @@ public class AuthenticationService {
          return signedJWT;
     }
 
+    @Transactional
     public AuthenticationResponse refreshToken(RefreshRequest request)
             throws ParseException, JOSEException {
         var signJWT = verifyToken(request.getToken(), true);

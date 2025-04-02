@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.dto.response;
 
 
+import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.entity.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,17 +16,20 @@ import java.util.Set;
 @Builder
 
 public class UserResponse {
+
     String id;
 
     String username;
 
-    String lastName;
-
-    String firstName;
+    String fullName;
 
     LocalDate dob;
 
     String email;
 
+    String phone;
+
     Set<Role> roles;
+
+    boolean active;
 }

@@ -1,15 +1,20 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
 @Table(name="user")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"therapist", "quizResult", "booking", "bookingServicesStaff", "bookingSessions", "feedbacks", "roles", "notifications"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,11 +45,54 @@ public class User {
     private String thirdPartyId;
 
     @Column(name = "phone_number", length = 10)
-    private String phoneNumber;
+    private String phone;
 
     @Column(name = "is_active")
-    private boolean isActive = true;
-
+    boolean active = true;
+    //
+    LocalDate dob;
     @ManyToMany
     Set<Role> roles;
+    //
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    Therapist therapist;
+    //
+    @ManyToOne
+    @JoinColumn(name = "skin_type", referencedColumnName = "id")
+    @JsonBackReference
+    QuizResult quizResult;
+    //
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    Set<Booking> booking;
+    //
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    Set<BookingSession> bookingSessionStaff;
+    //
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    Set<Feedback> feedbacks;
+    //
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    Set<Notification> notifications;
+
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    Set<Booking> checkingBookings;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != null && id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

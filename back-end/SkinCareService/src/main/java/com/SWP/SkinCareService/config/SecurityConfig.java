@@ -3,12 +3,13 @@ package com.SWP.SkinCareService.config;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.catalina.filters.CorsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,24 +17,50 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/introspect", "/auth/authenticate", "/auth/logout", "/auth/refresh"};
-
+    private final String[] PUBLIC_POST_ENDPOINTS = {"/users", "/auth/introspect", "/auth/authenticate", "/auth/logout", "/auth/refresh"};
+    private final String[] PUBLIC_ENDPOINTS= {"/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html","/supabase/**","/serviceInfo/**", "/payment/vnpay/**"};
+    private final String[] PUBLIC_GET_ENDPOINTS={"/answer","/therapists/**","/category/**","/services/**","/blogpost/**",
+            "/feedback/**","/question/**","/quiz/**", "/quizResult/**", "/services/**","/payment/**"};
     @Autowired
     private CustomJwtDecoder jwtDecoder;
+    @Autowired
+    private JwtAuthenticationEntryPoint JwtAuthenticationEntryPoint;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
+
         httpSecurity
+//                .requiresChannel(channel ->channel.anyRequest().requiresSecure()) //Add new to HTTP -> HTTPS
+                .cors(cors -> cors.configurationSource(corsConfigurationSourcea()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINTS).permitAll()
-                                .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
+//                        request.anyRequest().permitAll())
+                        request
+                                .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                                .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
+                                .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                                 .anyRequest().authenticated())
+
+
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(JwtAuthenticationEntryPoint)
+                )
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
@@ -78,4 +105,20 @@ public class SecurityConfig {
             response.flushBuffer();
         } );
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSourcea() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
+    }
+
 }
+

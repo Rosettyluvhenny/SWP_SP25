@@ -2,6 +2,14 @@ server:
   port: 8080
   servlet:
     context-path: /swp
+#  ssl:
+#    key-store: classpath:skincare.p12
+#    key-store-password: 12345678
+#    key-store-type: PKCS12
+#    key-alias: skincare
+#    enabled: true
+
+
 spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/swp_db"
@@ -12,7 +20,41 @@ spring:
     hibernate:
       ddl-auto: update
       show-sql: true
+
 jwt:
   signerKey: "1Ln55lu2teW6wbb2nd3sLkHUQgql0e/avY0TCtXgEkERCDXm6tB6m64jXVXf43jn"
-  valid-duration: 10  #second
-  refreshable-duration: 120 #second
+  valid-duration: 36000  #second
+  refreshable-duration: 360000 #second
+
+
+openapi:
+  title: API document
+  version: v1.0.0
+  description: API service
+  serverUrl: https://localhost:8080/swp
+  serverName: Test Server
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: method
+    tags-sorter: alpha
+    doc-expansion: none
+    default-consumes-media-type: multipart/form-data
+    default-produces-media-type: application/json
+supabase:
+  url: "https://qtlwqfhffuffjcgkgity.supabase.co"
+  key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0bHdxZmhmZnVmZmpjZ2tnaXR5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDAyNjI5NCwiZXhwIjoyMDU1NjAyMjk0fQ.sRVChWMFDxUiHZcsAbaORZ84gLP3eJ47GTDdrQFYGN4"
+  bucket: "ImageBucket"
+
+vnpay:
+  tmn-code: G6UJ6GM0
+  hash-secret: KNWNX1BX0Z31T3MIX7E3KROK063KWANW
+  payment-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:8080/swp/payment/vnpay/status
+  ipn-url: http://localhost:8080/swp/payment/vnpay/ipn
+
