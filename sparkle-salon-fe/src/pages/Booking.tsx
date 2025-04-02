@@ -71,6 +71,10 @@ export default function Booking() {
                 if(fetchedServices.status == 400){
                     navigate("/service");
                 }else {
+                    if(!fetchedServices.active){
+                        navigate("/home")
+                        toast.error("Dịch vụ ngừng cung cấp")
+                    }
                     setSelectedService(fetchedServices);
                 }
             } catch (error) {
