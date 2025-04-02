@@ -19,6 +19,7 @@ import {
     getTherapists,
 } from "../data/therapistData";
 import {toast} from "react-toastify";
+import AssignModal from "../components/AssignModal";
 
 type Service = {
     id: number;
@@ -985,7 +986,7 @@ export default function ServiceManagement() {
 
             {/* Assign Therapist Modal */}
             {isAssignModalOpen && (
-                <ManagementModal
+                <AssignModal
                     isOpen={isAssignModalOpen}
                     onClose={closeAssignModal}
                     onSubmit={handleAssignTherapists}
@@ -1074,7 +1075,7 @@ export default function ServiceManagement() {
                             </p>
                         )}
                     </div>
-                </ManagementModal>
+                </AssignModal>
             )}
         </div>
     );

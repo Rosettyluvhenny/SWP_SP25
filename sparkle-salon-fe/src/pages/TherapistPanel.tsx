@@ -64,7 +64,7 @@ const getStatusColor = (status: string): string => {
 };
 
 export default function Therapist() {
-  const { id } = useParams<{ id: string }>();
+  // const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [therapist, setTherapist] = useState<Therapist | null>(null);
   const [activeTab, setActiveTab] = useState<
@@ -93,11 +93,11 @@ export default function Therapist() {
     return date.toISOString().split("T")[0];
   });
   const {user} = useContext(UserContext);
-  useEffect(()=>{
-    if(user.role !="THERAPIST")
-      // toast.error("Bạn không có quyền truy cập")
-      navigate("/home")
-  },[])
+  // useEffect(()=>{
+  //   if(user.role !="THERAPIST")
+  //     // toast.error("Bạn không có quyền truy cập")
+  //     navigate("/home")
+  // },[])
   const fetchTherapistInfoData = async () => {
     try {
       setLoading(true);
@@ -155,7 +155,7 @@ export default function Therapist() {
     } else if (activeTab === "blog") {
       navigate(`/therapist/blog`);
     }
-  }, [activeTab, id, startDate, endDate]);
+  }, [activeTab, startDate, endDate]);
 
   // Form Handlers
   const handleSessionUpdate = async (

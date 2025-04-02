@@ -199,7 +199,7 @@ export default function UserManagement() {
 
       console.log(success);
     if (success) {
-      toast.success("Vô hiệu hóa người dùng thành công!");
+      toast.success("Thay đổi trạng thái người dùng thành công!");
     } else {
       toast.error("Không thể vô hiệu hóa người dùng!");
     }
