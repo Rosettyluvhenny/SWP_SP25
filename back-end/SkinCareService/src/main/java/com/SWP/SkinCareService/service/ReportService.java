@@ -40,24 +40,13 @@ public class ReportService {
         LocalDate today = LocalDate.now();
         Report report = reportRepository.findByDate(today);
         if (report == null) {
-            Report newReport = createReport();
-            updateTotalBooking();
+            Report newReport = createReportCustomDay(today);
+            updateTotalBookingCustomDay(today);
             return reportMapper.toReportResponse(newReport);
         }
 
-        updateTotalBooking();
+        updateTotalBookingCustomDay(today);
         return reportMapper.toReportResponse(report);
-    }
-
-    //Use to manage
-    @Transactional
-    Report getReportToday() {
-        LocalDate today = LocalDate.now();
-        Report report = reportRepository.findByDate(today);
-        if (report == null) {
-            return createReport();
-        }
-        return reportRepository.findByDate(today);
     }
 
     @Transactional
@@ -68,7 +57,6 @@ public class ReportService {
         }
         return reportRepository.findByDate(date);
     }
-
 
 
     @Transactional
@@ -87,12 +75,18 @@ public class ReportService {
             List<Report> newReportList = new ArrayList<>();
             for (long i = 0; i <= ChronoUnit.DAYS.between(from,to); i++) {
                 Report newReport = getReportCustomDay(from.plusDays(i));
+                updateTotalBookingCustomDay(from.plusDays(i));
+                updateRevenueCustomDay(from.plusDays(i));
                 newReportList.add(newReport);
             }
             newReportList.sort(Comparator.comparing(Report::getDate));
             return newReportList.stream().map(reportMapper::toReportResponse).toList();
         }
         reportList.sort(Comparator.comparing(Report::getDate));
+        for (Report report : reportList) {
+            updateRevenueCustomDay(report.getDate());
+            updateTotalBookingCustomDay(report.getDate());
+        }
         return reportList.stream().map(reportMapper::toReportResponse).toList();
     }
 
@@ -125,27 +119,6 @@ public class ReportService {
     }
 
     @Transactional
-    public Report createReport() {
-        List<BookingStatus> status = List.of(BookingStatus.PENDING, BookingStatus.ON_GOING, BookingStatus.COMPLETED);
-        LocalDateTime from = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
-        LocalDateTime to = from.plusDays(1).minusNanos(1);
-        List<Booking> bookingList = bookingRepository.findAllByCreateAtBetweenAndStatusIn(from, to, status);
-        int totalBooking = bookingList.size();
-        BigDecimal totalRevenue = BigDecimal.ZERO;
-        for (Booking booking : bookingList) {
-            if (booking.getPaymentStatus().equals(PaymentStatus.PAID)) {
-                totalRevenue = totalRevenue.add(booking.getPrice());
-            }
-        }
-        Report report = Report.builder()
-                .date(LocalDate.now())
-                .revenue(totalRevenue)
-                .totalBooking(totalBooking)
-                .build();
-        return reportRepository.save(report);
-    }
-
-    @Transactional
     public Report createReportCustomDay(LocalDate day) {
         List<BookingStatus> status = List.of(BookingStatus.PENDING, BookingStatus.ON_GOING, BookingStatus.COMPLETED);
         LocalDateTime from = day.atTime(0,0,0,0);
@@ -166,20 +139,28 @@ public class ReportService {
         return reportRepository.save(report);
     }
 
-
     @Transactional
-    public void updateRevenue(BigDecimal price) {
-        Report report = getReportToday();
-        BigDecimal revenue = report.getRevenue().add(price);
-        report.setRevenue(revenue);
+    public void updateRevenueCustomDay(LocalDate day) {
+        Report report = getReportCustomDay(day);
+        List<BookingStatus> status = List.of(BookingStatus.PENDING, BookingStatus.ON_GOING, BookingStatus.COMPLETED);
+        LocalDateTime from = day.atTime(0,0,0,0);
+        LocalDateTime to = from.plusDays(1).minusNanos(1);
+        List<Booking> bookingList = bookingRepository.findAllByCreateAtBetweenAndStatusIn(from, to, status);
+        BigDecimal totalRevenue = BigDecimal.ZERO;
+        for (Booking booking : bookingList) {
+            if (booking.getPaymentStatus().equals(PaymentStatus.PAID)) {
+                totalRevenue = totalRevenue.add(booking.getPrice());
+            }
+        }
+        report.setRevenue(totalRevenue);
         reportRepository.save(report);
     }
 
     @Transactional
-    public void updateTotalBooking() {
-        Report report = getReportToday();
+    public void updateTotalBookingCustomDay(LocalDate day) {
+        Report report = getReportCustomDay(day);
         List<BookingStatus> status = List.of(BookingStatus.PENDING, BookingStatus.ON_GOING, BookingStatus.COMPLETED);
-        LocalDateTime from = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime from = day.atTime(0,0,0,0);
         LocalDateTime to = from.plusDays(1).minusNanos(1);
         List<Booking> bookingList = bookingRepository.findAllByCreateAtBetweenAndStatusIn(from, to, status);
         int totalBooking = bookingList.size();
