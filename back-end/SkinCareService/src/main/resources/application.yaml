@@ -1,0 +1,18 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /swp
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/swp_db"
+    username: root
+    password: 12345Aa
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+jwt:
+  signerKey: "1Ln55lu2teW6wbb2nd3sLkHUQgql0e/avY0TCtXgEkERCDXm6tB6m64jXVXf43jn"
+  valid-duration: 10  #second
+  refreshable-duration: 120 #second
