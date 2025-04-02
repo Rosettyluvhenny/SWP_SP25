@@ -68,7 +68,8 @@ public class ServicesService {
     public Page<ServicesResponse> getAll(boolean isActive,Float rating, Integer categoryId, Integer quizResultId,Pageable pageable) {
         Specification<Services> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
+            if(isActive)
+                predicates.add(cb.equal(root.get("active"), isActive));
             // Filter by rating (if provided)
             if (rating != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("rating"), rating));
@@ -81,20 +82,9 @@ public class ServicesService {
             if (quizResultId != null) {
                 predicates.add(cb.equal(root.get("quizResults").get("id"), quizResultId));
             }
-
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-        Page<Services> services = isActive ? servicesRepository.findAllByActiveTrue(spec, pageable) : servicesRepository.findAll(spec, pageable);
-        /*
-        return services
-                .map(service -> {
-                    var response = servicesMapper.toResponse(service);
-                    response.setImg(supabaseService.getImage(response.getImg()));
-                    return response;
-
-                });
-         */
+        Page<Services> services = servicesRepository.findAll(spec, pageable);
         return services.map(servicesMapper::toResponse);
     }
 

@@ -76,7 +76,7 @@ public class ServicesController {
             description = "Retrieve a paginated list of all active services. Use page, size, and sort parameters for pagination and sorting."
     )
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<ServicesResponse>>> getAll(@RequestParam(defaultValue = "false") boolean isActive,
+    public ResponseEntity<ApiResponse<Page<ServicesResponse>>> getAll(@RequestParam(defaultValue = "false",required = false) boolean isActive,
                                                                       @RequestParam(required = false) Float rating,
                                                                       @RequestParam(required = false) Integer categoryId,
                                                                       @RequestParam(required = false) Integer quizResultId,
