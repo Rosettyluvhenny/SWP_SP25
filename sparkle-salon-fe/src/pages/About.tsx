@@ -246,7 +246,7 @@ export default function About() {
                           initial={{ opacity: 0.8, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: (index % cardsPerSlide) * 0.1 }}
-                          className="min-w-[300px] sm:min-w-[300px] flex-shrink-0 bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl"
+                          className="min-w-[300px] sm:min-w-[300px] flex-shrink-0 bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-2xl"
                         >
                           <div className="relative w-[300px] h-[315px] overflow-hidden">
                             <img
@@ -263,8 +263,8 @@ export default function About() {
                           <div className="p-6">
                             <h3 className="text-xl font-semibold text-gray-800">{therapist.fullName}</h3>
 
-                            {therapist.rating != 0 ?<h4 className="text-xl font-semibold text-gray-800" ><span>{therapist.rating}<FaStar/> </span></h4> :
-                                                          <h4 className="text-xl font-semibold text-gray-800" >chua co danh gia</h4>}
+                            {therapist.rating != 0 ?<h4 className="text-xl font-semibold text-gray-800" ><span>{therapist.rating}⭐ </span></h4> :
+                                                          <h4 className="text-sm font-semibold text-gray-800" >Chưa có đánh giá</h4>}
 
                             
                             <motion.button

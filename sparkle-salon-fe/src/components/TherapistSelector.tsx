@@ -3,7 +3,7 @@ import React from 'react';
 import { GoChevronRight } from "react-icons/go";
 import { FaCheck } from "react-icons/fa";
 import { Therapist } from '../types/bookingTypes';
-
+import { fromPairs } from 'lodash';
 interface TherapistSelectorProps {
     therapists: Therapist[];
     selectedTherapist: string | undefined;
@@ -53,6 +53,10 @@ const TherapistSelector: React.FC<TherapistSelectorProps> = ({
                         }`}
                         onClick={() => setSelectedTherapist("")}
                     >
+                        <img
+                                src={"/assets/favicon.jpg"}
+                                className="rounded-lg h-24 w-full object-cover"
+                            />
                         <p className="text-sm mt-2 font-semibold text-center text-gray-700">
                             Để Spa chọn giúp bạn
                         </p>
