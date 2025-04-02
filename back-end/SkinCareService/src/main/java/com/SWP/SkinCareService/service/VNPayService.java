@@ -32,7 +32,6 @@ public class VNPayService {
     private final BookingRepository bookingRepository;
     private final RoomService roomService;
     private final NotificationService notificationService;
-    private final ReportService reportService;
 
 
     public String createPaymentUrl(@NonNull VNPayPaymentRequestDTO requestDTO, @NonNull String ipAddress) {
@@ -224,7 +223,6 @@ public class VNPayService {
                 //Remove payment url
                 booking.setUrl(null);
                 bookingRepository.save(booking);
-                reportService.updateRevenue(booking.getPrice());
             } catch (Exception e) {
             }
         } else {
