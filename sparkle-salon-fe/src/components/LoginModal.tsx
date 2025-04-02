@@ -80,15 +80,6 @@ const LoginModal: React.FC<LoginModalProps> = ({
                                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#f398d0] focus:ring-2 focus:ring-[#f398d0] focus:ring-opacity-50 transition-colors"
                             />
                         </div>
-                        <div className="flex justify-end">
-                            <Link
-                                to="/forgot-password"
-                                onClick={() => setIsLoginOpen(false)}
-                                className="text-[#f398d0] hover:text-[#ee8874] transition-colors"
-                            >
-                                Quên mật khẩu?
-                            </Link>
-                        </div>
                         <motion.button
                             type="submit"
                             className="w-full bg-gradient-to-r from-[#f398d0] to-[#ee8874] text-white py-3 rounded-lg font-semibold disabled:opacity-50"

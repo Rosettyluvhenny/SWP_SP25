@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { FaMoneyBill } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { UserContext } from "../context/UserContext";
+import { toast } from "react-toastify";
 
 interface ServiceCardProps {
     service: {
@@ -24,10 +26,15 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
     const [isHovered, setIsHovered] = useState(false);
     
     const displayName = service.name.startsWith("http") ? "Trẻ Hóa Da Công Nghệ Cao" : service.name;
-    
+    const {user,setIsLoginOpen} = useContext(UserContext)
     const navigate = useNavigate();
     const handleBooking = () => {
-        navigate(`/booking?service=${service.id}`);
+        if(!user || !user.auth){
+            setIsLoginOpen(true);
+            toast.error("đăng nhập để đặt lịch")
+        }else{
+            navigate(`/booking?service=${service.id}`);
+        }
     };
 
     return (

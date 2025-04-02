@@ -1,4 +1,4 @@
-import React, { useEffect, useState, FormEvent } from "react";
+import React, { useEffect, useState, FormEvent, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   getTherapistInfo,
@@ -26,6 +26,7 @@ import { FaUser, FaBookMedical, FaAddressBook } from "react-icons/fa";
 import { toast } from "react-toastify";
 import ManagementModal from "../components/ManagementModal";
 import { changePassword } from "../data/authData";
+import { UserContext } from "../context/UserContext";
 
 // Type Definitions
 interface Session {
@@ -91,7 +92,12 @@ export default function Therapist() {
     date.setMonth(date.getMonth() + 1, 0);
     return date.toISOString().split("T")[0];
   });
-
+  const {user} = useContext(UserContext);
+  useEffect(()=>{
+    if(user.role !="THERAPIST")
+      // toast.error("Bạn không có quyền truy cập")
+      navigate("/home")
+  },[])
   const fetchTherapistInfoData = async () => {
     try {
       setLoading(true);
@@ -479,9 +485,13 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
                             <td className="px-6 py-4">
                               <button
                                 onClick={() => {
-                                  setSelectedSession(session);
-                                  setActiveTab("notes");
-                                }}
+                                  if(!session.roomId){
+                                    toast.error("Phiên trị liệu chưa được có phòng")
+                                  }else{
+                                    setSelectedSession(session);
+                                    setActiveTab("notes");
+                                  }
+                                  }}
                                 className="text-white bg-pink-600 hover:bg-pink-700 rounded-lg text-sm px-3 py-2 transition disabled:opacity-50"
                                 disabled={isSubmitting}
                               >

@@ -2,11 +2,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
 import { motion } from "framer-motion";
-import { FaEdit, FaTrash, FaSearch, FaPlus, FaUserPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaSearch, FaPlus, FaUserPlus, FaCheck } from "react-icons/fa";
 import {
     deleteServiceById,
     servicesData,
     assignTherapist,
+    activateService,
+    deactivateService,
 } from "../data/servicesData";
 import axios from "../services/customizedAxios";
 // import QuillTest from "../components/QuillTest";
@@ -85,7 +87,7 @@ export default function ServiceManagement() {
     const [categoryFormValue, setCategoryFormValue] = useState<string>("");
     const [categoryFormDescription, setCategoryFormDescription] =
         useState<string>("");
-
+    const [reload,setReload] = useState(false);
     const handleOpenServiceForm = (serviceId: string | null) => {
         setSelectedService(serviceId);
         setIsOpenServiceForm(true);
@@ -127,7 +129,7 @@ export default function ServiceManagement() {
     useEffect(() => {
         getServiceList();
         fetchCategories();
-    }, [isOpenCreateService]);
+    }, [isOpenCreateService,reload]);
 
     const categoryOptions = ["Tất Cả", ...categories.map((cat) => cat.name)];
 
@@ -223,22 +225,28 @@ export default function ServiceManagement() {
         }
     };
 
-    // Delete handlers
-    const handleServiceDelete = async (id: number) => {
+    const handleActivateService = async (id: number) => {
         const confirmDelete = window.confirm(
             "Bạn có chắc chắn muốn xóa dịch vụ này?"
         );
         if (confirmDelete) {
-            const deletedService = await deleteServiceById(id.toString());
-            console.log(deletedService)
-            if (deletedService) {
-                toast.success("Xóa dịch vụ thành công");
-                setServices(services.filter((service) => service.id !== id));
-            } else {
-                toast.error("Xóa dịch vụ thất bại");
-            }
+            const rq = await activateService(id.toString());
+            console.log(rq)
+            setReload(!reload)
         }
     };
+
+    const handleDeactivateService = async (id: number) => {
+        const confirmDelete = window.confirm(
+            "Bạn có chắc chắn muốn xóa dịch vụ này?"
+        );
+        if (confirmDelete) {
+            const rq = await deactivateService(id.toString());
+            console.log(rq)
+            setReload(!reload)
+        }
+    };
+    
 
     const handleCategoryDelete = async (id: number) => {
         const confirmDelete = window.confirm(
@@ -590,9 +598,11 @@ export default function ServiceManagement() {
                                                                             />
                                                                             Sửa
                                                                         </motion.button>
+                                                                        {service.status ===
+                                                                                "Hoạt Động" &&
                                                                         <motion.button
                                                                             onClick={() =>
-                                                                                handleServiceDelete(
+                                                                                handleDeactivateService(
                                                                                     service.id
                                                                                 )
                                                                             }
@@ -604,13 +614,38 @@ export default function ServiceManagement() {
                                                                                 scale: 0.95,
                                                                             }}
                                                                         >
-                                                                            <FaTrash
+                                                                            <FaCheck
                                                                                 size={
                                                                                     14
                                                                                 }
                                                                             />{" "}
-                                                                            Xóa
+                                                                            Vô hiệu
                                                                         </motion.button>
+                                                                        }
+                                                                        {!(service.status ===
+                                                                                "Hoạt Động") &&
+                                                                        <motion.button
+                                                                            onClick={() =>
+                                                                                handleActivateService(
+                                                                                    service.id
+                                                                                )
+                                                                            }
+                                                                            className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
+                                                                            whileHover={{
+                                                                                scale: 1.05,
+                                                                            }}
+                                                                            whileTap={{
+                                                                                scale: 0.95,
+                                                                            }}
+                                                                        >
+                                                                            <FaCheck
+                                                                                size={
+                                                                                    14
+                                                                                }
+                                                                            />{" "}
+                                                                            Kích hoạt
+                                                                        </motion.button>
+                                                                        }
                                                                         <motion.button
                                                                             onClick={() =>
                                                                                 openAssignModal(

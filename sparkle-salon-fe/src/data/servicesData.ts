@@ -55,17 +55,24 @@ const serviceDataById = async (id:string) => {
     return serviceResponse;
 }
 
-const deleteServiceById = async (id:string) => {
-    const deleteServiceResponse = await axios.delete(`/services/${id}`, {
+const activateService = async (id:string) => {
+    const response = await axios.put(`/services/${id}/activate`,null, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
     });
-    if (deleteServiceResponse.status === 200) {
-        return true
-    }
-    return false
+    
+    return response;
 }
+const deactivateService = async (id:string) => {
+    const response = await axios.put(`/services/${id}/deactivate`,null, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    return response;
+}
+
 
 const assignTherapist = async (id: string, therapistIds: string[]) => {
     try {
@@ -83,4 +90,4 @@ const assignTherapist = async (id: string, therapistIds: string[]) => {
     }
 };
 
-export { servicesData , serviceDataById, deleteServiceById, assignTherapist };
+export { servicesData , serviceDataById, deactivateService,activateService, assignTherapist };

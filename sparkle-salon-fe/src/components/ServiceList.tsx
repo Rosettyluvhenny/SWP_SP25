@@ -31,10 +31,6 @@ const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
         setTimeout(() => setIsLoading(false), 500);
     }, [services]);
 
-    const handleSelectService = (serviceName: string) => {
-        navigate("/contact", { state: { selectedService: serviceName } });
-    };
-
     const container = {
         hidden: { opacity: 0 },
         show: {
@@ -76,7 +72,6 @@ const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
                     <motion.div key={service.id} variants={item}>
                         <ServiceCard
                             service={service}
-                            // onSelectService={handleSelectService}
                         />
                     </motion.div>
                 ))

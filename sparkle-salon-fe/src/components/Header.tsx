@@ -123,7 +123,7 @@ export default function Header() {
                 setLoginData({ username: "", password: "" });
                 if (role == "ADMIN") navigate("/manager/user");
                 if (role == "THERAPIST") navigate("/therapist");
-                if (role == "STAFF") navigate("/staff");
+                if (role == "STAFF") navigate("/staff/booking");
                 setIsLoginOpen(false);
             } catch (error) {
                 console.error("Failed to fetch user info:", error);

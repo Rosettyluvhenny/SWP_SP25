@@ -30,7 +30,7 @@ const StaffSideBar: React.FC<{
             >
                 Staff
             </h2>
-            <nav>
+            <nav className="flex justify-between h-100">
                 <ul className="space-y-3">
                     {/* Booking Management */}
                     <li>
@@ -84,6 +84,7 @@ const StaffSideBar: React.FC<{
                         </button>
                     </li>
                 </ul>
+
             </nav>
         </aside>
     );

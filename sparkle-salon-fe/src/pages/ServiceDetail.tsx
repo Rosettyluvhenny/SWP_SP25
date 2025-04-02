@@ -1,9 +1,11 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Service, serviceDataById, servicesData } from "../data/servicesData";
 import { getFeedbackByServiceId } from "../data/feedbacksData";
 import { FaClock, FaMoneyBill, FaCalendarAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { UserContext } from "../context/UserContext";
+import { toast } from "react-toastify";
 
 interface Feedback {
     id: number;
@@ -26,6 +28,8 @@ export default function ServiceDetail() {
     // const handleBooking = () => {
     //     navigate(`/contact?service=${id}`);
     // };
+    const { user, setIsLoginOpen } = useContext(UserContext)
+
     useEffect(() => {
         const fetchRelatedServices = async () => {
             const responseJson = await servicesData("?size=4");
@@ -64,11 +68,12 @@ export default function ServiceDetail() {
 
     const handleBooking = () => {
         if (service) {
-            // Fix for URL in name field
-            const displayName = service.name
-                ? service.name
-                : "Trẻ Hóa Da Công Nghệ Cao";
-            navigate(`/booking?service=${id}`);
+            if (!user || !user.auth) {
+                setIsLoginOpen(true);
+                toast.error("đăng nhập để đặt lịch")
+            } else {
+                navigate(`/booking?service=${id}`);
+            }
         }
     };
 
@@ -297,9 +302,9 @@ export default function ServiceDetail() {
                                                         key={star}
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         className={`h-5 w-5 ${star <=
-                                                                feedback.rating
-                                                                ? "text-yellow-500"
-                                                                : "text-gray-300"
+                                                            feedback.rating
+                                                            ? "text-yellow-500"
+                                                            : "text-gray-300"
                                                             }`}
                                                         viewBox="0 0 24 24"
                                                         fill="currentColor"

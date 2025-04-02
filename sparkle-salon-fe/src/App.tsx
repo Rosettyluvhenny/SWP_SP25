@@ -45,7 +45,6 @@ function App() {
     return (
         <>
             <Routes>
-                {/* Public routes */}
                 <Route
                     path="/about"
                     element={
@@ -79,14 +78,6 @@ function App() {
                     }
                 />
                 <Route
-                    path="/forgot-password"
-                    element={
-                        <MainLayout>
-                            <ForgotPassword />
-                        </MainLayout>
-                    }
-                />
-                <Route
                     path="/home"
                     element={
                         <MainLayout>
@@ -113,13 +104,13 @@ function App() {
                 <Route path="/therapist" element={<TherapistPanel />} />
 
                 <Route
-                        path="/feedback"
-                        element={
-                            <MainLayout>
-                                <Feedback />
-                            </MainLayout>
-                        }
-                    />
+                    path="/feedback"
+                    element={
+                        <MainLayout>
+                            <Feedback />
+                        </MainLayout>
+                    }
+                />
 
 
                 {/* User protected routes */}
@@ -182,10 +173,9 @@ function App() {
                         }
                     />
                 </Route>
-                    {/* <Route path="/your-booking" element={<MainLayout><YourBooking /></MainLayout>} /> */}
 
                 {/* Admin protected routes */}
-                <Route element={<ProtectedRoute requiredRoles={["ADMIN"]} />}>
+                {/* <Route element={<ProtectedRoute requiredRoles={["ADMIN"]} />}>
                     <Route
                         path="/your-booking"
                         element={
@@ -203,14 +193,14 @@ function App() {
                         }
                     />
                     <Route path="/manager" element={<Manager />} />
-                </Route>
+                </Route> */}
 
                 {/* Therapist protected routes */}
                 <Route element={<ProtectedRoute requiredRoles={['THERAPIST']} />}>
-              <Route path="/therapist/:id" element={<TherapistPanel />} />
-              <Route path="/therapist/blog" element={<BlogManagement />} />
-
-            </Route>
+                    <Route path="/therapist" element={<TherapistPanel />} />
+                    <Route path="/therapist/:id" element={<TherapistPanel />} />
+                    <Route path="/therapist/blog" element={<BlogManagement />} />
+                </Route>
 
                 {/* Admin protected routes */}
                 <Route
@@ -247,6 +237,55 @@ function App() {
 
                 </Route>
 
+                <Route
+                    element={
+                        <ProtectedRoute
+                            requiredRoles={["STAFF"]}
+                        />
+                    }
+                >
+                    <Route
+                        path="/staff/booking"
+                        element={
+                            <StaffLayout>
+                                <BookingByStaff />
+                            </StaffLayout>
+                        }
+                    />
+                    <Route
+                        path="/staff/bookingDetail/:id"
+                        element={
+                            <StaffLayout>
+                                <BookingDetail isStaff={true} />
+                            </StaffLayout>
+                        }
+                    />
+                    <Route
+                        path="/staff/session"
+                        element={
+                            <StaffLayout>
+                                <Session />
+                            </StaffLayout>
+                        }
+                    />
+                    <Route
+                        path="/staff/sessionDetail/:id"
+                        element={
+                            <StaffLayout>
+                                <SessionDetail isStaff={true} />
+                            </StaffLayout>
+                        }
+                    />
+                    <Route
+                        path="/staff/Profile"
+                        element={
+                            <StaffLayout>
+                                <Profile />
+                            </StaffLayout>
+                        }
+                    />
+
+                </Route>
                 {/* Fallback route */}
                 <Route
                     path="*"
@@ -256,50 +295,8 @@ function App() {
                         </MainLayout>
                     }
                 />
-                <Route
-                    path="/staff/booking"
-                    element={
-                        <StaffLayout>
-                            <BookingByStaff />
-                        </StaffLayout>
-                    }
-                />
-                <Route
-                    path="/staff/bookingDetail/:id"
-                    element={
-                        <StaffLayout>
-                            <BookingDetail isStaff={true} />
-                        </StaffLayout>
-                    }
-                />
-                 <Route
-                    path="/staff/session"
-                    element={
-                        <StaffLayout>
-                            <Session />
-                        </StaffLayout>
-                    }
-                />
-                <Route
-                    path="/staff/sessionDetail/:id"
-                    element={
-                        <StaffLayout>
-                            <SessionDetail isStaff={true} />
-                        </StaffLayout>
-                    }
-                />
-                  <Route
-                    path="/staff/Profile"
-                    element={
-                        <StaffLayout>
-                            <Profile/>
-                        </StaffLayout>
-                    }
-                />
-            </Routes>
 
-            {/* </AuthWrapper> */}
-            {/* </UserProvider> */}
+            </Routes>
         </>
     );
 }

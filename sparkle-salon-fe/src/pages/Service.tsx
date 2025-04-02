@@ -18,7 +18,7 @@ export default function Service() {
     const [totalAmountOfElements, setTotalAmountOfElements] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [rating, setRating] = useState<number>();
-    const [searchUrl, setSearchUrl] = useState("?size=9");
+    const [searchUrl, setSearchUrl] = useState("?isActive=true&size=9");
     const [services, setServices] = useState<Service[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<number>();
@@ -47,7 +47,7 @@ export default function Service() {
     };
     useEffect(() => {
         setSearchUrl(
-            `?${rating ? `rating=${rating}&` : ""}${
+            `?isActive=true&${rating ? `rating=${rating}&` : ""}${
                 selectedCategory ? `categoryId=${selectedCategory}&` : ""
             }page=${currentPage - 1}&size=${ServicePerPage}&sort=${sortBy}`
         );
@@ -56,7 +56,7 @@ export default function Service() {
     const handleFilter = () => {
         setCurrentPage(1);
         setSearchUrl(
-            `?${rating ? `rating=${rating}&` : ""}${
+            `?isActive=true&${rating ? `rating=${rating}&` : ""}${
                 selectedCategory ? `categoryId=${selectedCategory}&` : ""
             }page=${currentPage - 1}&size=${ServicePerPage}&sort=${sortBy}`
         );

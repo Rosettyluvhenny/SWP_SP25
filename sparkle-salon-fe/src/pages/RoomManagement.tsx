@@ -124,6 +124,7 @@ export default function RoomManagement() {
                 name: "",
                 capacity: "",
                 services: [],
+                inUse: "0"
             }
         );
         setValidationErrors({});
@@ -254,9 +255,9 @@ export default function RoomManagement() {
     };
 
     return (
-        <div className="flex h-screen bg-white">
+        <div className="flex h-min-screen bg-white">
             <Sidebar />
-            <main className="flex-1 p-6">
+            <main className="flex-1 p-6 overflow-auto">
                 <div className="mb-6 flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-gray-800">
                         Quản Lý Phòng
@@ -302,6 +303,9 @@ export default function RoomManagement() {
                                             Sức Chứa
                                         </th>
                                         <th className="p-3 text-left">
+                                            Đang sử dụng
+                                        </th>
+                                        <th className="p-3 text-left">
                                             Dịch Vụ
                                         </th>
                                         <th className="p-3 text-left">
@@ -331,6 +335,9 @@ export default function RoomManagement() {
                                                 </td>
                                                 <td className="p-3">
                                                     {room.capacity}
+                                                </td>
+                                                <td className="p-3">
+                                                    {room.inUse}
                                                 </td>
                                                 <td className="p-3">
                                                     <div className="flex items-center space-x-2">

@@ -10,6 +10,7 @@ export interface Room {
     id: string;
     name: string;
     capacity: string;
+    inUse: string
     services: Service[];
 };
 
@@ -26,10 +27,11 @@ const getRooms = async () => {
                 id: room.id,
                 name: room.name,
                 capacity: room.capacity || "",
+                inUse: room.inUse || "0",
                 services: room.services ? room.services.map((service: Service) => ({
                     id: service.id,
                     name: service.name
-                })) : [],
+                }),) : [],
             }));
         }
 
