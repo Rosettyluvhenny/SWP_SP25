@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Booking, cancelMySession, getBookingById, getSessionById } from "../data/userData";
 import { FaCheck, FaTimes, FaCreditCard, FaMoneyBillWave, FaCalendarAlt, FaClipboardList, FaArrowLeft, FaTrash, FaStar, FaRegStar } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
@@ -29,6 +29,7 @@ interface Session {
     therapistName: string;
     userName: string;
     rated: boolean;
+    phone:string;
 }
 interface SessionDetailProps {
     isStaff: boolean;
@@ -190,7 +191,7 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                                 <FaStar size={14} /> Đánh giá
                             </motion.button>
                         )}
-                        {isStaff &&
+                        {isStaff && (session.status === "WAITING" ||session.status === "ON_GOING") &&
                             <button className="px-3 py-1 rounded-full text-md font-medium text-white bg-green-500 hover:bg-white hover:text-black"
                                 onClick={() => { setIsUpdateOpen(true); }}>Update</button>}
                         {isUpdateOpen &&
@@ -215,7 +216,8 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                             </div>
                             <div>
                                 <h4 className="text-sm font-medium text-gray-500">ID đặt lịch</h4>
-                                <p className="mt-1 font-semibold">{session.bookingId}</p>
+                                {isStaff && <Link to={`/staff/bookingDetail/${session.bookingId}`} ><p className="mt-1 font-semibold">{session.bookingId}</p></Link>}
+                                {!isStaff && <Link to={`/bookingDetail/${session.bookingId}`} ><p className="mt-1 font-semibold">{session.bookingId}</p></Link>}
                             </div>
                             <div>
                                 <h4 className="text-sm font-medium text-gray-500">Ngày đặt lịch</h4>
@@ -245,6 +247,10 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                             <div>
                                 <h4 className="text-sm font-medium text-gray-500">Khách hàng</h4>
                                 <p className="mt-1 font-semibold">{session.userName}</p>
+                            </div>
+                            <div>
+                                <h4 className="text-sm font-medium text-gray-500">Số điện thoại</h4>
+                                <p className="mt-1 font-semibold">{session.phone}</p>
                             </div>
                             <div>
                                 <h4 className="text-sm font-medium text-gray-500">Chuyên viên</h4>
