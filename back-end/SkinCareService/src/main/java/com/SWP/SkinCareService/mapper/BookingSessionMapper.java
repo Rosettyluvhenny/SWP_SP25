@@ -36,5 +36,6 @@ public interface BookingSessionMapper {
     @Mapping(target= "serviceName", source="booking.service.name")
     @Mapping(target= "serviceId", source="booking.service.id")
     @Mapping(target= "rated", source="rated")
+    @Mapping(target = "phone", source = "booking.user.phone")
     BookingSessionResponse toBookingSessionResponse(BookingSession bookingSession);
 }

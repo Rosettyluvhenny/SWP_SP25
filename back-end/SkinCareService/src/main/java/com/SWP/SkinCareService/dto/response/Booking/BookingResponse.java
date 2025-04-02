@@ -36,5 +36,5 @@ public class BookingResponse {
 //    List<BookingSession> bookingSessions;
     int price;
     String url;
-
+    String phone;
 }
