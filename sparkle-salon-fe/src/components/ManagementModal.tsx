@@ -42,7 +42,8 @@ export default function ManagementModal({
                             Hủy
                         </button>
                         <button
-                            type="submit"
+                            // type="submit"
+                            onClick={(e)=>{e.preventDefault(); onSubmit(e)}}
                             className="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition"
                         >
                             Lưu

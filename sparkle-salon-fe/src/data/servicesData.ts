@@ -83,7 +83,8 @@ const assignTherapist = async (id: string, therapistIds: string[]) => {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         });
-        return response.result ? true : false;
+        console.log(response);
+        return response.code==0 ? true : false;
     } catch (error) {
         console.error("Error assigning therapist to service:", error);
         return false;
