@@ -31,7 +31,7 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_POST_ENDPOINTS = {"/users", "/auth/introspect", "/auth/authenticate", "/auth/logout", "/auth/refresh"};
+    private final String[] PUBLIC_POST_ENDPOINTS = {"/users", "/auth/introspect", "/auth/authenticate", "/auth/logout", "/auth/refresh", "/quiz/result"};
     private final String[] PUBLIC_ENDPOINTS= {"/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-ui.html","/supabase/**","/serviceInfo/**", "/payment/vnpay/**"};
