@@ -81,6 +81,8 @@ public enum ErrorCode {
     SESSION_ON_GOING(1064,"The session is on going, can't cancel", HttpStatus.BAD_REQUEST),
     PAYMENT_REQUEST_REJECTED(1065,"Payment request rejected", HttpStatus.BAD_REQUEST),
     THERAPIST_INACTIVE(1066,"Therapist is inactive", HttpStatus.BAD_REQUEST),
+    RECEIPT_NOT_FOUND(1067,"Receipt not found", HttpStatus.NOT_FOUND),
+    THERAPIST_CURRENT_IN_SESSION(1068,"Therapist is currently in session", HttpStatus.BAD_REQUEST),
     // VNPay Error Codes
     VNPAY_PAYMENT_ERROR(2000, "Lỗi trong quá trình tạo URL thanh toán VNPay", HttpStatus.INTERNAL_SERVER_ERROR),
     VNPAY_INVALID_AMOUNT(2001, "Số tiền thanh toán không hợp lệ", HttpStatus.BAD_REQUEST),

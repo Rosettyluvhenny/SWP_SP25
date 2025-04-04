@@ -7,10 +7,7 @@ import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
 import com.SWP.SkinCareService.dto.request.VNPAY.VNPayPaymentRequestDTO;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.entity.*;
-import com.SWP.SkinCareService.enums.BookingSessionStatus;
-import com.SWP.SkinCareService.enums.BookingStatus;
-import com.SWP.SkinCareService.enums.PaymentStatus;
-import com.SWP.SkinCareService.enums.ServiceType;
+import com.SWP.SkinCareService.enums.*;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BookingMapper;
@@ -30,7 +27,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,6 +53,8 @@ public class BookingService {
     private BookingSessionService bookingSessionService;
     private VNPayService vnPayService;
     private NotificationService notificationService;
+    ReceiptRepository receiptRepository;
+    SupabaseService supabaseService;
 
     @Transactional
     @PreAuthorize("hasRole('USER')")
@@ -267,17 +268,9 @@ public class BookingService {
     //Check in
     @Transactional
     @PostAuthorize("hasRole('STAFF')")
-    public void updatePaymentStatus(int id, String paymentStatus){
+    public void updatePaymentStatus(int id, String paymentStatus, String paymentType, MultipartFile img) throws IOException {
         Booking booking = checkBooking(id);
         try {
-            PaymentStatus status = PaymentStatus.valueOf(paymentStatus.toUpperCase());
-            booking.setPaymentStatus(status);
-            if (status == PaymentStatus.PAID) {
-                updateStatus(id, "ON_GOING");
-                BigDecimal price = booking.getPrice();
-            } else if (status == PaymentStatus.CANCELLED) {
-                updateStatus(id, "IS_CANCELED");
-            }
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
             boolean isStaff = staff.getRoles().stream()
@@ -285,6 +278,31 @@ public class BookingService {
 
             if (isStaff) {
                 booking.setStaff(staff);
+            }
+
+            PaymentStatus status = PaymentStatus.valueOf(paymentStatus.toUpperCase());
+            PaymentType type = PaymentType.valueOf(paymentType.toUpperCase());
+            booking.setPaymentStatus(status);
+            if (status == PaymentStatus.PAID) {
+                updateStatus(id, "ON_GOING");
+                Receipt receipt = Receipt.builder()
+                        .payment(booking.getPayment())
+                        .paymentType(type)
+                        .amount(booking.getPrice())
+                        .serviceName(booking.getService().getName())
+                        .customerName(booking.getUser().getFullName())
+                        .date(LocalDateTime.now())
+                        .staff(staff)
+                        .build();
+                receiptRepository.save(receipt);
+                if (img != null) {
+                    String url = supabaseService.uploadImage(img, "Receipt_"+receipt.getId());
+                    receipt.setUrl(url);
+                }
+                receiptRepository.flush();
+
+            } else if (status == PaymentStatus.CANCELLED) {
+                updateStatus(id, "IS_CANCELED");
             }
             bookingRepository.save(booking);
         } catch (IllegalArgumentException e){
@@ -330,7 +348,7 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingResponse getById(int id) {
+    public BookingResponse getById(int id) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         Booking booking = checkBooking(id);
@@ -340,7 +358,7 @@ public class BookingService {
             LocalDateTime timeCheckPaymentValid = LocalDateTime.now();
             if (timeCheckPaymentValid.isAfter(timeRequestPaymentValid)) {
                 booking.setUrl(null);
-                updatePaymentStatus(id,"CANCELLED" );
+                updatePaymentStatus(id,"CANCELLED", "CANCELLED",null);
                 bookingRepository.save(booking);
             }
         }

@@ -1,6 +1,7 @@
 package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Identity.UserUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.GetScheduleRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistRequest;
 import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
@@ -52,6 +53,9 @@ public class TherapistService {
     PasswordEncoder passwordEncoder;
     BookingSessionRepository bookingSessionRepository;
     UserMapper userMapper;
+    NotificationService notificationService;
+
+
     @Transactional
     public TherapistResponse create(TherapistRequest request, MultipartFile img) throws IOException {
         // Validate user existence first
@@ -171,13 +175,37 @@ public class TherapistService {
         return response;
     }
 
-//    @Transactional
-//    public void disable (String id){
-//        Therapist therapist = therapistCheck(id);
-//        User user = therapist.getUser();
-//        user.setActive(false);
-//        userRepository.save(user);
-//    }
+    @Transactional
+    public void disable (String id){
+        Therapist therapist = therapistCheck(id);
+        LocalDateTime startOfDay = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime endOfDay = startOfDay.plusDays(1).minusDays(1);
+        List<BookingSession> bookingSessionList = bookingSessionRepository.findByTherapistAndSessionDateTimeBetween(therapist, startOfDay, endOfDay);
+        if (!bookingSessionList.isEmpty()) {
+            for (BookingSession bookingSession : bookingSessionList) {
+                if (bookingSession.getStatus() == BookingSessionStatus.ON_GOING) {
+                    throw new AppException(ErrorCode.THERAPIST_CURRENT_IN_SESSION);
+                }
+            }
+        }
+        List<BookingSession> upcomingSession = bookingSessionRepository.findByTherapistAndStatus(therapist, BookingSessionStatus.WAITING);
+        if (!upcomingSession.isEmpty()) {
+            for (BookingSession session : upcomingSession) {
+                session.setStatus(BookingSessionStatus.IS_CANCELED);
+                String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã bị huỷ";
+                NotificationRequest notificationRequest = NotificationRequest.builder()
+                        .url("http://localhost:3000/sessionDetail/"+session.getId())
+                        .text(text)
+                        .userId(session.getBooking().getUser().getId())
+                        .isRead(false)
+                        .build();
+                notificationService.create(notificationRequest);
+            }
+        }
+        User user = therapist.getUser();
+        user.setActive(false);
+        userRepository.save(user);
+    }
 
     @Transactional
     public void delete (String id) {

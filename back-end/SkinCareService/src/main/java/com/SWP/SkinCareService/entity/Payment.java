@@ -32,5 +32,9 @@ public class Payment {
     @JsonManagedReference
     List<Booking> bookings;
 
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.PERSIST)
+    @JsonManagedReference
+    List<Receipt> receipts;
+
 
 }

@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.repository;
 
 import com.SWP.SkinCareService.entity.Booking;
 import com.SWP.SkinCareService.entity.BookingSession;
+import com.SWP.SkinCareService.entity.Therapist;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,4 +53,9 @@ public interface BookingSessionRepository extends JpaRepository<BookingSession, 
                                                                                    List<BookingSessionStatus> excludeStatuses);
 
     List<BookingSession> findByStatusInAndSessionDateTimeBefore(List<BookingSessionStatus> waiting, LocalDateTime threshold);
+
+    List<BookingSession> findByTherapistAndSessionDateTimeBetween(Therapist therapist, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+    List<BookingSession> findByTherapistAndStatus(Therapist therapist, BookingSessionStatus status);
+
 }

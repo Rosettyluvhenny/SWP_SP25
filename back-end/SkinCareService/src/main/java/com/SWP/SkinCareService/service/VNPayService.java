@@ -3,15 +3,15 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.config.VNPayConfig;
 import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
 import com.SWP.SkinCareService.dto.request.VNPAY.VNPayPaymentRequestDTO;
-import com.SWP.SkinCareService.entity.Booking;
-import com.SWP.SkinCareService.entity.BookingSession;
-import com.SWP.SkinCareService.entity.Room;
+import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.SWP.SkinCareService.enums.BookingStatus;
 import com.SWP.SkinCareService.enums.PaymentStatus;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.repository.BookingRepository;
+import com.SWP.SkinCareService.repository.PaymentRepository;
+import com.SWP.SkinCareService.repository.ReceiptRepository;
 import com.SWP.SkinCareService.utils.VNPayHashUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +21,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -30,8 +31,8 @@ public class VNPayService {
 
     private final VNPayConfig vnPayConfig;
     private final BookingRepository bookingRepository;
-    private final RoomService roomService;
     private final NotificationService notificationService;
+    private final ReceiptRepository receiptRepository;
 
 
     public String createPaymentUrl(@NonNull VNPayPaymentRequestDTO requestDTO, @NonNull String ipAddress) {
@@ -220,6 +221,15 @@ public class VNPayService {
                         .isRead(false)
                         .build();
                 notificationService.create(notificationRequest);
+                //Save the transaction
+                Receipt receipt = Receipt.builder()
+                        .payment(booking.getPayment())
+                        .amount(booking.getPrice())
+                        .serviceName(booking.getService().getName())
+                        .customerName(booking.getUser().getFullName())
+                        .date(LocalDateTime.now())
+                        .build();
+                receiptRepository.save(receipt);
                 //Remove payment url
                 booking.setUrl(null);
                 bookingRepository.save(booking);

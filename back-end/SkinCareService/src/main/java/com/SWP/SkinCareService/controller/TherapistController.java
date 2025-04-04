@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,6 +76,14 @@ public class TherapistController {
             @RequestPart(value = "img", required = false) MultipartFile img) throws IOException {
         return ApiResponse.<TherapistResponse>builder()
                 .result(therapistService.update(id, request, img))
+                .build();
+    }
+
+    @PutMapping("/{id}/deactivate")
+    public ApiResponse<TherapistResponse> deactivateServiceCategory(@PathVariable String id) {
+        therapistService.disable(id);
+        return ApiResponse.<TherapistResponse>builder()
+                .message("Therapist deactivated")
                 .build();
     }
 

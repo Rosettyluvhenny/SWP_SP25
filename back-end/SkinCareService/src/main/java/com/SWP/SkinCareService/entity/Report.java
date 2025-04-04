@@ -1,11 +1,13 @@
 package com.SWP.SkinCareService.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Table
 @Entity
@@ -23,4 +25,7 @@ public class Report {
     BigDecimal revenue;
     int totalBooking;
 
+    @OneToMany(mappedBy = "report", cascade = CascadeType.PERSIST)
+    @JsonManagedReference
+    List<Receipt> receipts;
 }

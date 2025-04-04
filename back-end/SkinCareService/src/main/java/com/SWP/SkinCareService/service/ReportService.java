@@ -2,11 +2,13 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.response.Report.ReportResponse;
 import com.SWP.SkinCareService.entity.Booking;
+import com.SWP.SkinCareService.entity.Receipt;
 import com.SWP.SkinCareService.entity.Report;
 import com.SWP.SkinCareService.enums.BookingStatus;
 import com.SWP.SkinCareService.enums.PaymentStatus;
 import com.SWP.SkinCareService.mapper.ReportMapper;
 import com.SWP.SkinCareService.repository.BookingRepository;
+import com.SWP.SkinCareService.repository.ReceiptRepository;
 import com.SWP.SkinCareService.repository.ReportRepository;
 import com.SWP.SkinCareService.repository.ServicesRepository;
 import lombok.AccessLevel;
@@ -32,6 +34,7 @@ public class ReportService {
     ReportMapper reportMapper;
     ServicesRepository servicesRepository;
     BookingRepository bookingRepository;
+    ReceiptRepository receiptRepository;
 
 
     //Response to client
@@ -142,16 +145,16 @@ public class ReportService {
     @Transactional
     public void updateRevenueCustomDay(LocalDate day) {
         Report report = getReportCustomDay(day);
-        List<BookingStatus> status = List.of(BookingStatus.PENDING, BookingStatus.ON_GOING, BookingStatus.COMPLETED);
         LocalDateTime from = day.atTime(0,0,0,0);
         LocalDateTime to = from.plusDays(1).minusNanos(1);
-        List<Booking> bookingList = bookingRepository.findAllByCreateAtBetweenAndStatusIn(from, to, status);
+        List<Receipt> receiptList = receiptRepository.findAllByDateBetween(from, to);
         BigDecimal totalRevenue = BigDecimal.ZERO;
-        for (Booking booking : bookingList) {
-            if (booking.getPaymentStatus().equals(PaymentStatus.PAID)) {
-                totalRevenue = totalRevenue.add(booking.getPrice());
+        if (!receiptList.isEmpty()) {
+            for (Receipt receipt : receiptList) {
+                totalRevenue = totalRevenue.add(receipt.getAmount());
             }
         }
+        report.setReceipts(receiptList);
         report.setRevenue(totalRevenue);
         reportRepository.save(report);
     }

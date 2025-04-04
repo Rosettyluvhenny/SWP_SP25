@@ -21,7 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -95,8 +97,9 @@ public class BookingController {
 
     @PutMapping("/{bookingId}/paymentStatus")
     @PreAuthorize("hasRole('STAFF')")
-    ResponseEntity<ApiResponse<BookingResponse>> updatePaymentStatus(@PathVariable int bookingId, @RequestParam String status) {
-        bookingService.updatePaymentStatus(bookingId, status);
+    ResponseEntity<ApiResponse<BookingResponse>> updatePaymentStatus(@PathVariable int bookingId, @RequestParam String status,
+                                                                     @RequestParam String type, @RequestPart (value = "img", required = false) MultipartFile img) throws IOException {
+        bookingService.updatePaymentStatus(bookingId, status, type, img);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingResponse>builder().message("Updates payment status successfull").build()
         );
@@ -105,7 +108,7 @@ public class BookingController {
     @Operation(summary = "Get a booking by ID")
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'STAFF','ADMIN')")
-    public ResponseEntity<BookingResponse> getById(@PathVariable int id) {
+    public ResponseEntity<BookingResponse> getById(@PathVariable int id) throws IOException {
         return ResponseEntity.ok(bookingService.getById(id));
     }
 
