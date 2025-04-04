@@ -6,7 +6,8 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ReceiptMapper {
-
+    @Mapping(target = "paymentMethod", source = "payment.paymentName")
+    @Mapping(target = "staffName", source = "staff.fullName")
     ReceiptResponse toResponse(Receipt receipt);
 
 }
