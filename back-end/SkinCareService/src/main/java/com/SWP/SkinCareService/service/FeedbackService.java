@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,11 +41,14 @@ public class FeedbackService {
 
     @Transactional
     public FeedbackResponse createFeedback(FeedbackRequest feedbackRequest) {
-
         //Get user
         BookingSession session = getSessionById(feedbackRequest.getBookingSessionId());
-        if (session.getStatus() != BookingSessionStatus.COMPLETED || session.isRated())
+        if (session.getStatus() != BookingSessionStatus.COMPLETED)
             throw new AppException(ErrorCode.CURRENT_SESSION_NOT_COMPLETED);
+        if (session.isRated())
+            throw new AppException(ErrorCode.RATED_ALREADY);
+        if(session.getFeedBackTime().isBefore(LocalDateTime.now()))
+            throw new AppException(ErrorCode.FEEDBACK_OUT_OF_TIME);
         User user = session.getBooking().getUser();
         //Get service
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

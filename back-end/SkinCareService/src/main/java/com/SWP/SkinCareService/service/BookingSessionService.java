@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Booking.SessionStatusRequest;
 import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TherapistAvailabilityResponse;
@@ -19,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -107,7 +109,8 @@ public class  BookingSessionService {
 
         //Notification when session created, from second session
         if (session.getStatus() != BookingSessionStatus.PENDING) {
-            String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã được lên lịch vào ngày "+request.getSessionDateTime().toLocalDate();
+            int count = booking.getService().getSession() - booking.getSessionRemain() +1;
+            String text = "Buổi "+ count +", dịch vụ "+session.getBooking().getService().getName()+" của bạn đã được lên lịch vào ngày "+request.getSessionDateTime().toLocalDate();
             NotificationRequest notificationRequest = NotificationRequest.builder()
                     .url("http://localhost:3000/sessionDetail/"+session.getId())
                     .text(text)
@@ -230,15 +233,15 @@ public class  BookingSessionService {
 
     @Transactional
     @PreAuthorize("hasAnyRole('STAFF','THERAPIST')")
-    public BookingSession updateStatus(int id, String status){
+    public BookingSession updateStatus(int id, SessionStatusRequest rq){
         BookingSession session = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
         try {
-            BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(status.toUpperCase());
+            BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(rq.getStatus().toUpperCase());
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
             boolean isStaff = staff.getRoles().stream()
-                    .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
+                    .anyMatch(role -> role.getName().equals("STAFF"));
 
             Services service = session.getBooking().getService();
             String text = "";
@@ -272,6 +275,8 @@ public class  BookingSessionService {
 
                     Booking booking = session.getBooking();
                     session.setStatus(BookingSessionStatus.COMPLETED);
+                    LocalDateTime feedbackTime = LocalDateTime.now().plusDays(15);
+                    session.setFeedBackTime(feedbackTime);
                     //Check status of bookingService
                     updateSessionRemain(booking.getId());
                     if (booking.getSessionRemain() == 0) {
@@ -288,7 +293,10 @@ public class  BookingSessionService {
                 if (session.getStatus() == BookingSessionStatus.ON_GOING) {
                     throw new AppException(ErrorCode.SESSION_ON_GOING);
                 }
-                text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã bị huỷ";
+                if(rq.getMessage()!=null)
+                    text = "Phiên điều trị "+session.getBooking().getService().getName() +" đã bị hủy"+rq.getMessage();
+                else
+                    text = "Phiên điều trị "+session.getBooking().getService().getName()+" của bạn đã bị huỷ";
                 session.setStatus(sessionStatus);
             }
             //Notification

@@ -94,5 +94,6 @@ public class BookingSession {
         return id;
     }
 
-
+    @Column(columnDefinition = "DATETIME")
+    LocalDateTime feedBackTime;
 }

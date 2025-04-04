@@ -194,6 +194,7 @@ import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.UserMapper;
 import com.SWP.SkinCareService.repository.QuizResultRepository;
 import com.SWP.SkinCareService.repository.RoleRepository;
+import com.SWP.SkinCareService.repository.TherapistRepository;
 import com.SWP.SkinCareService.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -218,7 +219,7 @@ public class UserService {
     UserMapper userMapper;
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
-
+    TherapistService therapistService;
     RoleRepository roleRepository;
     QuizResultRepository quizResultRepository;
 
@@ -286,7 +287,13 @@ public class UserService {
         if(check == user.isActive())
             throw new AppException(ErrorCode.ACTIVE_EXCEPTION);
         user.setActive(check);
-
+        if(!check) {
+            Role role = roleRepository.findById("THERAPIST").orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+            if (user.getRoles().contains(role)) {
+                String id = user.getTherapist().getId();
+                therapistService.disable(id);
+            }
+        }
         return userMapper.toUserResponse(userRepository.save(user));
     }
 

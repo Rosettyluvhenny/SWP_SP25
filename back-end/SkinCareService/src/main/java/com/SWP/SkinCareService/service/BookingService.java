@@ -270,6 +270,16 @@ public class BookingService {
     @PostAuthorize("hasRole('STAFF')")
     public void updatePaymentStatus(int id, String paymentStatus, String paymentType, MultipartFile img) throws IOException {
         Booking booking = checkBooking(id);
+        LocalDateTime now = LocalDateTime.now();
+        for(var session : booking.getBookingSessions()){
+            if(!session.getStatus().equals(BookingSessionStatus.PENDING)&&!session.getStatus().equals(BookingSessionStatus.WAITING))
+                continue;
+            if(session.getSessionDateTime().isBefore(now.minusMinutes(40))){
+                throw new AppException(ErrorCode.BOOKING_IS_SOON_IN_TIME);
+            }
+            if(session.getSessionDateTime().isAfter(now.minusMinutes(15)))
+                throw new AppException(ErrorCode.BOOKING_IS_LATE_IN_TIME);
+        }
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
