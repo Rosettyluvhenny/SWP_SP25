@@ -27,6 +27,7 @@ public class QuizResult {
     @Lob
     @Column(columnDefinition = "TEXT")
     private String resultText;
+    private String name;
     private int minPoint;
     private int maxPoint;
 
