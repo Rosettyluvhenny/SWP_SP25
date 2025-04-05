@@ -104,10 +104,6 @@ public class  BookingSessionService {
             session.setStatus(BookingSessionStatus.PENDING);
         }
 
-
-        bookingSessionRepository.save(session);
-        bookingSessionRepository.flush();
-
         //Notification when session created, from second session
         if (session.getStatus() != BookingSessionStatus.PENDING) {
             int count = booking.getService().getSession() - booking.getSessionRemain() +1;
@@ -121,8 +117,27 @@ public class  BookingSessionService {
             notificationService.create(notificationRequest);
         }
 
+        int sessionNumber = 0;
+        int sessionCompleted =0;
+        List<BookingSession> sessionList = booking.getBookingSessions();
+        if(sessionList != null && !sessionList.isEmpty()){
+            for(BookingSession count : sessionList){
+                if (count.getStatus() == BookingSessionStatus.COMPLETED){
+                    sessionCompleted ++;
+                }
+            }
+        }
+        sessionNumber = sessionCompleted + 1;
+        String description = "Buổi dịch vụ thứ " +sessionNumber+"/" +service.getSession()+" - "+service.getName() ;
+        session.setDescription(description);
+        bookingSessionRepository.save(session);
+        bookingSessionRepository.flush();
+
+
+
 
         return bookingSessionMapper.toBookingSessionResponse(session);
+
     }
     public Page<BookingSessionResponse> getAllBookingSessions(Pageable pageale) {
         return bookingSessionRepository.findAll(pageale).map(bookingSessionMapper::toBookingSessionResponse);
