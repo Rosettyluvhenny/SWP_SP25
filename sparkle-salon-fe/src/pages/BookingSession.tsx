@@ -3,7 +3,6 @@ import { useState, useEffect, useContext } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
-
 // Component imports
 import TherapistSelector from "../components/TherapistSelector";
 import DateTimeSelector from "../components/DateTimeSelector";
@@ -17,107 +16,118 @@ import { Service, Therapist, BookingDate, Payment } from "../types/bookingTypes"
 import { Booking, getBookingById } from "../data/userData";
 import { SessionBody, sessionSchedule } from "../data/sessionData";
 
-export default function BookingSession() {
+interface BookingDate {
+    name: string;
+    day: string;
+    month: string;
+    year: string;
+  }
+  
+  interface BookingSessionModalProps {
+    booking: Booking;
+    isOpen: boolean;
+    onClose: () => void;
+    onSuccess?: (sessionId: string | number) => void;
+  }
+  
+  export function BookingSessionModal({ booking, isOpen, onClose, onSuccess }: BookingSessionModalProps) {
     // States and context
     const [therapists, setTherapists] = useState<Therapist[]>([]);
     const [selectedTherapist, setSelectedTherapist] = useState<string>();
     const [selectedTherapistId, setSelectedTherapistId] = useState<string>();
     const [isTherapistOpen, setIsTherapistOpen] = useState<boolean>(true);
-    const [booking, setBooking] = useState<Booking>();
     const [selectedServiceId, setSelectedServiceId] = useState<string>("");
-
+  
     // Date and time states
     const nextSevenDates: BookingDate[] = getNextSevenDates();
     const [selectedDate, setSelectedDate] = useState<string>();
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [therapistSlots, setTherapistSlots] = useState<{ therapistId: string; startTime: string; endTime: string }[]>([]);
-    // Router hooks
-    const [searchParams] = useSearchParams();
-    const selectedBooking = searchParams.get("booking") || "";
-    const navigate = useNavigate();
+    
     const { user, setIsLoginOpen } = useContext(UserContext);
-
+  
     // Helper function to get next seven dates
     function getNextSevenDates() {
-        const days: BookingDate[] = [];
-
-        for (let i = 0; i < 7; i++) {
-            const date = new Date();
-            date.setDate(date.getDate() + i);
-
-            days.push({
-                name: date.toLocaleDateString("vi-VN", { weekday: "long" }),
-                day: `${date.getDate() < 10 ? "0" : ""}${date.getDate()}`,
-                month: `${date.getMonth() + 1 < 10 ? "0" : ""}${date.getMonth() + 1}`,
-                year: date.getFullYear().toString(),
-            });
-        }
-        return days;
+      const days: BookingDate[] = [];
+  
+      for (let i = 0; i < 7; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+  
+        days.push({
+          name: date.toLocaleDateString("vi-VN", { weekday: "long" }),
+          day: `${date.getDate() < 10 ? "0" : ""}${date.getDate()}`,
+          month: `${date.getMonth() + 1 < 10 ? "0" : ""}${date.getMonth() + 1}`,
+          year: date.getFullYear().toString(),
+        });
+      }
+      return days;
     }
-
+  
     // Initial data fetching
     useEffect(() => {
-        async function fetchBooking() {
-            if (!selectedBooking) {
-                navigate("/yours-booking");
-                return;
-            }
-            try {
-                const fetchedBooking = await getBookingById(selectedBooking);
-                console.log(fetchedBooking);
-                if (fetchedBooking == null) {
-                    navigate("/yours-booking");
-                } else {
-                    setBooking(fetchedBooking);
-                    setSelectedServiceId(String(fetchedBooking.serviceId));
-                    const fetchedTherapists = await getTherapists(String(fetchedBooking.serviceId));
-                    setTherapists(fetchedTherapists);
-                }
-            } catch (error) {
-                console.error("Failed to fetch booking:", error);
-                navigate("/yours-booking");
-            }
+      async function fetchData() {
+        if (booking && booking.id) {
+          try {
+            setSelectedServiceId(String(booking.serviceId || ""));
+            const fetchedTherapists = await getTherapists(String(booking.serviceId || ""));
+            setTherapists(fetchedTherapists);
+          } catch (error) {
+            console.error("Failed to fetch therapists:", error);
+            toast.error("Failed to load therapists");
+          }
         }
-
-        fetchBooking();
-    }, [selectedBooking, navigate]);
-
-    // Fetch therapist slots when therapist or date changes
+      }
+  
+      if (isOpen) {
+        fetchData();
+      }
+    }, [booking, isOpen]);
+  
     useEffect(() => {
-        async function fetchTherapistSlots() {
-            if (!selectedTherapist || !selectedDate || !selectedServiceId) return;
-            const fetchedTherapistSlots = await getTherapistSlots(
-                selectedTherapist,
-                selectedServiceId,
-                selectedDate
-            );
-            setTherapistSlots(fetchedTherapistSlots);
+      async function fetchTherapistSlots() {
+        if (!selectedTherapist || !selectedDate || !selectedServiceId) return;
+        try {
+          const fetchedTherapistSlots = await getTherapistSlots(
+            selectedTherapist,
+            selectedServiceId,
+            selectedDate
+          );
+          setTherapistSlots(fetchedTherapistSlots);
+        } catch (error) {
+          console.error("Failed to fetch therapist slots:", error);
+          toast.error("Failed to load available time slots");
         }
-
-        if (selectedDate && selectedTherapist) {
-            fetchTherapistSlots();
-            setSelectedTime(null);
-        }
+      }
+  
+      if (selectedDate && selectedTherapist) {
+        fetchTherapistSlots();
+        setSelectedTime(null);
+      }
     }, [selectedTherapist, selectedDate, selectedServiceId]);
-
+  
     // Fetch free slots when no therapist is selected
     useEffect(() => {
-        async function fetchFreeSlots() {
-            if (!selectedDate || !selectedServiceId) return;
-            const fetchedTherapistSlots = await getFreeSlots(
-                selectedServiceId,
-                selectedDate
-            );
-            setTherapistSlots(fetchedTherapistSlots);
+      async function fetchFreeSlots() {
+        if (!selectedDate || !selectedServiceId) return;
+        try {
+          const fetchedTherapistSlots = await getFreeSlots(
+            selectedServiceId,
+            selectedDate
+          );
+          setTherapistSlots(fetchedTherapistSlots);
+        } catch (error) {
+          console.error("Failed to fetch free slots:", error);
+          toast.error("Failed to load available time slots");
         }
-
-        if (selectedTherapist === "" && selectedDate) {
-            fetchFreeSlots();
-            setSelectedTime(null);
-        }
+      }
+  
+      if (selectedTherapist === "" && selectedDate) {
+        fetchFreeSlots();
+        setSelectedTime(null);
+      }
     }, [selectedTherapist, selectedDate, selectedServiceId]);
-
-    // Booking handler
+    const navigate = useNavigate()
     const handleBooking = async () => {
         const rq = await getUser();
 
@@ -133,53 +143,84 @@ export default function BookingSession() {
         }
 
         const sessionBody: SessionBody = {
-            bookingId: parseInt(selectedBooking),
+            bookingId: Number(booking.id),
             sessionDateTime: `${selectedDate}T${selectedTime}.000Z`,
             notes: "",
             therapistId: selectedTherapist === "" ? selectedTherapistId : selectedTherapist
         };
 
-        const response = await sessionSchedule(sessionBody);
-        console.log("resoibse", response);
-        if (response && response.status == 201) {
+        try{
+            const response = await sessionSchedule(sessionBody);
+            console.log("resoibse", response);
             toast.success("Đặt lịch thành công");
             navigate(`/sessionDetail/${response.id}`)
-        }else {
+
+        }catch(error){
             navigate('/schedule');
         }
 
     };
-
+  
+    if (!isOpen) return null;
+  
     return (
-        <div className="bg-gradient-to-b from-white to-pink-200 min-h-screen">
-            <div className="relative w-full h-[200px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
-                <div className="absolute inset-0 bg-black opacity-40"></div>
-                <h1 className="text-white text-7xl mt-12 font-poppins drop-shadow-lg">
-                    Booking Session
-                </h1>
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden transform transition-all duration-300 ease-in-out scale-100">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-pink-100 to-rose-200 p-5 border-b border-gray-100">
+            <h2 className="text-2xl font-semibold text-center text-gray-800">
+              Buổi {booking.totalSession - booking.sessionRemain + 1}, dịch vụ: {booking.serviceName}
+            </h2>
+          </div>
+          
+          {/* Content */}
+          <div className="max-h-[70vh] overflow-y-auto">
+            <div className="bg-gradient-to-tr from-[#f0bfbf] to-[#ffa8f396] p-6">
+              {/* Service Info */}
+              <div className="mb-6 bg-white bg-opacity-70 p-4 rounded-lg shadow-sm">
+                <p className="text-gray-700 mb-2 font-medium">Dịch vụ: <span className="text-rose-600">{booking?.serviceName}</span></p>
+                {booking?.sessionRemain !== undefined && (
+                  <p className="text-gray-700 font-medium">
+                    Số buổi còn lại: <span className="text-rose-600">{booking?.sessionRemain}</span>
+                  </p>
+                )}
+              </div>
+              
+              {/* Selectors */}
+              <TherapistSelector
+                therapists={therapists}
+                selectedTherapist={selectedTherapist}
+                setSelectedTherapist={setSelectedTherapist}
+                setSelectedTherapistId={setSelectedTherapistId}
+                isOpen={isTherapistOpen}
+                setIsOpen={setIsTherapistOpen}
+              />
+      
+              <DateTimeSelector
+                nextSevenDates={nextSevenDates}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                therapistSlots={therapistSlots}
+                selectedTime={selectedTime}
+                setSelectedTime={setSelectedTime}
+                setSelectedTherapistId={setSelectedTherapistId}
+                onBooking={handleBooking}
+              />
             </div>
-
-            <div className="bg-gradient-to-tr from-[#f0bfbf] to-[#ffa8f396] py-8 px-6 max-w-6xl mx-auto rounded-xl shadow-lg">
-                <TherapistSelector
-                    therapists={therapists}
-                    selectedTherapist={selectedTherapist}
-                    setSelectedTherapist={setSelectedTherapist}
-                    setSelectedTherapistId={setSelectedTherapistId}
-                    isOpen={isTherapistOpen}
-                    setIsOpen={setIsTherapistOpen}
-                />
-
-                <DateTimeSelector
-                    nextSevenDates={nextSevenDates}
-                    selectedDate={selectedDate}
-                    setSelectedDate={setSelectedDate}
-                    therapistSlots={therapistSlots}
-                    selectedTime={selectedTime}
-                    setSelectedTime={setSelectedTime}
-                    setSelectedTherapistId={setSelectedTherapistId}
-                    onBooking={handleBooking}
-                />
-            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className="p-5 border-t border-gray-100 bg-gray-50 flex justify-end">
+            <button 
+              onClick={onClose}
+              className="px-5 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg mr-2 transition-colors duration-200 text-gray-700 font-medium"
+            >
+              Hủy
+            </button>
+          </div>
         </div>
+      </div>
     );
-}
+  }
+
+  export default {BookingSessionModal}

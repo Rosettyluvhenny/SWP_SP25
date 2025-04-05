@@ -13,7 +13,7 @@ instance.interceptors.response.use(function(response){
     // console.log(response);
     return response.data? response.data : {statusCode: response.status};
 }, async (error) => {
-    // const { logout } = useContext(UserContext);
+    const { logout } = useContext(UserContext);
     if (error.response&& error.status == 401) {
         try {
             const refreshResponse = await refresh();
@@ -26,7 +26,7 @@ instance.interceptors.response.use(function(response){
         } catch (refreshError) {
             console.error("Refresh token failed:", refreshError);
             toast.error(error.response.message);
-            // logout();
+            logout();
         }
     }else {
         toast.error(error.response.data.message);

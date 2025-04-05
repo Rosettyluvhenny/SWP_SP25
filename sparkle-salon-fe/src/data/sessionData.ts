@@ -99,6 +99,28 @@ export const getTherapistSessions = async (startDate?: string, endDate?: string)
     }
 }
 
+export const cancelSession = async (
+    sessionId: number,
+    message: string
+) => {
+    const status = "IS_CANCELED";
+    const token = localStorage.getItem("token");
+    const response = await axios.put(`/bookingSession/${sessionId}/status`,
+        {
+            message: `${message}`,
+            status: `${status}`
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    console.log("Success:", response.data);
+    console.log("response",response)
+    return null;
+}
 export const updateSessionRoom = async (
     sessionId: number,
     roomId:number

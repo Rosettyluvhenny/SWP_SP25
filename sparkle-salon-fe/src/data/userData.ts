@@ -11,6 +11,8 @@ export interface Booking {
     notes: string;
     sessionRemain: number;
     price: number;
+    totalSession: number;
+    url: string;
 }
 
 export interface Session {

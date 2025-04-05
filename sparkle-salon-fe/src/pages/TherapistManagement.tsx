@@ -220,9 +220,6 @@ export default function TherapistManagement() {
       ? await enableTherapist(therapist.userId)
       : await disableTherapist(therapist.userId);
 
-    if (success) {
-      toast.success("");
-    }
     if (!therapist.active) {
       toast.success("Đã kích hoạt thành công");
     } else {

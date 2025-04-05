@@ -3,30 +3,23 @@ import { FaMoneyBillAlt, FaTrash, FaRedo } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { checkInCash } from "../data/staffData";
 import { toast } from "react-toastify";
-import { cancelBooking, getUrlPayment } from "../data/userData";
+import { cancelBooking, getUrlPayment, Booking } from "../data/userData";
 import React from "react";
 
 // Define a more specific type for the booking object
-interface Booking {
-  id: number | string;
-  status: 'PENDING' | 'ON_GOING' | 'COMPLETED' | 'IS_CANCELED';
-  paymentStatus?: 'PENDING' | 'PAID';
-  paymentMethod?: string;
-  serviceId?: number;
-  sessionRemain?: number;
-  url?: string;
-}
 
 interface BookingActionProps {
   isStaff: boolean;
   booking: Booking;
   setReload(check:boolean) : void;
-  reload :boolean
+  reload :boolean;
+  reBook: boolean
+  setIsOpen(check: boolean) : void;
 }
 
-export default function BookingAction({ isStaff, booking, setReload, reload }: BookingActionProps) {
+export default function BookingAction({ isStaff, booking, setReload, reload, reBook,setIsOpen }: BookingActionProps) {
   const navigate = useNavigate();
-
+  console.log("rebook", reBook);
   const handleRebook = React.useCallback((serviceId: number) => {
     navigate(`/booking?service=${serviceId}`);
   }, [navigate]);
@@ -109,12 +102,12 @@ export default function BookingAction({ isStaff, booking, setReload, reload }: B
         </>
       ) : (
         <>
-          {booking.status === "ON_GOING" && booking.sessionRemain && booking.sessionRemain > 0 && (
+          {(booking.status === "ON_GOING" ||booking.status === "PENDING") && booking.sessionRemain && reBook && booking.sessionRemain > 0 && (
             <motion.button
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                handleSessionBooking(booking.id);
+                setIsOpen(true);
               }}
               className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
               variants={buttonVariants}
