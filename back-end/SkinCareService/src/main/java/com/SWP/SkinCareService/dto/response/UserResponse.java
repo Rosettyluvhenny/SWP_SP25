@@ -32,4 +32,8 @@ public class UserResponse {
     Set<Role> roles;
 
     boolean active;
+
+    String skinTypeName;
+
+    Integer skinTypeId;
 }
