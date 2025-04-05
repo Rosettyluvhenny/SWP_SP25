@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -389,6 +390,15 @@ public class  BookingSessionService {
             throw new AppException(ErrorCode.THERAPIST_INACTIVE);
         }
 
+        //Get all user session in day
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        List<BookingSessionStatus> statuses = List.of(BookingSessionStatus.IS_CANCELED);
+        LocalDateTime from = bookingDate.atStartOfDay();
+        LocalDateTime to = from.plusDays(1).minusNanos(1);
+        List<BookingSession> sessionsOfUser = bookingSessionRepository.findAllBookingSessionsByUserIdAndExcludedStatusesBetweenDates(user.getId(), statuses, from, to);
+
+
 
         // Generate all possible time slots for the day
         List<LocalTime> allTimeSlots = generateTimeSlots();
@@ -433,6 +443,17 @@ public class  BookingSessionService {
                 }
             }
 
+            if (!sessionsOfUser.isEmpty()) {
+                for (BookingSession session : sessionsOfUser) {
+                    LocalDateTime startOfSession = session.getSessionDateTime();
+                    LocalDateTime endOfSession = session.getSessionDateTime().plusMinutes(session.getBooking().getService().getDuration());
+                    if (endOfSession.isAfter(slotStartDateTime) && startOfSession.isBefore(slotEndDateTime)) {
+                        isAvailable = false;
+                        break;
+                    }
+                }
+            }
+
             if (isAvailable) {
                 availableSlots.add(new TimeSlotAvailabilityResponse(
                         slotStartDateTime.toLocalTime(),
@@ -467,6 +488,14 @@ public class  BookingSessionService {
             return new ArrayList<>(); // No therapists can provide this service
         }
 
+        //Get all user session in day
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        List<BookingSessionStatus> statuses = List.of(BookingSessionStatus.IS_CANCELED);
+        LocalDateTime from = bookingDate.atStartOfDay();
+        LocalDateTime to = from.plusDays(1).minusNanos(1);
+        List<BookingSession> sessionsOfUser = bookingSessionRepository.findAllBookingSessionsByUserIdAndExcludedStatusesBetweenDates(user.getId(), statuses, from, to);
+
         // Generate all possible time slots for the day
         List<LocalTime> allTimeSlots = generateTimeSlots();
 
@@ -479,6 +508,31 @@ public class  BookingSessionService {
             // If no available slots today after filtering, return empty list
             if (allTimeSlots.isEmpty()) {
                 return new ArrayList<>();
+            }
+        }
+
+
+        List<LocalTime> availableTimeSlots = new ArrayList<>(allTimeSlots);
+
+        for (LocalTime slot : availableTimeSlots) {
+
+            LocalTime expectedEndTime = slot.plusMinutes(serviceDuration);
+            LocalTime endTime = allTimeSlots.stream()
+                    .filter(t -> !t.isBefore(expectedEndTime)) // Get the first slot after expectedEndTime
+                    .findFirst()
+                    .orElse(LocalTime.of(17, 0)); // Default to 17:00 if no slot matches
+
+            LocalDateTime slotStartDateTime = bookingDate.atTime(slot);
+            LocalDateTime slotEndDateTime = bookingDate.atTime(endTime);
+
+            if (!sessionsOfUser.isEmpty()) {
+                for (BookingSession session : sessionsOfUser) {
+                    LocalDateTime startOfSession = session.getSessionDateTime();
+                    LocalDateTime endOfSession = startOfSession.plusMinutes(session.getBooking().getService().getDuration());
+                    if (endOfSession.isAfter(slotStartDateTime) && startOfSession.isBefore(slotEndDateTime)) {
+                        allTimeSlots.remove(slot);
+                    }
+                }
             }
         }
         // Map to store available therapists for each time slot

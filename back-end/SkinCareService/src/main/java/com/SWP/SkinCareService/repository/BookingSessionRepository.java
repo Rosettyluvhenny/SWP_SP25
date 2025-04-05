@@ -33,14 +33,20 @@ public interface BookingSessionRepository extends JpaRepository<BookingSession, 
                                                                     LocalDateTime endOfDay,
                                                                     List<BookingSessionStatus> excludeStatuses);
 
-    List<BookingSession> findAllBySessionDateTimeBetweenAndStatusIn(LocalDateTime startTime, LocalDateTime endTime, List<BookingSessionStatus> status);
-
     @Query("SELECT bs FROM BookingSession bs JOIN bs.booking b WHERE b.user.id = :userId AND bs.status = :status AND bs.sessionDateTime BETWEEN :startDate AND :endDate")
     List<BookingSession> findAllBookingSessionsByUserIdAndStatusBetweenDates(
             @Param("userId") String userId,
             @Param("status") BookingSessionStatus status,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT bs FROM BookingSession bs JOIN bs.booking b WHERE b.user.id = :userId AND bs.status NOT IN :excludedStatuses AND bs.sessionDateTime BETWEEN :startDate AND :endDate")
+    List<BookingSession> findAllBookingSessionsByUserIdAndExcludedStatusesBetweenDates(
+            @Param("userId") String userId,
+            @Param("excludedStatuses") List<BookingSessionStatus> excludedStatuses,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
 
     List<BookingSession> findAllByBooking(Booking booking);
 
