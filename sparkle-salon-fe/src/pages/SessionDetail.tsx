@@ -4,7 +4,7 @@ import { Booking, cancelMySession, getBookingById, getSessionById } from "../dat
 import { FaCheck, FaTimes, FaCreditCard, FaMoneyBillWave, FaCalendarAlt, FaClipboardList, FaArrowLeft, FaTrash, FaStar, FaRegStar } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-toastify";
-import UpdateSessionModal, { CancelModal } from "../components/SessionAction";
+import {UpdateSessionModal, CancelModal } from "../components/SessionAction";
 import SessionAction from "../components/SessionAction";
 import { createFeedback, Feedback } from "../data/feedbacksData";
 import FeedbackForm from "../components/FeedBackForm";

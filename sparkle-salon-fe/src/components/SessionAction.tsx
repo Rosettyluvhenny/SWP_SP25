@@ -67,11 +67,12 @@ export function UpdateSessionModal({
         e.preventDefault();
 
         // Validate inputs
-        if (!selectedRoomId) {
-            toast.error('Vui lòng chọn phòng');
-            return;
-        }
+       
         if (!isCompleted) {
+            if (!selectedRoomId) {
+                toast.error('Vui lòng chọn phòng');
+                return;
+            }
             try {
                 console.log(selectedRoomId);
                 setIsSubmitting(true);
@@ -87,10 +88,16 @@ export function UpdateSessionModal({
                 setIsLoading(true);
             }
         }else{
-            await updateSessionStatus(session.id,"COMPLETED");
-            toast.success('Cập nhật phiên thành công');
+            try{
+                const rq = await updateSessionStatus(session.id,"COMPLETED");
+                toast.success('Cập nhật phiên thành công');
                 setIsOpen(false);
                 setIsLoading(true);
+                return rq;
+            }catch(error){
+                console.log("error", error);
+
+            }
         }
     };
 
@@ -343,4 +350,4 @@ export function CancelModal({
         </motion.div>
     );
 }
-export default {CancelModal,  UpdateSessionModal}
+export default {UpdateSessionModal,CancelModal }
