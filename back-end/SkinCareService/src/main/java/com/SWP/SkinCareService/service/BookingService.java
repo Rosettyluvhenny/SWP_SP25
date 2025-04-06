@@ -298,12 +298,13 @@ public class BookingService {
                     throw new AppException(ErrorCode.MISSING_IMAGE);
                 }
             }
-            booking.setPaymentStatus(status);
+
             if (status == PaymentStatus.PAID) {
                 updateStatus(id, "ON_GOING");
                 if (booking.getPaymentStatus() == PaymentStatus.PAID) {
                     throw new AppException(ErrorCode.BOOKING_ALREADY_PAID);
                 }
+                booking.setPaymentStatus(status);
                 Receipt receipt = Receipt.builder()
                         .payment(booking.getPayment())
                         .paymentType(type)
