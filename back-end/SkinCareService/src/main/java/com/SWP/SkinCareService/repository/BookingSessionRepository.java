@@ -47,6 +47,11 @@ public interface BookingSessionRepository extends JpaRepository<BookingSession, 
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
+    @Query("SELECT bs FROM BookingSession bs JOIN bs.booking b WHERE b.service.id = :serviceId AND bs.status = :status AND bs.room.id = :roomId")
+    List<BookingSession> findAllByRoomIdAndServiceIdAndStatusNotIn(
+            @Param("roomId") int roomId,
+            @Param("serviceId") int serviceId,
+            @Param("status") BookingSessionStatus status );
 
     List<BookingSession> findAllByBooking(Booking booking);
 
