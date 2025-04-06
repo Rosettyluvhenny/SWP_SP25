@@ -41,7 +41,7 @@ public class QuizResultService {
     @Transactional
     public QuizResultResponse createQuizResult(QuizResultRequest request) {
         //Check result existed
-        if (quizResultRepository.existsByResultText(request.getResultText())) {
+        if (quizResultRepository.existsByName(request.getName())) {
             throw new AppException(ErrorCode.RESULT_EXISTED);
         }
         //Check quiz

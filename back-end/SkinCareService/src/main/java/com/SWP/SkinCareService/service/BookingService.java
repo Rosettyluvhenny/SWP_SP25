@@ -293,9 +293,17 @@ public class BookingService {
 
             PaymentStatus status = PaymentStatus.valueOf(paymentStatus.toUpperCase());
             PaymentType type = PaymentType.valueOf(paymentType.toUpperCase());
+            if (type == PaymentType.ONLINE_BANKING) {
+                if (img.isEmpty()) {
+                    throw new AppException(ErrorCode.MISSING_IMAGE);
+                }
+            }
             booking.setPaymentStatus(status);
             if (status == PaymentStatus.PAID) {
                 updateStatus(id, "ON_GOING");
+                if (booking.getPaymentStatus() == PaymentStatus.PAID) {
+                    throw new AppException(ErrorCode.BOOKING_ALREADY_PAID);
+                }
                 Receipt receipt = Receipt.builder()
                         .payment(booking.getPayment())
                         .paymentType(type)

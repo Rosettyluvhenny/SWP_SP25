@@ -15,6 +15,7 @@ public interface BookingSessionMapper {
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "staff", ignore = true)
     @Mapping(target = "sessionDateTime", source = "sessionDateTime")
+
     BookingSession toBookingSession(BookingSessionRequest request);
 
     @Mapping(target = "id", ignore = true)
