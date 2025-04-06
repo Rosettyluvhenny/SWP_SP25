@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -274,10 +275,10 @@ public class BookingService {
         for(var session : booking.getBookingSessions()){
             if(!session.getStatus().equals(BookingSessionStatus.PENDING)&&!session.getStatus().equals(BookingSessionStatus.WAITING))
                 continue;
-            if(session.getSessionDateTime().isBefore(now.minusMinutes(40))){
+            if(now.isBefore(session.getSessionDateTime().minusMinutes(40))){
                 throw new AppException(ErrorCode.BOOKING_IS_SOON_IN_TIME);
             }
-            if(session.getSessionDateTime().isAfter(now.minusMinutes(15)))
+            if(now.isAfter(session.getSessionDateTime().plusMinutes(20)))
                 throw new AppException(ErrorCode.BOOKING_IS_LATE_IN_TIME);
         }
         try {
@@ -434,5 +435,19 @@ public class BookingService {
 
     }
 
+    @Scheduled(fixedRate = 60000) // Runs every 60 seconds (adjust as needed)
+    public void autoCancelExpiredSessions() {
+        LocalDateTime threshold = LocalDateTime.now().minusMinutes(30);
 
+        List<Booking> expiredBookings = bookingRepository
+                .findByStatusInAndBookingSessions_SessionDateTimeBefore(
+                        List.of(BookingStatus.PENDING),
+                        threshold
+                );
+
+        expiredBookings.forEach(session -> session.setStatus(BookingStatus.IS_CANCELED));
+        bookingRepository.saveAll(expiredBookings);
+
+        System.out.println("Auto-canceled " + expiredBookings.size() + " expired bookings.");
+    }
 }

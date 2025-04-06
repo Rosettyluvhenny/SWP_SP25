@@ -233,7 +233,7 @@ public class  BookingSessionService {
 
 
     @Transactional
-    @PreAuthorize("hasAnyRole('STAFF','THERAPIST')")
+    @PreAuthorize("hasAnyRole('STAFF','THERAPIST','ADMIN')")
     public BookingSession updateStatus(int id, SessionStatusRequest rq){
         BookingSession session = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
         try {
