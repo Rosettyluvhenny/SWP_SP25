@@ -67,7 +67,7 @@ const checkInCash = async (id: number, status: string, type: string, img: File |
         {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": "multipart/form-data" 
+                "Content-Type": "Multipart/form-data" 
             }
         });
     return response;
