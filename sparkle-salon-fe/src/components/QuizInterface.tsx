@@ -21,7 +21,7 @@ export default function QuizInterface({ quiz, onComplete, onBack, submitting = f
     if (currentQuestion < quiz.questions.length - 1) {
       setTimeout(() => {
         setCurrentQuestion(prev => prev + 1);
-      }, 500);
+      }, 300);
     }
   };
 
@@ -34,13 +34,6 @@ export default function QuizInterface({ quiz, onComplete, onBack, submitting = f
     }, {} as { [key: number]: number });
     onComplete(answers);
   };
-
-  // Tính điểm tạm thời
-  const currentScore = Object.values(userAnswers).reduce((sum, answer) => sum + answer.point, 0);
-  const maxScore = quiz.questions.reduce((sum, question) => {
-    const maxPoint = Math.max(...question.answers.map(answer => answer.point));
-    return sum + maxPoint;
-  }, 0);
 
   return (
     <div className="flex h-[1200px] bg-white">
@@ -76,11 +69,7 @@ export default function QuizInterface({ quiz, onComplete, onBack, submitting = f
               </span>
             </div>
             {/* Hiển thị điểm tạm thời */}
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-600">
-                Điểm tạm thời: {currentScore}/{maxScore}
-              </span>
-            </div>
+            
             <div className="h-2 bg-gray-200 rounded-full">
               <div
                 className="h-2 bg-blue-500 rounded-full transition-all duration-300"

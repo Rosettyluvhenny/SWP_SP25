@@ -239,6 +239,38 @@ export const useQuiz = () => {
     []
   );
 
+
+  // Gửi kết quả cho user
+  const handleResultSkin = useCallback(
+    async (userId: string | null, skinId: number | null) => {
+      try {
+        setState((prev) => ({ ...prev, fetchingResult: true }));
+        const response = await axiosInstance.put(
+          `/users/${userId}/skin`,
+          {
+            skinId
+          }
+        );
+        console.log("toi ne " ,response)
+
+        return response.result;
+      } catch (error) {
+        console.error("Lỗi khi add skin type cho users:", error);
+    return false;
+      }
+    },
+    []
+  );
+
+  // đính điểm max của bài
+const maxScore = useCallback(() => {
+    return state.selectedQuiz?.questions.reduce((sum, question) => {
+      const maxPoint = Math.max(...question.answers.map(answer => answer.point));
+      return sum + maxPoint;
+    }, 0) || 0;
+  }, [state.selectedQuiz]);
+
+
   // Hoàn thành bài kiểm tra
   const handleQuizComplete = useCallback(
     (quizAnswers: { [key: number]: number }) => {
@@ -262,6 +294,8 @@ export const useQuiz = () => {
   );
   return {
     state,
+    maxScore,
+    handleResultSkin,
     handleSelectQuiz,
     handleStartQuiz,
     handleBack,

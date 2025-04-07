@@ -113,6 +113,8 @@ export const fetchQuizResults = async (): Promise<QuizResult[]> => {
   }
 };
 
+
+
 export const fetchServices = async (
   page: number = 0,
   size: number = 10
@@ -355,6 +357,18 @@ export const deleteQuiz = async (quizId: number) => {
     return response.data;
   } catch (error) {
     console.error("Lỗi khi xóa quiz:", error);
+    throw handleApiError(error);
+  }
+};
+
+
+export const quizResultbyId = async (id: number): Promise<QuizResult[]> => {
+  try {
+    const response = await axiosInstance.get<ApiResponse<QuizResult[]>>(`/quizResult/${id}`);
+    if (response.data.code !== 0)
+      throw new Error(response.data.message || "Failed to fetch quiz results");
+    return response.data.result || [];
+  } catch (error) {
     throw handleApiError(error);
   }
 };

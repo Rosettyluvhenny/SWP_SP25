@@ -115,12 +115,17 @@ export default function BlogManagement() {
     }
   }, []);
 
+ 
   useEffect(() => {
     if (activeTab === "blog") {
       navigate("/therapist/blog");
     } else if (activeTab === "notes") {
       navigate("/therapist");
+      
     } else if (activeTab === "schedule") {
+      navigate("/therapist");
+      
+    }else if (activeTab === "account") {
       navigate("/therapist");
     }
   }, [activeTab, navigate]);
@@ -649,3 +654,4 @@ export default function BlogManagement() {
     </div>
   );
 }
+
