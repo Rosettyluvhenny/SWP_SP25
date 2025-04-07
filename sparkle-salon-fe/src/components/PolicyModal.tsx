@@ -16,7 +16,6 @@ const PolicyModal: React.FC<PolicyModalProps> = ({
 }) => {
     const [showScrollIndicator, setShowScrollIndicator] = useState(false);
     
-    // Handle keyboard events and body scroll locking
     useEffect(() => {
         const handleEscKey = (event: KeyboardEvent) => {
             if (event.key === "Escape") onClose();
@@ -33,13 +32,11 @@ const PolicyModal: React.FC<PolicyModalProps> = ({
         };
     }, [isOpen, onClose]);
     
-    // Handle content scroll indicator
     const handleContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
         setShowScrollIndicator(scrollTop < scrollHeight - clientHeight - 20);
     };
     
-    // Close when clicking backdrop
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) onClose();
     };
