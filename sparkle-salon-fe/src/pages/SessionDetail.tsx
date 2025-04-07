@@ -30,6 +30,7 @@ interface Session {
     userName: string;
     rated: boolean;
     phone: string;
+    feedBackTime:String;
 }
 interface SessionDetailProps {
     isStaff: boolean;
@@ -43,6 +44,14 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
     const [isCancelOpen, setIsCancelOpen] = useState(false);
+    const [feedbackAble, setFeedbackAble] = useState(false);
+    function isFeedbackTimeBefore(feedbackTime: string) {
+        const feedbackTimeDate= new Date(feedbackTime);
+        
+        const now = new Date();
+        
+        return feedbackTimeDate>now;
+    }
     useEffect(() => {
         if (isLoading == false) {
 
@@ -56,6 +65,8 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                 const response = await getSessionById(Number(id));
                 if (response) {
                     setSession(response);
+                    if(isFeedbackTimeBefore(response.feedBackTime))
+                        setFeedbackAble(true);
                 } else {
                     setError("Không tìm thấy thông tin lịch hẹn");
                 }
@@ -136,10 +147,11 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
             </div>
         );
     }
-
     // Extract date and time from sessionDateTime
     const sessionDate = session.sessionDateTime.split('T')[0];
     const sessionTime = session.sessionDateTime.split('T')[1];
+
+   
     return (
         <div className="bg-white min-h-screen">
             {(isStaff === false) &&
@@ -179,7 +191,7 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                                 <FaTrash size={14} /> Hủy
                             </motion.button>
                         )}
-                        {!isStaff && session.status === "COMPLETED" && !session.rated && (
+                        {!isStaff && session.status === "COMPLETED" && !session.rated && feedbackAble && (
                             <motion.button
                                 onClick={(e) => {
                                     e.stopPropagation();

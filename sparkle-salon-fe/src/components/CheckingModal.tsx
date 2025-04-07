@@ -36,7 +36,7 @@ const CheckingModal = ({ bookingId, isOpen, setIsOpen, setReload, reload}: Check
         if (!type) {
             setError('Please select a payment type');
             return;
-        }
+        }   
 
         if (type === 'ONLINE_BANKING' && !img) {
             setError('Please upload payment proof image');
@@ -66,7 +66,7 @@ const CheckingModal = ({ bookingId, isOpen, setIsOpen, setReload, reload}: Check
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl  overflow-hidden transform transition-all duration-300 animate-fadeIn">
                 <div className="bg-gradient-to-r from-pink-100 to-rose-200 p-5 border-b border-gray-100">
-                    <h2 className="text-xl font-bold text-gray-800 text-center">Update Payment Status</h2>
+                    <h2 className="text-xl font-bold text-gray-800 text-center">Thanh toán tại quầy</h2>
                 </div>
 
                 {error && (

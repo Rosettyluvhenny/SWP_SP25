@@ -86,7 +86,7 @@ export default function BookingAction({ isStaff, booking, setReload, reload, reB
       {isStaff ? (
         <>
           {booking.paymentStatus === "PENDING" &&
-            booking.paymentMethod === "Trả bằng tiền mặt" && (
+            booking.paymentMethod === "Thanh toán trực tiếp" && (
               <motion.button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -99,7 +99,7 @@ export default function BookingAction({ isStaff, booking, setReload, reload, reB
                 whileHover="hover"
                 whileTap="tap"
               >
-                <FaMoneyBillAlt size={14} /> Checking
+                <FaMoneyBillAlt size={14} /> Thanh toán
               </motion.button>
             )}
         </>

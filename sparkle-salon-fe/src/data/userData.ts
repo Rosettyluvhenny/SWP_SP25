@@ -33,6 +33,7 @@ export interface Session {
     staffId: string,
     staffName: string,
     img: string
+    feedBackTime: string;
 }
 const getUserBookings = async (url: string) => {
     const response = await axios.get(`/booking/my-bookings${url}`, {
