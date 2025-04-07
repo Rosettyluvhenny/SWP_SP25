@@ -65,7 +65,7 @@ public class ServicesService {
         return result;
     }
 
-    public Page<ServicesResponse> getAll(boolean isActive,Float rating, Integer categoryId, Integer quizResultId,Pageable pageable) {
+    public Page<ServicesResponse> getAll(boolean isActive,Float rating, Integer categoryId, Integer quizResultId, String name, Pageable pageable) {
         Specification<Services> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if(isActive)
@@ -81,6 +81,10 @@ public class ServicesService {
             }
             if (quizResultId != null) {
                 predicates.add(cb.equal(root.get("quizResults").get("id"), quizResultId));
+            }
+            //Filter by name
+            if (name != null && !name.isEmpty()) {
+                predicates.add(cb.like(root.get("name"), "%" + name + "%"));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };

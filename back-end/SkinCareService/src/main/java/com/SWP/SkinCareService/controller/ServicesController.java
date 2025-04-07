@@ -80,9 +80,10 @@ public class ServicesController {
                                                                       @RequestParam(required = false) Float rating,
                                                                       @RequestParam(required = false) Integer categoryId,
                                                                       @RequestParam(required = false) Integer quizResultId,
+                                                                      @RequestParam(required = false) String name,
                                                                       @Parameter(description = "Page number (0-based)")
                                                                       @PageableDefault(size = 10, sort = "id") Pageable pageable) throws IOException {
-        var result = servicesService.getAll(isActive,rating, categoryId, quizResultId,  pageable);
+        var result = servicesService.getAll(isActive,rating, categoryId, quizResultId, name, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<Page<ServicesResponse>>builder()
                         .result(result)
