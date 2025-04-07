@@ -8,13 +8,13 @@ import ServiceDetails from "../components/ServiceDetail";
 import PaymentSelector from "../components/PaymentSelector";
 import TherapistSelector from "../components/TherapistSelector";
 import DateTimeSelector from "../components/DateTimeSelector";
+import PolicyModal from "../components/PolicyModal"; 
 
 // Data imports
 import { serviceDataById } from "../data/servicesData";
 import { getFreeSlots, getTherapists, getTherapistSlots } from "../data/therapistData";
 import { BookingBody, bookingService } from "../data/bookingData";
 import { getPayment } from "../data/paymentData";
-import { getUser } from "../data/authData";
 
 // Types
 import { Service, Therapist, BookingDate, Payment } from "../types/bookingTypes";
@@ -28,6 +28,11 @@ export default function Booking() {
     const [isTherapistOpen, setIsTherapistOpen] = useState<boolean>(true);
     const [payments, setPayments] = useState<Payment[]>([]);
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+    
+    // Policy modal state
+    const [isPolicyModalOpen, setIsPolicyModalOpen] = useState<boolean>(true);
+    const [isPolicyAccepted, setIsPolicyAccepted] = useState<boolean>(false);
+    
     // Date and time states
     const nextSevenDates: BookingDate[] = getNextSevenDates();
     const [selectedDate, setSelectedDate] = useState<string>();
@@ -62,6 +67,17 @@ export default function Booking() {
     if (!selectedServiceId) {
         navigate("/service");
     }
+
+    // Policy modal handlers
+    const handleAcceptPolicy = () => {
+        setIsPolicyAccepted(true);
+        setIsPolicyModalOpen(false);
+    };
+
+    const handleDeclinePolicy = () => {
+        setIsPolicyAccepted(false);
+        setIsPolicyModalOpen(false);
+    };
 
     // Initial data fetching
     useEffect(() => {
@@ -139,8 +155,14 @@ export default function Booking() {
 
     // Booking handler
     const handleBooking = async () => {
-        // const rq = await getUser();
+        // Check if policy was accepted
+        if (!isPolicyAccepted) {
+            toast.error("Vui lòng chấp nhận chính sách dịch vụ trước khi đặt lịch");
+            setIsPolicyModalOpen(true);
+            return;
+        }
 
+        // Check if user is logged in
         if (!(user && user.auth)) {
             toast.warning("Vui lòng đăng nhập để đặt lịch");
             setIsLoginOpen(true);
@@ -158,7 +180,6 @@ export default function Booking() {
         console.log(bookingBody.therapistId + " " + bookingBody.bookingTime);
         try {
             const response = await bookingService(bookingBody);
-
            
             if(response && response.status ===  "PENDING"){
                 toast.success("Đặt dịch vụ thành công")
@@ -169,8 +190,16 @@ export default function Booking() {
         }
     };
 
+    // Render with conditional disabling based on policy acceptance
     return (
         <div className="bg-gradient-to-b from-white to-pink-200 min-h-screen">
+            {/* Policy Modal */}
+            <PolicyModal 
+                isOpen={isPolicyModalOpen}
+                onClose={handleDeclinePolicy}
+                onAccept={handleAcceptPolicy}
+            />
+            
             <div className="relative w-full h-[200px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
                 <div className="absolute inset-0 bg-black opacity-40"></div>
                 <h1 className="text-white text-7xl mt-12 font-poppins drop-shadow-lg">
@@ -183,32 +212,50 @@ export default function Booking() {
                     <ServiceDetails service={selectedService} />
                 )}
 
-                <PaymentSelector
-                    payments={payments}
-                    selectedPayment={selectedPayment}
-                    setSelectedPayment={setSelectedPayment}
-                    isOpen={isTherapistOpen}
-                />
+                {/* If policy not accepted, disable all selectors */}
+                <div className={!isPolicyAccepted ? "pointer-events-none opacity-60" : ""}>
+                    <PaymentSelector
+                        payments={payments}
+                        selectedPayment={selectedPayment}
+                        setSelectedPayment={setSelectedPayment}
+                        isOpen={isTherapistOpen}
+                    />
 
-                <TherapistSelector
-                    therapists={therapists}
-                    selectedTherapist={selectedTherapist}
-                    setSelectedTherapist={setSelectedTherapist}
-                    setSelectedTherapistId={setSelectedTherapistId}
-                    isOpen={isTherapistOpen}
-                    setIsOpen={setIsTherapistOpen}
-                />
+                    <TherapistSelector
+                        therapists={therapists}
+                        selectedTherapist={selectedTherapist}
+                        setSelectedTherapist={setSelectedTherapist}
+                        setSelectedTherapistId={setSelectedTherapistId}
+                        isOpen={isTherapistOpen}
+                        setIsOpen={setIsTherapistOpen}
+                    />
 
-                <DateTimeSelector
-                    nextSevenDates={nextSevenDates}
-                    selectedDate={selectedDate}
-                    setSelectedDate={setSelectedDate}
-                    therapistSlots={therapistSlots}
-                    selectedTime={selectedTime}
-                    setSelectedTime={setSelectedTime}
-                    setSelectedTherapistId={setSelectedTherapistId}
-                    onBooking={handleBooking}
-                />
+                    <DateTimeSelector
+                        nextSevenDates={nextSevenDates}
+                        selectedDate={selectedDate}
+                        setSelectedDate={setSelectedDate}
+                        therapistSlots={therapistSlots}
+                        selectedTime={selectedTime}
+                        setSelectedTime={setSelectedTime}
+                        setSelectedTherapistId={setSelectedTherapistId}
+                        onBooking={handleBooking}
+                    />
+                </div>
+                
+                {/* Show message and button to reopen modal if policy was declined */}
+                {!isPolicyModalOpen && !isPolicyAccepted && (
+                    <div className="mt-6 p-4 bg-pink-100 border border-pink-300 rounded-lg text-center">
+                        <p className="text-pink-700 mb-3">
+                            Bạn cần chấp nhận chính sách dịch vụ để tiếp tục đặt lịch
+                        </p>
+                        <button 
+                            onClick={() => setIsPolicyModalOpen(true)}
+                            className="py-2 px-4 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+                        >
+                            Xem lại chính sách dịch vụ
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

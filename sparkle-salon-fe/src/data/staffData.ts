@@ -31,6 +31,7 @@ export interface Session {
     staffId: string,
     staffName: string,
     img: string
+    type: string,
 }
 const getBookings = async (url: string) => {
     const response = await axios.get(`/booking/staff-bookings${url}`, {
@@ -54,12 +55,17 @@ const getBookings = async (url: string) => {
     }
 };
 
-const checkInCash = async (id: number, status: string) =>{
-    const response = await axios.put(`/booking/${id}/paymentStatus?status=${status}`,{}, {
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-    });
+const checkInCash = async (id: number, status: string, type: string) => {
+    const response = await axios.put(`/booking/${id}/paymentStatus?status=${status}&type=${type}`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json"
+            },
+        }
+    );
     return response;
 }
+
 export {getBookings, checkInCash}

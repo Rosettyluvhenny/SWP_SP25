@@ -15,6 +15,7 @@ interface Feedback {
     img: string;
     bookingDate: string;
     therapistName: string;
+    fullName?: string; 
 }
 
 export default function ServiceDetail() {
@@ -25,10 +26,7 @@ export default function ServiceDetail() {
     const [error, setError] = useState<string | null>(null);
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [relatedServices, setRelatedServices] = useState<Service[]>([]);
-    // const handleBooking = () => {
-    //     navigate(`/contact?service=${id}`);
-    // };
-    const { user, setIsLoginOpen } = useContext(UserContext)
+    const { user, setIsLoginOpen } = useContext(UserContext);
 
     useEffect(() => {
         const fetchRelatedServices = async () => {
@@ -51,7 +49,9 @@ export default function ServiceDetail() {
                     setError("Service not found");
                 } else {
                     setService(foundService);
-                    const feedbacks = await getFeedbackByServiceId(foundService.id);
+                    const feedbacks = await getFeedbackByServiceId(
+                        foundService.id
+                    );
                     setFeedbacks(feedbacks);
                     setError(null);
                 }
@@ -66,11 +66,11 @@ export default function ServiceDetail() {
         fetchService();
     }, [id]);
 
-    const handleBooking = () => {
+    const handleBookingClick = () => {
         if (service) {
             if (!user || !user.auth) {
                 setIsLoginOpen(true);
-                toast.error("đăng nhập để đặt lịch")
+                toast.error("đăng nhập để đặt lịch");
             } else {
                 navigate(`/booking?service=${id}`);
             }
@@ -207,7 +207,7 @@ export default function ServiceDetail() {
                                 </div>
                                 <motion.button
                                     className="bg-gradient-to-r from-pink-500 to-pink-400 hover:from-pink-600 hover:to-pink-500 text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md w-full"
-                                    onClick={handleBooking}
+                                    onClick={handleBookingClick}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                 >
@@ -235,7 +235,6 @@ export default function ServiceDetail() {
                                 />
                             </div>
                         </div>
-
                         {/* Feedback Section */}
                         <div className="bg-white shadow-lg p-6 rounded-xl">
                             <div className="flex justify-between items-center border-b pb-2 mb-4">
@@ -287,10 +286,14 @@ export default function ServiceDetail() {
                                                         {feedback.fullName}
                                                     </p>
                                                     <p className="font-semi text-gray-500 text-base text-sm mt-2">
-                                                        Chuyên viên: <span>{feedback.therapistName}</span>
+                                                        Chuyên viên:{" "}
+                                                        <span>
+                                                            {
+                                                                feedback.therapistName
+                                                            }
+                                                        </span>
                                                     </p>
                                                     <p className="text-xs text-gray-500 flex items-center">
-
                                                         {feedback.bookingDate}
                                                     </p>
                                                 </div>
@@ -301,11 +304,12 @@ export default function ServiceDetail() {
                                                     <svg
                                                         key={star}
                                                         xmlns="http://www.w3.org/2000/svg"
-                                                        className={`h-5 w-5 ${star <=
+                                                        className={`h-5 w-5 ${
+                                                            star <=
                                                             feedback.rating
-                                                            ? "text-yellow-500"
-                                                            : "text-gray-300"
-                                                            }`}
+                                                                ? "text-yellow-500"
+                                                                : "text-gray-300"
+                                                        }`}
                                                         viewBox="0 0 24 24"
                                                         fill="currentColor"
                                                     >

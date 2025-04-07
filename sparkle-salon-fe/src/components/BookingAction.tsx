@@ -52,7 +52,7 @@ export default function BookingAction({ isStaff, booking, setReload, reload }: B
 
   const handleChecking = React.useCallback(async (booking: Booking) => {
     try {
-      const rq = await checkInCash(Number(booking.id), "PAID");
+      const rq = await checkInCash(Number(booking.id), "PAID", "CASH");
       console.log("request",rq);
       toast.success(rq.message);
       setReload(!reload)
