@@ -44,4 +44,5 @@ public class BookingSessionResponse {
 
     boolean rated;
     String phone;
+    String description;
 }

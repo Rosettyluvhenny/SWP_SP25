@@ -15,6 +15,9 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuizResultRequest {
     @NotBlank(message ="NOT_EMPTY")
+    String name;
+
+    @NotBlank(message ="NOT_EMPTY")
     String resultText;
 
     @Min(value = 0, message = "MIN_VALUE")

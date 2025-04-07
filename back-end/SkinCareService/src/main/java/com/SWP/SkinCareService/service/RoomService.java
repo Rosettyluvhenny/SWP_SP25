@@ -3,12 +3,15 @@ package com.SWP.SkinCareService.service;
 import com.SWP.SkinCareService.dto.request.Room.RoomRequest;
 import com.SWP.SkinCareService.dto.request.Room.RoomUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Room.RoomResponse;
+import com.SWP.SkinCareService.entity.BookingSession;
 import com.SWP.SkinCareService.entity.Room;
 import com.SWP.SkinCareService.entity.Services;
+import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.RoomMapper;
 import com.SWP.SkinCareService.mapper.ServicesMapper;
+import com.SWP.SkinCareService.repository.BookingSessionRepository;
 import com.SWP.SkinCareService.repository.RoomRepository;
 import com.SWP.SkinCareService.repository.ServicesRepository;
 import lombok.AccessLevel;
@@ -30,6 +33,7 @@ public class RoomService {
     ServicesRepository servicesRepository;
     RoomMapper roomMapper;
     ServicesMapper servicesMapper;
+    BookingSessionRepository bookingSessionRepository;
     @Transactional
     public RoomResponse create(RoomRequest request) {
         if (roomRepository.existsByName(request.getName())) {
@@ -156,6 +160,10 @@ public class RoomService {
         Set<Services> services = new HashSet<>(room.getServices());
         if (!services.contains(service)) {
             throw new AppException(ErrorCode.SERVICE_NOT_EXISTED);
+        }
+        List<BookingSession> bookingSessionList = bookingSessionRepository.findAllByRoomIdAndServiceIdAndStatusNotIn(roomId, serviceId, BookingSessionStatus.ON_GOING);
+        if (!bookingSessionList.isEmpty()) {
+            throw new AppException(ErrorCode.SERVICE_ON_GOING);
         }
 
         services.remove(service);

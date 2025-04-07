@@ -18,10 +18,10 @@ public class ServicesUpdateRequest {
 
     String description;
 
-    @Min(value = 0, message = "MIN")
+    @Min(value = 1000, message = "MIN")
     BigDecimal price;
 
-    @Min(value = 1, message = "MIN")
+    @Min(value = 15, message = "MIN")
     int duration;
 
     @Min(value = 1, message = "MIN")

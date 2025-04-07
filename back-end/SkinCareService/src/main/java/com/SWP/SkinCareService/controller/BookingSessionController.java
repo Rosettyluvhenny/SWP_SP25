@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.controller;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Booking.SessionStatusRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Booking.BookingResponse;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
@@ -84,9 +85,8 @@ public class BookingSessionController {
     }
 
     @PutMapping("/{sessionId}/status")
-
-    ResponseEntity<ApiResponse<BookingResponse>> updateStatus(@PathVariable int sessionId, @RequestParam String status) {
-        bookingSessionService.updateStatus(sessionId, status);
+    ResponseEntity<ApiResponse<BookingResponse>> updateStatus(@PathVariable int sessionId, @RequestBody SessionStatusRequest rq) {
+        bookingSessionService.updateStatus(sessionId, rq);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.<BookingResponse>builder().message("Update successfull").build()
         );

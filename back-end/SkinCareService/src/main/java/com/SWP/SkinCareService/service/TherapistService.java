@@ -188,13 +188,14 @@ public class TherapistService {
                 }
             }
         }
-        List<BookingSession> upcomingSession = bookingSessionRepository.findByTherapistAndStatus(therapist, BookingSessionStatus.WAITING);
+        List<BookingSession> upcomingSession = bookingSessionRepository.findByTherapistAndStatusIn(therapist, List.of(BookingSessionStatus.WAITING,BookingSessionStatus.PENDING));
         if (!upcomingSession.isEmpty()) {
             for (BookingSession session : upcomingSession) {
                 session.setStatus(BookingSessionStatus.IS_CANCELED);
-                String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã bị huỷ";
+                String text = "Buổi điều trị dịch " + session.getBooking().getService().getName() + " của bạn đã bị huỷ vì chuyên viên"
+                        + therapist.getUser().getFullName() + "tạm ngưng công tác. Vui lòng tiến hành lựa chọn chuyên viên, và khung giờ khác. Xin cảm ơn";
                 NotificationRequest notificationRequest = NotificationRequest.builder()
-                        .url("http://localhost:3000/sessionDetail/"+session.getId())
+                        .url("http://localhost:3000/sessionDetail/" + session.getId())
                         .text(text)
                         .userId(session.getBooking().getUser().getId())
                         .isRead(false)
@@ -202,9 +203,6 @@ public class TherapistService {
                 notificationService.create(notificationRequest);
             }
         }
-        User user = therapist.getUser();
-        user.setActive(false);
-        userRepository.save(user);
     }
 
     @Transactional

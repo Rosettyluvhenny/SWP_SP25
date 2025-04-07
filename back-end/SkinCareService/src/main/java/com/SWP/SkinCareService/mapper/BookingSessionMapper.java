@@ -15,6 +15,7 @@ public interface BookingSessionMapper {
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "staff", ignore = true)
     @Mapping(target = "sessionDateTime", source = "sessionDateTime")
+
     BookingSession toBookingSession(BookingSessionRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -37,5 +38,6 @@ public interface BookingSessionMapper {
     @Mapping(target= "serviceId", source="booking.service.id")
     @Mapping(target= "rated", source="rated")
     @Mapping(target = "phone", source = "booking.user.phone")
+
     BookingSessionResponse toBookingSessionResponse(BookingSession bookingSession);
 }

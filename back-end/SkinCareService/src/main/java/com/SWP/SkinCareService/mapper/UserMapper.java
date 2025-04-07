@@ -34,6 +34,8 @@ public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "active", expression = "java(true)")
     User toUser(UserRequest request);
+    @Mapping(target= "skinTypeName", source="quizResult.resultText")
+    @Mapping(target= "skinTypeId", source="quizResult.id")
     UserResponse toUserResponse(User user);
     @Mapping(target ="roles", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

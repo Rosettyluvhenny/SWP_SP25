@@ -15,6 +15,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuizResultResponse {
     int id;
+    String name;
     String resultText;
     int minPoint;
     int maxPoint;
