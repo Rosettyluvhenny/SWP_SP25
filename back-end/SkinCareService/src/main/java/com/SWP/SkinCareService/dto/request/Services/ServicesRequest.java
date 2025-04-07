@@ -50,7 +50,7 @@ public class ServicesRequest {
         defaultValue = "50.00"
     )
     @NotNull(message = "NOT_EMPTY")
-    @Min(value = 0, message = "MIN")
+    @Min(value = 1000, message = "MIN")
     BigDecimal price;
 
     @Schema(
@@ -59,7 +59,7 @@ public class ServicesRequest {
         defaultValue = "30"
     )
     @NotNull(message = "NOT_EMPTY")
-    @Min(value = 1, message = "MIN")
+    @Min(value = 15, message = "MIN")
     Integer duration;
 
     @Schema(

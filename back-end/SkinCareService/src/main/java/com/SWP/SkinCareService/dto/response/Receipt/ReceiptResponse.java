@@ -1,7 +1,5 @@
 package com.SWP.SkinCareService.dto.response.Receipt;
 
-import com.SWP.SkinCareService.entity.Payment;
-import com.SWP.SkinCareService.entity.User;
 import com.SWP.SkinCareService.enums.PaymentType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,8 +17,10 @@ public class ReceiptResponse {
     LocalDateTime date;
     BigDecimal amount;
     String serviceName;
-    Payment payment;
+    String customerName;
+
+    String paymentMethod;
     PaymentType paymentType;
     String url;
-    User staff;
+    String staffName;
 }

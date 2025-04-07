@@ -14,6 +14,7 @@ import java.util.Set;
 @Entity
 @Table(name = "rooms")
 @Data
+@ToString(exclude = {"services", "bookingSessions"})
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

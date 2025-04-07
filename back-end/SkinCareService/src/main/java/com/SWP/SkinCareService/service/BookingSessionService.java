@@ -2,6 +2,7 @@ package com.SWP.SkinCareService.service;
 
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
+import com.SWP.SkinCareService.dto.request.Booking.SessionStatusRequest;
 import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TherapistAvailabilityResponse;
@@ -19,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,6 +38,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -101,13 +104,10 @@ public class  BookingSessionService {
             session.setStatus(BookingSessionStatus.PENDING);
         }
 
-
-        bookingSessionRepository.save(session);
-        bookingSessionRepository.flush();
-
         //Notification when session created, from second session
         if (session.getStatus() != BookingSessionStatus.PENDING) {
-            String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã được lên lịch vào ngày "+request.getSessionDateTime().toLocalDate();
+            int count = booking.getService().getSession() - booking.getSessionRemain() +1;
+            String text = "Buổi "+ count +", dịch vụ "+session.getBooking().getService().getName()+" của bạn đã được lên lịch vào ngày "+request.getSessionDateTime().toLocalDate();
             NotificationRequest notificationRequest = NotificationRequest.builder()
                     .url("http://localhost:3000/sessionDetail/"+session.getId())
                     .text(text)
@@ -117,8 +117,27 @@ public class  BookingSessionService {
             notificationService.create(notificationRequest);
         }
 
+        int sessionNumber = 0;
+        int sessionCompleted =0;
+        List<BookingSession> sessionList = booking.getBookingSessions();
+        if(sessionList != null && !sessionList.isEmpty()){
+            for(BookingSession count : sessionList){
+                if (count.getStatus() == BookingSessionStatus.COMPLETED){
+                    sessionCompleted ++;
+                }
+            }
+        }
+        sessionNumber = sessionCompleted + 1;
+        String description = "Buổi dịch vụ thứ " +sessionNumber+"/" +service.getSession()+" - "+service.getName() ;
+        session.setDescription(description);
+        bookingSessionRepository.save(session);
+        bookingSessionRepository.flush();
+
+
+
 
         return bookingSessionMapper.toBookingSessionResponse(session);
+
     }
     public Page<BookingSessionResponse> getAllBookingSessions(Pageable pageale) {
         return bookingSessionRepository.findAll(pageale).map(bookingSessionMapper::toBookingSessionResponse);
@@ -229,16 +248,16 @@ public class  BookingSessionService {
 
 
     @Transactional
-    @PreAuthorize("hasAnyRole('STAFF','THERAPIST')")
-    public BookingSession updateStatus(int id, String status){
+    @PreAuthorize("hasAnyRole('STAFF','THERAPIST','ADMIN')")
+    public BookingSession updateStatus(int id, SessionStatusRequest rq){
         BookingSession session = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
         try {
-            BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(status.toUpperCase());
+            BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(rq.getStatus().toUpperCase());
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
             boolean isStaff = staff.getRoles().stream()
-                    .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
+                    .anyMatch(role -> role.getName().equals("STAFF"));
 
             Services service = session.getBooking().getService();
             String text = "";
@@ -272,6 +291,8 @@ public class  BookingSessionService {
 
                     Booking booking = session.getBooking();
                     session.setStatus(BookingSessionStatus.COMPLETED);
+                    LocalDateTime feedbackTime = LocalDateTime.now().plusDays(15);
+                    session.setFeedBackTime(feedbackTime);
                     //Check status of bookingService
                     updateSessionRemain(booking.getId());
                     if (booking.getSessionRemain() == 0) {
@@ -288,7 +309,10 @@ public class  BookingSessionService {
                 if (session.getStatus() == BookingSessionStatus.ON_GOING) {
                     throw new AppException(ErrorCode.SESSION_ON_GOING);
                 }
-                text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã bị huỷ";
+                if(rq.getMessage()!=null)
+                    text = "Phiên điều trị "+session.getBooking().getService().getName() +" đã bị hủy"+rq.getMessage();
+                else
+                    text = "Phiên điều trị "+session.getBooking().getService().getName()+" của bạn đã bị huỷ";
                 session.setStatus(sessionStatus);
             }
             //Notification
@@ -381,6 +405,15 @@ public class  BookingSessionService {
             throw new AppException(ErrorCode.THERAPIST_INACTIVE);
         }
 
+        //Get all user session in day
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        List<BookingSessionStatus> statuses = List.of(BookingSessionStatus.IS_CANCELED);
+        LocalDateTime from = bookingDate.atStartOfDay();
+        LocalDateTime to = from.plusDays(1).minusNanos(1);
+        List<BookingSession> sessionsOfUser = bookingSessionRepository.findAllBookingSessionsByUserIdAndExcludedStatusesBetweenDates(user.getId(), statuses, from, to);
+
+
 
         // Generate all possible time slots for the day
         List<LocalTime> allTimeSlots = generateTimeSlots();
@@ -425,6 +458,17 @@ public class  BookingSessionService {
                 }
             }
 
+            if (!sessionsOfUser.isEmpty()) {
+                for (BookingSession session : sessionsOfUser) {
+                    LocalDateTime startOfSession = session.getSessionDateTime();
+                    LocalDateTime endOfSession = session.getSessionDateTime().plusMinutes(session.getBooking().getService().getDuration());
+                    if (endOfSession.isAfter(slotStartDateTime) && startOfSession.isBefore(slotEndDateTime)) {
+                        isAvailable = false;
+                        break;
+                    }
+                }
+            }
+
             if (isAvailable) {
                 availableSlots.add(new TimeSlotAvailabilityResponse(
                         slotStartDateTime.toLocalTime(),
@@ -459,6 +503,14 @@ public class  BookingSessionService {
             return new ArrayList<>(); // No therapists can provide this service
         }
 
+        //Get all user session in day
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        List<BookingSessionStatus> statuses = List.of(BookingSessionStatus.IS_CANCELED);
+        LocalDateTime from = bookingDate.atStartOfDay();
+        LocalDateTime to = from.plusDays(1).minusNanos(1);
+        List<BookingSession> sessionsOfUser = bookingSessionRepository.findAllBookingSessionsByUserIdAndExcludedStatusesBetweenDates(user.getId(), statuses, from, to);
+
         // Generate all possible time slots for the day
         List<LocalTime> allTimeSlots = generateTimeSlots();
 
@@ -471,6 +523,31 @@ public class  BookingSessionService {
             // If no available slots today after filtering, return empty list
             if (allTimeSlots.isEmpty()) {
                 return new ArrayList<>();
+            }
+        }
+
+
+        List<LocalTime> availableTimeSlots = new ArrayList<>(allTimeSlots);
+
+        for (LocalTime slot : availableTimeSlots) {
+
+            LocalTime expectedEndTime = slot.plusMinutes(serviceDuration);
+            LocalTime endTime = allTimeSlots.stream()
+                    .filter(t -> !t.isBefore(expectedEndTime)) // Get the first slot after expectedEndTime
+                    .findFirst()
+                    .orElse(LocalTime.of(17, 0)); // Default to 17:00 if no slot matches
+
+            LocalDateTime slotStartDateTime = bookingDate.atTime(slot);
+            LocalDateTime slotEndDateTime = bookingDate.atTime(endTime);
+
+            if (!sessionsOfUser.isEmpty()) {
+                for (BookingSession session : sessionsOfUser) {
+                    LocalDateTime startOfSession = session.getSessionDateTime();
+                    LocalDateTime endOfSession = startOfSession.plusMinutes(session.getBooking().getService().getDuration());
+                    if (endOfSession.isAfter(slotStartDateTime) && startOfSession.isBefore(slotEndDateTime)) {
+                        allTimeSlots.remove(slot);
+                    }
+                }
             }
         }
         // Map to store available therapists for each time slot

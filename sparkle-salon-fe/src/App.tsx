@@ -131,14 +131,14 @@ function App() {
                             </MainLayout>
                         }
                     />
-                    <Route
+                    {/* <Route
                         path="/bookingSession"
                         element={
                             <MainLayout>
                                 <BookingSession />
                             </MainLayout>
                         }
-                    />
+                    /> */}
                     <Route path="/payment" element={<Payment />} />
                     <Route
                         path="/schedule"

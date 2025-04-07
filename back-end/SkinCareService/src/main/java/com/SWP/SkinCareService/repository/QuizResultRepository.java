@@ -16,4 +16,5 @@ public interface QuizResultRepository extends JpaRepository<QuizResult, Integer>
 
      */
     boolean existsByResultText(String resultText);
+    boolean existsByName(String name);
 }

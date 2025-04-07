@@ -37,4 +37,6 @@ public class BookingResponse {
     int price;
     String url;
     String phone;
+
+    int totalSession;
 }

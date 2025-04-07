@@ -30,6 +30,8 @@ public class BookingSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
+    @Column(columnDefinition = "TEXT")
+    String description;
     //Many to One - Booking
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "bookingId")
@@ -94,5 +96,6 @@ public class BookingSession {
         return id;
     }
 
-
+    @Column(columnDefinition = "DATETIME")
+    LocalDateTime feedBackTime;
 }

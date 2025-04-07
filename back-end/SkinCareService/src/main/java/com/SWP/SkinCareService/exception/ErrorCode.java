@@ -83,6 +83,9 @@ public enum ErrorCode {
     THERAPIST_INACTIVE(1066,"Therapist is inactive", HttpStatus.BAD_REQUEST),
     RECEIPT_NOT_FOUND(1067,"Receipt not found", HttpStatus.NOT_FOUND),
     THERAPIST_CURRENT_IN_SESSION(1068,"Therapist is currently in session", HttpStatus.BAD_REQUEST),
+    SERVICE_ON_GOING(1069,"Service is on going, can't remove", HttpStatus.BAD_REQUEST),
+    MISSING_IMAGE(1070,"Missing image", HttpStatus.BAD_REQUEST),
+    BOOKING_ALREADY_PAID(1071,"Booking already paid", HttpStatus.BAD_REQUEST),
     // VNPay Error Codes
     VNPAY_PAYMENT_ERROR(2000, "Lỗi trong quá trình tạo URL thanh toán VNPay", HttpStatus.INTERNAL_SERVER_ERROR),
     VNPAY_INVALID_AMOUNT(2001, "Số tiền thanh toán không hợp lệ", HttpStatus.BAD_REQUEST),
@@ -102,7 +105,11 @@ public enum ErrorCode {
     IS_DISABLE(2016, "Your account is disabled please contact our center directly" , HttpStatus.BAD_REQUEST ),
     WRONG_PASSWORD(2017, "Your current password is not correct. Please try again" , HttpStatus.BAD_REQUEST),
     INVALID_EXPERIENCE_YEARS(2018, "Experience year invalid" , HttpStatus.BAD_REQUEST ),
-    LETTER_ONLY(2019, "Only letters are allow in this input", HttpStatus.BAD_REQUEST);
+    LETTER_ONLY(2019, "Only letters are allow in this input", HttpStatus.BAD_REQUEST),
+    BOOKING_IS_SOON_IN_TIME(2020, "Your booking is too soon to check in" , HttpStatus.BAD_REQUEST ),
+    BOOKING_IS_LATE_IN_TIME(2021, "Your booking is too late to check in" , HttpStatus.BAD_REQUEST ),
+    RATED_ALREADY(2022, "Session has been rated" , HttpStatus.BAD_REQUEST ),
+    FEEDBACK_OUT_OF_TIME(2023, "Feedback time is over", HttpStatus.BAD_REQUEST);
     ;
 
 

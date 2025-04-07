@@ -54,18 +54,21 @@ export const updateBookingSession = async (
         formData.append("data", new Blob([JSON.stringify(bookingSessionRequest)], { type: "application/json" }));
         formData.append("imgBefore", imgBefore);
         formData.append("imgAfter", imgAfter);
-
-        const response = await axios.put(`/bookingSession/${sessionId}`,
-            formData,
-            {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-        console.log(response)
-        return response;
+        try{
+            const response = await axios.put(`/bookingSession/${sessionId}`,
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            toast.success(response.message);
+            return response;
+        }catch(err){
+            toast.error(err.message);
+        }
 };
 
 export const getTherapistSessions = async (startDate?: string, endDate?: string) => {
@@ -99,6 +102,28 @@ export const getTherapistSessions = async (startDate?: string, endDate?: string)
     }
 }
 
+export const cancelSession = async (
+    sessionId: number,
+    message: string
+) => {
+    const status = "IS_CANCELED";
+    const token = localStorage.getItem("token");
+    const response = await axios.put(`/bookingSession/${sessionId}/status`,
+        {
+            message: `${message}`,
+            status: `${status}`
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    console.log("Success:", response.data);
+    console.log("response",response)
+    return null;
+}
 export const updateSessionRoom = async (
     sessionId: number,
     roomId:number
@@ -142,17 +167,17 @@ export const updateSessionStatus = async (
 ) => {
     const token = localStorage.getItem("token");
         const response = await axios.put(`/bookingSession/${sessionId}/status`,
-            null,
+            { status : `${status}` },
             {
-                params: { status },
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             }
         );
 
-        console.log("Success:", response.data);
-        console.log("response",response)
+        if(response.status === 400){
+            toast.error(response.message);
+        }
         return response;
 };
 

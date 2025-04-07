@@ -14,7 +14,7 @@ spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/swp_db"
     username: root
-    password: 1234
+    password: 12345Aa
 
   jpa:
     hibernate:
@@ -31,7 +31,7 @@ openapi:
   title: API document
   version: v1.0.0
   description: API service
-  serverUrl: https://localhost:8080/swp
+  serverUrl: http://localhost:8080/swp
   serverName: Test Server
 
 springdoc:

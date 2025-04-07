@@ -3,30 +3,25 @@ import { FaMoneyBillAlt, FaTrash, FaRedo } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { checkInCash } from "../data/staffData";
 import { toast } from "react-toastify";
-import { cancelBooking, getUrlPayment } from "../data/userData";
-import React from "react";
+import { cancelBooking, getUrlPayment, Booking } from "../data/userData";
+import React, { useState } from "react";
+import CheckingModal from "./CheckingModal";
 
 // Define a more specific type for the booking object
-interface Booking {
-  id: number | string;
-  status: 'PENDING' | 'ON_GOING' | 'COMPLETED' | 'IS_CANCELED';
-  paymentStatus?: 'PENDING' | 'PAID';
-  paymentMethod?: string;
-  serviceId?: number;
-  sessionRemain?: number;
-  url?: string;
-}
 
 interface BookingActionProps {
   isStaff: boolean;
   booking: Booking;
-  setReload(check:boolean) : void;
-  reload :boolean
+  setReload(check: boolean): void;
+  reload: boolean;
+  reBook: boolean
+  setIsOpen(check: boolean): void;
 }
 
-export default function BookingAction({ isStaff, booking, setReload, reload }: BookingActionProps) {
+export default function BookingAction({ isStaff, booking, setReload, reload, reBook, setIsOpen }: BookingActionProps) {
   const navigate = useNavigate();
-
+  const [checkingOpen, setCheckingOpen] = useState(false);
+  console.log("rebook", reBook);
   const handleRebook = React.useCallback((serviceId: number) => {
     navigate(`/booking?service=${serviceId}`);
   }, [navigate]);
@@ -52,14 +47,15 @@ export default function BookingAction({ isStaff, booking, setReload, reload }: B
 
   const handleChecking = React.useCallback(async (booking: Booking) => {
     try {
-      const rq = await checkInCash(Number(booking.id), "PAID", "CASH");
-      console.log("request",rq);
-      toast.success(rq.message);
-      setReload(!reload)
+      const rq = await checkInCash(Number(booking.id), "PAID", "CASH", null); 
+      console.log("request", rq);
+      toast.success(rq.message || "Check-in successful"); 
+      setReload(!reload);
     } catch (error) {
+      console.error(error); 
       toast.error("Không thể check-in. Vui lòng thử lại.");
     }
-  }, []);
+  }, [reload]);
 
   const handleCard = React.useCallback(async (booking: Booking) => {
     try {
@@ -90,31 +86,32 @@ export default function BookingAction({ isStaff, booking, setReload, reload }: B
     <>
       {isStaff ? (
         <>
-          {booking.paymentStatus === "PENDING" && 
-           booking.paymentMethod === "Trả bằng tiền mặt" && (
-            <motion.button
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleChecking(booking);
-              }}
-              className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 flex items-center gap-1"
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-            >
-              <FaMoneyBillAlt size={14} /> Checking
-            </motion.button>
-          )}
+          {booking.paymentStatus === "PENDING" &&
+            booking.paymentMethod === "Thanh toán trực tiếp" && (
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setCheckingOpen(true);
+                  handleChecking(booking);
+                }}
+                className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 flex items-center gap-1"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                <FaMoneyBillAlt size={14} /> Thanh toán
+              </motion.button>
+            )}
         </>
       ) : (
         <>
-          {booking.status === "ON_GOING" && booking.sessionRemain && booking.sessionRemain > 0 && (
+          {(booking.status === "ON_GOING" || booking.status === "PENDING") && booking.sessionRemain && reBook && booking.sessionRemain > 0 && (
             <motion.button
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                handleSessionBooking(booking.id);
+                setIsOpen(true);
               }}
               className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
               variants={buttonVariants}
@@ -158,22 +155,31 @@ export default function BookingAction({ isStaff, booking, setReload, reload }: B
           )}
 
           {booking.status === "PENDING" &&
-           booking.paymentMethod === "Thanh toán qua thẻ ngân hàng" && (
-            <motion.button
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleCard(booking);
-              }}
-              className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 flex items-center gap-1"
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-            >
-              <FaMoneyBillAlt size={14} /> Thanh toán
-            </motion.button>
-          )}
+            booking.paymentMethod === "Thanh toán qua thẻ ngân hàng" && (
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  handleCard(booking);
+                }}
+                className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 flex items-center gap-1"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                <FaMoneyBillAlt size={14} /> Thanh toán
+              </motion.button>
+            )}
         </>
+      )}
+      {checkingOpen && (
+        <CheckingModal
+          bookingId={Number(booking.id)}
+          isOpen={checkingOpen}
+          setIsOpen={setCheckingOpen}
+          setReload ={setReload}
+          reload = {reload}
+        />
       )}
     </>
   );

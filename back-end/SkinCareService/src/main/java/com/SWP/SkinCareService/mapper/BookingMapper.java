@@ -41,7 +41,7 @@ public interface BookingMapper {
     @Mapping(target = "img", source = "service.img")
     @Mapping(target = "url", source = "url")
     @Mapping(target = "phone", source = "user.phone")
-
+    @Mapping(target = "totalSession", source = "service.session")
     BookingResponse toBookingResponse(Booking booking);
 
     /*

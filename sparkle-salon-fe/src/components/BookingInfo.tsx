@@ -13,6 +13,7 @@ interface Booking {
   notes?: string;
   createAt: string;
   phone: string;
+  totalSession : string;
 }
 
 interface BookingInfoProps {
@@ -95,7 +96,7 @@ export function BookingInfo({ booking }: BookingInfoProps) {
               <div className="flex items-center text-gray-700">
                 <FaCalendarAlt className="mr-2 text-purple-600" />
                 <span className="font-medium">Số buổi còn lại:</span>
-                <span className="ml-2">{booking.sessionRemain ?? 'N/A'}</span>
+                <span className="ml-2">{booking.sessionRemain +  " / " + booking.totalSession} </span>
               </div>
               <div className="flex items-center text-gray-700">
                 <FaUser className="mr-2 text-purple-600" />

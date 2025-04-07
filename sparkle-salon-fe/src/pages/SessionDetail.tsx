@@ -4,7 +4,7 @@ import { Booking, cancelMySession, getBookingById, getSessionById } from "../dat
 import { FaCheck, FaTimes, FaCreditCard, FaMoneyBillWave, FaCalendarAlt, FaClipboardList, FaArrowLeft, FaTrash, FaStar, FaRegStar } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-toastify";
-import UpdateSessionModal from "../components/SessionAction";
+import {UpdateSessionModal, CancelModal } from "../components/SessionAction";
 import SessionAction from "../components/SessionAction";
 import { createFeedback, Feedback } from "../data/feedbacksData";
 import FeedbackForm from "../components/FeedBackForm";
@@ -29,7 +29,8 @@ interface Session {
     therapistName: string;
     userName: string;
     rated: boolean;
-    phone:string;
+    phone: string;
+    feedBackTime:String;
 }
 interface SessionDetailProps {
     isStaff: boolean;
@@ -42,27 +43,38 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
     const [error, setError] = useState<string | null>(null);
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+    const [isCancelOpen, setIsCancelOpen] = useState(false);
+    const [feedbackAble, setFeedbackAble] = useState(false);
+    function isFeedbackTimeBefore(feedbackTime: string) {
+        const feedbackTimeDate= new Date(feedbackTime);
+        
+        const now = new Date();
+        
+        return feedbackTimeDate>now;
+    }
     useEffect(() => {
-        if(isLoading == false) {
+        if (isLoading == false) {
 
         }
-        else{
-        const fetchSession = async () => {
-                    if (!id) {
-                        setError("Không tìm thấy ID đặt chỗ");
-                        return;
-                    }
-                    const response = await getSessionById(Number(id));
-                    if (response) {
-                        setSession(response);
-                    } else {
-                        setError("Không tìm thấy thông tin lịch hẹn");
-                    }
+        else {
+            const fetchSession = async () => {
+                if (!id) {
+                    setError("Không tìm thấy ID đặt chỗ");
+                    return;
                 }
-                fetchSession();
-                setIsLoading(false);
+                const response = await getSessionById(Number(id));
+                if (response) {
+                    setSession(response);
+                    if(isFeedbackTimeBefore(response.feedBackTime))
+                        setFeedbackAble(true);
+                } else {
+                    setError("Không tìm thấy thông tin lịch hẹn");
+                }
+            }
+            fetchSession();
+            setIsLoading(false);
         }
-    }, [id,isLoading]);
+    }, [id, isLoading]);
 
     const getStatusColor = (status: string) => {
         switch (status.toUpperCase()) {
@@ -135,10 +147,11 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
             </div>
         );
     }
-
     // Extract date and time from sessionDateTime
     const sessionDate = session.sessionDateTime.split('T')[0];
     const sessionTime = session.sessionDateTime.split('T')[1];
+
+   
     return (
         <div className="bg-white min-h-screen">
             {(isStaff === false) &&
@@ -150,13 +163,13 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                 </div>
             }
             {isFeedbackOpen && !isStaff && session.status === "COMPLETED" && !session.rated && (
-                    <SessionFeedbackForm
-                        sessionId={session.id}
-                        isOpen={isFeedbackOpen}
-                        onClose={() => setIsFeedbackOpen(false)}
-                        setIsLoading = {setIsLoading}
-                    
-                    />
+                <SessionFeedbackForm
+                    sessionId={session.id}
+                    isOpen={isFeedbackOpen}
+                    onClose={() => setIsFeedbackOpen(false)}
+                    setIsLoading={setIsLoading}
+
+                />
             )}
             <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-2xl mx-auto mt-4 ">
                 <div className="bg-gradient-to-r from-purple-500 to-indigo-600 px-6 py-4">
@@ -178,7 +191,7 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                                 <FaTrash size={14} /> Hủy
                             </motion.button>
                         )}
-                        {!isStaff && session.status === "COMPLETED" && !session.rated && (
+                        {!isStaff && session.status === "COMPLETED" && !session.rated && feedbackAble && (
                             <motion.button
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -191,15 +204,26 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                                 <FaStar size={14} /> Đánh giá
                             </motion.button>
                         )}
-                        {isStaff && (session.status === "WAITING" ||session.status === "ON_GOING") &&
+                        {isStaff && (session.status === "WAITING" || session.status === "ON_GOING") &&
                             <button className="px-3 py-1 rounded-full text-md font-medium text-white bg-green-500 hover:bg-white hover:text-black"
                                 onClick={() => { setIsUpdateOpen(true); }}>Update</button>}
+                        {isStaff && (session.status === "WAITING" || session.status === "PENDING") &&
+                            <button className="px-3 py-1 rounded-full text-md font-medium text-white bg-red-500 hover:bg-white hover:text-black"
+                                onClick={() => { setIsCancelOpen(true); }}>Hủy</button>}
+
                         {isUpdateOpen &&
                             <UpdateSessionModal
                                 isOpen={isUpdateOpen}
                                 setIsOpen={setIsUpdateOpen}
                                 session={session}
-                                setIsLoading= {setIsLoading}
+                                setIsLoading={setIsLoading}
+                            />}
+                        {isCancelOpen &&
+                            <CancelModal
+                                isOpen={isCancelOpen}
+                                setIsOpen={setIsCancelOpen}
+                                session={session}
+                                setIsLoading={setIsLoading}
                             />}
 
                     </div>
