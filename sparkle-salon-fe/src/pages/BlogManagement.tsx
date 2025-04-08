@@ -120,13 +120,17 @@ export default function BlogManagement() {
     if (activeTab === "blog") {
       navigate("/therapist/blog");
     } else if (activeTab === "notes") {
-      navigate("/therapist");
-      
+      setActiveTab("notes");
+
+      navigate("/therapist", { state: { tab: "notes" } });      
     } else if (activeTab === "schedule") {
-      navigate("/therapist");
+      setActiveTab("schedule");
+      navigate("/therapist", { state: { tab: "schedule" } });
       
     }else if (activeTab === "account") {
-      navigate("/therapist");
+      setActiveTab("account");
+
+      navigate("/therapist", { state: { tab: "account" } });
     }
   }, [activeTab, navigate]);
 

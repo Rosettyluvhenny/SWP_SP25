@@ -93,7 +93,7 @@ export default function BookingAction({ isStaff, booking, setReload, reload, reB
                   e.stopPropagation();
                   e.preventDefault();
                   setCheckingOpen(true);
-                  handleChecking(booking);
+                  // handleChecking(booking);
                 }}
                 className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 flex items-center gap-1"
                 variants={buttonVariants}
