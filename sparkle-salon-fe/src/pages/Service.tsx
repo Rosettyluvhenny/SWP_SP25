@@ -58,7 +58,7 @@ export default function Service() {
 
     useEffect(() => {
         setSearchUrl(
-           `?isActive=true&${rating ? `rating=${rating}&` : ""}${selectedCategory ? `categoryId=${selectedCategory}&` : ""
+            `?isActive=true&${rating ? `rating=${rating}&` : ""}${selectedCategory ? `categoryId=${selectedCategory}&` : ""
             }${selectedQuizResult ? `quizResultId=${quizResult}&` : ""}${searchTerm ? `name=${searchTerm}&` : ""} page=${currentPage - 1}&size=${ServicePerPage}&sort=${sortBy}`
         );
     }, [currentPage]);
@@ -103,65 +103,71 @@ export default function Service() {
             {/* Search & Filter Section */}
             <div className="max-w-6xl mx-auto px-4">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg shadow-md -mt-8 relative z-20">
-                    <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) =>
-                            setSelectedCategory(Number(e.target.value))
-                        }
-                        className="border p-2 rounded"
-                    >
-                        <option value="">Danh mục</option>
-                        {categories &&
-                            categories.map((category) => (
-                                <option key={category.id} value={category.id}>
-                                    {category.name}
+                    {/* SortButtons component will render at full width on mobile, normal width on larger screens */}
+                    <div className="w-full md:w-auto">
+                        <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
+                    </div>
+
+                    {/* Create a grid for the filters on mobile, row on desktop */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-4 w-full md:w-auto">
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(Number(e.target.value))}
+                            className="border p-2 rounded w-full"
+                        >
+                            <option value="">Danh mục</option>
+                            {categories &&
+                                categories.map((category) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                        </select>
+
+                        <select
+                            value={selectedQuizResult?.id}
+                            onChange={(e) => setSelectedQuizResult(Number(e.target.value))}
+                            className="border p-2 rounded w-full"
+                        >
+                            <option value="">Loại da</option>
+                            {quizResult &&
+                                quizResult.map((result) => (
+                                    <option key={result.id} value={result.id}>
+                                        {result.name}
+                                    </option>
+                                ))}
+                        </select>
+
+                        <select
+                            value={rating}
+                            onChange={(e) => setRating(Number(e.target.value))}
+                            className="border p-2 rounded w-full"
+                        >
+                            <option value="">Đánh Giá</option>
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <option key={star} value={star}>
+                                    {"⭐".repeat(star)} ({star})
                                 </option>
                             ))}
-                    </select>
-                    <select
-                        value={selectedQuizResult?.id}
-                        onChange={(e) =>{
-                            setSelectedQuizResult(Number(e.target.value))
-                        }
-                        }
-                        className="border p-2 rounded"
-                    >
-                        <option value="">Loại da</option>
-                        {quizResult &&
-                            quizResult.map((result) => (
-                                <option key={result.id} value={result.id}>
-                                    {result.name}
-                                </option>
-                            ))}
-                    </select>
-                    <select
-                        value={rating}
-                        onChange={(e) => setRating(Number(e.target.value))}
-                        className="border p-2 rounded"
-                    >
-                        <option value="">
-                            Đánh Giá
-                        </option>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <option key={star} value={star}>
-                                {"⭐".repeat(star)} ({star})
-                            </option>
-                        ))}
-                    </select>
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm sản phẩm..."
-                        className="border p-2 rounded w-full md:w-auto"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <button
-                        className="bg-violet hover:bg-gray border p-2 rounded flex flex-row items-center gap-4"
-                        onClick={handleFilter}
-                    >
-                        <FaSearch />
-                    </button>
+                        </select>
+                    </div>
+
+                    {/* Search container with input and button */}
+                    <div className="flex flex-row gap-2 w-full md:w-auto">
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm sản phẩm..."
+                            className="border p-2 rounded flex-grow"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <button
+                            className="bg-violet hover:bg-gray border p-2 rounded flex items-center justify-center"
+                            onClick={handleFilter}
+                        >
+                            <FaSearch />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Results Summary */}
