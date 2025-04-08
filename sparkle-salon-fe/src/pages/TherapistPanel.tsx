@@ -491,7 +491,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
                               <button
                                 onClick={() => {
                                   if(!session.roomId){
-                                    toast.error("Phiên trị liệu chưa được có phòng")
+                                    toast.error("buổi trị liệu chưa được có phòng")
                                   }else{
                                     setSelectedSession(session);
                                     setActiveTab("notes");
@@ -512,7 +512,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
                   <div className="text-center py-8 bg-gray-50 rounded-lg">
                     <DocumentPlusIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                     <p className="text-gray-600">
-                      Không có phiên nào trong khoảng thời gian này
+                      Không có buổi nào trong khoảng thời gian này
                     </p>
                   </div>
                 )}
@@ -527,7 +527,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
             <header className="flex items-center mb-6">
               <ClipboardDocumentListIcon className="w-6 h-6 mr-3 text-pink-600" />
               <h1 className="text-2xl font-bold text-gray-800">
-                Ghi chú phiên trị liệu
+                Ghi chú buổi trị liệu
               </h1>
             </header>
             {selectedSession ? (
@@ -564,12 +564,12 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
                   <div>
                     <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center">
                       <CheckCircleIcon className="w-6 h-6 mr-2 text-pink-500" />
-                      Chi tiết phiên
+                      Chi tiết buổi
                     </h2>
                     <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
                       <p className="text-gray-600 flex items-center">
                         <FaBookMedical className="w-5 h-5 mr-2 text-pink-500" />
-                        ID Phiên: {selectedSession.id}
+                        ID buổi: {selectedSession.id}
                       </p>
                       <p className="text-gray-600 flex items-center">
                         <FaAddressBook className="w-5 h-5 mr-2 text-pink-500" />
@@ -602,7 +602,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
                           htmlFor="imgBefore"
                           className="block mb-2 text-sm font-medium text-gray-700"
                         >
-                          Trước phiên
+                          Trước 
                         </label>
                         <input
                           type="file"
@@ -619,7 +619,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
                           htmlFor="imgAfter"
                           className="block mb-2 text-sm font-medium text-gray-700"
                         >
-                          Sau phiên
+                          Sau 
                         </label>
                         <input
                           type="file"
@@ -639,14 +639,14 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
                     htmlFor="note"
                     className="block mb-2 text-sm font-medium text-gray-700"
                   >
-                    Ghi chú phiên
+                    Ghi chú buổi
                   </label>
                   <textarea
                     id="note"
                     name="note"
                     className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                     rows={6}
-                    placeholder="Nhập ghi chú chi tiết cho phiên tại đây..."
+                    placeholder="Nhập ghi chú chi tiết cho buổi tại đây..."
                     defaultValue={selectedSession.note || ""}
                     required
                     disabled={isSubmitting}
@@ -657,14 +657,14 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
                   disabled={isSubmitting}
                   className="w-full text-white bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition disabled:opacity-50"
                 >
-                  {isSubmitting ? "Đang cập nhật..." : "Cập nhật phiên"}
+                  {isSubmitting ? "Đang cập nhật..." : "Đã cập nhật"}
                 </button>
               </form>
             ) : (
               <div className="text-center py-8 bg-gray-50 rounded-lg">
                 <DocumentPlusIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                 <p className="text-gray-600 text-lg">
-                  Chọn một phiên để xem hoặc chỉnh sửa ghi chú
+                  Chọn một buổi để xem hoặc chỉnh sửa ghi chú
                 </p>
               </div>
             )}

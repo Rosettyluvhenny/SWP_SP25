@@ -54,7 +54,7 @@ const StaffSideBar: React.FC<{
                             }`}
                         >
                             <FiCalendar/>
-                            {isOpen && "Quản Lý Phiên Hẹn"}
+                            {isOpen && "Quản Lý Buổi Hẹn"}
                         </Link>
                     </li>
                     

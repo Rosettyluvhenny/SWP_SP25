@@ -78,7 +78,7 @@ export function UpdateSessionModal({
                 setIsSubmitting(true);
                 await updateSessionRoom(session.id,selectedRoomId);
 
-                toast.success('Cập nhật phiên thành công');
+                toast.success('Cập nhật buổi thành công');
                 setIsOpen(false);
             } catch (error) {
                 console.error('Error updating session:', error);
@@ -90,7 +90,7 @@ export function UpdateSessionModal({
         }else{
             try{
                 const rq = await updateSessionStatus(session.id,"COMPLETED");
-                toast.success('Cập nhật phiên thành công');
+                toast.success('Cập nhật buổi thành công');
                 setIsOpen(false);
                 setIsLoading(true);
                 return rq;
@@ -141,7 +141,7 @@ export function UpdateSessionModal({
             >
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-gray-800">
-                        Cập nhật phiên #{session.id}
+                        Cập nhật buổi #{session.id}
                     </h2>
                     <button
                         onClick={() => setIsOpen(!isOpen)}
@@ -247,7 +247,7 @@ export function CancelModal({
             setIsSubmitting(true);
             const rs = await cancelSession(session.id, message);
             console.log(rs);
-            toast.success('Cập nhật phiên thành công');
+            toast.success('Cập nhật buổi thành công');
             setIsOpen(false);
         } catch (error) {
             console.error('Error updating session:', error);
@@ -297,7 +297,7 @@ export function CancelModal({
             >
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-gray-800">
-                        Cập nhật phiên #{session.id}
+                        Cập nhật buổi #{session.id}
                     </h2>
                     <button
                         onClick={() => setIsOpen(!isOpen)}
@@ -321,7 +321,7 @@ export function CancelModal({
                             onChange={(e) => setMessage(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                             rows={4}
-                            placeholder="Nhập ghi chú cho phiên này..."
+                            placeholder="Nhập ghi chú cho buổi này..."
                         />
                     </div>
                     

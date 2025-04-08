@@ -19,7 +19,7 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
   const tabs = [
     { id: "account", label: "Thông tin chuyên viên", icon: <FaUser /> }, // Thêm tab mới
     { id: "schedule", label: "Lịch Làm Việc", icon: <AiOutlineSchedule /> },
-    { id: "notes", label: "Ghi Chú Phiên Trị Liệu", icon: <LuNotebookPen /> },
+    { id: "notes", label: "Ghi Chú buổi Trị Liệu", icon: <LuNotebookPen /> },
     { id: "blog", label: "Viết Blog", icon: <FaPencil /> },
   ];
 
