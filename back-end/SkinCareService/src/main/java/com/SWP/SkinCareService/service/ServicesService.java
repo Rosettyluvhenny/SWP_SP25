@@ -202,4 +202,27 @@ public class ServicesService {
 
     }
 
+    //Remove therapist from service
+    @Transactional
+    public void removeTherapistFromService(int id, AssignTherapistRequest request) {
+        Services service = checkService(id);
+        List<Therapist> therapistsInService = new ArrayList<>(service.getTherapists());
+        if (request.getTherapistId() != null) {
+            List<String> therapistId = new ArrayList<>(request.getTherapistId());
+            List<Therapist> therapistList = new ArrayList<>(therapistRepository.findAllById(therapistId));
+            if (therapistList.size() != therapistId.size()) {
+                throw new AppException(ErrorCode.THERAPIST_NOT_EXISTED);
+            }
+            for (Therapist therapist : therapistList) {
+                therapist.getServices().remove(service);
+                therapistRepository.save(therapist);
+                therapistsInService.remove(therapist);
+            }
+            if (therapistsInService.isEmpty()) {
+                service.setActive(false);
+            }
+        }
+        servicesRepository.save(service);
+    }
+
 }

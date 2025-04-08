@@ -98,4 +98,9 @@ public class BookingSession {
 
     @Column(columnDefinition = "DATETIME")
     LocalDateTime feedBackTime;
+
+    boolean reminder = false;
+
+    @CreationTimestamp
+    LocalDateTime createAt;
 }

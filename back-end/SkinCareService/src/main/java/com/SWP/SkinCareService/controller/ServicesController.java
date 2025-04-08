@@ -39,7 +39,7 @@ public class ServicesController {
     @Operation(summary = "Create a new service", description = "Create a new service with image upload")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ServicesResponse>> createServiceCategory(
-            @RequestPart("data")ServicesRequest request,
+            @Valid @RequestPart("data")ServicesRequest request,
             @Parameter(description = "Service image file")
             @RequestPart(value = "img") MultipartFile img) throws IOException {
 
@@ -94,7 +94,7 @@ public class ServicesController {
     @Operation(summary = "Update a service", description = "Update an existing service with image upload")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ServicesResponse>> updateServiceCategory(@PathVariable int id,
-                                                                               @RequestPart("data")ServicesUpdateRequest request,
+                                                                               @Valid @RequestPart("data")ServicesUpdateRequest request,
                                                                                @Parameter(description = "Service image file")
                                                                                @RequestPart(value = "img",required = false) MultipartFile img) throws IOException {
 
@@ -141,6 +141,14 @@ public class ServicesController {
         servicesService.assignTherapistToService(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.builder().message("Assigned").build()
+        );
+    }
+
+    @PutMapping("/removeTherapist/{id}")
+    public ResponseEntity<ApiResponse> removeTherapist(@PathVariable int id, @RequestBody AssignTherapistRequest request) {
+        servicesService.removeTherapistFromService(id, request);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.builder().message("Removed").build()
         );
     }
 }

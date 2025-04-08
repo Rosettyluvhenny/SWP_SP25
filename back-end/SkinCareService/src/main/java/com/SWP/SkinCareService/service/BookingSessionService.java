@@ -20,12 +20,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,7 +36,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.chrono.ChronoLocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,6 +73,12 @@ public class  BookingSessionService {
             throw new AppException(ErrorCode.BOOKING_REJECTED);
         }
         //Allowed to create new booking session
+        LocalDateTime startOfDay = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime endOfDay = startOfDay.plusDays(1).minusNanos(1);
+        List<BookingSession> sessionToday = bookingSessionRepository.findAllByBookingAndCreateAtBetweenAndStatus(booking, startOfDay, endOfDay, BookingSessionStatus.IS_CANCELED);
+        if (sessionToday.size() > 5) {
+            throw new AppException(ErrorCode.SPAM_REJECTED);
+        }
 
         BookingSession session = bookingSessionMapper.toBookingSession(request);
         Services service = booking.getService();
@@ -103,7 +107,7 @@ public class  BookingSessionService {
         } else {
             session.setStatus(BookingSessionStatus.PENDING);
         }
-
+        bookingSessionRepository.save(session);
         //Notification when session created, from second session
         if (session.getStatus() != BookingSessionStatus.PENDING) {
             int count = booking.getService().getSession() - booking.getSessionRemain() +1;
