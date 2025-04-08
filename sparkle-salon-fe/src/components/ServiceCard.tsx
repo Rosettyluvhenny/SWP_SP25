@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { FaMoneyBill } from "react-icons/fa";
-import { IoMdTime } from "react-icons/io";
+import { IoIosRedo, IoIosRefreshCircle, IoMdTime, IoMdTimer } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
@@ -70,6 +70,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                     <p className="text-gray-600 flex items-center">
                         <IoMdTime className="mr-2 text-pink-500" />
                         {service.duration} phút
+                        <IoIosRefreshCircle className="mr-2 text-pink-500 ml-4"/>
+                        {service.session} buổi
                     </p>
                     <p className="text-pink-600 font-semibold text-lg flex items-center">
                         <FaMoneyBill className="mr-2" />

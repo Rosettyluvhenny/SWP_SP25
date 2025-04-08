@@ -1,5 +1,5 @@
 import React, { useEffect, useState, FormEvent, useContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   getTherapistInfo,
   updateTherapist,
@@ -93,11 +93,16 @@ export default function Therapist() {
     return date.toISOString().split("T")[0];
   });
   const {user} = useContext(UserContext);
-  // useEffect(()=>{
-  //   if(user.role !="THERAPIST")
-  //     // toast.error("Bạn không có quyền truy cập")
-  //     navigate("/home")
-  // },[])
+  const location = useLocation();
+
+  useEffect(() => {
+    const tabFromState = location.state?.tab;
+    console.log("therapist :", tabFromState)
+    if (tabFromState) {
+      setActiveTab(tabFromState);
+
+    }
+  }, [location.state]);
   const fetchTherapistInfoData = async () => {
     try {
       setLoading(true);

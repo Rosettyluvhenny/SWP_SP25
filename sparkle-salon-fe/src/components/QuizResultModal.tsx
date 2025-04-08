@@ -87,7 +87,7 @@ export function QuizResultModal({ quizResult, onClose }: QuizResultModalProps) {
       >
         <div className="bg-pink-50 rounded-2xl p-6 mb-8">
           <h3 className="text-xl font-semibold text-pink-800 mb-3">
-            Skin Analysis
+            Phân tích kết quả: {fetchedResult.name}
           </h3>
           <p className="text-gray-700">
             {fetchedResult.resultText || "No results to display"}

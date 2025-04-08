@@ -85,7 +85,7 @@ const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
                     <div className="text-center">
                         {/* <SpinnerLoading/> */}
                         <p className="text-gray-500 mt-2">
-                            Vui lòng đợi...
+                            Không có kết quả tìm kiếm 
                         </p>
                     </div>
                 </motion.div>

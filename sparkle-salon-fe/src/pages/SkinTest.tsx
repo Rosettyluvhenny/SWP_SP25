@@ -38,10 +38,13 @@ export default function KiemTraDa() {
   useEffect(() => {
     const fetchUser = async () => {
       setIsLoading(true);
+
       try {
-        const userData = await getUser();
-        setUserInfo(userData || null);
-        
+        let userData = null;
+        if (localStorage.getItem("token") != null)
+          userData = await getUser();
+        setUserInfo(userData);
+
       } catch (error) {
         console.error("Error fetching user:", error);
         toast.error("Không thể tải thông tin người dùng");
@@ -49,10 +52,10 @@ export default function KiemTraDa() {
         setIsLoading(false);
       }
     };
-    
+
     fetchUser();
 
-  }, [userInforelod]);
+  }, [localStorage.getItem("token"), userInforelod]);
 
   // Fetch blog based on quiz result
   useEffect(() => {
@@ -87,7 +90,7 @@ export default function KiemTraDa() {
       setShowBlogDetail(true);
       const userId = userInfo?.id ?? null;
       handleResultSkin(userId, state.quizResultId);
-      
+
     } else {
       toast.error("Không tìm thấy blog phù hợp với kết quả");
     }
@@ -106,7 +109,7 @@ export default function KiemTraDa() {
   }
 
   return (
-    <div className="bg-gradient-to-b from-pink-50 to-white min-h-screen font-sans">
+    <div className="bg-gradient-to-b from-pink-50 to-white min-h-screen font-sans mt-16">
       {/* Header */}
       <div
         className="relative w-full h-64 flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat"
@@ -124,14 +127,14 @@ export default function KiemTraDa() {
       {/* Quiz Selection */}
       {!state.isQuizStarted && !state.showResults && (
         <div className="max-w-6xl mx-auto py-6 px-4 sm:px-6">
-          {user&& user.auth&& (
-          <button
-            onClick={handleQuizResultById}
-            className="absolute left-10 px-3 py-2 bg-pink-600 text-white rounded-xl hover:bg-pink-800 transition font-semibold shadow-md "
-          >
-            Xem Lại Kết Quả
-          </button>
-)}
+          {user && user.auth && (
+            <button
+              onClick={handleQuizResultById}
+              className="absolute left-10 px-3 py-2 bg-pink-600 text-white rounded-xl hover:bg-pink-800 transition font-semibold shadow-md "
+            >
+              Xem Lại Kết Quả
+            </button>
+          )}
 
           <div className="relative max-w-6xl mx-auto py-12 px-4 sm:px-6">
             <h2 className="text-3xl md:text-4xl font-bold text-pink-800 text-center">
@@ -144,18 +147,16 @@ export default function KiemTraDa() {
                 <div
                   key={quiz.id}
                   onClick={() => handleSelectQuiz(quiz)}
-                  className={`cursor-pointer group rounded-2xl transition-all duration-300 ${
-                    state.selectedQuiz?.id === quiz.id
-                      ? "ring-4 ring-pink-500 shadow-xl scale-105"
-                      : "hover:shadow-xl hover:scale-102"
-                  }`}
+                  className={`cursor-pointer group rounded-2xl transition-all duration-300 ${state.selectedQuiz?.id === quiz.id
+                    ? "ring-4 ring-pink-500 shadow-xl scale-105"
+                    : "hover:shadow-xl hover:scale-102"
+                    }`}
                 >
                   <div
-                    className={`h-full p-8 rounded-2xl transition-colors duration-300 ${
-                      state.selectedQuiz?.id === quiz.id
-                        ? "bg-gradient-to-br from-pink-100 to-pink-50 border-pink-300"
-                        : "bg-white border border-gray-200 group-hover:bg-pink-50"
-                    }`}
+                    className={`h-full p-8 rounded-2xl transition-colors duration-300 ${state.selectedQuiz?.id === quiz.id
+                      ? "bg-gradient-to-br from-pink-100 to-pink-50 border-pink-300"
+                      : "bg-white border border-gray-200 group-hover:bg-pink-50"
+                      }`}
                   >
                     <h3 className="text-2xl font-semibold mb-3 text-gray-800">
                       {quiz.name}
@@ -195,7 +196,7 @@ export default function KiemTraDa() {
       {/* Quiz Result Modal */}
       {showSkintestAgain && (
         <QuizResultModal
-          quizResult={userInfo?.skinTypeId }
+          quizResult={userInfo?.skinTypeId}
           onClose={closeViewModal}
         />
       )}
@@ -262,10 +263,10 @@ export default function KiemTraDa() {
                       {foundBlog.title}
                     </h1>
                     <img
-                      src={foundBlog.img }
+                      src={foundBlog.img}
                       alt={foundBlog.title}
                       className="w-full h-72 object-cover rounded-xl my-6"
-                     
+
                     />
                     <div
                       className="mt-6 text-gray-700 leading-relaxed"
@@ -287,11 +288,11 @@ export default function KiemTraDa() {
                           >
                             <div className="h-40 overflow-hidden">
                               <img
-                                src={service.img }
+                                src={service.img}
                                 alt={service.name}
                                 className="w-full h-full object-cover"
-                                
-                                
+
+
                               />
                             </div>
                             <div className="p-4">
@@ -325,7 +326,8 @@ export default function KiemTraDa() {
               )}
 
               <button
-                onClick= {() =>{ handleBack();
+                onClick={() => {
+                  handleBack();
                   setShowBlogDetail(false);
                   setShowSkintestAgain(false);
                   setUserInforelod(!userInforelod);

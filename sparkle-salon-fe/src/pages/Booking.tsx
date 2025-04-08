@@ -49,7 +49,7 @@ export default function Booking() {
     function getNextSevenDates() {
         const days: BookingDate[] = [];
 
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 10; i++) {
             const date = new Date();
             date.setDate(date.getDate() + i);
 
@@ -103,6 +103,10 @@ export default function Booking() {
             try {
                 if (selectedServiceId && selectedServiceId !== "") {
                     const fetchedTherapists = await getTherapists(selectedServiceId);
+                    if(!(fetchedTherapists.length>0)){
+                        toast.error("Không có therapist ")
+                    }
+                    else
                     setTherapists(fetchedTherapists);
                 }
             } catch (error) {

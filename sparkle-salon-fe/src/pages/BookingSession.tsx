@@ -50,7 +50,7 @@ interface BookingDate {
     function getNextSevenDates() {
       const days: BookingDate[] = [];
   
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < 10; i++) {
         const date = new Date();
         date.setDate(date.getDate() + i);
   
@@ -152,8 +152,10 @@ interface BookingDate {
         try{
             const response = await sessionSchedule(sessionBody);
             console.log("resoibse", response);
-            toast.success("Đặt lịch thành công");
-            navigate(`/sessionDetail/${response.id}`)
+            if(response){
+              toast.success("Đặt lịch thành công");
+              navigate(`/sessionDetail/${response.id}`)
+            }
 
         }catch(error){
             navigate('/schedule');
