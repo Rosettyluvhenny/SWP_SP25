@@ -27,7 +27,7 @@ import {
 } from "../data/therapistData";
 import { toast } from "react-toastify";
 import AssignModal from "../components/AssignModal";
-
+import Category from "../data/categoryData"
 type Service = {
     id: number;
     name: string;
@@ -83,7 +83,7 @@ export default function ServiceManagement() {
     const [editingService, setEditingService] = useState<Service | null>(null);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
     const [selectedService, setSelectedService] = useState<string | null>(null);
-    const [type, setType] = useState("");
+    const [type, setType] = useState("CLEANSING");
     // Categories state
     const [categories, setCategories] = useState<ServiceCategory[]>([]);
     const [categorySearchTerm, setCategorySearchTerm] = useState("");
@@ -97,6 +97,7 @@ export default function ServiceManagement() {
     const [categoryFormDescription, setCategoryFormDescription] =
         useState<string>("");
     const [reload, setReload] = useState(false);
+    const [selectedCate, setSelectedCate] = useState<ServiceCategory>();
     const handleOpenServiceForm = (serviceId: string | null) => {
         setSelectedService(serviceId);
         setIsOpenServiceForm(true);
@@ -152,6 +153,9 @@ export default function ServiceManagement() {
         setEditingCategory(category);
         setCategoryFormErrors({});
         setCategoryFormValue(category?.name ?? "");
+        setCategoryFormDescription(category?.description ?? "");
+        console.log("type", type)
+        setType(category?.type ?? "CLEANSING")
         setIsCategoryModalOpen(true);
     };
 
@@ -188,8 +192,8 @@ export default function ServiceManagement() {
         setServices((prev) =>
             prev.some((s) => s.id === editingService.id)
                 ? prev.map((s) =>
-                      s.id === editingService.id ? editingService : s
-                  )
+                    s.id === editingService.id ? editingService : s
+                )
                 : [...prev, editingService]
         );
         closeServiceModal();
@@ -209,7 +213,8 @@ export default function ServiceManagement() {
 
     const handleCategorySave = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        const token = localStorage.getItem("token")
+        console.log("type",type)
         if (!validateCategoryForm()) return;
 
         try {
@@ -226,25 +231,40 @@ export default function ServiceManagement() {
             };
 
             if (editingCategory) {
-                await axios.put(
-                    `/category/${editingCategory.id}`,
-                    {
+                try {
+                    await axios.put(`/category/${editingCategory.id}`, {
                         name: categoryFormValue,
                         description: categoryFormDescription,
                         type: type,
-                    },
-                    config
-                );
+                    }, {
+                        headers:
+                        {
+                            Authorization: `Bearer ${token}`
+                        }
+
+                    })
+                    toast.success("Cập nhật thành công");
+                } catch (err) {
+                    toast.erorr("Xảy ra lỗi khi cập nhật")
+                }
             } else {
-                await axios.post(
-                    "/category",
-                    {
+                try {
+                    await axios.post("/category", {
                         name: categoryFormValue,
                         description: categoryFormDescription,
                         type: type,
-                    },
-                    config
-                );
+                    }, {
+                        headers:
+                        {
+                            Authorization: `Bearer ${token}`
+                        }
+
+                    });
+                    toast.success("Tạo thành công");
+
+                } catch (err) {
+                    toast.error("Xảy ra lỗi khi cập nhật")
+                }
             }
             fetchCategories();
             closeCategoryModal();
@@ -281,8 +301,16 @@ export default function ServiceManagement() {
             "Bạn có chắc chắn muốn xóa danh mục này?"
         );
         if (confirmDelete) {
+            const token = localStorage.getItem("token");
             try {
-                await axios.delete(`/category/${id}`);
+                await axios.delete(`/category/${id}`,
+                    {
+                        headers:
+                        {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
                 fetchCategories();
                 toast.success("Xóa danh mục thành công");
             } catch (error) {
@@ -426,21 +454,19 @@ export default function ServiceManagement() {
                             <div className="flex space-x-4 mb-6">
                                 <button
                                     onClick={() => setActiveTab("services")}
-                                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                                        activeTab === "services"
-                                            ? "bg-pink-500 text-white"
-                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }`}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === "services"
+                                        ? "bg-pink-500 text-white"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                        }`}
                                 >
                                     Dịch Vụ
                                 </button>
                                 <button
                                     onClick={() => setActiveTab("categories")}
-                                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                                        activeTab === "categories"
-                                            ? "bg-pink-500 text-white"
-                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }`}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === "categories"
+                                        ? "bg-pink-500 text-white"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                        }`}
                                 >
                                     Danh Mục
                                 </button>
@@ -553,7 +579,7 @@ export default function ServiceManagement() {
                                                 </thead>
                                                 <tbody className="bg-white">
                                                     {filteredServices.length >
-                                                    0 ? (
+                                                        0 ? (
                                                         filteredServices.map(
                                                             (service) => (
                                                                 <motion.tr
@@ -610,12 +636,11 @@ export default function ServiceManagement() {
                                                                     </td>
                                                                     <td className="p-3">
                                                                         <span
-                                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                                                service.status ===
+                                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${service.status ===
                                                                                 "Hoạt Động"
-                                                                                    ? "bg-green-100 text-green-800"
-                                                                                    : "bg-yellow-100 text-yellow-800"
-                                                                            }`}
+                                                                                ? "bg-green-100 text-green-800"
+                                                                                : "bg-yellow-100 text-yellow-800"
+                                                                                }`}
                                                                         >
                                                                             {
                                                                                 service.status
@@ -652,7 +677,7 @@ export default function ServiceManagement() {
                                                                             Sửa
                                                                         </motion.button>
                                                                         {service.status ===
-                                                                            "Hoạt Động" && (
+                                                                            "Hoạt Động" &&
                                                                             <motion.button
                                                                                 onClick={() =>
                                                                                     handleDeactivateService(
@@ -672,14 +697,11 @@ export default function ServiceManagement() {
                                                                                         14
                                                                                     }
                                                                                 />{" "}
-                                                                                Vô
-                                                                                hiệu
+                                                                                Vô hiệu
                                                                             </motion.button>
-                                                                        )}
-                                                                        {!(
-                                                                            service.status ===
-                                                                            "Hoạt Động"
-                                                                        ) && (
+                                                                        }
+                                                                        {!(service.status ===
+                                                                            "Hoạt Động") &&
                                                                             <motion.button
                                                                                 onClick={() =>
                                                                                     handleActivateService(
@@ -699,10 +721,9 @@ export default function ServiceManagement() {
                                                                                         14
                                                                                     }
                                                                                 />{" "}
-                                                                                Kích
-                                                                                hoạt
+                                                                                Kích hoạt
                                                                             </motion.button>
-                                                                        )}
+                                                                        }
                                                                         <motion.button
                                                                             onClick={() =>
                                                                                 openAssignModal(
@@ -819,10 +840,12 @@ export default function ServiceManagement() {
                                                                 whileTap={{
                                                                     scale: 0.9,
                                                                 }}
-                                                                onClick={() =>
+                                                                onClick={() =>{
+                                                                    setSelectedCate(category)
                                                                     openCategoryModal(
                                                                         category
                                                                     )
+                                                                }
                                                                 }
                                                                 className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
                                                             >
@@ -893,9 +916,8 @@ export default function ServiceManagement() {
                                         name: e.target.value,
                                     })
                                 }
-                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                                    formErrors.name ? "border-red-500" : ""
-                                }`}
+                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${formErrors.name ? "border-red-500" : ""
+                                    }`}
                             />
                             {formErrors.name && (
                                 <p className="text-red-500 text-sm mt-1">
@@ -915,9 +937,8 @@ export default function ServiceManagement() {
                                         price: e.target.value,
                                     })
                                 }
-                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                                    formErrors.price ? "border-red-500" : ""
-                                }`}
+                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${formErrors.price ? "border-red-500" : ""
+                                    }`}
                                 placeholder="150.000"
                             />
                             {formErrors.price && (
@@ -981,7 +1002,7 @@ export default function ServiceManagement() {
                         editingCategory ? "Chỉnh Sửa Danh Mục" : "Thêm Danh Mục"
                     }
                 >
-                    <form onSubmit={handleCategorySave}>
+                    {/* <form onSubmit={handleCategorySave}> */}
                         <label className="block mb-4">
                             <span className="text-gray-700">Tên Danh Mục</span>
                             <input
@@ -990,11 +1011,10 @@ export default function ServiceManagement() {
                                 onChange={(e) =>
                                     setCategoryFormValue(e.target.value)
                                 }
-                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                                    categoryFormErrors.name
-                                        ? "border-red-500"
-                                        : ""
-                                }`}
+                                className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 ${categoryFormErrors.name
+                                    ? "border-red-500"
+                                    : ""
+                                    }`}
                             />
                             {categoryFormErrors.name && (
                                 <p className="text-red-500 text-sm mt-1">
@@ -1019,7 +1039,12 @@ export default function ServiceManagement() {
                                 </p>
                             )}
                         </label>
+                        <label className="block mb-4" htmlFor="categoryType">
+                            Chọn danh mục
+                        </label>
                         <select
+                            id="categoryType"
+                            value={type}
                             onChange={(e) => {
                                 setType(e.target.value);
                                 console.log(e.target.value);
@@ -1037,7 +1062,7 @@ export default function ServiceManagement() {
                                 {categoryFormErrors.submit}
                             </p>
                         )}
-                    </form>
+                    {/* </form> */}
                 </ManagementModal>
             )}
 
