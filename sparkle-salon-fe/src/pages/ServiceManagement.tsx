@@ -75,7 +75,7 @@ export default function ServiceManagement() {
     const [editingService, setEditingService] = useState<Service | null>(null);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
     const [selectedService, setSelectedService] = useState<string | null>(null);
-    const [type, setType] = useState("");
+    const [type, setType] = useState("CLEANSING");
     // Categories state
     const [categories, setCategories] = useState<ServiceCategory[]>([]);
     const [categorySearchTerm, setCategorySearchTerm] = useState("");
@@ -201,7 +201,7 @@ export default function ServiceManagement() {
 
     const handleCategorySave = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        const token = localStorage.getItem("token")
         if (!validateCategoryForm()) return;
 
         try {
@@ -210,12 +210,24 @@ export default function ServiceManagement() {
                     name: categoryFormValue,
                     description: categoryFormDescription,
                     type: type,
+                },{
+                    headers: 
+                    {
+                        Authorization: `Bearer ${token}`
+                    }
+
                 });
             } else {
                 await axios.post("/category", {
                     name: categoryFormValue,
                     description: categoryFormDescription,
                     type: type,
+                },{
+                    headers: 
+                    {
+                        Authorization: `Bearer ${token}`
+                    }
+
                 });
             }
             fetchCategories();
@@ -254,8 +266,15 @@ export default function ServiceManagement() {
             "Bạn có chắc chắn muốn xóa danh mục này?"
         );
         if (confirmDelete) {
+            const token = localStorage.getItem("token");
             try {
-                await axios.delete(`/category/${id}`);
+                await axios.delete(`/category/${id}`,
+                    {headers:
+                        {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
                 fetchCategories();
                 toast.success("Xóa danh mục thành công");
             } catch (error) {
