@@ -45,4 +45,6 @@ public class BookingSessionResponse {
     boolean rated;
     String phone;
     String description;
+
+    LocalDateTime feedBackTime;
 }

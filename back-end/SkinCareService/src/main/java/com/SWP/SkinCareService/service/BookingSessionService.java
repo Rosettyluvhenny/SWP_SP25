@@ -701,7 +701,7 @@ public class  BookingSessionService {
                 }
                 //Check date to create new bookingSession
                 if (!requestDate.isAfter(dateOfLastSession)) {
-                    throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                    throw new AppException(ErrorCode.BOOKING_DATE_NOT_EXCEPTION);
                 }
             }
             //Check session remain
