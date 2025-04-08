@@ -3,6 +3,7 @@ export interface Category{
     id: number;
     name: string;
     description: string;
+    type: number;
 }
 
 export const CategoryData = async () :Promise<{ category: Category[]}> =>{
@@ -10,3 +11,4 @@ export const CategoryData = async () :Promise<{ category: Category[]}> =>{
     const category = response.result;
     return category;
 }
+export default {CategoryData}
