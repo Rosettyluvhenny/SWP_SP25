@@ -45,18 +45,18 @@ public class ServicesRequest {
     String description;
 
     @Schema(
-        description = "Price of the service in dollars",
-        example = "99.99",
-        defaultValue = "50.00"
+        description = "Price of the service in VND",
+        example = "1000000.00",
+        defaultValue = "10000.00"
     )
     @NotNull(message = "NOT_EMPTY")
-    @Min(value = 1000, message = "MIN")
+    @Min(value = 10000, message = "MIN")
     BigDecimal price;
 
     @Schema(
         description = "Duration of the service in minutes",
         example = "60",
-        defaultValue = "30"
+        defaultValue = "15"
     )
     @NotNull(message = "NOT_EMPTY")
     @Min(value = 15, message = "MIN")

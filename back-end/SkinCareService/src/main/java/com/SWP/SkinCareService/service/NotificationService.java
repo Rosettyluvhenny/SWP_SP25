@@ -70,6 +70,7 @@ public class NotificationService {
 
         if (sessionList != null && !sessionList.isEmpty()) {
             for (BookingSession bookingSession : sessionList) {
+                if (!bookingSession.isReminder()) {
                     NotificationRequest request = NotificationRequest.builder()
                             .text("Buổi dịch vụ "+bookingSession.getBooking().getService().getName()+" của bạn sẽ diễn ra vào lúc "+ bookingSession.getSessionDateTime().toLocalTime())
                             .userId(bookingSession.getBooking().getUser().getId())
@@ -77,6 +78,9 @@ public class NotificationService {
                             .url("http://localhost:3000/sessionDetail/"+bookingSession.getId())
                             .build();
                     create(request);
+                    bookingSession.setReminder(true);
+                    bookingSessionRepository.save(bookingSession);
+                }
             }
         }
         return notificationRepository.findAllByUserAndIsReadOrderByCreatedAtDesc(user, false).stream().map(notificationMapper::toResponse).toList();

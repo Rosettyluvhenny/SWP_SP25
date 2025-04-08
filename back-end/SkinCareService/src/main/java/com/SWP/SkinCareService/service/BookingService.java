@@ -31,9 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -68,6 +68,13 @@ public class BookingService {
         //Check payment method
         Payment payment = getPaymentById(request.getPaymentId());
         //Get all booking of user
+
+        LocalDateTime from = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime to = from.plusDays(1).minusNanos(1);
+        List<Booking> bookingToday = bookingRepository.findAllByUserAndCreateAtBetweenAndStatus(user, from, to, BookingStatus.IS_CANCELED);
+        if (bookingToday.size() > 5) {
+            throw new AppException(ErrorCode.SPAM_REJECTED);
+        }
 
         Set<Booking> userBookingExisted = user.getBooking();
         if (userBookingExisted != null && !userBookingExisted.isEmpty()) {
