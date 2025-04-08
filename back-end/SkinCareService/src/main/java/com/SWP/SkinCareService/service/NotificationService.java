@@ -64,9 +64,9 @@ public class NotificationService {
 
         LocalDateTime timeMakeRequest = LocalDateTime.now();
         LocalDateTime timeToCheckSessionStart = timeMakeRequest.plusHours(2);
-        BookingSessionStatus status = BookingSessionStatus.WAITING;
+        List<BookingSessionStatus> statuses = List.of(BookingSessionStatus.WAITING,BookingSessionStatus.PENDING);
 
-        List<BookingSession> sessionList = bookingSessionRepository.findAllBookingSessionsByUserIdAndStatusBetweenDates(user.getId(),status,timeMakeRequest, timeToCheckSessionStart);
+        List<BookingSession> sessionList = bookingSessionRepository.findAllBookingSessionsByUserIdAndInStatusBetweenDates(user.getId(),statuses,timeMakeRequest, timeToCheckSessionStart);
 
         if (sessionList != null && !sessionList.isEmpty()) {
             for (BookingSession bookingSession : sessionList) {
@@ -79,7 +79,7 @@ public class NotificationService {
                     create(request);
             }
         }
-        return notificationRepository.findAllByUserAndIsRead(user, false).stream().map(notificationMapper::toResponse).toList();
+        return notificationRepository.findAllByUserAndIsReadOrderByCreatedAtDesc(user, false).stream().map(notificationMapper::toResponse).toList();
     }
 
     @Transactional
