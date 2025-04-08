@@ -106,7 +106,7 @@ export default function KiemTraDa() {
   }
 
   return (
-    <div className="bg-gradient-to-b from-pink-50 to-white min-h-screen font-sans">
+    <div className="bg-gradient-to-b from-pink-50 to-white min-h-screen font-sans mt-16">
       {/* Header */}
       <div
         className="relative w-full h-64 flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat"
