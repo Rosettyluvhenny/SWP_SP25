@@ -139,7 +139,7 @@ const getSessionById = async (id: number) => {
 }
 
 const getSessionByBookingId = async (id: number) => {
-    const response = await axios.get(`/bookingSession/booking/${id}`, {
+    const response = await axios.get(`/bookingSession/booking/${id}?size=100`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
         }

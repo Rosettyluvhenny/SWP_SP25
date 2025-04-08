@@ -72,7 +72,7 @@ const PolicyModal: React.FC<PolicyModalProps> = ({
                             stiffness: 300,
                             duration: 0.3
                         }}
-                        className="bg-gray-50 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] 
+                        className="bg-gray-50 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] 
                                    overflow-hidden flex flex-col relative z-10
                                    border border-gray-100"
                         role="dialog"
@@ -130,7 +130,7 @@ const PolicyModal: React.FC<PolicyModalProps> = ({
                                     <div className="mt-3 ml-10">
                                         <p>
                                             Khách hàng có thể thanh toán bằng <span className="text-gray-900 font-medium">tiền mặt, chuyển
-                                            khoản ngân hàng, hoặc thẻ tín dụng/ghi nợ</span> tại spa.
+                                            khoản ngân hàng</span> tại spa.
                                         </p>
                                     </div>
                                 </section>
@@ -142,7 +142,7 @@ const PolicyModal: React.FC<PolicyModalProps> = ({
                                     </h3>
                                     <div className="mt-3 ml-10">
                                         <p>
-                                            Khi dịch vụ bị huỷ <span className="text-gray-900 font-medium">chúng tôi sẽ không chịu trách nhiệm hoàn tiền (Đối với thanh toán bằng phương thức VNPAY). Buổi hẹn của quý khách vẫn sẽ được giữ cho lần sau</span> .
+                                            Khi dịch vụ bị huỷ <span className="text-gray-900 font-medium">chúng tôi sẽ không chịu trách nhiệm hoàn tiền . Buổi hẹn của quý khách vẫn sẽ được giữ cho lần sau</span> .
                                         </p>
                                     </div>
                                 </section>
@@ -179,14 +179,29 @@ const PolicyModal: React.FC<PolicyModalProps> = ({
                                 <section className="bg-pink-50 rounded-xl p-4 shadow-sm border border-pink-100">
                                     <h3 className="font-semibold text-lg text-pink-600 flex items-center gap-3">
                                         <span className="flex items-center justify-center w-7 h-7 rounded-full bg-pink-100 text-pink-600 text-sm">6</span>
+                                        Loại gói dịch vụ
+                                    </h3>
+                                    <div className="mt-3 ml-10">
+                                        <p>
+                                            Cho gói dịch vụ trị liệu thời gian giữa 2 buổi trị liệu ít nhất là <span className="text-gray-900 font-medium">7 ngày</span> khách hàng sẽ không thể 
+                                            đặt lịch cho bất cứ dịch vụ trị liệu nào trong khoản thời gian này <span className="text-gray-900 font-bold">nhằm đảm bảo an toàn</span> cho sức khỏe làn da.
+                                        </p>
+                                        <p className="mt-3">
+                                            Cho gói dịch vụ làm sạch và phục hồi thời gian giữa 2 buổi trị liệu ít nhất là <span className="text-gray-900 font-medium">1 ngày</span> khách hàng sẽ không thể 
+                                            đặt lịch cho bất cứ dịch vụ làm sạch và phục hồi nào trong khoản thời gian này <span className="text-gray-900 font-bold">nhằm đảm bảo chu trình sinh học của làn da</span>
+                                        </p>
+                                    </div>
+                                </section>
+
+                                <section className="bg-pink-50 rounded-xl p-4 shadow-sm border border-pink-100">
+                                    <h3 className="font-semibold text-lg text-pink-600 flex items-center gap-3">
+                                        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-pink-100 text-pink-600 text-sm">7</span>
                                         Lưu ý quan trọng
                                     </h3>
                                     <div className="mt-3 ml-10">
                                         <p>
                                             Vui lòng đến <span className="text-gray-900 font-medium">sớm 10-15 phút</span> trước giờ hẹn để hoàn
-                                            tất thủ tục. Nếu đến muộn, thời gian dịch vụ có thể
-                                            bị rút ngắn để đảm bảo không ảnh hưởng đến lịch hẹn
-                                            của khách hàng kế tiếp.
+                                            tất thủ tục. Nếu đến muộn sau 30 phút, lịch hẹn sẽ bị hủy nhưng số lần thực hiện của gói dịch vụ vẫn được giữ nguyên.
                                         </p>
                                     </div>
                                 </section>

@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import axios from "../services/customizedAxios";
 
 export interface Service {
@@ -21,6 +22,10 @@ export interface MetaData {
     first: boolean;
     last: boolean;
     numberOfElements: number;
+}
+export interface QuizResult{
+    name: string;
+    id:number;
 }
 
 const servicesData = async (url : string): Promise<{ services: Service[]; meta: MetaData }> => {
@@ -90,5 +95,14 @@ const assignTherapist = async (id: string, therapistIds: string[]) => {
         return false;
     }
 };
+const getQuizResult = async() => {
+    try{
+        const response = await axios.get("/quizResult");
 
-export { servicesData , serviceDataById, deactivateService,activateService, assignTherapist };
+        return response;
+    }catch(err){
+        toast.error("cant fetch result")
+    }
+}
+
+export { servicesData , serviceDataById, deactivateService,activateService, assignTherapist,getQuizResult };

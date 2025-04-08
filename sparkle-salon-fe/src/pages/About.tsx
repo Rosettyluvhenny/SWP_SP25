@@ -263,10 +263,10 @@ export default function About() {
                           <div className="p-6">
                             <h3 className="text-xl font-semibold text-gray-800">{therapist.fullName}</h3>
 
-                            {therapist.rating != 0 ?<h4 className="text-xl font-semibold text-gray-800" ><span>{therapist.rating}⭐ </span></h4> :
-                                                          <h4 className="text-sm font-semibold text-gray-800" >Chưa có đánh giá</h4>}
+                            {therapist.rating != 0 ? <h4 className="text-xl font-semibold text-gray-800" ><span>{therapist.rating}⭐ </span></h4> :
+                              <h4 className="text-sm font-semibold text-gray-800" >Chưa có đánh giá</h4>}
 
-                            
+
                             <motion.button
                               onClick={() => handleViewTherapist(therapist)}
                               className="mt-4 w-full bg-[#ee8874] text-white py-2 rounded-lg hover:bg-[#e67a66] transition-colors"
@@ -295,9 +295,8 @@ export default function About() {
                   <button
                     key={index}
                     onClick={() => setActiveIndex(index + 1)} // +1 vì có nhóm nhân bản trước đầu
-                    className={`h-3 w-3 rounded-full transition-all duration-300 ${
-                      realIndex(activeIndex) === index ? "bg-[#ee8874] scale-125" : "bg-gray-300"
-                    } hover:bg-[#f8a89c] hover:scale-110`}
+                    className={`h-3 w-3 rounded-full transition-all duration-300 ${realIndex(activeIndex) === index ? "bg-[#ee8874] scale-125" : "bg-gray-300"
+                      } hover:bg-[#f8a89c] hover:scale-110`}
                     aria-label={`Go to slide ${index + 1}`}
                     aria-current={realIndex(activeIndex) === index ? "true" : "false"}
                   />
@@ -366,7 +365,7 @@ export default function About() {
                       </div>
                     </div>
                   )}
-  
+
                   <div className="space-y-1">
                     <p className="text-sm text-gray-500">Họ tên</p>
                     <p className="font-medium text-lg">{selectedTherapist.fullName}</p>
@@ -402,12 +401,14 @@ export default function About() {
                   {selectedTherapist.services?.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {selectedTherapist.services.map((service) => (
-                        <span
-                          key={service.id}
-                          className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
-                        >
-                          {service.name}
-                        </span>
+                        <Link to={`/service/${service.id}`}>
+                          <span
+                            key={service.id}
+                            className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                          >
+                            {service.name}
+                          </span>
+                        </Link>
                       ))}
                     </div>
                   ) : (
