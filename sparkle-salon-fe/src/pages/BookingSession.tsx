@@ -152,8 +152,10 @@ interface BookingDate {
         try{
             const response = await sessionSchedule(sessionBody);
             console.log("resoibse", response);
-            toast.success("Đặt lịch thành công");
-            navigate(`/sessionDetail/${response.id}`)
+            if(response){
+              toast.success("Đặt lịch thành công");
+              navigate(`/sessionDetail/${response.id}`)
+            }
 
         }catch(error){
             navigate('/schedule');

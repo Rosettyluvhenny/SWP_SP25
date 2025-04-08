@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { Service } from "../data/servicesData";
-import { servicesData } from "../data/servicesData";
+import type { QuizResult, Service } from "../data/servicesData";
+import { getQuizResult, servicesData } from "../data/servicesData";
 import SortButtons from "../components/SortButton";
 import Pagination from "../components/Pagination.tsx";
 import ServiceList from "../components/ServiceList";
 import { Category, CategoryData } from "../data/categoryData.ts";
 import { FaSearch } from "react-icons/fa";
+import { isGenerator } from "framer-motion";
 
 export default function Service() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -22,7 +23,9 @@ export default function Service() {
     const [services, setServices] = useState<Service[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<number>();
-
+    const [quizResult, setQuizResult] = useState<QuizResult[]>([]);
+    const [selectedQuizResult, setSelectedQuizResult] = useState<number>();
+    const [searchTerm, setSearchTerm] = useState('');
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -34,6 +37,7 @@ export default function Service() {
             }
         };
         fetchCategories();
+        fetchQuizResult();
     }, []);
 
     const fetchServices = async () => {
@@ -45,20 +49,25 @@ export default function Service() {
         setTotalPages(meta.totalPages);
         // setIsLoading(true);
     };
+    const fetchQuizResult = async () => {
+        const response = await getQuizResult();
+        if (response && response.result) {
+            setQuizResult(response.result);
+        }
+    };
+
     useEffect(() => {
         setSearchUrl(
-            `?isActive=true&${rating ? `rating=${rating}&` : ""}${
-                selectedCategory ? `categoryId=${selectedCategory}&` : ""
-            }page=${currentPage - 1}&size=${ServicePerPage}&sort=${sortBy}`
+           `?isActive=true&${rating ? `rating=${rating}&` : ""}${selectedCategory ? `categoryId=${selectedCategory}&` : ""
+            }${selectedQuizResult ? `quizResultId=${quizResult}&` : ""}${searchTerm ? `name=${searchTerm}&` : ""} page=${currentPage - 1}&size=${ServicePerPage}&sort=${sortBy}`
         );
     }, [currentPage]);
 
     const handleFilter = () => {
         setCurrentPage(1);
         setSearchUrl(
-            `?isActive=true&${rating ? `rating=${rating}&` : ""}${
-                selectedCategory ? `categoryId=${selectedCategory}&` : ""
-            }page=${currentPage - 1}&size=${ServicePerPage}&sort=${sortBy}`
+            `?isActive=true&${rating ? `rating=${rating}&` : ""}${selectedCategory ? `categoryId=${selectedCategory}&` : ""
+            }${selectedQuizResult ? `quizResultId=${selectedQuizResult}&` : ""}${searchTerm ? `name=${searchTerm}&` : ""} page=${currentPage - 1}&size=${ServicePerPage}&sort=${sortBy}`
         );
     };
     useEffect(() => {
@@ -102,7 +111,7 @@ export default function Service() {
                         }
                         className="border p-2 rounded"
                     >
-                        <option value="">Tất Cả</option>
+                        <option value="">Danh mục</option>
                         {categories &&
                             categories.map((category) => (
                                 <option key={category.id} value={category.id}>
@@ -110,7 +119,22 @@ export default function Service() {
                                 </option>
                             ))}
                     </select>
-
+                    <select
+                        value={selectedQuizResult?.id}
+                        onChange={(e) =>{
+                            setSelectedQuizResult(Number(e.target.value))
+                        }
+                        }
+                        className="border p-2 rounded"
+                    >
+                        <option value="">Loại da</option>
+                        {quizResult &&
+                            quizResult.map((result) => (
+                                <option key={result.id} value={result.id}>
+                                    {result.name}
+                                </option>
+                            ))}
+                    </select>
                     <select
                         value={rating}
                         onChange={(e) => setRating(Number(e.target.value))}
@@ -125,12 +149,18 @@ export default function Service() {
                             </option>
                         ))}
                     </select>
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm sản phẩm..."
+                        className="border p-2 rounded w-full md:w-auto"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                     <button
                         className="bg-violet hover:bg-gray border p-2 rounded flex flex-row items-center gap-4"
                         onClick={handleFilter}
                     >
                         <FaSearch />
-                        Tìm Kiếm
                     </button>
                 </div>
 
