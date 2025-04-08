@@ -83,4 +83,20 @@ public class PaymentController {
                 ApiResponse.builder().message("Payment deleted successfully").build()
         );
     }
+
+    @PutMapping("/active/{id}")
+    ResponseEntity<ApiResponse> activatePayment(@PathVariable Integer id) {
+        paymentService.activePayment(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.builder().message("Payment activated successfully").build()
+        );
+    }
+
+    @PutMapping("/deactive/{id}")
+    ResponseEntity<ApiResponse> deactivatePayment(@PathVariable Integer id) {
+        paymentService.inactivePayment(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.builder().message("Payment deactivated successfully").build()
+        );
+    }
 } 

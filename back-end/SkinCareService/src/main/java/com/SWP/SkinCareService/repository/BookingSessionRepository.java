@@ -70,5 +70,6 @@ public interface BookingSessionRepository extends JpaRepository<BookingSession, 
     List<BookingSession> findByTherapistAndStatusIn(Therapist therapist, List<BookingSessionStatus> status);
 
     List<BookingSession> findAllByBookingAndCreateAtBetweenAndStatus(Booking booking,LocalDateTime from, LocalDateTime to, BookingSessionStatus status);
+    Page<BookingSession> findAllByTherapistAndSessionDateTimeBetweenAndStatus(Pageable pageable, Therapist therapist, LocalDateTime from, LocalDateTime to, BookingSessionStatus status);
 
 }

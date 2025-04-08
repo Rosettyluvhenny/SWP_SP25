@@ -11,4 +11,5 @@ import lombok.experimental.FieldDefaults;
 public class PaymentResponse {
     int paymentId;
     String paymentName;
+    boolean status;
 } 

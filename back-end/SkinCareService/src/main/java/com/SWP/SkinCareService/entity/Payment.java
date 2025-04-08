@@ -36,5 +36,6 @@ public class Payment {
     @JsonManagedReference
     List<Receipt> receipts;
 
+    boolean status = true;
 
 }

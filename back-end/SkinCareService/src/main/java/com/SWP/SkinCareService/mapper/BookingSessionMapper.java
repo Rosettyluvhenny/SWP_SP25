@@ -3,6 +3,7 @@ package com.SWP.SkinCareService.mapper;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionRequest;
 import com.SWP.SkinCareService.dto.request.Booking.BookingSessionUpdateRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
+import com.SWP.SkinCareService.dto.response.basicDTO.BookingSessionDTO;
 import com.SWP.SkinCareService.entity.BookingSession;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -40,4 +41,22 @@ public interface BookingSessionMapper {
     @Mapping(target = "phone", source = "booking.user.phone")
 
     BookingSessionResponse toBookingSessionResponse(BookingSession bookingSession);
+
+
+    @Mapping(target= "serviceName", source="booking.service.name")
+    @Mapping(target= "serviceId", source="booking.service.id")
+    @Mapping(target = "feedbackText", source = "feedbacks.feedbackText")
+    @Mapping(target = "rating", source = "feedbacks.rating")
+    @Mapping(target = "roomId", source = "room.id")
+    @Mapping(target = "roomName", source = "room.name")
+    @Mapping(target = "userId", source = "booking.user.id")
+    @Mapping(target = "userName", source = "booking.user.fullName")
+    @Mapping(target = "therapistId", source = "therapist.id")
+    @Mapping(target = "therapistName", source = "therapist.user.fullName")
+    @Mapping(target = "staffName", source = "staff.fullName")
+    @Mapping(target = "staffId", source = "staff.id")
+    @Mapping(target= "img", source="booking.service.img")
+    BookingSessionDTO toSessionDto(BookingSession bookingSession);
+
+
 }

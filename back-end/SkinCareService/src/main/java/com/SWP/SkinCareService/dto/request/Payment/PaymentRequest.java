@@ -13,4 +13,5 @@ public class PaymentRequest {
     @NotBlank(message = "Payment name cannot be empty")
     String paymentName;
     String description;
+    boolean status = true;
 } 

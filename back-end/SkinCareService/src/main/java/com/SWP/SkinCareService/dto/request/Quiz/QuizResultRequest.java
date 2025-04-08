@@ -20,10 +20,10 @@ public class QuizResultRequest {
     @NotBlank(message ="NOT_EMPTY")
     String resultText;
 
-    @Min(value = 0, message = "MIN_VALUE")
+    @Min(value = 1, message = "MIN_VALUE")
     int minPoint;
 
-    @Min(value = 0, message = "MIN_VALUE")
+    @Min(value = 1, message = "MIN_VALUE")
     int maxPoint;
 
     @NotNull(message = "NOT_EMPTY")

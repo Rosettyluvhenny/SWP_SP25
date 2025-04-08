@@ -87,6 +87,7 @@ public enum ErrorCode {
     MISSING_IMAGE(1070,"Missing image", HttpStatus.BAD_REQUEST),
     BOOKING_ALREADY_PAID(1071,"Booking already paid", HttpStatus.BAD_REQUEST),
     SPAM_REJECTED(1072,"Spam rejected, try again later", HttpStatus.BAD_REQUEST),
+    CATEGORY_CANNOT_DELETE(1073,"Category cannot delete", HttpStatus.BAD_REQUEST),
     // VNPay Error Codes
     VNPAY_PAYMENT_ERROR(2000, "Lỗi trong quá trình tạo URL thanh toán VNPay", HttpStatus.INTERNAL_SERVER_ERROR),
     VNPAY_INVALID_AMOUNT(2001, "Số tiền thanh toán không hợp lệ", HttpStatus.BAD_REQUEST),
