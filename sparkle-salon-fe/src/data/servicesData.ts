@@ -95,6 +95,24 @@ const assignTherapist = async (id: string, therapistIds: string[]) => {
         return false;
     }
 };
+
+ const removeAssignedTherapist = async (id: string, therapistIds: string[]) => {
+    try {
+        const response = await axios.put(`/services/removeTherapist/${id}`, {
+            therapistId: therapistIds
+        }, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        });
+        console.log(response);
+        return response.code==0 ? true : false;
+    } catch (error) {
+        console.error("Error removing assigned therapist from service:", error);
+        return false;
+    }
+};
+
 const getQuizResult = async() => {
     try{
         const response = await axios.get("/quizResult");
@@ -105,4 +123,4 @@ const getQuizResult = async() => {
     }
 }
 
-export { servicesData , serviceDataById, deactivateService,activateService, assignTherapist,getQuizResult };
+export { servicesData , serviceDataById, deactivateService,activateService, assignTherapist,getQuizResult, removeAssignedTherapist };

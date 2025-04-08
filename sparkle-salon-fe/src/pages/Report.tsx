@@ -20,6 +20,8 @@ import {
     Clock,
     Users,
     Wallet,
+    X,
+    Info,
 } from "lucide-react";
 import { getAllReport, getAllReceipt, Report, Receipt } from "../data/reportData";
 
@@ -36,6 +38,8 @@ export default function Reports() {
     );
     const [allReceipts, setAllReceipts] = useState<Receipt[]>([]);
     const [isLoadingReceipts, setIsLoadingReceipts] = useState(false);
+    const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchReportData = async () => {
@@ -123,6 +127,16 @@ export default function Reports() {
         0
     );
     const totalTransactions = allReceipts.length;
+
+    const openReceiptDetails = (receipt: Receipt) => {
+        setSelectedReceipt(receipt);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedReceipt(null);
+    };
 
     if (isLoading) {
         return (
@@ -390,7 +404,6 @@ export default function Reports() {
 
                 {activeTab === "transactions" && (
                     <>
-                        {/* Transaction stats cards - similar to dashboard */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500 hover:shadow-lg transition">
                                 <div className="flex justify-between items-center mb-4">
@@ -467,16 +480,7 @@ export default function Reports() {
                                                     Dịch Vụ
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Số Tiền
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    P.Thức Thanh Toán
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Loại Thanh Toán
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Nhân Viên
+                                                    Chi Tiết
                                                 </th>
                                             </tr>
                                         </thead>
@@ -499,47 +503,26 @@ export default function Reports() {
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                            {
-                                                                receipt.customerName
-                                                            }
+                                                            {receipt.customerName}
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            {
-                                                                receipt.serviceName
-                                                            }
+                                                            {receipt.serviceName}
                                                         </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                                                            {receipt.amount?.toLocaleString()}{" "}
-                                                            VND
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            {
-                                                                receipt.paymentMethod
-                                                            }
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            <span
-                                                                className={`px-2 py-1 text-xs rounded-full ${
-                                                                    receipt.paymentType ===
-                                                                    "Deposit"
-                                                                        ? "bg-yellow-100 text-yellow-800"
-                                                                        : "bg-green-100 text-green-800"
-                                                                }`}
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                            <button
+                                                                onClick={() => openReceiptDetails(receipt)}
+                                                                className="px-3 py-1 bg-pink-500 hover:bg-pink-600 text-white rounded-md flex items-center transition-colors"
                                                             >
-                                                                {
-                                                                    receipt.paymentType
-                                                                }
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            {receipt.staffName}
+                                                                <Info size={20} className="mr-1" />
+                                                                Chi tiết Giao Dịch
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 ))
                                             ) : (
                                                 <tr>
                                                     <td
-                                                        colSpan={8}
+                                                        colSpan={4}
                                                         className="px-6 py-4 text-center text-sm text-gray-500"
                                                     >
                                                         Không có dữ liệu giao
@@ -553,6 +536,92 @@ export default function Reports() {
                             )}
                         </div>
                     </>
+                )}
+
+                {/* Modal for Detail */}
+                {isModalOpen && selectedReceipt && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 overflow-hidden">
+                            <div className="flex justify-between items-center border-b px-6 py-4">
+                                <h3 className="text-xl font-semibold text-gray-800">Chi tiết Giao Dịch</h3>
+                                <button 
+                                    onClick={closeModal}
+                                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+                            
+                            <div className="p-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div>
+                                        <div className="mb-6">
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Khách Hàng</h4>
+                                            <p className="text-base font-semibold text-gray-800">{selectedReceipt.customerName}</p>
+                                        </div>
+                                        
+                                        <div className="mb-6">
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Dịch Vụ</h4>
+                                            <p className="text-base font-semibold text-gray-800">{selectedReceipt.serviceName}</p>
+                                        </div>
+                                        
+                                        <div className="mb-6">
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Thời Gian</h4>
+                                            <p className="text-base font-semibold text-gray-800">{formatDateTime(selectedReceipt.date)}</p>
+                                        </div>
+                                        
+                                        <div className="mb-6">
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Số Tiền</h4>
+                                            <p className="text-lg font-bold text-green-600">{selectedReceipt.amount?.toLocaleString()} VND</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div className="mb-6">
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Phương Thức Thanh Toán</h4>
+                                            <p className="text-base font-semibold text-gray-800">{selectedReceipt.paymentMethod}</p>
+                                        </div>
+                                        
+                                        <div className="mb-6">
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Loại Thanh Toán</h4>
+                                            <span className={`px-3 py-1 text-sm rounded-full ${
+                                                selectedReceipt.paymentType === "Deposit"
+                                                    ? "bg-yellow-100 text-yellow-800"
+                                                    : "bg-green-100 text-green-800"
+                                            }`}>
+                                                {selectedReceipt.paymentType}
+                                            </span>
+                                        </div>
+                                        
+                                        <div className="mb-6">
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Nhân Viên</h4>
+                                            <p className="text-base font-semibold text-gray-800">{selectedReceipt.staffName}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="mt-6">
+                                    <h4 className="text-sm font-medium text-gray-500 mb-3">Hình Ảnh Hóa Đơn</h4>
+                                    <div className="border border-gray-200 rounded-lg p-2 inline-block">
+                                        <img 
+                                            src={selectedReceipt.url} 
+                                            alt="Receipt" 
+                                            className="h-64 object-contain rounded"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="border-t px-6 py-4 flex justify-end">
+                                <button
+                                    onClick={closeModal}
+                                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+                                >
+                                    Đóng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </main>
         </div>

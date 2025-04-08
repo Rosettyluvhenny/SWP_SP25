@@ -2,13 +2,20 @@ import React, { useCallback, useEffect, useState } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
 import { motion } from "framer-motion";
-import { FaEdit, FaTrash, FaSearch, FaPlus, FaUserPlus, FaCheck } from "react-icons/fa";
 import {
-    deleteServiceById,
+    FaEdit,
+    FaTrash,
+    FaSearch,
+    FaPlus,
+    FaUserPlus,
+    FaCheck,
+} from "react-icons/fa";
+import {
     servicesData,
     assignTherapist,
     activateService,
     deactivateService,
+    removeAssignedTherapist,
 } from "../data/servicesData";
 import axios from "../services/customizedAxios";
 // import QuillTest from "../components/QuillTest";
@@ -18,7 +25,7 @@ import {
     getAllTherapists,
     getTherapists,
 } from "../data/therapistData";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 import AssignModal from "../components/AssignModal";
 
 type Service = {
@@ -66,6 +73,7 @@ export default function ServiceManagement() {
     const [availableTherapists, setAvailableTherapists] = useState<Therapist[]>(
         []
     );
+    const [therapistsToRemove, setTherapistsToRemove] = useState<string[]>([]);
 
     // Services state
     const [searchTerm, setSearchTerm] = useState("");
@@ -88,7 +96,7 @@ export default function ServiceManagement() {
     const [categoryFormValue, setCategoryFormValue] = useState<string>("");
     const [categoryFormDescription, setCategoryFormDescription] =
         useState<string>("");
-    const [reload,setReload] = useState(false);
+    const [reload, setReload] = useState(false);
     const handleOpenServiceForm = (serviceId: string | null) => {
         setSelectedService(serviceId);
         setIsOpenServiceForm(true);
@@ -130,7 +138,7 @@ export default function ServiceManagement() {
     useEffect(() => {
         getServiceList();
         fetchCategories();
-    }, [isOpenCreateService,reload]);
+    }, [isOpenCreateService, reload]);
 
     const categoryOptions = ["Tất Cả", ...categories.map((cat) => cat.name)];
 
@@ -205,18 +213,38 @@ export default function ServiceManagement() {
         if (!validateCategoryForm()) return;
 
         try {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                throw new Error("Authentication token not found");
+            }
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+
             if (editingCategory) {
-                await axios.put(`/category/${editingCategory.id}`, {
-                    name: categoryFormValue,
-                    description: categoryFormDescription,
-                    type: type,
-                });
+                await axios.put(
+                    `/category/${editingCategory.id}`,
+                    {
+                        name: categoryFormValue,
+                        description: categoryFormDescription,
+                        type: type,
+                    },
+                    config
+                );
             } else {
-                await axios.post("/category", {
-                    name: categoryFormValue,
-                    description: categoryFormDescription,
-                    type: type,
-                });
+                await axios.post(
+                    "/category",
+                    {
+                        name: categoryFormValue,
+                        description: categoryFormDescription,
+                        type: type,
+                    },
+                    config
+                );
             }
             fetchCategories();
             closeCategoryModal();
@@ -232,8 +260,8 @@ export default function ServiceManagement() {
         );
         if (confirmDelete) {
             const rq = await activateService(id.toString());
-            console.log(rq)
-            setReload(!reload)
+            console.log(rq);
+            setReload(!reload);
         }
     };
 
@@ -243,11 +271,10 @@ export default function ServiceManagement() {
         );
         if (confirmDelete) {
             const rq = await deactivateService(id.toString());
-            console.log(rq)
-            setReload(!reload)
+            console.log(rq);
+            setReload(!reload);
         }
     };
-    
 
     const handleCategoryDelete = async (id: number) => {
         const confirmDelete = window.confirm(
@@ -324,9 +351,18 @@ export default function ServiceManagement() {
         });
     };
 
+    const handleTherapistRemovalSelection = (therapistId: string) => {
+        setTherapistsToRemove((prev) => {
+            if (prev.includes(therapistId)) {
+                return prev.filter((id) => id !== therapistId);
+            } else {
+                return [...prev, therapistId];
+            }
+        });
+    };
+
     const handleAssignTherapists = async () => {
         if (!selectedServiceId || selectedTherapistIds.length === 0) return;
-
         const success = await assignTherapist(
             selectedServiceId,
             selectedTherapistIds
@@ -337,6 +373,22 @@ export default function ServiceManagement() {
             closeAssignModal();
         } else {
             toast.error("Chỉ định chuyên viên thất bại");
+        }
+    };
+
+    const handleRemoveTherapists = async () => {
+        if (!selectedServiceId || therapistsToRemove.length === 0) return;
+
+        const success = await removeAssignedTherapist(
+            selectedServiceId,
+            therapistsToRemove
+        );
+
+        if (success) {
+            toast.success("Gỡ bỏ chuyên viên thành công");
+            closeAssignModal();
+        } else {
+            toast.error("Gỡ bỏ chuyên viên thất bại");
         }
     };
 
@@ -600,53 +652,57 @@ export default function ServiceManagement() {
                                                                             Sửa
                                                                         </motion.button>
                                                                         {service.status ===
-                                                                                "Hoạt Động" &&
-                                                                        <motion.button
-                                                                            onClick={() =>
-                                                                                handleDeactivateService(
-                                                                                    service.id
-                                                                                )
-                                                                            }
-                                                                            className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
-                                                                            whileHover={{
-                                                                                scale: 1.05,
-                                                                            }}
-                                                                            whileTap={{
-                                                                                scale: 0.95,
-                                                                            }}
-                                                                        >
-                                                                            <FaCheck
-                                                                                size={
-                                                                                    14
+                                                                            "Hoạt Động" && (
+                                                                            <motion.button
+                                                                                onClick={() =>
+                                                                                    handleDeactivateService(
+                                                                                        service.id
+                                                                                    )
                                                                                 }
-                                                                            />{" "}
-                                                                            Vô hiệu
-                                                                        </motion.button>
-                                                                        }
-                                                                        {!(service.status ===
-                                                                                "Hoạt Động") &&
-                                                                        <motion.button
-                                                                            onClick={() =>
-                                                                                handleActivateService(
-                                                                                    service.id
-                                                                                )
-                                                                            }
-                                                                            className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
-                                                                            whileHover={{
-                                                                                scale: 1.05,
-                                                                            }}
-                                                                            whileTap={{
-                                                                                scale: 0.95,
-                                                                            }}
-                                                                        >
-                                                                            <FaCheck
-                                                                                size={
-                                                                                    14
+                                                                                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
+                                                                                whileHover={{
+                                                                                    scale: 1.05,
+                                                                                }}
+                                                                                whileTap={{
+                                                                                    scale: 0.95,
+                                                                                }}
+                                                                            >
+                                                                                <FaCheck
+                                                                                    size={
+                                                                                        14
+                                                                                    }
+                                                                                />{" "}
+                                                                                Vô
+                                                                                hiệu
+                                                                            </motion.button>
+                                                                        )}
+                                                                        {!(
+                                                                            service.status ===
+                                                                            "Hoạt Động"
+                                                                        ) && (
+                                                                            <motion.button
+                                                                                onClick={() =>
+                                                                                    handleActivateService(
+                                                                                        service.id
+                                                                                    )
                                                                                 }
-                                                                            />{" "}
-                                                                            Kích hoạt
-                                                                        </motion.button>
-                                                                        }
+                                                                                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
+                                                                                whileHover={{
+                                                                                    scale: 1.05,
+                                                                                }}
+                                                                                whileTap={{
+                                                                                    scale: 0.95,
+                                                                                }}
+                                                                            >
+                                                                                <FaCheck
+                                                                                    size={
+                                                                                        14
+                                                                                    }
+                                                                                />{" "}
+                                                                                Kích
+                                                                                hoạt
+                                                                            </motion.button>
+                                                                        )}
                                                                         <motion.button
                                                                             onClick={() =>
                                                                                 openAssignModal(
@@ -690,6 +746,7 @@ export default function ServiceManagement() {
                                     </motion.div>
                                 </div>
                             )}
+
                             {/* Categories Tab Content */}
                             {activeTab === "categories" && (
                                 <div>
@@ -1014,6 +1071,27 @@ export default function ServiceManagement() {
                                                     năm kinh nghiệm
                                                 </span>
                                             </div>
+                                            <div className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`remove-therapist-${therapist.id}`}
+                                                    checked={therapistsToRemove.includes(
+                                                        therapist.id
+                                                    )}
+                                                    onChange={() =>
+                                                        handleTherapistRemovalSelection(
+                                                            therapist.id
+                                                        )
+                                                    }
+                                                    className="mr-2 h-4 w-4 text-red-500 focus:ring-red-400"
+                                                />
+                                                <label
+                                                    htmlFor={`remove-therapist-${therapist.id}`}
+                                                    className="text-sm text-red-500"
+                                                >
+                                                    Gỡ
+                                                </label>
+                                            </div>
                                         </div>
                                     )
                                 )}
@@ -1023,6 +1101,23 @@ export default function ServiceManagement() {
                                 Chưa có chuyên viên được chỉ định cho dịch vụ
                                 này
                             </p>
+                        )}
+
+                        {/* Remove Button*/}
+                        {therapistsToRemove.length > 0 && (
+                            <div className="mt-2">
+                                <motion.button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handleRemoveTherapists();
+                                    }}
+                                    className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 flex items-center gap-1"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Gỡ
+                                </motion.button>
+                            </div>
                         )}
                     </div>
 
