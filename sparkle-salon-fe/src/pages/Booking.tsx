@@ -8,16 +8,25 @@ import ServiceDetails from "../components/ServiceDetail";
 import PaymentSelector from "../components/PaymentSelector";
 import TherapistSelector from "../components/TherapistSelector";
 import DateTimeSelector from "../components/DateTimeSelector";
-import PolicyModal from "../components/PolicyModal"; 
+import PolicyModal from "../components/PolicyModal";
 
 // Data imports
 import { serviceDataById } from "../data/servicesData";
-import { getFreeSlots, getTherapists, getTherapistSlots } from "../data/therapistData";
+import {
+    getFreeSlots,
+    getTherapists,
+    getTherapistSlots,
+} from "../data/therapistData";
 import { BookingBody, bookingService } from "../data/bookingData";
 import { getPayment } from "../data/paymentData";
 
 // Types
-import { Service, Therapist, BookingDate, Payment } from "../types/bookingTypes";
+import {
+    Service,
+    Therapist,
+    BookingDate,
+    Payment,
+} from "../types/bookingTypes";
 
 export default function Booking() {
     // States and context
@@ -27,17 +36,24 @@ export default function Booking() {
     const [selectedTherapistId, setSelectedTherapistId] = useState<string>();
     const [isTherapistOpen, setIsTherapistOpen] = useState<boolean>(true);
     const [payments, setPayments] = useState<Payment[]>([]);
-    const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
-    
+    const [selectedPayment, setSelectedPayment] = useState<Payment | null>(
+        null
+    );
+
     // Policy modal state
     const [isPolicyModalOpen, setIsPolicyModalOpen] = useState<boolean>(true);
     const [isPolicyAccepted, setIsPolicyAccepted] = useState<boolean>(false);
-    
+
     // Date and time states
     const nextSevenDates: BookingDate[] = getNextSevenDates();
     const [selectedDate, setSelectedDate] = useState<string>();
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
-    const [therapistSlots, setTherapistSlots] = useState<{ therapistId: string; startTime: string; endTime: string }[]>([]);
+    const [therapistSlots, setTherapistSlots] = useState<
+        { therapistId: string; startTime: string; endTime: string }[]
+    >([]);
+    const [filteredTherapistSlots, setFilteredTherapistSlots] = useState<
+        { therapistId: string; startTime: string; endTime: string }[]
+    >([]);
 
     // Router hooks
     const [searchParams] = useSearchParams();
@@ -48,21 +64,42 @@ export default function Booking() {
     // Helper function to get next seven dates
     function getNextSevenDates() {
         const days: BookingDate[] = [];
-
-        for (let i = 0; i < 10; i++) {
+        for (let i = 1; i < 10; i++) {
             const date = new Date();
             date.setDate(date.getDate() + i);
 
             days.push({
                 name: date.toLocaleDateString("vi-VN", { weekday: "long" }),
                 day: `${date.getDate() < 10 ? "0" : ""}${date.getDate()}`,
-                month: `${date.getMonth() + 1 < 10 ? "0" : ""}${date.getMonth() + 1}`,
+                month: `${date.getMonth() + 1 < 10 ? "0" : ""}${
+                    date.getMonth() + 1
+                }`,
                 year: date.getFullYear().toString(),
             });
         }
         return days;
     }
 
+    // Hàm check giờ đã chọn cách hiện tại 24 tiếng 
+    function is24HoursAhead(dateStr: string, timeStr: string) {
+        const now = new Date();
+        const [year, month, day] = dateStr.split('-');
+        const [hour, minute] = timeStr.split(':');
+        
+        const bookingDate = new Date(
+            parseInt(year),
+            parseInt(month) - 1, 
+            parseInt(day),
+            parseInt(hour),
+            parseInt(minute)
+        );
+        
+        const diffMs = bookingDate.getTime() - now.getTime();
+        const hoursDiff = diffMs / (1000 * 60 * 60);
+        
+        return hoursDiff >= 24;
+    }
+    
     // Redirecting if no service is selected
     if (!selectedServiceId) {
         navigate("/service");
@@ -83,13 +120,15 @@ export default function Booking() {
     useEffect(() => {
         async function fetchServices() {
             try {
-                const fetchedServices = await serviceDataById(selectedServiceId);
-                if(fetchedServices.status == 400){
+                const fetchedServices = await serviceDataById(
+                    selectedServiceId
+                );
+                if (fetchedServices.status == 400) {
                     navigate("/service");
-                }else {
-                    if(!fetchedServices.active){
-                        navigate("/home")
-                        toast.error("Dịch vụ ngừng cung cấp")
+                } else {
+                    if (!fetchedServices.active) {
+                        navigate("/home");
+                        toast.error("Dịch vụ ngừng cung cấp");
                     }
                     setSelectedService(fetchedServices);
                 }
@@ -102,12 +141,12 @@ export default function Booking() {
         async function fetchTherapists() {
             try {
                 if (selectedServiceId && selectedServiceId !== "") {
-                    const fetchedTherapists = await getTherapists(selectedServiceId);
-                    if(!(fetchedTherapists.length>0)){
-                        toast.error("Không có therapist ")
-                    }
-                    else
-                    setTherapists(fetchedTherapists);
+                    const fetchedTherapists = await getTherapists(
+                        selectedServiceId
+                    );
+                    if (!(fetchedTherapists.length > 0)) {
+                        toast.error("Không có therapist ");
+                    } else setTherapists(fetchedTherapists);
                 }
             } catch (error) {
                 console.error("Failed to fetch therapists:", error);
@@ -115,8 +154,28 @@ export default function Booking() {
         }
 
         async function fetchPayments() {
-            const fetchedPayments = await getPayment();
-            setPayments(fetchedPayments);
+            try {
+                const fetchedPayments = await getPayment();
+                // Filter only active payment methods
+                const activePayments = fetchedPayments.filter(
+                    (payment) => payment.status === true
+                );
+
+                if (activePayments.length === 0) {
+                    toast.warning(
+                        "Không có phương thức thanh toán nào hoạt động"
+                    );
+                }
+
+                setPayments(activePayments);
+                // Set the first active payment as default selected if available
+                if (activePayments.length > 0) {
+                    setSelectedPayment(activePayments[0]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch payment methods:", error);
+                toast.error("Không thể tải phương thức thanh toán");
+            }
         }
 
         fetchServices();
@@ -157,11 +216,30 @@ export default function Booking() {
         }
     }, [selectedTherapist, selectedDate]);
 
+    useEffect(() => {
+        if (selectedDate && therapistSlots.length > 0) {
+            const filtered = therapistSlots.filter(slot => {
+                const timeStr = slot.startTime.substring(0, 5);
+                return is24HoursAhead(selectedDate, timeStr);
+            });
+            
+            setFilteredTherapistSlots(filtered);
+            
+            if (filtered.length === 0 && therapistSlots.length > 0) {
+                toast.info("Chỉ hiển thị các khung giờ cách hiện tại ít nhất 24 tiếng");
+            }
+        } else {
+            setFilteredTherapistSlots([]);
+        }
+    }, [therapistSlots, selectedDate]);
+
     // Booking handler
     const handleBooking = async () => {
         // Check if policy was accepted
         if (!isPolicyAccepted) {
-            toast.error("Vui lòng chấp nhận chính sách dịch vụ trước khi đặt lịch");
+            toast.error(
+                "Vui lòng chấp nhận chính sách dịch vụ trước khi đặt lịch"
+            );
             setIsPolicyModalOpen(true);
             return;
         }
@@ -173,37 +251,53 @@ export default function Booking() {
             return;
         }
 
+        // Check if a payment method is selected
+        if (!selectedPayment) {
+            toast.error("Vui lòng chọn phương thức thanh toán");
+            return;
+        }
+
+        // Verify the selected time is at least 24 hours ahead
+        if (selectedDate && selectedTime) {
+            if (!is24HoursAhead(selectedDate, selectedTime)) {
+                toast.error("Vui lòng chọn thời gian cách hiện tại ít nhất 24 tiếng");
+                return;
+            }
+        }
+
         const bookingBody: BookingBody = {
             serviceId: parseInt(selectedServiceId),
-            paymentId: parseInt(selectedPayment?.paymentId || "0"),
+            paymentId: parseInt(selectedPayment.paymentId || "0"),
             bookingTime: `${selectedDate}T${selectedTime}.000Z`,
             notes: "",
-            therapistId: selectedTherapist === "" ? selectedTherapistId : selectedTherapist
+            therapistId:
+                selectedTherapist === ""
+                    ? selectedTherapistId
+                    : selectedTherapist,
         };
 
         console.log(bookingBody.therapistId + " " + bookingBody.bookingTime);
         try {
             const response = await bookingService(bookingBody);
-           
-            if(response && response.status ===  "PENDING"){
-                toast.success("Đặt dịch vụ thành công")
-                navigate(`/bookingDetail/${response.id}`)
+
+            if (response && response.status === "PENDING") {
+                toast.success("Đặt dịch vụ thành công");
+                navigate(`/bookingDetail/${response.id}`);
             }
         } catch (error) {
             toast.error(error);
         }
     };
 
-    // Render with conditional disabling based on policy acceptance
     return (
         <div className="bg-gradient-to-b from-white to-pink-200 min-h-screen">
             {/* Policy Modal */}
-            <PolicyModal 
+            <PolicyModal
                 isOpen={isPolicyModalOpen}
                 onClose={handleDeclinePolicy}
                 onAccept={handleAcceptPolicy}
             />
-            
+
             <div className="relative w-full h-[200px] flex flex-col justify-center items-center bg-[url('/assets/sparkle-salon-title.jpg')] bg-cover bg-center bg-no-repeat mt-16">
                 <div className="absolute inset-0 bg-black opacity-40"></div>
                 <h1 className="text-white text-7xl mt-12 font-poppins drop-shadow-lg">
@@ -216,8 +310,14 @@ export default function Booking() {
                     <ServiceDetails service={selectedService} />
                 )}
 
-                {/* If policy not accepted, disable all selectors */}
-                <div className={!isPolicyAccepted ? "pointer-events-none opacity-60" : ""}>
+                {/* Không chấp nhận thì khỏi nàm */}
+                <div
+                    className={
+                        !isPolicyAccepted
+                            ? "pointer-events-none opacity-60"
+                            : ""
+                    }
+                >
                     <PaymentSelector
                         payments={payments}
                         selectedPayment={selectedPayment}
@@ -238,26 +338,37 @@ export default function Booking() {
                         nextSevenDates={nextSevenDates}
                         selectedDate={selectedDate}
                         setSelectedDate={setSelectedDate}
-                        therapistSlots={therapistSlots}
+                        therapistSlots={filteredTherapistSlots}
                         selectedTime={selectedTime}
                         setSelectedTime={setSelectedTime}
                         setSelectedTherapistId={setSelectedTherapistId}
                         onBooking={handleBooking}
                     />
                 </div>
-                
-                {/* Show message and button to reopen modal if policy was declined */}
+
+                {/* Chấp Nhận mới đc nàm */}
                 {!isPolicyModalOpen && !isPolicyAccepted && (
                     <div className="mt-6 p-4 bg-pink-100 border border-pink-300 rounded-lg text-center">
                         <p className="text-pink-700 mb-3">
-                            Bạn cần chấp nhận chính sách dịch vụ để tiếp tục đặt lịch
+                            Bạn cần chấp nhận chính sách dịch vụ để tiếp tục đặt
+                            lịch
                         </p>
-                        <button 
+                        <button
                             onClick={() => setIsPolicyModalOpen(true)}
                             className="py-2 px-4 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
                         >
                             Xem lại chính sách dịch vụ
                         </button>
+                    </div>
+                )}
+
+                {/* TH không có phương thức thanh toán */}
+                {payments.length === 0 && (
+                    <div className="mt-6 p-4 bg-yellow-100 border border-yellow-300 rounded-lg text-center">
+                        <p className="text-yellow-700">
+                            Không có phương thức thanh toán hoạt động. Vui lòng
+                            thử lại sau.
+                        </p>
                     </div>
                 )}
             </div>

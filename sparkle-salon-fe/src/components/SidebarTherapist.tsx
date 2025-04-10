@@ -3,7 +3,7 @@ import { FiMenu, FiLogOut } from "react-icons/fi";
 import { AiOutlineSchedule } from "react-icons/ai";
 import { LuNotebookPen } from "react-icons/lu";
 import { FaPencil } from "react-icons/fa6";
-import { FaUser } from "react-icons/fa"; // Thêm biểu tượng cho "Thông tin"
+import { FaUser,FaClock  } from "react-icons/fa"; 
 import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
@@ -17,10 +17,11 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
   const { logout } = useContext(UserContext);
   const navigate = useNavigate();
   const tabs = [
-    { id: "account", label: "Thông tin chuyên viên", icon: <FaUser /> }, // Thêm tab mới
+    { id: "account", label: "Thông tin chuyên viên", icon: <FaUser /> }, 
     { id: "schedule", label: "Lịch Làm Việc", icon: <AiOutlineSchedule /> },
     { id: "notes", label: "Ghi Chú buổi Trị Liệu", icon: <LuNotebookPen /> },
     { id: "blog", label: "Viết Blog", icon: <FaPencil /> },
+    { id: "history", label: "Lịch Sử Ca Làm", icon: <FaClock /> },
   ];
 
   return (

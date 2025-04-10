@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBarDashboard";
 import ManagementModal from "../components/ManagementModal";
-import { createPayment, getPayment, deletePayment, updatePayment } from "../data/paymentData";
+import { createPayment, getPayment, updatePayment, activePayment, deactivePayment } from "../data/paymentData";
 import { toast } from "react-toastify";
 
 type PaymentMethod = {
     paymentId: string;
-    paymentName: string; 
+    paymentName: string;
+    status?: boolean; 
 };
 
 export default function PaymentManagement() {
@@ -138,22 +139,38 @@ export default function PaymentManagement() {
         closeModal();
     };
 
-    const handleDelete = async (paymentId: string) => {
-        const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa phương thức thanh toán này?");
-        if (confirmDelete) {
+    const handleToggleStatus = async (paymentId: string, currentStatus: boolean | undefined) => {
+        const isCurrentlyActive = currentStatus === true;
+        const actionText = isCurrentlyActive ? "vô hiệu hóa" : "kích hoạt";
+        
+        const confirmToggle = window.confirm(`Bạn có chắc chắn muốn ${actionText} phương thức thanh toán này?`);
+        
+        if (confirmToggle) {
             try {
-                const success = await deletePayment(paymentId);
-                if (success) {
-                    setPaymentMethods((prev) => prev.filter((method) => method.paymentId !== paymentId));
-                    setError(null);
-                    toast.success("Xóa phương thức thanh toán thành công");
+                let success;
+                
+                if (isCurrentlyActive) {
+                    success = await deactivePayment(paymentId);
                 } else {
-                    toast.error("Không thể xóa phương thức thanh toán");
+                    success = await activePayment(paymentId);
+                }
+                
+                if (success) {
+                    setPaymentMethods((prev) => 
+                        prev.map((method) => 
+                            method.paymentId === paymentId 
+                                ? { ...method, status: !isCurrentlyActive } 
+                                : method
+                        )
+                    );
+                    toast.success(`${isCurrentlyActive ? 'Vô hiệu hóa' : 'Kích hoạt'} phương thức thanh toán thành công`);
+                } else {
+                    toast.error(`Không thể ${actionText} phương thức thanh toán`);
                 }
             } catch (error) {
-                console.error("Error deleting payment method:", error);
-                setError("Đã xảy ra lỗi khi xóa phương thức thanh toán");
-                toast.error("Đã xảy ra lỗi khi xóa phương thức thanh toán");
+                console.error(`Error ${actionText} payment method:`, error);
+                setError(`Đã xảy ra lỗi khi ${actionText} phương thức thanh toán`);
+                toast.error(`Đã xảy ra lỗi khi ${actionText} phương thức thanh toán`);
             }
         }
     };
@@ -188,6 +205,7 @@ export default function PaymentManagement() {
                                 <tr className="bg-white text-black">
                                     <th className="p-3 text-left">ID</th>
                                     <th className="p-3 text-left">Tên Phương Thức</th>
+                                    <th className="p-3 text-left">Trạng Thái</th>
                                     <th className="p-3 text-left">Hành Động</th>
                                 </tr>
                             </thead>
@@ -197,6 +215,11 @@ export default function PaymentManagement() {
                                         <tr key={method.paymentId} className="border-t">
                                             <td className="p-3">{method.paymentId}</td>
                                             <td className="p-3">{method.paymentName}</td>
+                                            <td className="p-3">
+                                                <span className={`px-2 py-1 rounded text-sm ${method.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                    {method.status ? 'Đang hoạt động' : 'Không hoạt động'}
+                                                </span>
+                                            </td>
                                             <td className="p-3 flex space-x-2">
                                                 <button
                                                     onClick={() => openModal(method)}
@@ -205,17 +228,17 @@ export default function PaymentManagement() {
                                                     Chỉnh Sửa
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDelete(method.paymentId)}
-                                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                                    onClick={() => handleToggleStatus(method.paymentId, method.status)}
+                                                    className={`${method.status ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white px-3 py-1 rounded`}
                                                 >
-                                                    Xóa
+                                                    {method.status ? 'Vô hiệu hóa' : 'Kích hoạt'}
                                                 </button>
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr key="no-data">
-                                        <td colSpan={3} className="p-3 text-center">
+                                        <td colSpan={4} className="p-3 text-center">
                                             Không có phương thức thanh toán nào
                                         </td>
                                     </tr>

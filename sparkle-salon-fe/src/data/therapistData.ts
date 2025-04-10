@@ -1,11 +1,11 @@
-import { FaPhone } from 'react-icons/fa';
+
 import axios from "../services/customizedAxios";
 
 export interface Therapist {
   id: string;
   username: string;
   fullName: string;
-  userId :string;
+  userId: string;
   email: string;
   experienceYears: number;
   bio: string;
@@ -13,7 +13,7 @@ export interface Therapist {
   img: string;
   phone: string;
   rating: number;
-  password:string;
+  password: string;
   active: boolean;
   services: Service[];
 }
@@ -21,6 +21,40 @@ export interface Therapist {
 export interface Service {
   id: number;
   name: string;
+}
+
+export interface CompletedSession {
+  id: string;
+  bookingId: string;
+  specificDateTime: string;
+  serviceName: string;
+  status: string;
+  notes: string;
+  serviceType: string;
+  zoomUrl: string;
+  googleMeet: string;
+  skypeId: string;
+  userEmail: string;
+  therapistName: string;
+  therapistId: string;
+  feedback: string;
+  rating: number;
+}
+
+export interface MetaData {
+  totalElements: number;
+  totalPages: number;
+  pageNumber: number;
+  pageSize: number;
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+}
+
+export interface PageableRequest {
+  pageNumber?: number;
+  pageSize?: number;
+  sort?: string[];
 }
 
 const getAllTherapists = async (): Promise<Therapist[]> => {
@@ -32,8 +66,6 @@ const getAllTherapists = async (): Promise<Therapist[]> => {
     return [];
   }
 };
-
-
 
 const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
   try {
@@ -49,9 +81,7 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
   }
 };
 
-
-
- const createTherapist = async (data: {
+const createTherapist = async (data: {
   username: string;
   password: string;
   fullName: string;
@@ -60,57 +90,56 @@ const getTherapists = async (serviceId: string): Promise<Therapist[]> => {
   bio: string;
   dob: string;
   phone: string;
-  img: File | null; // Đổi thành File thay vì string
-  serviceIds: number[]; // Đổi từ services thành serviceIds
+  img: File | null;
+  serviceIds: number[];
 }): Promise<boolean> => {
   const isConfirmed = window.confirm(
     "Bạn có chắc chắn muốn tạo chuyên viên mới không?"
   );
   if (!isConfirmed) return Promise.reject("Hủy tạo chuyên viên mới");
-  // try {
-    const token = localStorage.getItem("token");
-    console.log("Token sử dụng:", token); // Log token để kiểm tra
-    if (!token) {
-      console.error("Không tìm thấy token để thực hiện yêu cầu tạo mới");
-      return false;
-    }
+  
+  const token = localStorage.getItem("token");
+  console.log("Token sử dụng:", token);
+  if (!token) {
+    console.error("Không tìm thấy token để thực hiện yêu cầu tạo mới");
+    return false;
+  }
 
-    const formData = new FormData();
+  const formData = new FormData();
 
-    const requestData = {
-      username: data.username,
-      password: data.password,
-      fullName: data.fullName,
-      email: data.email,
-      experienceYears: data.experienceYears,
-      bio: data.bio,
-      dob: data.dob,
-      phone: data.phone,
-      serviceId: Array.isArray(data.serviceIds) ? data.serviceIds : [], // Đảm bảo là mảng
-    };
+  const requestData = {
+    username: data.username,
+    password: data.password,
+    fullName: data.fullName,
+    email: data.email,
+    experienceYears: data.experienceYears,
+    bio: data.bio,
+    dob: data.dob,
+    phone: data.phone,
+    serviceId: Array.isArray(data.serviceIds) ? data.serviceIds : [],
+  };
 
-    console.log("Dữ liệu JSON trước khi gửi (create):", requestData);
-    console.log("Dữ liệu JSON trước khi gửi (img):", data.img);
+  console.log("Dữ liệu JSON trước khi gửi (create):", requestData);
+  console.log("Dữ liệu JSON trước khi gửi (img):", data.img);
 
-    formData.append("request", new Blob([JSON.stringify(requestData)], { type: "application/json" }));
-    formData.append("img", data.img); // Gửi File trực tiếp
+  formData.append("request", new Blob([JSON.stringify(requestData)], { type: "application/json" }));
+  formData.append("img", data.img);
 
-    const response = await axios.post("/therapists", formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    console.log("Phản hồi từ server (update):", requestData); // Log chi tiết
+  const response = await axios.post("/therapists", formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  console.log("Phản hồi từ server (update):", requestData);
 
-    console.log("Phản hồi từ server (create):", {
-      status: response.status,
-      data: response.data,
-    });
-    console.log("respone:", response)
-    return response.result; 
+  console.log("Phản hồi từ server (create):", {
+    status: response.status,
+    data: response.data,
+  });
+  console.log("respone:", response)
+  return response.result;
 };
-
 
 const updateTherapist = async (
   id: string,
@@ -146,7 +175,6 @@ const updateTherapist = async (
 
     formData.append("request", new Blob([JSON.stringify(requestData)], { type: "application/json" }));
 
-    // Chỉ thêm img vào formData nếu nó tồn tại (không undefined)
     if (img) {
       formData.append("img", img);
     }
@@ -165,6 +193,7 @@ const updateTherapist = async (
     return false;
   }
 };
+
 const updateTherapistSv = async (
   id: string,
   serviceIds: number[]
@@ -192,7 +221,7 @@ const updateTherapistSv = async (
         "Content-Type": "multipart/form-data",
       },
     });
-console.log("day la response :",response)
+    console.log("day la response :", response)
     return response.result;
   } catch (error) {
     console.error("Lỗi khi cập nhật chuyên viên:", error.response?.data || error.message);
@@ -217,13 +246,13 @@ const deleteTherapist = async (id: string): Promise<boolean> => {
 const disableTherapist = async (userId: string): Promise<boolean> => {
   const token = localStorage.getItem("token");
   try {
-    const response = await axios.put(`/users/${userId}/active?check=false`,  null, {
+    const response = await axios.put(`/users/${userId}/active?check=false`, null, {
       headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-  });
-     return response.statusCode ==204;
+    });
+    return response.statusCode == 204;
   } catch (error) {
     console.error("Lỗi khi vô hiệu hóa chuyên viên:", error);
     return false;
@@ -233,13 +262,13 @@ const disableTherapist = async (userId: string): Promise<boolean> => {
 const enableTherapist = async (userId: string): Promise<boolean> => {
   const token = localStorage.getItem("token");
   try {
-    const response = await axios.put(`/users/${userId}/active?check=true`,  null, {
+    const response = await axios.put(`/users/${userId}/active?check=true`, null, {
       headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-  });
-    return response.statusCode ==204;
+    });
+    return response.statusCode == 204;
   } catch (error) {
     console.error("Lỗi khi kích hoạt chuyên viên:", error);
     return false;
@@ -268,20 +297,18 @@ const getTherapistById = async (id: string): Promise<Therapist | null> => {
 
 const getTherapistInfo = async (): Promise<Therapist | null> => {
   try {
-    const response = await axios.get("/therapists/getTherapistInfo",{
+    const response = await axios.get("/therapists/getTherapistInfo", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
+        'Pragma': 'no-cache',
+        'Expires': '0'
       },
-    })
-      
-    ;
+    });
 
     if (response.result) {
       console.log("Phản hồi API:", response.data);
-      return response.result; 
+      return response.result;
     }
 
     console.error("Không tìm thấy chuyên viên trong phản hồi");
@@ -291,7 +318,6 @@ const getTherapistInfo = async (): Promise<Therapist | null> => {
     return null;
   }
 };
-
 
 const getTherapistSlots = async (
   therapistId: string,
@@ -332,11 +358,90 @@ const getFreeSlots = async (serviceId: string, date: string): Promise<any[]> => 
 };
 
 
+const getTherapistCompletedSession = async (
+  from?: string,
+  to?: string,
+  pageable: PageableRequest = {}
+): Promise<{ sessions: CompletedSession[]; meta: MetaData }> => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Không tìm thấy token để thực hiện yêu cầu");
+      return { sessions: [], meta: { totalElements: 0, totalPages: 0, pageNumber: 0, pageSize: 0, first: false, last: false, numberOfElements: 0 } };
+    }
 
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    
+    // Add date range parameters if provided
+    if (from) queryParams.append('from', from);
+    if (to) queryParams.append('to', to);
+    
+    // Add pageable parameters if provided
+    if (pageable.pageNumber !== undefined) queryParams.append('page', pageable.pageNumber.toString());
+    if (pageable.pageSize !== undefined) queryParams.append('size', pageable.pageSize.toString());
+    if (pageable.sort && pageable.sort.length > 0) {
+      pageable.sort.forEach(sortItem => {
+        queryParams.append('sort', sortItem);
+      });
+    }
 
+    const url = `/therapists/sessionCompleted${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    
+    console.log("Calling API:", url);
+    
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-
-
+    if (response.result) {
+      const { content, totalElements, totalPages, number, pageSize, first, last, numberOfElements } = response.result;
+      
+      return {
+        sessions: content || [],
+        meta: {
+          totalElements,
+          totalPages,
+          pageNumber: number,
+          pageSize,
+          first,
+          last,
+          numberOfElements,
+        },
+      };
+    }
+    
+    console.error("Không tìm thấy dữ liệu trong phản hồi:", response);
+    return { 
+      sessions: [], 
+      meta: { 
+        totalElements: 0, 
+        totalPages: 0, 
+        pageNumber: 0, 
+        pageSize: 0, 
+        first: false, 
+        last: false, 
+        numberOfElements: 0 
+      } 
+    };
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách buổi điều trị đã hoàn thành:", error);
+    return { 
+      sessions: [], 
+      meta: { 
+        totalElements: 0, 
+        totalPages: 0, 
+        pageNumber: 0, 
+        pageSize: 0, 
+        first: false, 
+        last: false, 
+        numberOfElements: 0 
+      } 
+    };
+  }
+};
 
 export {
   getTherapistInfo,
@@ -351,4 +456,5 @@ export {
   getFreeSlots,
   getAllTherapists,
   updateTherapistSv,
+  getTherapistCompletedSession,
 };
