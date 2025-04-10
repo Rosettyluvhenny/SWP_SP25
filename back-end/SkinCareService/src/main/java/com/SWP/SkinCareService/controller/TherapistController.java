@@ -6,7 +6,9 @@ import com.SWP.SkinCareService.dto.request.Therapist.TherapistUpdateRequest;
 import com.SWP.SkinCareService.dto.response.ApiResponse;
 import com.SWP.SkinCareService.dto.response.Therapist.TherapistResponse;
 import com.SWP.SkinCareService.dto.response.Therapist.TherapistSummaryResponse;
+import com.SWP.SkinCareService.dto.response.basicDTO.BookingSessionDTO;
 import com.SWP.SkinCareService.mapper.TherapistMapper;
+import com.SWP.SkinCareService.service.BookingSessionService;
 import com.SWP.SkinCareService.service.TherapistService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -14,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -31,6 +37,7 @@ import java.util.List;
 public class TherapistController {
     TherapistService therapistService;
     TherapistMapper therapistMapper;
+    BookingSessionService bookingSessionService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
@@ -112,5 +119,14 @@ public class TherapistController {
     ApiResponse<List<TherapistResponse>> getSchedule(@RequestBody GetScheduleRequest request){
         var result = therapistService.getTherapistAvailableInTime(request);
         return ApiResponse.<List<TherapistResponse>>builder().result(result).build();
+    }
+
+    @GetMapping("/sessionCompleted")
+    @PreAuthorize("hasAnyRole('THERAPIST')")
+    ApiResponse<Page<BookingSessionDTO>> getSessionCompleted(@RequestParam (required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                                                             @RequestParam (required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                                                             @PageableDefault(size = 10) Pageable pageable) {
+        var result = bookingSessionService.getAllSessionFinishByTherapistBetween(pageable, from, to);
+        return ApiResponse.<Page<BookingSessionDTO>>builder().result(result).build();
     }
 }

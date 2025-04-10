@@ -57,4 +57,18 @@ public class PaymentService {
         return paymentRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.PAYMENT_NOT_EXISTED));
     }
+
+    @Transactional
+    public void activePayment(Integer id) {
+        Payment payment = checkPayment(id);
+        payment.setStatus(true);
+        paymentRepository.save(payment);
+    }
+
+    @Transactional
+    public void inactivePayment(Integer id) {
+        Payment payment = checkPayment(id);
+        payment.setStatus(false);
+        paymentRepository.save(payment);
+    }
 }

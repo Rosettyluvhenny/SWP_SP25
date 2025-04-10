@@ -7,6 +7,7 @@ import com.SWP.SkinCareService.dto.request.Notification.NotificationRequest;
 import com.SWP.SkinCareService.dto.response.Booking.BookingSessionResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TherapistAvailabilityResponse;
 import com.SWP.SkinCareService.dto.response.BookingSession.TimeSlotAvailabilityResponse;
+import com.SWP.SkinCareService.dto.response.basicDTO.BookingSessionDTO;
 import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.SWP.SkinCareService.enums.BookingStatus;
@@ -827,6 +828,27 @@ public class  BookingSessionService {
         bookingSessionRepository.saveAll(expiredSessions);
 
         System.out.println("Auto-canceled " + expiredSessions.size() + " expired sessions.");
+    }
+
+    public Page<BookingSessionDTO> getAllSessionFinishByTherapistBetween(Pageable pageable, LocalDate from, LocalDate to) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user  = userRepository.findByUsername(authentication.getName()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Therapist therapist = user.getTherapist();
+        BookingSessionStatus status = BookingSessionStatus.COMPLETED;
+        LocalDateTime start;
+        LocalDateTime end;
+        if (to == null) {
+            end = LocalDate.now().atStartOfDay().plusDays(1).minusNanos(1);
+        } else {
+            end = to.atStartOfDay().plusDays(1).minusNanos(1);
+        }
+        if (from == null) {
+            start = LocalDate.now().atStartOfDay().minusDays(6);
+        } else {
+            start = from.atStartOfDay();
+        }
+        Page<BookingSession> sessionsList = bookingSessionRepository.findAllByTherapistAndSessionDateTimeBetweenAndStatus(pageable, therapist, start, end, status);
+        return sessionsList.map(bookingSessionMapper::toSessionDto);
     }
 
 }

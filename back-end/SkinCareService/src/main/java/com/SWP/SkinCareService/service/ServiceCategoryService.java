@@ -42,6 +42,9 @@ public class ServiceCategoryService {
     @Transactional
     public void delete(int id){
         ServiceCategory category = checkServiceCategory(id);
+        if (!category.getServices().isEmpty()){
+            throw new AppException(ErrorCode.CATEGORY_CANNOT_DELETE);
+        }
         serviceCategoryRepository.delete(category);
     }
     public List<ServiceCategoryResponse> getAll(){

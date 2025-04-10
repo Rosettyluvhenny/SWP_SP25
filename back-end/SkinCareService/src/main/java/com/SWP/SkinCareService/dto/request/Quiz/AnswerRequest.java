@@ -18,7 +18,7 @@ public class AnswerRequest {
     @NotBlank(message ="NOT_EMPTY")
     private String text;
 
-    @Min(value = 0, message = "MIN_VALUE")
+    @Min(value = 1, message = "MIN_VALUE")
     private int point;
 
 }
