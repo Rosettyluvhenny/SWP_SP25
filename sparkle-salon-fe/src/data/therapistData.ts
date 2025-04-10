@@ -24,37 +24,35 @@ export interface Service {
 }
 
 export interface CompletedSession {
-  id: string;
-  bookingId: string;
-  specificDateTime: string;
+  id: number;
+  bookingId: number;
+  bookingDate: string;
+  sessionDateTime: string;
   serviceName: string;
+  serviceId: number;
   status: string;
-  notes: string;
-  serviceType: string;
-  zoomUrl: string;
-  googleMeet: string;
-  skypeId: string;
-  userEmail: string;
-  therapistName: string;
+  note: string;
+  imgBefore: string;
+  imgAfter: string;
+  roomId: number;
+  roomName: string;
+  userId: string;
+  userName: string;
   therapistId: string;
-  feedback: string;
+  therapistName: string;
+  staffId: string;
+  staffName: string;
+  img: string;
+  description: string;
+  feedbackText: string;
   rating: number;
 }
 
-export interface MetaData {
+export interface CompletedSessionsResponse {
   totalElements: number;
   totalPages: number;
-  pageNumber: number;
-  pageSize: number;
-  first: boolean;
-  last: boolean;
-  numberOfElements: number;
-}
-
-export interface PageableRequest {
-  pageNumber?: number;
-  pageSize?: number;
-  sort?: string[];
+  size: number;
+  content: CompletedSession[];
 }
 
 const getAllTherapists = async (): Promise<Therapist[]> => {
@@ -357,89 +355,39 @@ const getFreeSlots = async (serviceId: string, date: string): Promise<any[]> => 
   }
 };
 
-
-const getTherapistCompletedSession = async (
+const getTherapistCompletedSessions = async (
   from?: string,
-  to?: string,
-  pageable: PageableRequest = {}
-): Promise<{ sessions: CompletedSession[]; meta: MetaData }> => {
+  to?: string
+): Promise<CompletedSession[]> => {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.error("Không tìm thấy token để thực hiện yêu cầu");
-      return { sessions: [], meta: { totalElements: 0, totalPages: 0, pageNumber: 0, pageSize: 0, first: false, last: false, numberOfElements: 0 } };
+      console.error("Token not found for completed sessions request");
+      return [];
     }
 
     // Build query parameters
-    const queryParams = new URLSearchParams();
-    
-    // Add date range parameters if provided
-    if (from) queryParams.append('from', from);
-    if (to) queryParams.append('to', to);
-    
-    // Add pageable parameters if provided
-    if (pageable.pageNumber !== undefined) queryParams.append('page', pageable.pageNumber.toString());
-    if (pageable.pageSize !== undefined) queryParams.append('size', pageable.pageSize.toString());
-    if (pageable.sort && pageable.sort.length > 0) {
-      pageable.sort.forEach(sortItem => {
-        queryParams.append('sort', sortItem);
-      });
+    let queryParams = '';
+    if (from) queryParams += `from=${from}`;
+    if (to) {
+      queryParams += queryParams ? `&to=${to}` : `to=${to}`;
     }
-
-    const url = `/therapists/sessionCompleted${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     
-    console.log("Calling API:", url);
+    const url = `/therapists/sessionCompleted${queryParams ? `?${queryParams}` : ''}`;
     
-    const response = await axios.get(url, {
+    console.log("Fetching completed sessions with URL:", url);
+    
+    const response = await axios.get<{ result: CompletedSessionsResponse }>(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-
-    if (response.result) {
-      const { content, totalElements, totalPages, number, pageSize, first, last, numberOfElements } = response.result;
-      
-      return {
-        sessions: content || [],
-        meta: {
-          totalElements,
-          totalPages,
-          pageNumber: number,
-          pageSize,
-          first,
-          last,
-          numberOfElements,
-        },
-      };
-    }
     
-    console.error("Không tìm thấy dữ liệu trong phản hồi:", response);
-    return { 
-      sessions: [], 
-      meta: { 
-        totalElements: 0, 
-        totalPages: 0, 
-        pageNumber: 0, 
-        pageSize: 0, 
-        first: false, 
-        last: false, 
-        numberOfElements: 0 
-      } 
-    };
+    console.log("Completed sessions response:", response);
+    return response.result?.content || [];
   } catch (error) {
-    console.error("Lỗi khi lấy danh sách buổi điều trị đã hoàn thành:", error);
-    return { 
-      sessions: [], 
-      meta: { 
-        totalElements: 0, 
-        totalPages: 0, 
-        pageNumber: 0, 
-        pageSize: 0, 
-        first: false, 
-        last: false, 
-        numberOfElements: 0 
-      } 
-    };
+    console.error("Error fetching therapist completed sessions:", error);
+    return [];
   }
 };
 
@@ -456,5 +404,5 @@ export {
   getFreeSlots,
   getAllTherapists,
   updateTherapistSv,
-  getTherapistCompletedSession,
+  getTherapistCompletedSessions,
 };

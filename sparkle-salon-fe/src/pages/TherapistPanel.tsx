@@ -1,13 +1,11 @@
 import React, { useEffect, useState, FormEvent, useContext } from "react";
-import { useLocation, useNavigate} from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
     getTherapistInfo,
     updateTherapist,
     type Therapist,
-    getTherapistCompletedSession,
+    getTherapistCompletedSessions,
     type CompletedSession,
-    type MetaData,
-    type PageableRequest,
 } from "../data/therapistData";
 import {
     getTherapistSessions,
@@ -25,9 +23,6 @@ import {
     EnvelopeIcon,
     StarIcon,
     DocumentTextIcon,
-    ClockIcon,
-    ArrowLeftIcon,
-    ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import { FaUser, FaBookMedical, FaAddressBook } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -84,31 +79,20 @@ export default function Therapist() {
     const [selectedSession, setSelectedSession] = useState<Session | null>(
         null
     );
+
     const [completedSessions, setCompletedSessions] = useState<
         CompletedSession[]
     >([]);
-    const [sessionMeta, setSessionMeta] = useState<MetaData>({
-        totalElements: 0,
-        totalPages: 0,
-        pageNumber: 0,
-        pageSize: 0,
-        first: true,
-        last: false,
-        numberOfElements: 0,
-    });
-    const [historyLoading, setHistoryLoading] = useState<boolean>(false);
-    const [historyError, setHistoryError] = useState<string | null>(null);
-    const [historyPage, setHistoryPage] = useState<number>(0);
-    const [historyPageSize, setHistoryPageSize] = useState<number>(10);
-    const [historyFromDate, setHistoryFromDate] = useState<string>(() => {
+    const [historyStartDate, setHistoryStartDate] = useState<string>(() => {
         const date = new Date();
-        date.setMonth(date.getMonth() - 1);
+        date.setMonth(date.getMonth() - 1); // Default to last month
         return date.toISOString().split("T")[0];
     });
-    const [historyToDate, setHistoryToDate] = useState<string>(() => {
+    const [historyEndDate, setHistoryEndDate] = useState<string>(() => {
         const date = new Date();
         return date.toISOString().split("T")[0];
     });
+    const [loadingHistory, setLoadingHistory] = useState<boolean>(false);
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -187,33 +171,6 @@ export default function Therapist() {
         }
     };
 
-    // completed sessions
-    const fetchCompletedSessions = async () => {
-        try {
-            setHistoryLoading(true);
-            const pageable: PageableRequest = {
-                pageNumber: historyPage,
-                pageSize: historyPageSize,
-                sort: ["specificDateTime,desc"],
-            };
-
-            const { sessions, meta } = await getTherapistCompletedSession(
-                historyFromDate,
-                historyToDate,
-                pageable
-            );
-
-            setCompletedSessions(sessions);
-            setSessionMeta(meta);
-            setHistoryError(null);
-        } catch (error) {
-            setHistoryError("Lỗi khi tải lịch sử");
-            console.error("Fetch completed sessions error:", error);
-        } finally {
-            setHistoryLoading(false);
-        }
-    };
-
     // Effect Hooks
     useEffect(() => {
         if (activeTab === "account") {
@@ -225,15 +182,24 @@ export default function Therapist() {
         } else if (activeTab === "history") {
             fetchCompletedSessions();
         }
-    }, [
-        activeTab,
-        startDate,
-        endDate,
-        historyPage,
-        historyPageSize,
-        historyFromDate,
-        historyToDate,
-    ]);
+    }, [activeTab, historyStartDate, historyEndDate]);
+
+    const fetchCompletedSessions = async () => {
+        try {
+            setLoadingHistory(true);
+            const data = await getTherapistCompletedSessions(
+                historyStartDate,
+                historyEndDate
+            );
+            setCompletedSessions(data || []);
+            setError(null);
+        } catch (error) {
+            setError("Error fetching completed sessions");
+            console.error("Fetch completed sessions error:", error);
+        } finally {
+            setLoadingHistory(false);
+        }
+    };
 
     // Form Handlers
     const handleSessionUpdate = async (
@@ -858,16 +824,16 @@ export default function Therapist() {
                         )}
                     </div>
                 )}
+
                 {/* History Tab */}
                 {activeTab === "history" && (
                     <div className="bg-white shadow-md rounded-lg p-6">
                         <header className="flex items-center mb-6">
-                            <ClockIcon className="w-6 h-6 mr-3 text-pink-600" />
+                            <ClipboardDocumentListIcon className="w-6 h-6 mr-3 text-pink-600" />
                             <h1 className="text-2xl font-bold text-gray-800">
-                                Lịch sử buổi điều trị
+                                Lịch sử buổi đã hoàn thành
                             </h1>
                         </header>
-
                         <div className="mb-6 flex flex-col sm:flex-row gap-4">
                             <div>
                                 <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -875,9 +841,9 @@ export default function Therapist() {
                                 </label>
                                 <input
                                     type="date"
-                                    value={historyFromDate}
+                                    value={historyStartDate}
                                     onChange={(e) =>
-                                        setHistoryFromDate(e.target.value)
+                                        setHistoryStartDate(e.target.value)
                                     }
                                     className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-pink-500 focus:border-pink-500 block w-full p-2.5"
                                 />
@@ -888,239 +854,130 @@ export default function Therapist() {
                                 </label>
                                 <input
                                     type="date"
-                                    value={historyToDate}
+                                    value={historyEndDate}
                                     onChange={(e) =>
-                                        setHistoryToDate(e.target.value)
+                                        setHistoryEndDate(e.target.value)
                                     }
                                     className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-pink-500 focus:border-pink-500 block w-full p-2.5"
                                 />
                             </div>
                         </div>
-
-                        {historyLoading ? (
+                        {loadingHistory ? (
                             <div className="flex justify-center items-center h-64">
                                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
                             </div>
-                        ) : historyError ? (
+                        ) : error ? (
                             <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6">
                                 <ExclamationTriangleIcon className="w-6 h-6 inline-block mr-2 text-red-500" />
-                                <span>{historyError}</span>
+                                <span>{error}</span>
                             </div>
-                        ) : (
-                            <>
-                                {completedSessions.length > 0 ? (
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-sm text-left text-gray-500">
-                                            <thead className="text-xs text-gray-700 uppercase bg-gray-100">
-                                                <tr>
-                                                    <th className="px-6 py-3">
-                                                        Ngày
-                                                    </th>
-                                                    <th className="px-6 py-3">
-                                                        Dịch vụ
-                                                    </th>
-                                                    <th className="px-6 py-3">
-                                                        Khách hàng
-                                                    </th>
-                                                    <th className="px-6 py-3">
-                                                        Trạng thái
-                                                    </th>
-                                                    <th className="px-6 py-3">
-                                                        Đánh giá
-                                                    </th>
-                                                    <th className="px-6 py-3">
-                                                        Ghi chú
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {completedSessions.map(
-                                                    (session) => (
-                                                        <tr
-                                                            key={session.id}
-                                                            className="bg-white border-b hover:bg-gray-50"
-                                                        >
-                                                            <td className="px-6 py-4">
-                                                                {new Date(
-                                                                    session.specificDateTime
-                                                                ).toLocaleString(
-                                                                    "vi-VN"
-                                                                )}
-                                                            </td>
-                                                            <td className="px-6 py-4">
-                                                                {
-                                                                    session.serviceName
-                                                                }
-                                                            </td>
-                                                            <td className="px-6 py-4">
-                                                                {
-                                                                    session.userEmail
-                                                                }
-                                                            </td>
-                                                            <td className="px-6 py-4">
-                                                                <span
-                                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                                        session.status.toLowerCase() ===
-                                                                        "completed"
-                                                                            ? "bg-green-100 text-green-800"
-                                                                            : session.status.toLowerCase() ===
-                                                                              "cancelled"
-                                                                            ? "bg-red-100 text-red-800"
-                                                                            : "bg-yellow-100 text-yellow-800"
-                                                                    }`}
-                                                                >
+                        ) : completedSessions.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left text-gray-500">
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                                        <tr>
+                                            <th className="px-6 py-3">Ngày</th>
+                                            <th className="px-6 py-3">
+                                                Dịch vụ
+                                            </th>
+                                            <th className="px-6 py-3">
+                                                Khách hàng
+                                            </th>
+                                            <th className="px-6 py-3">
+                                                Đánh giá
+                                            </th>
+                                            <th className="px-6 py-3">
+                                                Chi tiết
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {completedSessions.map((session) => (
+                                            <tr
+                                                key={session.id}
+                                                className="bg-white border-b hover:bg-gray-50"
+                                            >
+                                                <td className="px-6 py-4">
+                                                    {new Date(
+                                                        session.sessionDateTime
+                                                    ).toLocaleString("vi-VN")}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {session.serviceName}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {session.userName}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center">
+                                                        {session.rating > 0 ? (
+                                                            <>
+                                                                <span className="text-yellow-500 mr-1">
                                                                     {
-                                                                        session.status
+                                                                        session.rating
                                                                     }
                                                                 </span>
-                                                            </td>
-                                                            <td className="px-6 py-4">
-                                                                {session.rating >
-                                                                0 ? (
-                                                                    <div className="flex items-center">
-                                                                        {Array.from(
-                                                                            {
-                                                                                length: 5,
-                                                                            }
-                                                                        ).map(
-                                                                            (
-                                                                                _,
-                                                                                i
-                                                                            ) => (
-                                                                                <StarIcon
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                    className={`w-5 h-5 ${
-                                                                                        i <
-                                                                                        session.rating
-                                                                                            ? "text-yellow-400"
-                                                                                            : "text-gray-300"
-                                                                                    }`}
-                                                                                />
-                                                                            )
-                                                                        )}
-                                                                    </div>
-                                                                ) : (
-                                                                    <span className="text-gray-400">
-                                                                        Chưa
-                                                                        đánh giá
-                                                                    </span>
-                                                                )}
-                                                            </td>
-                                                            <td className="px-6 py-4">
-                                                                {session.notes ? (
-                                                                    <div
-                                                                        className="max-w-xs truncate"
-                                                                        title={
-                                                                            session.notes
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            session.notes
-                                                                        }
-                                                                    </div>
-                                                                ) : (
-                                                                    <span className="text-gray-400">
-                                                                        Không có
-                                                                        ghi chú
-                                                                    </span>
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    )
-                                                )}
-                                            </tbody>
-                                        </table>
-
-                                        {/* Pagination */}
-                                        <div className="flex justify-between items-center mt-6">
-                                            <div className="text-sm text-gray-700">
-                                                Hiển thị{" "}
-                                                <span className="font-medium">
-                                                    {
-                                                        sessionMeta.numberOfElements
-                                                    }
-                                                </span>{" "}
-                                                trong tổng số{" "}
-                                                <span className="font-medium">
-                                                    {sessionMeta.totalElements}
-                                                </span>{" "}
-                                                buổi điều trị
-                                            </div>
-                                            <div className="flex space-x-2">
-                                                <button
-                                                    onClick={() =>
-                                                        setHistoryPage((prev) =>
-                                                            Math.max(
-                                                                0,
-                                                                prev - 1
-                                                            )
-                                                        )
-                                                    }
-                                                    disabled={sessionMeta.first}
-                                                    className="px-3 py-1 border rounded-md hover:bg-gray-50 disabled:opacity-50"
-                                                >
-                                                    <ArrowLeftIcon className="w-5 h-5" />
-                                                </button>
-                                                <span className="px-3 py-1 border rounded-md bg-pink-50">
-                                                    {sessionMeta.pageNumber + 1}
-                                                </span>
-                                                <button
-                                                    onClick={() =>
-                                                        setHistoryPage(
-                                                            (prev) => prev + 1
-                                                        )
-                                                    }
-                                                    disabled={sessionMeta.last}
-                                                    className="px-3 py-1 border rounded-md hover:bg-gray-50 disabled:opacity-50"
-                                                >
-                                                    <ArrowRightIcon className="w-5 h-5" />
-                                                </button>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <span className="text-sm text-gray-700">
-                                                    Hiển thị
-                                                </span>
-                                                <select
-                                                    value={historyPageSize}
-                                                    onChange={(e) => {
-                                                        setHistoryPageSize(
-                                                            Number(
-                                                                e.target.value
-                                                            )
-                                                        );
-                                                        setHistoryPage(0); // Reset to first page when changing page size
-                                                    }}
-                                                    className="border rounded-md px-2 py-1 text-sm"
-                                                >
-                                                    <option value="5">5</option>
-                                                    <option value="10">
-                                                        10
-                                                    </option>
-                                                    <option value="20">
-                                                        20
-                                                    </option>
-                                                    <option value="50">
-                                                        50
-                                                    </option>
-                                                </select>
-                                                <span className="text-sm text-gray-700">
-                                                    mỗi trang
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-8 bg-gray-50 rounded-lg">
-                                        <DocumentPlusIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                        <p className="text-gray-600">
-                                            Không có buổi điều trị nào trong
-                                            khoảng thời gian này
-                                        </p>
-                                    </div>
-                                )}
-                            </>
+                                                                <div className="flex">
+                                                                    {[
+                                                                        ...Array(
+                                                                            5
+                                                                        ),
+                                                                    ].map(
+                                                                        (
+                                                                            _,
+                                                                            i
+                                                                        ) => (
+                                                                            <StarIcon
+                                                                                key={
+                                                                                    i
+                                                                                }
+                                                                                className={`w-4 h-4 ${
+                                                                                    i <
+                                                                                    session.rating
+                                                                                        ? "text-yellow-500 fill-yellow-500"
+                                                                                        : "text-gray-300"
+                                                                                }`}
+                                                                            />
+                                                                        )
+                                                                    )}
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-gray-400">
+                                                                Chưa đánh giá
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedSession(
+                                                                session
+                                                            );
+                                                            setActiveTab(
+                                                                "notes"
+                                                            );
+                                                        }}
+                                                        className="text-white bg-pink-600 hover:bg-pink-700 rounded-lg text-sm px-3 py-2 transition disabled:opacity-50"
+                                                        disabled={isSubmitting}
+                                                    >
+                                                        Xem chi tiết
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="text-center py-8 bg-gray-50 rounded-lg">
+                                <DocumentPlusIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                                <p className="text-gray-600">
+                                    Không có buổi đã hoàn thành nào trong khoảng
+                                    thời gian này
+                                </p>
+                            </div>
                         )}
                     </div>
                 )}
