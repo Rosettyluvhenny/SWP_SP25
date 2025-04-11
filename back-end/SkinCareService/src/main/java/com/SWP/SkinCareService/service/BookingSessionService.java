@@ -197,6 +197,14 @@ public class  BookingSessionService {
         User staff = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         boolean isStaff = staff.getRoles().stream()
                 .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
+
+        LocalDateTime  now = LocalDateTime.now();
+        if(now.isBefore(session.getSessionDateTime().minusMinutes(40))){
+            throw new AppException(ErrorCode.BOOKING_IS_SOON_IN_TIME);
+        }
+        if(now.isAfter(session.getSessionDateTime().plusMinutes(20)))
+            throw new AppException(ErrorCode.BOOKING_IS_LATE_IN_TIME);
+
         if(session.getStatus() == BookingSessionStatus.COMPLETED)
             throw new AppException(ErrorCode.SESSION_COMPLETED);
         if(request.getRoomId()!=null) {
