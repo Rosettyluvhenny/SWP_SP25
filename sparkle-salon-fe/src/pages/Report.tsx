@@ -23,7 +23,12 @@ import {
     X,
     Info,
 } from "lucide-react";
-import { getAllReport, getAllReceipt, Report, Receipt } from "../data/reportData";
+import {
+    getAllReport,
+    getAllReceipt,
+    Report,
+    Receipt,
+} from "../data/reportData";
 
 export default function Reports() {
     const [reportData, setReportData] = useState<Report[]>([]);
@@ -38,8 +43,14 @@ export default function Reports() {
     );
     const [allReceipts, setAllReceipts] = useState<Receipt[]>([]);
     const [isLoadingReceipts, setIsLoadingReceipts] = useState(false);
-    const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+    const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(
+        null
+    );
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [paymentMethodFilter, setPaymentMethodFilter] =
+        useState<string>("all");
+    const [paymentTypeFilter, setPaymentTypeFilter] = useState<string>("all");
+    const [filteredReceipts, setFilteredReceipts] = useState<Receipt[]>([]);
 
     useEffect(() => {
         const fetchReportData = async () => {
@@ -79,7 +90,7 @@ export default function Reports() {
                 const formattedToDate = dateRange.to
                     .toISOString()
                     .split("T")[0];
-                    
+
                 const receipts = await getAllReceipt(
                     formattedFromDate,
                     formattedToDate
@@ -100,6 +111,46 @@ export default function Reports() {
 
         fetchReceiptData();
     }, [activeTab, dateRange]);
+
+    // useEffect filter của receipt
+    useEffect(() => {
+        if (allReceipts.length === 0) {
+            setFilteredReceipts([]);
+            return;
+        }
+
+        let filtered = [...allReceipts];
+
+        // cho payment method
+        if (paymentMethodFilter !== "all") {
+            filtered = filtered.filter(
+                (receipt) => receipt.paymentMethod === paymentMethodFilter
+            );
+        }
+
+        // cho payment type
+        if (paymentTypeFilter !== "all") {
+            filtered = filtered.filter(
+                (receipt) => receipt.paymentType === paymentTypeFilter
+            );
+        }
+
+        setFilteredReceipts(filtered);
+    }, [allReceipts, paymentMethodFilter, paymentTypeFilter]);
+
+    const uniquePaymentMethods = () => {
+        const methods = allReceipts
+            .map((receipt) => receipt.paymentMethod)
+            .filter((method) => method != null);
+        return [...new Set(methods)];
+    };
+
+    const uniquePaymentTypes = () => {
+        const types = allReceipts
+            .map((receipt) => receipt.paymentType)
+            .filter((type) => type != null);
+        return [...new Set(types)];
+    };
 
     const handleDateChange = (
         e: React.ChangeEvent<HTMLInputElement>,
@@ -196,10 +247,7 @@ export default function Reports() {
                 {/* Date Selection Section - Used for both tabs */}
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <h2 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-                        <Calendar
-                            className="mr-2 text-pink-500"
-                            size={20}
-                        />
+                        <Calendar className="mr-2 text-pink-500" size={20} />
                         Chọn Khoảng Thời Gian
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -244,13 +292,9 @@ export default function Reports() {
                                     type="date"
                                     id="toDate"
                                     value={
-                                        dateRange.to
-                                            .toISOString()
-                                            .split("T")[0]
+                                        dateRange.to.toISOString().split("T")[0]
                                     }
-                                    onChange={(e) =>
-                                        handleDateChange(e, "to")
-                                    }
+                                    onChange={(e) => handleDateChange(e, "to")}
                                     className="block w-full pl-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                                 />
                             </div>
@@ -447,14 +491,83 @@ export default function Reports() {
 
                         {/* Detail */}
                         <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                            <div className="p-6">
-                                <h2 className="text-xl font-semibold mb-6 text-gray-700 flex items-center">
+                            <div className="p-4">
+                                <h2 className="text-xl font-semibold text-gray-700 flex items-center">
                                     <Users
                                         className="mr-3 text-purple-500"
                                         size={24}
                                     />
                                     Chi Tiết Giao Dịch
                                 </h2>
+                            </div>
+
+                            {/* filter section */}
+                            <div className="bg-pink-50 rounded-xl shadow-md p-6 mb-6">
+                                <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                                    Bộ Lọc
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label
+                                            htmlFor="paymentMethod"
+                                            className="block text-sm font-medium text-gray-700 mb-2"
+                                        >
+                                            Phương Thức Thanh Toán
+                                        </label>
+                                        <select
+                                            id="paymentMethod"
+                                            value={paymentMethodFilter}
+                                            onChange={(e) =>
+                                                setPaymentMethodFilter(
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500"
+                                        >
+                                            <option value="all">Tất Cả</option>
+                                            {uniquePaymentMethods().map(
+                                                (method) => (
+                                                    <option
+                                                        key={method}
+                                                        value={method}
+                                                    >
+                                                        {method}
+                                                    </option>
+                                                )
+                                            )}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label
+                                            htmlFor="paymentType"
+                                            className="block text-sm font-medium text-gray-700 mb-2"
+                                        >
+                                            Loại Thanh Toán
+                                        </label>
+                                        <select
+                                            id="paymentType"
+                                            value={paymentTypeFilter}
+                                            onChange={(e) =>
+                                                setPaymentTypeFilter(
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500"
+                                        >
+                                            <option value="all">Tất Cả</option>
+                                            {uniquePaymentTypes().map(
+                                                (type) => (
+                                                    <option
+                                                        key={type}
+                                                        value={type}
+                                                    >
+                                                        {type}
+                                                    </option>
+                                                )
+                                            )}
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Transaction table */}
@@ -485,40 +598,58 @@ export default function Reports() {
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
-                                            {allReceipts.length > 0 ? (
-                                                allReceipts.map((receipt) => (
-                                                    <tr
-                                                        key={receipt.id}
-                                                        className="hover:bg-gray-50"
-                                                    >
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            <div className="flex items-center">
-                                                                <Clock
-                                                                    size={16}
-                                                                    className="mr-2 text-gray-400"
-                                                                />
-                                                                {formatDateTime(
-                                                                    receipt.date
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                            {receipt.customerName}
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            {receipt.serviceName}
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                                            <button
-                                                                onClick={() => openReceiptDetails(receipt)}
-                                                                className="px-3 py-1 bg-pink-500 hover:bg-pink-600 text-white rounded-md flex items-center transition-colors"
-                                                            >
-                                                                <Info size={20} className="mr-1" />
-                                                                Chi tiết Giao Dịch
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))
+                                            {filteredReceipts.length > 0 ? (
+                                                filteredReceipts.map(
+                                                    (receipt) => (
+                                                        <tr
+                                                            key={receipt.id}
+                                                            className="hover:bg-gray-50"
+                                                        >
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                <div className="flex items-center">
+                                                                    <Clock
+                                                                        size={
+                                                                            16
+                                                                        }
+                                                                        className="mr-2 text-gray-400"
+                                                                    />
+                                                                    {formatDateTime(
+                                                                        receipt.date
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                                {
+                                                                    receipt.customerName
+                                                                }
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                {
+                                                                    receipt.serviceName
+                                                                }
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                                <button
+                                                                    onClick={() =>
+                                                                        openReceiptDetails(
+                                                                            receipt
+                                                                        )
+                                                                    }
+                                                                    className="px-3 py-1 bg-pink-500 hover:bg-pink-600 text-white rounded-md flex items-center transition-colors"
+                                                                >
+                                                                    <Info
+                                                                        size={
+                                                                            20
+                                                                        }
+                                                                        className="mr-1"
+                                                                    />
+                                                                    Chi tiết
+                                                                    Giao Dịch
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                )
                                             ) : (
                                                 <tr>
                                                     <td
@@ -526,7 +657,8 @@ export default function Reports() {
                                                         className="px-6 py-4 text-center text-sm text-gray-500"
                                                     >
                                                         Không có dữ liệu giao
-                                                        dịch trong khoảng thời gian này
+                                                        dịch trong khoảng thời
+                                                        gian này
                                                     </td>
                                                 </tr>
                                             )}
@@ -543,74 +675,116 @@ export default function Reports() {
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                         <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 overflow-hidden">
                             <div className="flex justify-between items-center border-b px-6 py-4">
-                                <h3 className="text-xl font-semibold text-gray-800">Chi tiết Giao Dịch</h3>
-                                <button 
+                                <h3 className="text-xl font-semibold text-gray-800">
+                                    Chi tiết Giao Dịch
+                                </h3>
+                                <button
                                     onClick={closeModal}
                                     className="text-gray-500 hover:text-gray-700 transition-colors"
                                 >
                                     <X size={24} />
                                 </button>
                             </div>
-                            
+
                             <div className="p-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div>
                                         <div className="mb-6">
-                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Khách Hàng</h4>
-                                            <p className="text-base font-semibold text-gray-800">{selectedReceipt.customerName}</p>
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">
+                                                Khách Hàng
+                                            </h4>
+                                            <p className="text-base font-semibold text-gray-800">
+                                                {selectedReceipt.customerName}
+                                            </p>
                                         </div>
-                                        
+
                                         <div className="mb-6">
-                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Dịch Vụ</h4>
-                                            <p className="text-base font-semibold text-gray-800">{selectedReceipt.serviceName}</p>
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">
+                                                Dịch Vụ
+                                            </h4>
+                                            <p className="text-base font-semibold text-gray-800">
+                                                {selectedReceipt.serviceName}
+                                            </p>
                                         </div>
-                                        
+
                                         <div className="mb-6">
-                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Thời Gian</h4>
-                                            <p className="text-base font-semibold text-gray-800">{formatDateTime(selectedReceipt.date)}</p>
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">
+                                                Thời Gian
+                                            </h4>
+                                            <p className="text-base font-semibold text-gray-800">
+                                                {formatDateTime(
+                                                    selectedReceipt.date
+                                                )}
+                                            </p>
                                         </div>
-                                        
+
                                         <div className="mb-6">
-                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Số Tiền</h4>
-                                            <p className="text-lg font-bold text-green-600">{selectedReceipt.amount?.toLocaleString()} VND</p>
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">
+                                                Số Tiền
+                                            </h4>
+                                            <p className="text-lg font-bold text-green-600">
+                                                {selectedReceipt.amount?.toLocaleString()}{" "}
+                                                VND
+                                            </p>
                                         </div>
                                     </div>
-                                    
+
                                     <div>
                                         <div className="mb-6">
-                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Phương Thức Thanh Toán</h4>
-                                            <p className="text-base font-semibold text-gray-800">{selectedReceipt.paymentMethod}</p>
+                                            <h4 className="text-sm font-medium text-gray-500 mb-1">
+                                                Phương Thức Thanh Toán
+                                            </h4>
+                                            <p className="text-base font-semibold text-gray-800">
+                                                {selectedReceipt.paymentMethod}
+                                            </p>
                                         </div>
-                                        
-                                        <div className="mb-6">
-                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Loại Thanh Toán</h4>
-                                            <span className={`px-3 py-1 text-sm rounded-full ${
-                                                selectedReceipt.paymentType === "Deposit"
-                                                    ? "bg-yellow-100 text-yellow-800"
-                                                    : "bg-green-100 text-green-800"
-                                            }`}>
-                                                {selectedReceipt.paymentType}
-                                            </span>
-                                        </div>
-                                        
-                                        <div className="mb-6">
-                                            <h4 className="text-sm font-medium text-gray-500 mb-1">Nhân Viên</h4>
-                                            <p className="text-base font-semibold text-gray-800">{selectedReceipt.staffName}</p>
-                                        </div>
+
+                                        {selectedReceipt.paymentType && (
+                                            <div className="mb-6">
+                                                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                                                    Loại Thanh Toán
+                                                </h4>
+                                                <span
+                                                    className={`px-3 py-1 text-sm rounded-full ${
+                                                        selectedReceipt.paymentType ===
+                                                        "Deposit"
+                                                            ? "bg-yellow-100 text-yellow-800"
+                                                            : "bg-green-100 text-green-800"
+                                                    }`}
+                                                >
+                                                    {
+                                                        selectedReceipt.paymentType
+                                                    }
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        {selectedReceipt.staffName && (
+                                            <div className="mb-6">
+                                                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                                                    Nhân Viên
+                                                </h4>
+                                                <p className="text-base font-semibold text-gray-800">
+                                                    {selectedReceipt.staffName}
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                {selectedReceipt.url &&
-                                <div className="mt-6">
-                                    <h4 className="text-sm font-medium text-gray-500 mb-3">Hình Ảnh Hóa Đơn</h4>
-                                    <div className="border border-gray-200 rounded-lg p-2 inline-block">
-                                        <img 
-                                            src={selectedReceipt.url} 
-                                            alt="Receipt" 
-                                            className="h-64 object-contain rounded"
-                                        />
+                                {selectedReceipt.url && (
+                                    <div className="mt-6">
+                                        <h4 className="text-sm font-medium text-gray-500 mb-3">
+                                            Hình Ảnh Hóa Đơn
+                                        </h4>
+                                        <div className="border border-gray-200 rounded-lg p-2 inline-block">
+                                            <img
+                                                src={selectedReceipt.url}
+                                                alt="Receipt"
+                                                className="h-64 object-contain rounded"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                                }
+                                )}
                             </div>
                             <div className="border-t px-6 py-4 flex justify-end">
                                 <button

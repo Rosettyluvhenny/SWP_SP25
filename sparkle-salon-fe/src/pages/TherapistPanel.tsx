@@ -364,7 +364,7 @@ export default function Therapist() {
                                             <img
                                                 src={
                                                     therapist.img +
-                                                    `?t=${timestamp}` ||
+                                                        `?t=${timestamp}` ||
                                                     "/default-avatar.png"
                                                 }
                                                 alt={therapist.fullName}
@@ -432,10 +432,10 @@ export default function Therapist() {
                                                     <p className="text-gray-800">
                                                         {therapist.dob
                                                             ? new Date(
-                                                                therapist.dob
-                                                            ).toLocaleDateString(
-                                                                "vi-VN"
-                                                            )
+                                                                  therapist.dob
+                                                              ).toLocaleDateString(
+                                                                  "vi-VN"
+                                                              )
                                                             : "N/A"}
                                                     </p>
                                                 </div>
@@ -732,16 +732,18 @@ export default function Therapist() {
                                                     Trước
                                                 </label>
                                                 {selectedSession.imgBefore && (
-                                                    <div className="mb-2">
-                                                        <img
-                                                            src={
-                                                                selectedSession.imgBefore +
-                                                                `?t=${timestamp}`
-                                                            }
-                                                            alt="Hình ảnh trước"
-                                                            className="w-full h-40 object-cover rounded-lg"
-                                                        />
-                                                    </div>
+                                                    <div className="mb-2 border border-gray-200 p-1 rounded-lg bg-gray-50">
+                                                    <img
+                                                      src={selectedSession.imgBefore ? `${selectedSession.imgBefore}?t=${Date.now()}` : ''}
+                                                      alt="Hình ảnh trước"
+                                                      className="w-full object-contain rounded-lg"
+                                                      style={{ maxHeight: '300px' }}
+                                                      onError={(e) => {
+                                                        console.error("Image failed to load:", e);
+                                                        e.currentTarget.src = '/placeholder-image.png'; 
+                                                      }}
+                                                    />
+                                                  </div>
                                                 )}
                                                 <input
                                                     type="file"
@@ -761,16 +763,18 @@ export default function Therapist() {
                                                     Sau
                                                 </label>
                                                 {selectedSession.imgAfter && (
-                                                    <div className="mb-2">
-                                                        <img
-                                                            src={
-                                                                selectedSession.imgAfter +
-                                                                `?t=${timestamp}`
-                                                            }
-                                                            alt="Hình ảnh sau"
-                                                            className="w-full h-40 object-cover rounded-lg"
-                                                        />
-                                                    </div>
+                                                    <div className="mb-2 border border-gray-200 p-1 rounded-lg bg-gray-50">
+                                                    <img
+                                                      src={selectedSession.imgBefore ? `${selectedSession.imgBefore}?t=${Date.now()}` : ''}
+                                                      alt="Hình ảnh sau"
+                                                      className="w-full object-contain rounded-lg"
+                                                      style={{ maxHeight: '300px' }}
+                                                      onError={(e) => {
+                                                        console.error("Image failed to load:", e);
+                                                        e.currentTarget.src = '/placeholder-image.png';
+                                                      }}
+                                                    />
+                                                  </div>
                                                 )}
                                                 <input
                                                     type="file"
@@ -877,7 +881,9 @@ export default function Therapist() {
                                 <table className="w-full text-sm text-left text-gray-500">
                                     <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                                         <tr>
-                                            <th className="px-6 py-3">Ngày & Giờ</th>
+                                            <th className="px-6 py-3">
+                                                Ngày & Giờ
+                                            </th>
                                             <th className="px-6 py-3">
                                                 Dịch vụ
                                             </th>
@@ -932,11 +938,12 @@ export default function Therapist() {
                                                                                 key={
                                                                                     i
                                                                                 }
-                                                                                className={`w-4 h-4 ${i <
+                                                                                className={`w-4 h-4 ${
+                                                                                    i <
                                                                                     session.rating
-                                                                                    ? "text-yellow-500 fill-yellow-500"
-                                                                                    : "text-gray-300"
-                                                                                    }`}
+                                                                                        ? "text-yellow-500 fill-yellow-500"
+                                                                                        : "text-gray-300"
+                                                                                }`}
                                                                             />
                                                                         )
                                                                     )}
@@ -955,7 +962,9 @@ export default function Therapist() {
                                                             setSelectedSession(
                                                                 session
                                                             );
-                                                            setShowDetailsModal(true);
+                                                            setShowDetailsModal(
+                                                                true
+                                                            );
                                                         }}
                                                         className="text-white bg-pink-600 hover:bg-pink-700 rounded-lg text-sm px-3 py-2 transition disabled:opacity-50"
                                                         disabled={isSubmitting}
@@ -978,7 +987,6 @@ export default function Therapist() {
                             </div>
                         )}
                     </div>
-
                 )}
                 {showDetailsModal && selectedSession && (
                     <SessionDetailsModal
