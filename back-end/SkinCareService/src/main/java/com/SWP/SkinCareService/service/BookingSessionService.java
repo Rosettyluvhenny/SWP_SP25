@@ -698,17 +698,40 @@ public class  BookingSessionService {
         //Check session type
         if (booking.getService().getServiceCategory().getType() == ServiceType.TREATMENT) {
             if (existedList != null && !existedList.isEmpty()) {
-                if  (existedList.size() > 1) {
-                    BookingSession lastSessionCompleted = existedList.getLast();
+//                if  (existedList.size() > 0) {
+                    BookingSession lastSessionCompleted = null;
                     for (BookingSession session : existedList) {
                         if (session.getStatus() == BookingSessionStatus.COMPLETED) {
                             lastSessionCompleted = session;
                         }
                     }
-                    LocalDate lastSessionDateValid = lastSessionCompleted.getBookingDate().plusDays(7);
 
-                    if (requestDate.isBefore(lastSessionDateValid)) {
-                        throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                    if(lastSessionCompleted !=null) {
+                        LocalDate lastSessionDateValid = lastSessionCompleted.getBookingDate().plusDays(7);
+                        if (requestDate.isBefore(lastSessionDateValid)) {
+                            throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                        }
+                    }
+//                }
+
+            }
+        }
+
+        if (booking.getService().getServiceCategory().getType() == ServiceType.RESTORATION || booking.getService().getServiceCategory().getType() == ServiceType.CLEANSING) {
+            if (existedList != null && !existedList.isEmpty()) {
+                if  (existedList.size() > 1) {
+                    BookingSession lastSessionCompleted = null;
+                    for (BookingSession session : existedList) {
+                        if (session.getStatus() == BookingSessionStatus.COMPLETED) {
+                            lastSessionCompleted = session;
+                        }
+                    }
+
+                    if(lastSessionCompleted !=null) {
+                        LocalDate lastSessionDateValid = lastSessionCompleted.getBookingDate();
+                        if (requestDate.equals(lastSessionDateValid)) {
+                            throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                        }
                     }
                 }
 
