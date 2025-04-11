@@ -12,6 +12,7 @@ import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.enums.BookingSessionStatus;
 import com.SWP.SkinCareService.enums.BookingStatus;
 import com.SWP.SkinCareService.enums.PaymentStatus;
+import com.SWP.SkinCareService.enums.ServiceType;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.BookingSessionMapper;
@@ -694,6 +695,27 @@ public class  BookingSessionService {
     public boolean isAllowToCreate(int bookingId, LocalDate requestDate) {
         Booking booking = getBookingById(bookingId);
         List<BookingSession> existedList = booking.getBookingSessions();
+        //Check session type
+        if (booking.getService().getServiceCategory().getType() == ServiceType.TREATMENT) {
+            if (existedList != null && !existedList.isEmpty()) {
+                if  (existedList.size() > 1) {
+                    BookingSession lastSessionCompleted = existedList.getLast();
+                    for (BookingSession session : existedList) {
+                        if (session.getStatus() == BookingSessionStatus.COMPLETED) {
+                            lastSessionCompleted = session;
+                        }
+                    }
+                    LocalDate lastSessionDateValid = lastSessionCompleted.getBookingDate().plusDays(7);
+
+                    if (requestDate.isBefore(lastSessionDateValid)) {
+                        throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                    }
+                }
+
+            }
+        }
+
+
         if (existedList != null && !existedList.isEmpty()) {
             List<BookingSession> existedSession = new ArrayList<>(existedList);
             BookingSession lastSession = existedSession.getLast();

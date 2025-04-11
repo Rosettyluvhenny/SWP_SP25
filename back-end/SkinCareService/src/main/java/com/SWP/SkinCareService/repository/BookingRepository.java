@@ -18,7 +18,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer>, JpaS
     List<Booking> findAllByUserId(String userId);
     List<Booking> findAllByCreateAtBetweenAndStatusIn(LocalDateTime from, LocalDateTime to, List<BookingStatus> status);
 
-    List<Booking> findAllByUserAndCreateAtBetweenAndStatus(User user, LocalDateTime from, LocalDateTime to, BookingStatus status);
+    List<Booking> findAllByUserAndCreateAtBetweenAndStatusIn(User user, LocalDateTime from, LocalDateTime to, List<BookingStatus> status);
 
     List<Booking> findByStatusInAndBookingSessions_SessionDateTimeBefore(List<BookingStatus> status, LocalDateTime threshold);
 }

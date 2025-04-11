@@ -71,8 +71,9 @@ public class BookingService {
 
         LocalDateTime from = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
         LocalDateTime to = from.plusDays(1).minusNanos(1);
-        List<Booking> bookingToday = bookingRepository.findAllByUserAndCreateAtBetweenAndStatus(user, from, to, BookingStatus.IS_CANCELED);
-        if (bookingToday.size() > 5) {
+        List<BookingStatus> statuses = List.of(BookingStatus.IS_CANCELED, BookingStatus.PENDING);
+        List<Booking> bookingToday = bookingRepository.findAllByUserAndCreateAtBetweenAndStatusIn(user, from, to, statuses);
+        if (bookingToday.size() > 7) {
             throw new AppException(ErrorCode.SPAM_REJECTED);
         }
 
@@ -80,7 +81,7 @@ public class BookingService {
         if (userBookingExisted != null && !userBookingExisted.isEmpty()) {
             for (Booking userBooking : userBookingExisted) {
                 if ((userBooking.getService().getServiceCategory().getType() == ServiceType.TREATMENT) && ServiceType.TREATMENT == service.getServiceCategory().getType()) {
-
+                    //Check all session in booking
                     List<BookingSession> sessionList = userBooking.getBookingSessions();
                     if (sessionList != null && !sessionList.isEmpty()) {
                         BookingSession lastSessionExisted = sessionList.getLast();
@@ -96,6 +97,12 @@ public class BookingService {
                                     ||lastSessionExisted.getBooking().getStatus() == BookingStatus.PENDING ) {
                                 throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
                             }
+                        }
+                    }
+                } else {
+                    if (userBooking.getService().getServiceCategory().getType() == service.getServiceCategory().getType()) {
+                        if (userBooking.getStatus() == BookingStatus.ON_GOING || userBooking.getStatus() == BookingStatus.PENDING) {
+                            throw new AppException(ErrorCode.BOOKING_REJECTED);
                         }
                     }
                 }
