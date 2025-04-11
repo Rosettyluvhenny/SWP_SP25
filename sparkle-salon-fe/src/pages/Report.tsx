@@ -315,7 +315,7 @@ export default function Reports() {
                                 } transition duration-150 ease-in-out flex items-center`}
                             >
                                 <BarChartIcon className="mr-2" size={18} />
-                                Tổng Doang Thu
+                                Tổng Doanh Thu
                             </button>
                             <button
                                 onClick={() => setActiveTab("transactions")}
