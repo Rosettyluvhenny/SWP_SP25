@@ -35,4 +35,6 @@ public class Quiz {
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
     @JsonManagedReference
     List<QuizResult> quizResults;
+
+    boolean status;
 }

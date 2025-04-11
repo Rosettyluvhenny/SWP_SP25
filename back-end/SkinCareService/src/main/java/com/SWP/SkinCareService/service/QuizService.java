@@ -4,6 +4,7 @@ import com.SWP.SkinCareService.dto.request.Quiz.QuizRequest;
 import com.SWP.SkinCareService.dto.request.Quiz.UserResultRequest;
 import com.SWP.SkinCareService.dto.response.Quiz.QuizResponse;
 import com.SWP.SkinCareService.dto.response.Skin.ResultResponse;
+import com.SWP.SkinCareService.entity.Question;
 import com.SWP.SkinCareService.entity.QuizResult;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
@@ -19,7 +20,6 @@ import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.repository.QuizRepository;
 import com.SWP.SkinCareService.entity.ServiceCategory;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -47,13 +47,13 @@ public class QuizService {
         //Convert
         Quiz quiz = quizMapper.toQuiz(request);
         quiz.setServiceCategory(serviceCategory);
+        quiz.setStatus(false);
         quizRepository.save(quiz);
         return quizMapper.toResponse(quiz);
     }
 
     public List<QuizResponse> getAll() {
-        var quiz = quizRepository.findAll().stream().map(quizMapper::toResponse).toList();
-        return quiz;
+        return quizRepository.findAll().stream().map(quizMapper::toResponse).toList();
     }
 
     public QuizResponse getById(int id) {
@@ -68,6 +68,7 @@ public class QuizService {
         int serviceCategoryId = request.getServiceCategoryId();
         ServiceCategory serviceCategory = getCategory(serviceCategoryId);
         quiz.setServiceCategory(serviceCategory);
+        quiz.setStatus(false);
         quizRepository.save(quiz);
         return quizMapper.toResponse(quiz);
     }
@@ -109,6 +110,42 @@ public class QuizService {
         }
 
         return quizResultMapper.toResultResponse(skinType);
+    }
+
+    public void enable(int quizId) {
+        Quiz quiz = getQuiz(quizId);
+        //Check question
+        List<Question> questions = quiz.getQuestions();
+        if (questions == null || questions.isEmpty()) {
+            throw new AppException(ErrorCode.QUESTION_EMPTY);
+        } else {
+            //Check answer
+            for (Question question : questions) {
+                if (question.getAnswers() == null || question.getAnswers().isEmpty()) {
+                    throw new AppException(ErrorCode.ANSWER_EMPTY);
+                }
+            }
+        }
+        //Check result
+        List<QuizResult> quizResults = quiz.getQuizResults();
+        if (quizResults == null || quizResults.isEmpty()) {
+            throw new AppException(ErrorCode.RESULT_EMPTY);
+        } else {
+            //Check blog
+            for (QuizResult result : quizResults) {
+                if (result.getBlogPosts() == null || result.getBlogPosts().isEmpty()) {
+                    throw new AppException(ErrorCode.BLOGPOST_EMPTY);
+                }
+            }
+        }
+        quiz.setStatus(true);
+        quizRepository.save(quiz);
+    }
+
+    public void disable(int quizId) {
+        Quiz quiz = getQuiz(quizId);
+        quiz.setStatus(false);
+        quizRepository.save(quiz);
     }
 
 }

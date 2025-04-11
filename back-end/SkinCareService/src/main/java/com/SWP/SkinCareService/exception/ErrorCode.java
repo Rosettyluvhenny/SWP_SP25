@@ -88,6 +88,10 @@ public enum ErrorCode {
     BOOKING_ALREADY_PAID(1071,"Thông tin đặt chỗ đã được thanh toán", HttpStatus.BAD_REQUEST),
     SPAM_REJECTED(1072,"Bạn đã thực hiện quá nhiều yêu cầu. Vui lòng thử lại sau.", HttpStatus.BAD_REQUEST),
     CATEGORY_CANNOT_DELETE(1073,"Không thể xóa danh mục này", HttpStatus.BAD_REQUEST),
+    QUESTION_EMPTY(1074,"Bài trắc nghiệm chưa có câu hỏi", HttpStatus.BAD_REQUEST),
+    ANSWER_EMPTY(1075,"Câu hỏi chưa có câu trả lời", HttpStatus.BAD_REQUEST),
+    RESULT_EMPTY(1076,"Bài trắc nghiệm chưa có kết quả mẫu", HttpStatus.BAD_REQUEST),
+    BLOGPOST_EMPTY(1077,"Kết quả chưa có blog", HttpStatus.BAD_REQUEST),
     // VNPay Error Codes
     VNPAY_PAYMENT_ERROR(2000, "Lỗi trong quá trình tạo URL thanh toán VNPay", HttpStatus.INTERNAL_SERVER_ERROR),
     VNPAY_INVALID_AMOUNT(2001, "Số tiền thanh toán không hợp lệ", HttpStatus.BAD_REQUEST),
