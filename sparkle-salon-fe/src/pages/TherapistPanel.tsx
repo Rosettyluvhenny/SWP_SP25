@@ -9,14 +9,12 @@ import {
 } from "../data/therapistData";
 import {
     getTherapistSessions,
-    updateBookingSession,
 } from "../data/sessionData";
 import SidebarTherapist from "../components/SidebarTherapist";
 import {
     CalendarIcon,
     ClipboardDocumentListIcon,
     DocumentPlusIcon,
-    CheckCircleIcon,
     ExclamationTriangleIcon,
     UserIcon,
     PhoneIcon,
@@ -24,12 +22,12 @@ import {
     StarIcon,
     DocumentTextIcon,
 } from "@heroicons/react/24/outline";
-import { FaUser, FaBookMedical, FaAddressBook } from "react-icons/fa";
 import { toast } from "react-toastify";
 import ManagementModal from "../components/ManagementModal";
 import { changePassword } from "../data/authData";
 import { UserContext } from "../context/UserContext";
 import SessionDetailsModal from "../components/SessionDetailModal";
+import NoteModal from "../components/NoteModal";
 
 // Type Definitions
 interface Session {
@@ -81,6 +79,8 @@ export default function Therapist() {
         null
     );
 
+    const [showNotesModal, setShowNotesModal] = useState(false);
+
     const [completedSessions, setCompletedSessions] = useState<
         CompletedSession[]
     >([]);
@@ -126,7 +126,7 @@ export default function Therapist() {
         try {
             setLoading(true);
             const data = await getTherapistInfo();
-            if (!data) throw new Error("Therapist info not found");
+            if (!data) throw new Error("Không tìm thấy thông tin chuyên viên");
             setTherapist(data);
             setSelectedServiceIds(data.services?.map((s) => s.id) || []);
             setError(null);
@@ -195,40 +195,10 @@ export default function Therapist() {
             setCompletedSessions(data || []);
             setError(null);
         } catch (error) {
-            setError("Error fetching completed sessions");
+            setError("Lỗi khi lấy lịch sử buổi trị liệu");
             console.error("Fetch completed sessions error:", error);
         } finally {
             setLoadingHistory(false);
-        }
-    };
-
-    // Form Handlers
-    const handleSessionUpdate = async (
-        sessionId: number,
-        note: string,
-        imgBefore: File,
-        imgAfter: File
-    ) => {
-        try {
-            setIsSubmitting(true);
-            const updateRequest = {
-                note,
-                roomId: selectedSession?.roomId || 0,
-            };
-            await updateBookingSession(
-                sessionId,
-                updateRequest,
-                imgBefore,
-                imgAfter
-            );
-            toast.success("Đã được cập nhật thành công");
-            await fetchSessions();
-            setSelectedSession(null);
-        } catch (error) {
-            toast.error("Không cập nhật được");
-            console.error("Lỗi cập nhật:", error);
-        } finally {
-            setIsSubmitting(false);
         }
     };
 
@@ -607,8 +577,8 @@ export default function Therapist() {
                                                                         setSelectedSession(
                                                                             session
                                                                         );
-                                                                        setActiveTab(
-                                                                            "notes"
+                                                                        setShowNotesModal(
+                                                                            true
                                                                         );
                                                                     }
                                                                 }}
@@ -617,7 +587,7 @@ export default function Therapist() {
                                                                     isSubmitting
                                                                 }
                                                             >
-                                                                Xem chi tiết
+                                                                Ghi chú trị liệu
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -635,197 +605,6 @@ export default function Therapist() {
                                     </div>
                                 )}
                             </>
-                        )}
-                    </div>
-                )}
-
-                {/* Notes Tab */}
-                {activeTab === "notes" && (
-                    <div className="bg-white shadow-md rounded-lg p-6">
-                        <header className="flex items-center mb-6">
-                            <ClipboardDocumentListIcon className="w-6 h-6 mr-3 text-pink-600" />
-                            <h1 className="text-2xl font-bold text-gray-800">
-                                Ghi chú buổi trị liệu
-                            </h1>
-                        </header>
-                        {selectedSession ? (
-                            <form
-                                onSubmit={async (e) => {
-                                    e.preventDefault();
-                                    const form = e.target as HTMLFormElement;
-                                    const note = (
-                                        form.elements.namedItem(
-                                            "note"
-                                        ) as HTMLTextAreaElement
-                                    ).value;
-                                    const imgBefore = (
-                                        form.elements.namedItem(
-                                            "imgBefore"
-                                        ) as HTMLInputElement
-                                    ).files?.[0];
-                                    const imgAfter = (
-                                        form.elements.namedItem(
-                                            "imgAfter"
-                                        ) as HTMLInputElement
-                                    ).files?.[0];
-
-                                    if (!note || !imgBefore || !imgAfter) {
-                                        toast.error(
-                                            "Vui lòng điền đầy đủ thông tin (ghi chú và hình ảnh)"
-                                        );
-                                        return;
-                                    }
-
-                                    await handleSessionUpdate(
-                                        selectedSession.id,
-                                        note,
-                                        imgBefore,
-                                        imgAfter
-                                    );
-                                }}
-                            >
-                                <div className="grid md:grid-cols-2 gap-6 mb-6">
-                                    <div>
-                                        <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center">
-                                            <CheckCircleIcon className="w-6 h-6 mr-2 text-pink-500" />
-                                            Chi tiết buổi
-                                        </h2>
-                                        <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
-                                            <p className="text-gray-600 flex items-center">
-                                                <FaBookMedical className="w-5 h-5 mr-2 text-pink-500" />
-                                                ID buổi: {selectedSession.id}
-                                            </p>
-                                            <p className="text-gray-600 flex items-center">
-                                                <FaAddressBook className="w-5 h-5 mr-2 text-pink-500" />
-                                                ID Đặt lịch:{" "}
-                                                {selectedSession.bookingId}
-                                            </p>
-                                            <p className="text-gray-600 flex items-center">
-                                                <FaUser className="w-5 h-5 mr-2 text-pink-500" />
-                                                Khách hàng:{" "}
-                                                {selectedSession.userName}
-                                            </p>
-                                            <p className="text-gray-600 flex items-center">
-                                                <CalendarIcon className="w-5 h-5 mr-2 text-pink-500" />
-                                                Ngày:{" "}
-                                                {new Date(
-                                                    selectedSession.sessionDateTime
-                                                ).toLocaleString("vi-VN")}
-                                            </p>
-                                            <p className="text-gray-600 flex items-center">
-                                                <DocumentPlusIcon className="w-5 h-5 mr-2 text-pink-500" />
-                                                Dịch vụ:{" "}
-                                                {selectedSession.serviceName}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                                            Tải lên hình ảnh
-                                        </h2>
-                                        <div className="grid md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label
-                                                    htmlFor="imgBefore"
-                                                    className="block mb-2 text-sm font-medium text-gray-700"
-                                                >
-                                                    Trước
-                                                </label>
-                                                {selectedSession.imgBefore && (
-                                                    <div className="mb-2 border border-gray-200 p-1 rounded-lg bg-gray-50">
-                                                    <img
-                                                      src={selectedSession.imgBefore ? `${selectedSession.imgBefore}?t=${Date.now()}` : ''}
-                                                      alt="Hình ảnh trước"
-                                                      className="w-full object-contain rounded-lg"
-                                                      style={{ maxHeight: '300px' }}
-                                                      onError={(e) => {
-                                                        console.error("Image failed to load:", e);
-                                                        e.currentTarget.src = '/placeholder-image.png'; 
-                                                      }}
-                                                    />
-                                                  </div>
-                                                )}
-                                                <input
-                                                    type="file"
-                                                    id="imgBefore"
-                                                    name="imgBefore"
-                                                    accept="image/*"
-                                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
-                                                    required
-                                                    disabled={isSubmitting}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label
-                                                    htmlFor="imgAfter"
-                                                    className="block mb-2 text-sm font-medium text-gray-700"
-                                                >
-                                                    Sau
-                                                </label>
-                                                {selectedSession.imgAfter && (
-                                                    <div className="mb-2 border border-gray-200 p-1 rounded-lg bg-gray-50">
-                                                    <img
-                                                      src={selectedSession.imgBefore ? `${selectedSession.imgBefore}?t=${Date.now()}` : ''}
-                                                      alt="Hình ảnh sau"
-                                                      className="w-full object-contain rounded-lg"
-                                                      style={{ maxHeight: '300px' }}
-                                                      onError={(e) => {
-                                                        console.error("Image failed to load:", e);
-                                                        e.currentTarget.src = '/placeholder-image.png';
-                                                      }}
-                                                    />
-                                                  </div>
-                                                )}
-                                                <input
-                                                    type="file"
-                                                    id="imgAfter"
-                                                    name="imgAfter"
-                                                    accept="image/*"
-                                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
-                                                    required
-                                                    disabled={isSubmitting}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mb-4">
-                                    <label
-                                        htmlFor="note"
-                                        className="block mb-2 text-sm font-medium text-gray-700"
-                                    >
-                                        Ghi chú buổi
-                                    </label>
-                                    <textarea
-                                        id="note"
-                                        name="note"
-                                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-pink-500 focus:border-pink-500"
-                                        rows={6}
-                                        placeholder="Nhập ghi chú chi tiết cho buổi tại đây..."
-                                        defaultValue={
-                                            selectedSession.note || ""
-                                        }
-                                        required
-                                        disabled={isSubmitting}
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full text-white bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition disabled:opacity-50"
-                                >
-                                    {isSubmitting
-                                        ? "Đang cập nhật..."
-                                        : "Cập nhật"}
-                                </button>
-                            </form>
-                        ) : (
-                            <div className="text-center py-8 bg-gray-50 rounded-lg">
-                                <DocumentPlusIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                <p className="text-gray-600 text-lg">
-                                    Chọn một buổi để xem hoặc chỉnh sửa ghi chú
-                                </p>
-                            </div>
                         )}
                     </div>
                 )}
@@ -1188,6 +967,13 @@ export default function Therapist() {
                     )}
                 </ManagementModal>
             </main>
+            {showNotesModal && selectedSession && (
+                <NoteModal
+                    session={selectedSession}
+                    onClose={() => setShowNotesModal(false)}
+                    onSuccess={fetchSessions}
+                />
+            )}
         </div>
     );
 }

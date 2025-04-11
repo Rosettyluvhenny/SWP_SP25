@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { checkInCash } from '../data/staffData';
 import { X } from 'lucide-react';
-// import { X } from 'lucide-react';
 
 interface CheckingModalProps {
     bookingId: number;
@@ -15,6 +14,7 @@ const CheckingModal = ({ bookingId, isOpen, setIsOpen, setReload, reload}: Check
     const [status, setStatus] = useState('PAID');
     const [type, setType] = useState('');
     const [img, setImg] = useState(null);
+    const [imgPreview, setImgPreview] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
 
@@ -24,9 +24,20 @@ const CheckingModal = ({ bookingId, isOpen, setIsOpen, setReload, reload}: Check
             setStatus('PAID');
             setType('');
             setImg(null);
+            setImgPreview(null);
             setError('');
         }
     }, [isOpen]);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImg(file);
+            // Create a preview URL for the image
+            const previewUrl = URL.createObjectURL(file);
+            setImgPreview(previewUrl);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,12 +45,12 @@ const CheckingModal = ({ bookingId, isOpen, setIsOpen, setReload, reload}: Check
 
         // Validate form
         if (!type) {
-            setError('Please select a payment type');
+            setError('Vui lòng chọn loại thanh toán');
             return;
         }   
 
         if (type === 'ONLINE_BANKING' && !img) {
-            setError('Please upload payment proof image');
+            setError('Xin tải lên ảnh thanh toán');
             return;
         }
 
@@ -54,17 +65,26 @@ const CheckingModal = ({ bookingId, isOpen, setIsOpen, setReload, reload}: Check
             setIsOpen(false);
             setReload(!reload);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to update payment status');
+            setError(err.response?.data?.message || 'Có lỗi xảy ra trong quá trình cập nhật thanh toán');
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    // Clean up the preview URL when component unmounts or when a new image is selected
+    useEffect(() => {
+        return () => {
+            if (imgPreview) {
+                URL.revokeObjectURL(imgPreview);
+            }
+        };
+    }, [imgPreview]);
+
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl  overflow-hidden transform transition-all duration-300 animate-fadeIn">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden transform transition-all duration-300 animate-fadeIn">
                 <div className="bg-gradient-to-r from-pink-100 to-rose-200 p-5 border-b border-gray-100">
                     <h2 className="text-xl font-bold text-gray-800 text-center">Thanh toán tại quầy</h2>
                 </div>
@@ -114,30 +134,54 @@ const CheckingModal = ({ bookingId, isOpen, setIsOpen, setReload, reload}: Check
                         {type === 'ONLINE_BANKING' && (
                             <div className="transition-all duration-300 ease-in-out">
                                 <label className="block text-gray-700 text-sm font-medium mb-2">
-                                    Payment Proof Image <span className="text-rose-500">*</span>
+                                    Ảnh Thanh Toán Chuyển Khoản <span className="text-rose-500">*</span>
                                 </label>
-                                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-pink-200 border-dashed rounded-lg bg-white/70 hover:border-rose-400 transition-colors">
-                                    <div className="space-y-1 text-center">
-                                        <svg className="mx-auto h-12 w-12 text-pink-300" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                        <div className="flex text-sm text-gray-600 justify-center">
-                                            <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-rose-600 hover:text-rose-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-rose-500">
-                                                <span>Upload a file</span>
-                                                <input
-                                                    id="file-upload"
-                                                    name="file-upload"
-                                                    type="file"
-                                                    accept="image/*"
-                                                    className="sr-only"
-                                                    onChange={(e) => setImg(e.target.files[0])}
-                                                    required
+                                <div className="mt-1 flex flex-col justify-center px-6 pt-5 pb-6 border-2 border-pink-200 border-dashed rounded-lg bg-white/70 hover:border-rose-400 transition-colors">
+                                    {imgPreview ? (
+                                        <div className="space-y-4">
+                                            <div className="flex justify-center">
+                                                <img 
+                                                    src={imgPreview} 
+                                                    alt="Payment proof" 
+                                                    className="max-h-64 rounded shadow-md" 
                                                 />
-                                            </label>
-                                            <p className="pl-1">or drag and drop</p>
+                                            </div>
+                                            <div className="flex justify-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setImg(null);
+                                                        setImgPreview(null);
+                                                    }}
+                                                    className="px-3 py-1 text-sm bg-red-50 text-red-600 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400 transition-colors"
+                                                >
+                                                    Gỡ Bỏ
+                                                </button>
+                                            </div>
                                         </div>
-                                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                                    </div>
+                                    ) : (
+                                        <div className="space-y-1 text-center">
+                                            <svg className="mx-auto h-12 w-12 text-pink-300" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                            <div className="flex text-sm text-gray-600 justify-center">
+                                                <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-rose-600 hover:text-rose-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-rose-500">
+                                                    <span>Tải File Ảnh Lên</span>
+                                                    <input
+                                                        id="file-upload"
+                                                        name="file-upload"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="sr-only"
+                                                        onChange={handleImageChange}
+                                                        required
+                                                    />
+                                                </label>
+                                                <p className="pl-1">hoặc kéo và thả ảnh</p>
+                                            </div>
+                                            <p className="text-xs text-gray-500">PNG, JPG, GIF lên tới 10MB</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -150,7 +194,7 @@ const CheckingModal = ({ bookingId, isOpen, setIsOpen, setReload, reload}: Check
                             className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 transition-all"
                             disabled={isSubmitting}
                         >
-                            Cancel
+                            Huỷ
                         </button>
                         <button
                             type="submit"
@@ -163,9 +207,9 @@ const CheckingModal = ({ bookingId, isOpen, setIsOpen, setReload, reload}: Check
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    Updating...
+                                    Đang Cập Nhật...
                                 </span>
-                            ) : 'Update Payment'}
+                            ) : 'Cập Nhật Thanh Toán'}
                         </button>
                     </div>
                 </form>
