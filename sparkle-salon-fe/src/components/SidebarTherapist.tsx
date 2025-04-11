@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import { FiMenu, FiLogOut } from "react-icons/fi";
 import { AiOutlineSchedule } from "react-icons/ai";
-import { LuNotebookPen } from "react-icons/lu";
 import { FaPencil } from "react-icons/fa6";
 import { FaUser,FaClock  } from "react-icons/fa"; 
 import { UserContext } from "../context/UserContext";
@@ -19,7 +18,6 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
   const tabs = [
     { id: "account", label: "Thông tin chuyên viên", icon: <FaUser /> }, 
     { id: "schedule", label: "Lịch Làm Việc", icon: <AiOutlineSchedule /> },
-    { id: "notes", label: "Ghi Chú buổi Trị Liệu", icon: <LuNotebookPen /> },
     { id: "blog", label: "Viết Blog", icon: <FaPencil /> },
     { id: "history", label: "Lịch Sử Ca Làm", icon: <FaClock /> },
   ];
