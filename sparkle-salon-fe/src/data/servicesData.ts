@@ -123,4 +123,14 @@ const getQuizResult = async() => {
     }
 }
 
-export { servicesData , serviceDataById, deactivateService,activateService, assignTherapist,getQuizResult, removeAssignedTherapist };
+
+const getServiceByQuizResult = async(id) => {
+    try{
+        const response = await axios.get(`/quizResult/${id}`);
+
+        return response;
+    }catch(err){
+        toast.error("cant fetch result")
+    }
+}
+export {getServiceByQuizResult, servicesData , serviceDataById, deactivateService,activateService, assignTherapist,getQuizResult, removeAssignedTherapist };

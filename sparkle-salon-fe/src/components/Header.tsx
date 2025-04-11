@@ -525,7 +525,7 @@ export default function Header() {
                             </motion.button>
 
                             {isNotiOpen && (
-                                <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg overflow-hidden z-50">
+                                <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-50 overflow-auto max-h-80">
                                     <ul className="py-1">
                                         {notifications.length > 0 &&
                                             notifications.map(

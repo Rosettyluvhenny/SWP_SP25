@@ -6,6 +6,7 @@ import { FaClock, FaMoneyBill, FaCalendarAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
+import useRecommendService from "../components/RecommendService";
 
 interface Feedback {
     id: number;
@@ -27,13 +28,13 @@ export default function ServiceDetail() {
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [relatedServices, setRelatedServices] = useState<Service[]>([]);
     const { user, setIsLoginOpen } = useContext(UserContext);
-
+    const {recommendService, loading} = useRecommendService();
     useEffect(() => {
-        const fetchRelatedServices = async () => {
-            const responseJson = await servicesData("?size=4");
-            setRelatedServices(responseJson.services);
-        };
-        fetchRelatedServices();
+        // const fetchRelatedServices = async () => {
+        //     const responseJson = await servicesData("?size=4");
+        //     setRelatedServices(responseJson.services);
+        // };
+        // fetchRelatedServices();
         const fetchService = async () => {
             try {
                 setIsLoading(true);
@@ -62,10 +63,9 @@ export default function ServiceDetail() {
                 setTimeout(() => setIsLoading(false), 500);
             }
         };
-
+        window.scroll(0,0);
         fetchService();
     }, [id]);
-
     const handleBookingClick = () => {
         if (service) {
             if (!user || !user.auth) {
@@ -362,8 +362,8 @@ export default function ServiceDetail() {
                             <h3 className="text-lg font-bold border-b pb-2 mb-4">
                                 Dịch vụ khác
                             </h3>
-                            {relatedServices
-                                .filter((related) => related.id !== service.id)
+                            {!loading && recommendService
+                                .filter((item) => item.id !== service.id)
                                 .slice(0, 5)
                                 .map((related, index) => {
                                     // Fix for URL in name field

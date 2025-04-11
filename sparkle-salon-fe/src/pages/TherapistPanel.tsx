@@ -29,6 +29,7 @@ import { toast } from "react-toastify";
 import ManagementModal from "../components/ManagementModal";
 import { changePassword } from "../data/authData";
 import { UserContext } from "../context/UserContext";
+import SessionDetailsModal from "../components/SessionDetailModal";
 
 // Type Definitions
 interface Session {
@@ -231,6 +232,7 @@ export default function Therapist() {
         }
     };
 
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -328,7 +330,6 @@ export default function Therapist() {
             setSelectedFile(e.target.files[0]);
         }
     };
-
     // Render
     return (
         <div className="flex h-screen bg-gray-50">
@@ -363,7 +364,7 @@ export default function Therapist() {
                                             <img
                                                 src={
                                                     therapist.img +
-                                                        `?t=${timestamp}` ||
+                                                    `?t=${timestamp}` ||
                                                     "/default-avatar.png"
                                                 }
                                                 alt={therapist.fullName}
@@ -431,10 +432,10 @@ export default function Therapist() {
                                                     <p className="text-gray-800">
                                                         {therapist.dob
                                                             ? new Date(
-                                                                  therapist.dob
-                                                              ).toLocaleDateString(
-                                                                  "vi-VN"
-                                                              )
+                                                                therapist.dob
+                                                            ).toLocaleDateString(
+                                                                "vi-VN"
+                                                            )
                                                             : "N/A"}
                                                     </p>
                                                 </div>
@@ -931,12 +932,11 @@ export default function Therapist() {
                                                                                 key={
                                                                                     i
                                                                                 }
-                                                                                className={`w-4 h-4 ${
-                                                                                    i <
+                                                                                className={`w-4 h-4 ${i <
                                                                                     session.rating
-                                                                                        ? "text-yellow-500 fill-yellow-500"
-                                                                                        : "text-gray-300"
-                                                                                }`}
+                                                                                    ? "text-yellow-500 fill-yellow-500"
+                                                                                    : "text-gray-300"
+                                                                                    }`}
                                                                             />
                                                                         )
                                                                     )}
@@ -955,9 +955,7 @@ export default function Therapist() {
                                                             setSelectedSession(
                                                                 session
                                                             );
-                                                            setActiveTab(
-                                                                "notes"
-                                                            );
+                                                            setShowDetailsModal(true);
                                                         }}
                                                         className="text-white bg-pink-600 hover:bg-pink-700 rounded-lg text-sm px-3 py-2 transition disabled:opacity-50"
                                                         disabled={isSubmitting}
@@ -980,8 +978,14 @@ export default function Therapist() {
                             </div>
                         )}
                     </div>
-                )}
 
+                )}
+                {showDetailsModal && selectedSession && (
+                    <SessionDetailsModal
+                        session={selectedSession}
+                        onClose={() => setShowDetailsModal(false)}
+                    />
+                )}
                 {/* Modal */}
                 <ManagementModal
                     isOpen={isModalOpen}

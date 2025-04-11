@@ -599,7 +599,7 @@ export default function Reports() {
                                         </div>
                                     </div>
                                 </div>
-                                
+                                {selectedReceipt.url &&
                                 <div className="mt-6">
                                     <h4 className="text-sm font-medium text-gray-500 mb-3">Hình Ảnh Hóa Đơn</h4>
                                     <div className="border border-gray-200 rounded-lg p-2 inline-block">
@@ -610,8 +610,8 @@ export default function Reports() {
                                         />
                                     </div>
                                 </div>
+                                }
                             </div>
-                            
                             <div className="border-t px-6 py-4 flex justify-end">
                                 <button
                                     onClick={closeModal}

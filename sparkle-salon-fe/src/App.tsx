@@ -174,27 +174,6 @@ function App() {
                     />
                 </Route>
 
-                {/* Admin protected routes */}
-                {/* <Route element={<ProtectedRoute requiredRoles={["ADMIN"]} />}>
-                    <Route
-                        path="/your-booking"
-                        element={
-                            <MainLayout>
-                                <YourBooking />
-                            </MainLayout>
-                        }
-                    />
-                    <Route
-                        path="/feedback"
-                        element={
-                            <MainLayout>
-                                <Feedback />
-                            </MainLayout>
-                        }
-                    />
-                    <Route path="/manager" element={<Manager />} />
-                </Route> */}
-
                 {/* Therapist protected routes */}
                 <Route element={<ProtectedRoute requiredRoles={['THERAPIST']} />}>
                     <Route path="/therapist" element={<TherapistPanel />} />

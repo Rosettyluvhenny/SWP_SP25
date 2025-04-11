@@ -19,9 +19,9 @@ export default function QuizInterface({ quiz, onComplete, onBack, submitting = f
     }));
 
     if (currentQuestion < quiz.questions.length - 1) {
-      setTimeout(() => {
+      // setTimeout(() => {
         setCurrentQuestion(prev => prev + 1);
-      }, 300);
+      // }, 300);
     }
   };
 
