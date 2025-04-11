@@ -79,7 +79,6 @@ export default function QuizManagement() {
       const allAnswers = normalizedQuizzes.flatMap((quiz) =>
         quiz.questions.flatMap((question) => question.answers || [])
       );
-      console.log(answer);
       setAnswer(allAnswers);
     } catch (error) {
       setError(handleApiError(error));
@@ -117,7 +116,6 @@ export default function QuizManagement() {
   const fetchServicesData = async () => {
     try {
       const servicesData = await fetchServices(0, 100);
-      console.log("Dịch vụ sau khi fetch:", servicesData);
       setServices(servicesData);
       setFilteredServices(servicesData);
     } catch (err) {

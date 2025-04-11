@@ -70,8 +70,8 @@ export default function About() {
     setIsLoading(true);
     try {
       const therapistsData = await getAllTherapists();
-      console.log("API Response:", therapistsData);
-      setTherapists(therapistsData);
+      const activeTherapists = therapistsData.filter((therapist: Therapist) => therapist.active === true);
+      setTherapists(activeTherapists);
       setError(null);
     } catch (error) {
       console.error("Error fetching therapists:", error);
@@ -101,6 +101,7 @@ export default function About() {
     setIsViewModalOpen(false);
     setSelectedTherapist(null);
   };
+
 
   return (
     <div className="pt-16 flex flex-col">

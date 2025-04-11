@@ -131,6 +131,10 @@ export default function BlogManagement() {
       setActiveTab("account");
 
       navigate("/therapist", { state: { tab: "account" } });
+    }else if (activeTab === "history") {
+      setActiveTab("history");
+
+      navigate("/therapist", { state: { tab: "history" } });
     }
   }, [activeTab, navigate]);
 
@@ -168,7 +172,6 @@ export default function BlogManagement() {
   const getBlogList = useCallback(async () => {
     try {
       const blogs = await blogData();
-      console.log("Blogs từ API:", blogs);
       const blogListData: Blog[] = blogs.map((blogItem) => ({
         blogId: blogItem.blogId,
         categoryId: blogItem.categoryId,
@@ -390,7 +393,6 @@ export default function BlogManagement() {
                   <th className="p-3 text-left">Tác Giả</th>
                   <th className="p-3 text-left">Trạng Thái</th>
                   <th className="p-3 text-left">Danh Mục</th>
-                  <th className="p-3 text-left">Default</th>
                   <th className="p-3 text-left">Hành Động</th>
                 </tr>
               </thead>
@@ -450,7 +452,7 @@ export default function BlogManagement() {
                           {blog.categoryName}
                         </span>
                       </td>
-                      <td className="p-3">
+                      <td className="p-3 flex space-x-2">
                         {isAdmin && (
                           <motion.button
                             onClick={() => handleSetDefault(blog.blogId)}
@@ -483,9 +485,8 @@ export default function BlogManagement() {
                             {blog.defaultBlog ? "Mặc định" : "Không"}
                           </span>
                         )}
-                      </td>
+                      
 
-                      <td className="p-3 flex space-x-2">
                         {!isAdmin ? (
                           <motion.button
                             onClick={() => handleOpenBlogForm(blog.blogId)}

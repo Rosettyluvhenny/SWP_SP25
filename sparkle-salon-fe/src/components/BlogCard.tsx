@@ -15,7 +15,7 @@ interface BlogCardProps {
 }
 
 const BlogCard: React.FC<BlogCardProps> = ({ blog, onSelectService }) => {
-    const [validatedImg, setValidatedImg] = useState<string>(blog.img || '/placeholder.jpg');
+    const [validatedImg, setValidatedImg] = useState<string>(blog.img );
     const [isLoading, setIsLoading] = useState(false);
 
     const displayName = blog.title || "Tiêu đề không xác định";
@@ -29,7 +29,6 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onSelectService }) => {
                     if (response.ok) setValidatedImg(blog.img);
                 } catch (err) {
                     console.warn(`URL ảnh không hợp lệ: ${blog.img}`, err);
-                    setValidatedImg('/placeholder.jpg');
                 }
             }
         };
@@ -39,7 +38,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onSelectService }) => {
     const handleClick = () => {
         setIsLoading(true);
         onSelectService(blog.blogId);
-        setTimeout(() => setIsLoading(false), 1000); // Reset sau 1s (tùy chỉnh thời gian)
+        setTimeout(() => setIsLoading(false), 500); // Reset sau 1s (tùy chỉnh thời gian)
     };
 
     // Kiểm tra điều kiện approve
