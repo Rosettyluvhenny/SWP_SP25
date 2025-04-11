@@ -112,7 +112,8 @@ public enum ErrorCode {
     BOOKING_IS_LATE_IN_TIME(2021, "Your booking is too late to check in" , HttpStatus.BAD_REQUEST ),
     RATED_ALREADY(2022, "Session has been rated" , HttpStatus.BAD_REQUEST ),
     FEEDBACK_OUT_OF_TIME(2023, "Feedback time is over", HttpStatus.BAD_REQUEST),
-    BOOKING_DATE_NOT_EXCEPTION(2024, "You can book the same service the same day" , HttpStatus.BAD_REQUEST );
+    BOOKING_DATE_NOT_EXCEPTION(2024, "You can book the same service the same day" , HttpStatus.BAD_REQUEST ),
+    CANT_CANCEL(2025, "Bạn không thể hủy buổi hẹn đã hoàn thành hoặc đang diễn ra" , HttpStatus.BAD_REQUEST );
     ;
 
 
