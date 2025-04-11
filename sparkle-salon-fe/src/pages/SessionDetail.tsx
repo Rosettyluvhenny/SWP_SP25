@@ -4,7 +4,7 @@ import { Booking, cancelMySession, getBookingById, getSessionById } from "../dat
 import { FaCheck, FaTimes, FaCreditCard, FaMoneyBillWave, FaCalendarAlt, FaClipboardList, FaArrowLeft, FaTrash, FaStar, FaRegStar } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-toastify";
-import {UpdateSessionModal, CancelModal } from "../components/SessionAction";
+import { UpdateSessionModal, CancelModal } from "../components/SessionAction";
 import SessionAction from "../components/SessionAction";
 import { createFeedback, Feedback } from "../data/feedbacksData";
 import FeedbackForm from "../components/FeedBackForm";
@@ -30,7 +30,8 @@ interface Session {
     userName: string;
     rated: boolean;
     phone: string;
-    feedBackTime:String;
+    feedBackTime: String;
+    description: string;
 }
 interface SessionDetailProps {
     isStaff: boolean;
@@ -46,11 +47,11 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
     const [isCancelOpen, setIsCancelOpen] = useState(false);
     const [feedbackAble, setFeedbackAble] = useState(false);
     function isFeedbackTimeBefore(feedbackTime: string) {
-        const feedbackTimeDate= new Date(feedbackTime);
-        
+        const feedbackTimeDate = new Date(feedbackTime);
+
         const now = new Date();
-        
-        return feedbackTimeDate>now;
+
+        return feedbackTimeDate > now;
     }
     useEffect(() => {
         if (isLoading == false) {
@@ -65,7 +66,7 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                 const response = await getSessionById(Number(id));
                 if (response) {
                     setSession(response);
-                    if(isFeedbackTimeBefore(response.feedBackTime))
+                    if (isFeedbackTimeBefore(response.feedBackTime))
                         setFeedbackAble(true);
                 } else {
                     setError("Không tìm thấy thông tin lịch hẹn");
@@ -151,7 +152,7 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
     const sessionDate = session.sessionDateTime.split('T')[0];
     const sessionTime = session.sessionDateTime.split('T')[1];
 
-   
+
     return (
         <div className="bg-white min-h-screen">
             {(isStaff === false) &&
@@ -234,9 +235,15 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                     <div className="border-b pb-6">
                         <h3 className="text-md font-semibold text-gray-700 mb-4">Thông tin cơ bản</h3>
                         <div className="grid grid-cols-2 gap-4">
+                            {isStaff &&
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-500">ID buổi</h4>
+                                    <p className="mt-1 font-semibold">{session.id}</p>
+                                </div>
+                            }
                             <div>
-                                <h4 className="text-sm font-medium text-gray-500">ID buổi</h4>
-                                <p className="mt-1 font-semibold">{session.id}</p>
+                                <h4 className="text-sm font-medium text-gray-500">Thông tin</h4>
+                                <p className="mt-1 font-semibold">{session.description}</p>
                             </div>
                             <div>
                                 <h4 className="text-sm font-medium text-gray-500">ID đặt lịch</h4>
@@ -248,8 +255,10 @@ export default function SessionDetail({ isStaff }: SessionDetailProps) {
                                 <p className="mt-1 font-semibold">{session.bookingDate?.split('T')[0] || "N/A"}</p>
                             </div>
                             <div>
-                                <h4 className="text-sm font-medium text-gray-500">Dịch vụ</h4>
-                                <p className="mt-1 font-semibold">{session.serviceName}</p>
+                                <Link to={`/service/${session.serviceId}`}>
+                                    <h4 className="text-sm font-medium text-gray-500">Dịch vụ</h4>
+                                    <p className="mt-1 font-semibold">{session.serviceName}</p>
+                                </Link>
                             </div>
                             <div className="col-span-2">
                                 <h4 className="text-sm font-medium text-gray-500">Hình ảnh</h4>

@@ -216,6 +216,7 @@ export default function Booking() {
         }
     }, [selectedTherapist, selectedDate]);
 
+
     useEffect(() => {
         if (selectedDate && therapistSlots.length > 0) {
             const filtered = therapistSlots.filter(slot => {
