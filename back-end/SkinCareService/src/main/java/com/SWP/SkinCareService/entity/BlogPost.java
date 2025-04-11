@@ -22,7 +22,7 @@ public class BlogPost {
     Integer blogId;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = true)
     @JsonBackReference
     QuizResult quizResult;
 

@@ -86,7 +86,7 @@ public class BlogPostController {
                 ApiResponse.<BlogPostResponse>builder()
                         .code(200)
                         .result(result)
-                        .message("Blog post approved successfully")
+                        .message("Blog post enable successfully")
                         .build()
         );
     }

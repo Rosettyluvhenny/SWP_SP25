@@ -21,7 +21,6 @@ interface BookingActionProps {
 export default function BookingAction({ isStaff, booking, setReload, reload, reBook, setIsOpen }: BookingActionProps) {
   const navigate = useNavigate();
   const [checkingOpen, setCheckingOpen] = useState(false);
-  console.log("rebook", reBook);
   const handleRebook = React.useCallback((serviceId: number) => {
     navigate(`/booking?service=${serviceId}`);
   }, [navigate]);

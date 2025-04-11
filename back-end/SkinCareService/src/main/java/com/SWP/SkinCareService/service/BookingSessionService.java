@@ -257,6 +257,13 @@ public class  BookingSessionService {
     @PreAuthorize("hasAnyRole('STAFF','THERAPIST','ADMIN')")
     public BookingSession updateStatus(int id, SessionStatusRequest rq){
         BookingSession session = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
+
+        LocalDateTime  now = LocalDateTime.now();
+        if(now.isBefore(session.getSessionDateTime().minusMinutes(40))){
+            throw new AppException(ErrorCode.BOOKING_IS_SOON_IN_TIME);
+        }
+        if(now.isAfter(session.getSessionDateTime().plusMinutes(20)))
+            throw new AppException(ErrorCode.BOOKING_IS_LATE_IN_TIME);
         try {
             BookingSessionStatus sessionStatus = BookingSessionStatus.valueOf(rq.getStatus().toUpperCase());
 
@@ -698,17 +705,40 @@ public class  BookingSessionService {
         //Check session type
         if (booking.getService().getServiceCategory().getType() == ServiceType.TREATMENT) {
             if (existedList != null && !existedList.isEmpty()) {
-                if  (existedList.size() > 1) {
-                    BookingSession lastSessionCompleted = existedList.getLast();
+//                if  (existedList.size() > 0) {
+                    BookingSession lastSessionCompleted = null;
                     for (BookingSession session : existedList) {
                         if (session.getStatus() == BookingSessionStatus.COMPLETED) {
                             lastSessionCompleted = session;
                         }
                     }
-                    LocalDate lastSessionDateValid = lastSessionCompleted.getBookingDate().plusDays(7);
 
-                    if (requestDate.isBefore(lastSessionDateValid)) {
-                        throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                    if(lastSessionCompleted !=null) {
+                        LocalDate lastSessionDateValid = lastSessionCompleted.getBookingDate().plusDays(7);
+                        if (requestDate.isBefore(lastSessionDateValid)) {
+                            throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                        }
+                    }
+//                }
+
+            }
+        }
+
+        if (booking.getService().getServiceCategory().getType() == ServiceType.RESTORATION || booking.getService().getServiceCategory().getType() == ServiceType.CLEANSING) {
+            if (existedList != null && !existedList.isEmpty()) {
+                if  (existedList.size() > 1) {
+                    BookingSession lastSessionCompleted = null;
+                    for (BookingSession session : existedList) {
+                        if (session.getStatus() == BookingSessionStatus.COMPLETED) {
+                            lastSessionCompleted = session;
+                        }
+                    }
+
+                    if(lastSessionCompleted !=null) {
+                        LocalDate lastSessionDateValid = lastSessionCompleted.getBookingDate();
+                        if (requestDate.equals(lastSessionDateValid)) {
+                            throw new AppException(ErrorCode.BOOKING_DATE_NOT_ALLOWED);
+                        }
                     }
                 }
 
@@ -810,6 +840,8 @@ public class  BookingSessionService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(!user.getUsername().equals(authentication.getName()))
             throw new AppException(ErrorCode.UNAUTHORIZED);
+        if(session.getStatus() == BookingSessionStatus.ON_GOING || session.getStatus() == BookingSessionStatus.COMPLETED)
+            throw new AppException(ErrorCode.CANT_CANCEL);
         session.setStatus(BookingSessionStatus.IS_CANCELED);
         String text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã được hủy.";
         NotificationRequest notificationRequest = NotificationRequest.builder()

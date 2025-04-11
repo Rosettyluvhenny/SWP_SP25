@@ -86,4 +86,20 @@ public class QuizController {
         );
     }
 
+    @PutMapping("/enable/{id}")
+    public ResponseEntity<ApiResponse> enableQuiz(@PathVariable int id) {
+        quizService.enable(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.builder().message("Enabled").build()
+        );
+    }
+
+    @PutMapping("/disable/{id}")
+    public ResponseEntity<ApiResponse> disableQuiz(@PathVariable int id) {
+        quizService.disable(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.builder().message("Disabled").build()
+        );
+    }
+
 }

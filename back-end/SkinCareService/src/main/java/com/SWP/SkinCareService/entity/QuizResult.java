@@ -57,7 +57,7 @@ public class QuizResult {
         return id;
     }
 
-    @OneToMany(mappedBy = "quizResult", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "quizResult", cascade = CascadeType.PERSIST)
     @JsonManagedReference
     private List<BlogPost> blogPosts = new ArrayList<>();
 }

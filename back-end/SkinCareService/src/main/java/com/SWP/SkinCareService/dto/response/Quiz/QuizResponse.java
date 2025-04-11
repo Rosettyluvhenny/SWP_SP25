@@ -22,5 +22,7 @@ public class QuizResponse {
     String categoryName;
 
     List<QuestionDTO> questions;
-    //List<QuizResultDTO> quizResults;
+    private boolean status;
+
+
 }
