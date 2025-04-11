@@ -198,7 +198,24 @@ public class  BookingSessionService {
         boolean isStaff = staff.getRoles().stream()
                 .anyMatch(role -> role.getName().equals("STAFF"));  // Assuming your Role entity has a getName() method
 
+        //Check therapist finish previous session before start this session early the booking time
+        Therapist therapist = session.getTherapist();
+        LocalDateTime startTime = LocalDate.now().atStartOfDay();
         LocalDateTime  now = LocalDateTime.now();
+        List<BookingSessionStatus> statusExclude = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSession> sessionsOfTherapistToday = new ArrayList<>(bookingSessionRepository.findByTherapistIdAndSessionDateTimeBetweenAndStatusNotIn(therapist.getId(), startTime, now, statusExclude));
+        if (!sessionsOfTherapistToday.isEmpty()){
+            sessionsOfTherapistToday.remove(session);
+            for (BookingSession previousSession : sessionsOfTherapistToday) {
+                int duration = previousSession.getBooking().getService().getDuration();
+                LocalDateTime endTime = previousSession.getSessionDateTime().plusMinutes(duration);
+                if (!endTime.isBefore(now)) {
+                    throw new AppException(ErrorCode.THERAPIST_CURRENT_IN_SESSION);
+                }
+            }
+        }
+
+
         if(now.isBefore(session.getSessionDateTime().minusMinutes(40))){
             throw new AppException(ErrorCode.BOOKING_IS_SOON_IN_TIME);
         }
@@ -267,6 +284,24 @@ public class  BookingSessionService {
         BookingSession session = bookingSessionRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.SESSION_NOT_EXISTED));
 
         LocalDateTime  now = LocalDateTime.now();
+        //Check therapist finish previous session before start this session early the booking time
+        Therapist therapist = session.getTherapist();
+        LocalDateTime startTime = LocalDate.now().atStartOfDay();
+        List<BookingSessionStatus> statusExclude = List.of(BookingSessionStatus.IS_CANCELED);
+        List<BookingSession> sessionsOfTherapistToday = new ArrayList<>(bookingSessionRepository.findByTherapistIdAndSessionDateTimeBetweenAndStatusNotIn(therapist.getId(), startTime, now, statusExclude));
+        if (!sessionsOfTherapistToday.isEmpty()){
+            sessionsOfTherapistToday.remove(session);
+            for (BookingSession previousSession : sessionsOfTherapistToday) {
+                int duration = previousSession.getBooking().getService().getDuration();
+                LocalDateTime endTime = previousSession.getSessionDateTime().plusMinutes(duration);
+                if (!endTime.isBefore(now)) {
+                    throw new AppException(ErrorCode.THERAPIST_CURRENT_IN_SESSION);
+                }
+            }
+        }
+
+
+
         if(now.isBefore(session.getSessionDateTime().minusMinutes(40))){
             throw new AppException(ErrorCode.BOOKING_IS_SOON_IN_TIME);
         }
@@ -331,9 +366,9 @@ public class  BookingSessionService {
                     throw new AppException(ErrorCode.SESSION_ON_GOING);
                 }
                 if(rq.getMessage()!=null)
-                    text = "Phiên điều trị "+session.getBooking().getService().getName() +" đã bị hủy"+rq.getMessage();
+                    text = "Buổi dịch vụ "+session.getBooking().getService().getName() +" đã bị hủy"+rq.getMessage();
                 else
-                    text = "Phiên điều trị "+session.getBooking().getService().getName()+" của bạn đã bị huỷ";
+                    text = "Buổi dịch vụ "+session.getBooking().getService().getName()+" của bạn đã bị huỷ";
                 session.setStatus(sessionStatus);
             }
             //Notification
