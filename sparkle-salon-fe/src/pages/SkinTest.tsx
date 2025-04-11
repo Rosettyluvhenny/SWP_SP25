@@ -43,6 +43,7 @@ export default function KiemTraDa() {
         let userData = null;
         if (localStorage.getItem("token") != null)
           userData = await getUser();
+        
         setUserInfo(userData);
 
       } catch (error) {

@@ -1,11 +1,13 @@
 import axios, { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 const API_URL = "http://localhost:8080/swp";
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
-  timeout: 10000, // Thêm timeout để tránh treo request
+  timeout: 600, // Thêm timeout để tránh treo request
 });
+// const axiosInstance = instance;
 
 // Interceptor để thêm token vào mọi request trừ GET
 axiosInstance.interceptors.request.use(
@@ -27,6 +29,8 @@ axiosInstance.interceptors.request.use(
   }
 );
 
+
+
 // Các interface giữ nguyên
 export interface Answer {
   id: number;
@@ -46,6 +50,7 @@ export interface Quiz {
   name: string;
   categoryId: number;
   categoryName: string;
+  status: boolean;
   questions: Question[];
 }
 
@@ -101,6 +106,8 @@ export const fetchQuizzes = async (): Promise<Quiz[]> => {
     throw handleApiError(error);
   }
 };
+
+
 
 export const fetchQuizResults = async (): Promise<QuizResult[]> => {
   try {
@@ -370,5 +377,41 @@ export const quizResultbyId = async (id: number): Promise<QuizResult[]> => {
     return response.data.result || [];
   } catch (error) {
     throw handleApiError(error);
+  }
+};
+export const disableQuiz = async (id: number): Promise<boolean> => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axiosInstance.put(`/quiz/disable/${id}`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return true;
+  } catch (error) {
+    toast.error(error.response.data.message);
+    console.error("Lỗi khi vô hiệu hóa quiz:", error);
+    return false;
+  }
+};
+
+export const enableQuiz = async (id: number): Promise<boolean> => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axiosInstance.put(`/quiz/enable/${id}`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+console.log(response)
+    return true;
+  } catch (error) {
+     toast.error(error.response.data.message);
+    
+    console.error("Lỗi khi kích hoạt quiz:", error);
+    return false;
   }
 };

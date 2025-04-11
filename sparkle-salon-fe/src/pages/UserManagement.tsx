@@ -197,7 +197,6 @@ export default function UserManagement() {
       ? await enableTherapist(user.id)
       : await disableTherapist(user.id);
 
-      console.log(success);
     if (success) {
       toast.success("Thay đổi trạng thái người dùng thành công!");
     } else {

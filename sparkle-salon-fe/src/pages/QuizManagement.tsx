@@ -25,6 +25,8 @@ import {
   updateQuestionText,
   updateQuiz,
   updateQuizResult,
+  disableQuiz,
+  enableQuiz,
 } from "../components/quizApi";
 import { Category, CategoryData } from "../data/categoryData.ts";
 
@@ -192,6 +194,25 @@ export default function QuizManagement() {
       setEditingQuestion({ quizId, index });
       setEditQuestionData({ ...quiz.questions[index] });
     }
+  };
+//kich hoạt và vô hiệu hóa quizquiz
+  const handleToggleStatus = async (quiz: Quiz) => {
+    const isDisabling = !quiz.status;
+    const confirmMessage = isDisabling
+      ? "Bạn có chắc chắn muốn kích hoạt quiz này không?"
+      : "Bạn có chắc chắn muốn vô hiệu hóa quiz này không?";
+
+    if (!window.confirm(confirmMessage)) return;
+
+    const success = isDisabling
+      ? await enableQuiz(quiz.id)
+      : await disableQuiz(quiz.id);
+console.log(success)
+    if (success) {
+      toast.success("Đã Thay đổi trạng thái thành công"); 
+    }
+    fetchQuizzesData();
+    setLoading(false);
   };
 
   // Tạo câu hỏi mới
@@ -468,6 +489,7 @@ toast.error(
       categoryId: Number(selectedCategory),
       categoryName: "",
       questions: [],
+      status: false,
     });
   };
 
@@ -716,9 +738,12 @@ toast.error(
                           <p className="px-2 text-sm flex  flex-1 opacity-40">
                             ({quiz.categoryName})
                           </p>
+                          
+
                           <p className="text-sm flex justify-end items-center flex-1 opacity-40">
                             {quiz.questions.length} câu hỏi
                           </p>
+                          
                           <svg
                             className={`w-6 h-6 ml-2 transform transition-transform duration-300 ${
                               selectedQuizId === quiz.id
@@ -739,6 +764,16 @@ toast.error(
                           </svg>
                         </div>
                         <div className="flex space-x-2 ml-4">
+                        <button
+                            onClick={() => handleToggleStatus(quiz)}
+                            className={`${
+                              quiz.status
+                                ? "bg-green-500 hover:bg-green-600"
+                                : "bg-yellow-500 hover:bg-yellow-600"
+                            } text-white px-3 py-1 rounded-lg flex items-center gap-1`}
+                          >
+                            {quiz.status ? "Vô Hiệu Hóa" : "Kích Hoạt"}
+                          </button>
                           <button
                             onClick={() => editQuiz(quiz.id)}
                             className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
