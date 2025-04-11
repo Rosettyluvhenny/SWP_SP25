@@ -73,7 +73,7 @@ public class TherapistService {
         account.setPassword(passwordEncoder.encode(account.getPassword()));
         log.info(account.getPassword());
         long year = ChronoUnit.YEARS.between(account.getDob(), LocalDate.now());
-        if (!(year - 20 > request.getExperienceYears()))
+        if (!(year - 20 >= request.getExperienceYears()))
             throw new AppException(ErrorCode.INVALID_EXPERIENCE_YEARS);
         account = userRepository.save(account);
         Therapist therapist = therapistMapper.toTherapist(request);
