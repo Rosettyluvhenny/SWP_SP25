@@ -782,12 +782,12 @@ export default function QuizManagement() {
                               >
                                 Sửa
                               </button>
-                              <button
+                              {/* <button
                                 onClick={() => handleDeleteQuiz(quiz.id)}
                                 className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
                               >
                                 Xóa
-                              </button>
+                              </button> */}
                             </>
                           )}
                         </div>
@@ -1296,7 +1296,7 @@ export default function QuizManagement() {
                                               >
                                                 Sửa
                                               </button>
-                                              <button
+                                              {/* <button
                                                 onClick={() =>
                                                   handleDeleteQuizResult(
                                                     result.id
@@ -1305,7 +1305,7 @@ export default function QuizManagement() {
                                                 className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
                                               >
                                                 Xóa
-                                              </button>
+                                              </button> */}
                                             </>
                                           )}
                                         </div>
