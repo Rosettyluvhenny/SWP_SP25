@@ -10,7 +10,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "quiz")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"quizResults", "serviceCategory", "questions"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

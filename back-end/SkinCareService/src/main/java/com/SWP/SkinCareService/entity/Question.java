@@ -15,7 +15,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "quizQuestion")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"quiz", "answers"})
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

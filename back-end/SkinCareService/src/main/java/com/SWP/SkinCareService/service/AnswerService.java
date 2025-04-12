@@ -60,6 +60,9 @@ public class AnswerService {
         Answer answer = answerRepository.findById(answerId).orElseThrow(()
                 -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
         Question question = getQuestion(request.getQuestionId());
+        if (answer.getQuestion().getQuiz().isStatus()) {
+            throw new AppException(ErrorCode.QUIZ_IS_ACTIVE);
+        }
         answerMapper.updateAnswer(request,answer);
         answer.setQuestion(question);
         return answerMapper.ToAnswerResponse(answerRepository.save(answer));
@@ -67,6 +70,9 @@ public class AnswerService {
     @Transactional
     public void delete(int id) {
         Answer answer = getAnswer(id);
+        if (answer.getQuestion().getQuiz().isStatus()) {
+            throw new AppException(ErrorCode.QUIZ_IS_ACTIVE);
+        }
         answerRepository.deleteById(id);
     }
 
