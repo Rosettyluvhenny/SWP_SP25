@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "quizAnswer")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"question"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

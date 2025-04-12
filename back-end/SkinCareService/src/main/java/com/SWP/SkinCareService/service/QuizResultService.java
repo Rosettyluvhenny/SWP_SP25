@@ -82,6 +82,11 @@ public class QuizResultService {
         //Check result existed or not
         QuizResult quizResult = checkQuizResult(id);
         quizResultMapper.updateQuizResult(quizResult, request);
+
+        if (quizResult.getQuiz().isStatus()) {
+            throw new AppException(ErrorCode.QUIZ_IS_ACTIVE);
+        }
+
         //Check quiz existed or not
         Quiz newQuiz = getQuizById(request.getQuizId());
         quizResult.setQuiz(newQuiz);
@@ -116,6 +121,10 @@ public class QuizResultService {
     @Transactional
     public void deleteQuizResult(int id) {
         QuizResult quizResult = checkQuizResult(id);
+
+        if (quizResult.getQuiz().isStatus()) {
+            throw new AppException(ErrorCode.QUIZ_IS_ACTIVE);
+        }
 
         // Clear references from users
         for (User user : quizResult.getUsers()) {

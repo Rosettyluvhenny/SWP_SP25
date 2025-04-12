@@ -20,6 +20,7 @@ export interface Quiz {
   name: string;
   categoryId: number;
   categoryName: string;
+  status: boolean;
   questions: Question[];
 }
 
@@ -147,9 +148,11 @@ export const useQuiz = () => {
     const fetchQuizzes = async () => {
       try {
         const data = await fetchQuizzesFromApi();
+              const statusQuiz = data.filter((quiz: Quiz) => quiz.status === true);
+        
         setState((prev) => ({
           ...prev,
-          quizzes: Array.isArray(data) ? data : [],
+          quizzes: Array.isArray(statusQuiz) ? statusQuiz : [],
           loading: false,
           error: null,
         }));

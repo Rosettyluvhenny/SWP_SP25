@@ -4,21 +4,21 @@ import com.SWP.SkinCareService.dto.request.Quiz.QuizRequest;
 import com.SWP.SkinCareService.dto.request.Quiz.UserResultRequest;
 import com.SWP.SkinCareService.dto.response.Quiz.QuizResponse;
 import com.SWP.SkinCareService.dto.response.Skin.ResultResponse;
-import com.SWP.SkinCareService.entity.Question;
-import com.SWP.SkinCareService.entity.QuizResult;
+import com.SWP.SkinCareService.entity.*;
 import com.SWP.SkinCareService.exception.AppException;
 import com.SWP.SkinCareService.exception.ErrorCode;
 import com.SWP.SkinCareService.mapper.QuizMapper;
 import com.SWP.SkinCareService.mapper.QuizResultMapper;
+import com.SWP.SkinCareService.repository.BlogPostRepository;
 import com.SWP.SkinCareService.repository.ServiceCategoryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.SWP.SkinCareService.entity.Quiz;
 import com.SWP.SkinCareService.repository.QuizRepository;
-import com.SWP.SkinCareService.entity.ServiceCategory;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,6 +31,8 @@ public class QuizService {
     ServiceCategoryRepository serviceCategoryRepository;
     QuizResultService quizResultService;
     QuizResultMapper quizResultMapper;
+
+    BlogPostRepository blogPostRepository;
 
 
     @Transactional
@@ -65,6 +67,9 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(id).orElseThrow(()
                 -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
         quizMapper.updateQuiz(request,quiz);
+        if (quiz.isStatus()) {
+            throw new AppException(ErrorCode.QUIZ_IS_ACTIVE);
+        }
         int serviceCategoryId = request.getServiceCategoryId();
         ServiceCategory serviceCategory = getCategory(serviceCategoryId);
         quiz.setServiceCategory(serviceCategory);
@@ -76,13 +81,21 @@ public class QuizService {
     @Transactional
     public void delete(int id) {
         Quiz quiz = getQuiz(id);
-
+        if (quiz.isStatus()) {
+            throw new AppException(ErrorCode.QUIZ_IS_ACTIVE);
+        }
         List<QuizResult> quizResults = quiz.getQuizResults();
         for (QuizResult quizResult : quizResults) {
             quizResult.setQuiz(null);
             quizResultService.deleteQuizResult(quizResult.getId());
-        }
 
+            List<BlogPost> blogPostsList = quizResult.getBlogPosts();
+            for (BlogPost blogPost : blogPostsList) {
+                blogPost.setQuizResult(null);
+                blogPost.setDefaultBlog(false);
+                blogPostRepository.save(blogPost);
+            }
+        }
         quizRepository.delete(quiz);
     }
     private Quiz getQuiz(int id) {

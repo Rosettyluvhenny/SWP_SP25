@@ -1,11 +1,13 @@
 import axios, { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 const API_URL = "http://localhost:8080/swp";
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
-  timeout: 10000, // Thêm timeout để tránh treo request
+  timeout: 600, // Thêm timeout để tránh treo request
 });
+// const axiosInstance = instance;
 
 // Interceptor để thêm token vào mọi request trừ GET
 axiosInstance.interceptors.request.use(
@@ -27,6 +29,8 @@ axiosInstance.interceptors.request.use(
   }
 );
 
+
+
 // Các interface giữ nguyên
 export interface Answer {
   id: number;
@@ -46,6 +50,7 @@ export interface Quiz {
   name: string;
   categoryId: number;
   categoryName: string;
+  status: boolean;
   questions: Question[];
 }
 
@@ -56,6 +61,7 @@ export interface Service {
 
 export interface QuizResult {
   id: number;
+  name: string;
   resultText: string;
   minPoint: number;
   maxPoint: number;
@@ -101,6 +107,8 @@ export const fetchQuizzes = async (): Promise<Quiz[]> => {
     throw handleApiError(error);
   }
 };
+
+
 
 export const fetchQuizResults = async (): Promise<QuizResult[]> => {
   try {
@@ -183,14 +191,33 @@ export const updateAnswers = async (
   question: Question,
   answers: Answer[]
 ): Promise<Answer[]> => {
-   
   try {
+    // Step 1: Lấy thông tin câu hỏi từ API
+    const existingAnswersResponse = await axiosInstance.get<ApiResponse<Question>>(
+      `/question/${question.id}`
+    );
+    // Lấy danh sách answers từ question, mặc định là mảng rỗng nếu không có
+    const existingAnswers = existingAnswersResponse.data.result?.answers || [];
+
+    // Step 2: Tạo set chứa ID của các câu trả lời mới
     const newAnswerIds = new Set<number>(
-      (answers || []).map((a) => a.id).filter((id): id is number => id != null)
+      answers
+        .map((a) => a.id)
+        .filter((id): id is number => id != null && id > 0)
     );
 
-   
+    // Step 3: Xác định các câu trả lời cần xóa
+    const answersToDelete = existingAnswers.filter(
+      (existingAnswer) => !newAnswerIds.has(existingAnswer.id!)
+    );
 
+    // Step 4: Xóa các câu trả lời không còn trong danh sách mới
+    const deletePromises = answersToDelete.map((answer) =>
+      deleteAnswer(answer.id!)
+    );
+    await Promise.all(deletePromises);
+
+    // Step 5: Tạo hoặc cập nhật các câu trả lời
     const answerPromises = answers.map((answer) => {
       const data = {
         questionId: question.id,
@@ -208,7 +235,7 @@ export const updateAnswers = async (
     const answerResponses = await Promise.all(answerPromises);
     return answerResponses.map((res) => res.data.result);
   } catch (error) {
-    console.error("Lỗi cập nhật đáp án:", error);
+    console.error("Lỗi cập nhật/xóa đáp án:", error);
     throw handleApiError(error);
   }
 };
@@ -232,8 +259,7 @@ export const deleteQuestion = async (questionId: number) => {
     const response = await axiosInstance.delete(`/question/${questionId}`);
     return response.data;
   } catch (error) {
-    console.error("Lỗi khi xóa câu hỏi:", error);
-    throw handleApiError(error);
+    toast.error(error.response.data.message);
   }
 };
 
@@ -261,6 +287,7 @@ export const updateQuizResult = async (
     const response = await axiosInstance.put<ApiResponse<QuizResult>>(
       `/quizResult/${updatedResult.id}`,
       {
+        name: updatedResult.name,
         quizId: updatedResult.quizId,
         resultText: updatedResult.resultText,
         minPoint: updatedResult.minPoint,
@@ -289,6 +316,7 @@ export const createQuizResult = async (
     const response = await axiosInstance.post<ApiResponse<QuizResult>>(
       `/quizResult`,
       {
+        name: resultData.name,
         quizId: quizId,
         resultText: resultData.resultText,
         minPoint: resultData.minPoint,
@@ -370,5 +398,41 @@ export const quizResultbyId = async (id: number): Promise<QuizResult[]> => {
     return response.data.result || [];
   } catch (error) {
     throw handleApiError(error);
+  }
+};
+export const disableQuiz = async (id: number): Promise<boolean> => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axiosInstance.put(`/quiz/disable/${id}`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return true;
+  } catch (error) {
+    toast.error(error.response.data.message);
+    console.error("Lỗi khi vô hiệu hóa quiz:", error);
+    return false;
+  }
+};
+
+export const enableQuiz = async (id: number): Promise<boolean> => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axiosInstance.put(`/quiz/enable/${id}`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+console.log(response)
+    return true;
+  } catch (error) {
+     toast.error(error.response.data.message);
+    
+    console.error("Lỗi khi kích hoạt quiz:", error);
+    return false;
   }
 };

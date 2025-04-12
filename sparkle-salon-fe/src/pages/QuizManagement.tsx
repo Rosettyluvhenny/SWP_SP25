@@ -25,6 +25,8 @@ import {
   updateQuestionText,
   updateQuiz,
   updateQuizResult,
+  disableQuiz,
+  enableQuiz,
 } from "../components/quizApi";
 import { Category, CategoryData } from "../data/categoryData.ts";
 
@@ -82,7 +84,6 @@ export default function QuizManagement() {
       setAnswer(allAnswers);
     } catch (error) {
       setError(handleApiError(error));
-
     } finally {
       setLoading(false);
     }
@@ -161,9 +162,9 @@ export default function QuizManagement() {
         .map((a) => a.id)
         .filter((id): id is number => id !== undefined);
       if (answerIds.length > 0) {
-      
+        console.log("tao ne");
+
         await Promise.all(answerIds.map((answerId) => deleteAnswer(answerId)));
-       
       }
       await deleteQuestion(questionId);
       setQuizzes((prev) =>
@@ -180,7 +181,8 @@ export default function QuizManagement() {
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Xóa câu hỏi không thành công"
-      );     } finally {
+      );
+    } finally {
       setMutationLoading(false);
     }
   };
@@ -192,6 +194,25 @@ export default function QuizManagement() {
       setEditingQuestion({ quizId, index });
       setEditQuestionData({ ...quiz.questions[index] });
     }
+  };
+  //kich hoạt và vô hiệu hóa quizquiz
+  const handleToggleStatus = async (quiz: Quiz) => {
+    const isDisabling = !quiz.status;
+    const confirmMessage = isDisabling
+      ? "Bạn có chắc chắn muốn kích hoạt quiz này không?"
+      : "Bạn có chắc chắn muốn vô hiệu hóa quiz này không?";
+
+    if (!window.confirm(confirmMessage)) return;
+
+    const success = isDisabling
+      ? await enableQuiz(quiz.id)
+      : await disableQuiz(quiz.id);
+    console.log(success);
+    if (success) {
+      toast.success("Đã Thay đổi trạng thái thành công");
+    }
+    fetchQuizzesData();
+    setLoading(false);
   };
 
   // Tạo câu hỏi mới
@@ -207,9 +228,7 @@ export default function QuizManagement() {
 
   // Lưu câu hỏi
   const saveQuestion = async () => {
-    const isConfirmed = window.confirm(
-      "Bạn có chắc chắn muốn lưu không?"
-    );
+    const isConfirmed = window.confirm("Bạn có chắc chắn muốn lưu không?");
     if (!isConfirmed) return Promise.reject("Hủy xóa câu hỏi");
     if (!editQuestionData) return;
     try {
@@ -242,7 +261,7 @@ export default function QuizManagement() {
               : q
           )
         );
-        if(newQuestion){
+        if (newQuestion) {
           toast.success("Tạo câu hỏi mới thành công");
         }
         setAnswer((prev) => [...prev, ...updatedAnswers]);
@@ -271,7 +290,7 @@ export default function QuizManagement() {
               : quiz
           )
         );
-        if(updatedAnswers){
+        if (updatedAnswers) {
           toast.success("Cập nhật câu hỏi thành công");
         }
         setAnswer((prev) =>
@@ -290,9 +309,8 @@ export default function QuizManagement() {
       }
       setEditQuestionData(null);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Không để trống tên quiz"
-      );    } finally {
+      toast.error(error.response.data.message);
+    } finally {
       setMutationLoading(false);
     }
   };
@@ -338,7 +356,8 @@ export default function QuizManagement() {
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Cập nhật kết quả thất bại"
-      );    } finally {
+      );
+    } finally {
       setMutationLoading(false);
     }
   };
@@ -353,6 +372,7 @@ export default function QuizManagement() {
       maxPoint: 0,
       quizName: quizzes.find((q) => q.id === quizId)?.name || "",
       services: [],
+      name:"",
     });
   };
 
@@ -368,6 +388,7 @@ export default function QuizManagement() {
         quizId: newResultData.quizId,
         quizName: newResultData.quizName,
         services: newResultData.services,
+        name: newResultData.name,
       });
       if (createdResult) {
         toast.success("Tạo kết quả thành công");
@@ -379,7 +400,7 @@ export default function QuizManagement() {
       toast.error(
         error instanceof Error ? error.message : "Tạo kết quả thất bại"
       );
-        } finally {
+    } finally {
       setMutationLoading(false);
     }
   };
@@ -452,9 +473,8 @@ export default function QuizManagement() {
         toast.success("Xóa quiz thành công");
       }
     } catch (error) {
-toast.error(
-        error instanceof Error ? error.message : "Xóa quiz thất bại"
-      );    } finally {
+      toast.error(error instanceof Error ? error.message : "Xóa quiz thất bại");
+    } finally {
       setMutationLoading(false);
     }
   };
@@ -468,6 +488,7 @@ toast.error(
       categoryId: Number(selectedCategory),
       categoryName: "",
       questions: [],
+      status: false,
     });
   };
 
@@ -640,56 +661,56 @@ toast.error(
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.3 }}
                       >
-                    <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
-
-                        <div className="flex flex-col  w-full md:w-4/5 relative">
-                        <label className="pr-2 mb-2 font-medium text-gray-700">
-                          Quiz Name
-                        </label>
-                        <input
-                          type="text"
-                          value={editQuizData.name}
-                          onChange={(e) =>
-                            setEditQuizData({
-                              ...editQuizData,
-                              name: e.target.value,
-                            })
-                          }
-                          className="p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 h-12"
-                          placeholder="Tên bài kiểm tra"
-                        />
-                        </div>
-                        <div className="flex flex-col  w-1/5">
-                        <label className="pr-2 mb-2 font-medium text-gray-700">
-                          Category
-                        </label>
-                          <select
-                            value={selectedCategory}
-                            onChange={(e) => {
-                              setSelectedCategory(e.target.value);
-                              setEditQuizData({
-                                ...editQuizData,
-                                categoryId: Number(e.target.value),
-                              });
-                            }}
-                            className="p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 h-12"
-                          >
-                            {categories.length > 0 ? (
-                              categories.map((category) => (
-                                <option
-                                  key={category.id}
-                                  value={category.id.toString()}
-                                >
-                                  {category.name}
+                        <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
+                          <div className="flex flex-col  w-full md:w-4/5 relative">
+                            <label className="pr-2 mb-2 font-medium text-gray-700">
+                              Quiz Name
+                            </label>
+                            <input
+                              type="text"
+                              value={editQuizData.name}
+                              onChange={(e) =>
+                                setEditQuizData({
+                                  ...editQuizData,
+                                  name: e.target.value,
+                                })
+                              }
+                              className="p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 h-12"
+                              placeholder="Tên bài kiểm tra"
+                            />
+                          </div>
+                          <div className="flex flex-col  w-1/5">
+                            <label className="pr-2 mb-2 font-medium text-gray-700">
+                              Category
+                            </label>
+                            <select
+                              value={selectedCategory}
+                              onChange={(e) => {
+                                setSelectedCategory(e.target.value);
+                                setEditQuizData({
+                                  ...editQuizData,
+                                  categoryId: Number(e.target.value),
+                                });
+                              }}
+                              className="p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 h-12"
+                            >
+                              {categories.length > 0 ? (
+                                categories.map((category) => (
+                                  <option
+                                    key={category.id}
+                                    value={category.id.toString()}
+                                  >
+                                    {category.name}
+                                  </option>
+                                ))
+                              ) : (
+                                <option value="0" disabled>
+                                  Không có category nào
                                 </option>
-                              ))
-                            ) : (
-                              <option value="0" disabled>
-                                Không có category nào
-                              </option>
-                            )}
-                          </select>
-                        </div></div>
+                              )}
+                            </select>
+                          </div>
+                        </div>
                         <div className="flex space-x-2 justify-end mt-2">
                           <button
                             onClick={saveQuiz}
@@ -716,9 +737,13 @@ toast.error(
                           <p className="px-2 text-sm flex  flex-1 opacity-40">
                             ({quiz.categoryName})
                           </p>
+
+                          <p>{quiz.status}</p>
+
                           <p className="text-sm flex justify-end items-center flex-1 opacity-40">
                             {quiz.questions.length} câu hỏi
                           </p>
+
                           <svg
                             className={`w-6 h-6 ml-2 transform transition-transform duration-300 ${
                               selectedQuizId === quiz.id
@@ -740,17 +765,31 @@ toast.error(
                         </div>
                         <div className="flex space-x-2 ml-4">
                           <button
-                            onClick={() => editQuiz(quiz.id)}
-                            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                            onClick={() => handleToggleStatus(quiz)}
+                            className={`${
+                              quiz.status
+                                ? "bg-green-500 hover:bg-green-600"
+                                : "bg-yellow-500 hover:bg-yellow-600"
+                            } text-white px-3 py-1 rounded-lg flex items-center gap-1`}
                           >
-                            Sửa
+                            {quiz.status ? "Vô Hiệu Hóa" : "Kích Hoạt"}
                           </button>
-                          <button
-                            onClick={() => handleDeleteQuiz(quiz.id)}
-                            className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                          >
-                            Xóa
-                          </button>
+                          {!quiz.status && (
+                            <>
+                              <button
+                                onClick={() => editQuiz(quiz.id)}
+                                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                              >
+                                Sửa
+                              </button>
+                              {/* <button
+                                onClick={() => handleDeleteQuiz(quiz.id)}
+                                className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                              >
+                                Xóa
+                              </button> */}
+                            </>
+                          )}
                         </div>
                       </div>
                     )}
@@ -787,10 +826,8 @@ toast.error(
                                         cancelEdit={() =>
                                           setEditingQuestion(null)
                                         }
-                                       
                                       />
                                     ) : (
-                                      
                                       <QuestionItem
                                         key={q.id}
                                         question={q}
@@ -800,22 +837,27 @@ toast.error(
                                         onDelete={() =>
                                           handleDeleteQuestion(quiz.id, q.id)
                                         }
+                                        isEditable={!quiz.status}
                                       />
                                     )
                                   )
                                 ) : (
                                   <p>Chưa có câu hỏi nào.</p>
                                 )}
-                                <motion.button
-                                  onClick={() =>
-                                    handleCreateNewQuestion(quiz.id)
-                                  }
-                                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600"
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                >
-                                  + Thêm Câu Hỏi Mới
-                                </motion.button>
+                                {!quiz.status && (
+                                  <>
+                                    <motion.button
+                                      onClick={() =>
+                                        handleCreateNewQuestion(quiz.id)
+                                      }
+                                      className="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600"
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
+                                    >
+                                      + Thêm Câu Hỏi Mới
+                                    </motion.button>
+                                  </>
+                                )}
                               </>
                             )}
                           </>
@@ -847,9 +889,11 @@ toast.error(
                     >
                       {quiz.name}
                       <p className="px-2 text-sm flex  flex-1 opacity-40">
-                            ({quiz.categoryName})
-                          </p>
-                         
+                        ({quiz.categoryName})
+                      </p>
+
+                      
+
                       <svg
                         className={`w-6 h-6 ml-2 transform transition-transform duration-300 ${
                           selectedQuizId === quiz.id ? "rotate-180" : "rotate-0"
@@ -884,6 +928,18 @@ toast.error(
                               >
                                 <input
                                   type="text"
+                                  value={newResultData.name}
+                                  onChange={(e) =>
+                                    setNewResultData({
+                                      ...newResultData,
+                                      name: e.target.value,
+                                    })
+                                  }
+                                  className="w-full p-2 mb-2 border rounded"
+                                  placeholder="Kết quả"
+                                />
+                                 <input
+                                  type="text"
                                   value={newResultData.resultText}
                                   onChange={(e) =>
                                     setNewResultData({
@@ -892,7 +948,7 @@ toast.error(
                                     })
                                   }
                                   className="w-full p-2 mb-2 border rounded"
-                                  placeholder="Kết quả"
+                                  placeholder="Chi tiết"
                                 />
                                 <p>Điểm Min:</p>
                                 <input
@@ -1039,6 +1095,20 @@ toast.error(
                                         <input
                                           type="text"
                                           value={
+                                            editResultData.name || ""
+                                          }
+                                          onChange={(e) =>
+                                            setEditResultData({
+                                              ...editResultData,
+                                              name: e.target.value,
+                                            })
+                                          }
+                                          className="w-full p-2 mb-2 border rounded"
+                                          placeholder="Kết quả"
+                                        />
+                                        <input
+                                          type="text"
+                                          value={
                                             editResultData.resultText || ""
                                           }
                                           onChange={(e) =>
@@ -1048,7 +1118,7 @@ toast.error(
                                             })
                                           }
                                           className="w-full p-2 mb-2 border rounded"
-                                          placeholder="Kết quả"
+                                          placeholder="chi tiết"
                                         />
                                         <p>Điểm Min:</p>
                                         <input
@@ -1192,8 +1262,13 @@ toast.error(
                                         transition={{ duration: 0.3 }}
                                       >
                                         <div>
+
                                           <p>
                                             <strong>Kết quả:</strong>{" "}
+                                            {result.name}
+                                          </p>
+                                          <p>
+                                            <strong>Chi tiết:</strong>{" "}
                                             {result.resultText}
                                           </p>
                                           <p>
@@ -1211,22 +1286,28 @@ toast.error(
                                           </p>
                                         </div>
                                         <div className="flex space-x-2">
-                                          <button
-                                            onClick={() =>
-                                              editQuizResult(result.id)
-                                            }
-                                            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                                          >
-                                            Sửa
-                                          </button>
-                                          <button
-                                            onClick={() =>
-                                              handleDeleteQuizResult(result.id)
-                                            }
-                                            className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                                          >
-                                            Xóa
-                                          </button>
+                                          {!quiz.status && (
+                                            <>
+                                              <button
+                                                onClick={() =>
+                                                  editQuizResult(result.id)
+                                                }
+                                                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                                              >
+                                                Sửa
+                                              </button>
+                                              {/* <button
+                                                onClick={() =>
+                                                  handleDeleteQuizResult(
+                                                    result.id
+                                                  )
+                                                }
+                                                className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                                              >
+                                                Xóa
+                                              </button> */}
+                                            </>
+                                          )}
                                         </div>
                                       </motion.div>
                                     )
@@ -1238,14 +1319,20 @@ toast.error(
                                     Chưa có kết quả nào.
                                   </p>
                                 )}
-                                <motion.button
-                                  onClick={() => handleCreateNewResult(quiz.id)}
-                                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600"
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                >
-                                  + Thêm Kết Quả Mới
-                                </motion.button>
+                                {!quiz.status && (
+                                  <>
+                                    <motion.button
+                                      onClick={() =>
+                                        handleCreateNewResult(quiz.id)
+                                      }
+                                      className="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600"
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
+                                    >
+                                      + Thêm Kết Quả Mới
+                                    </motion.button>
+                                  </>
+                                )}
                               </>
                             )}
                           </>
