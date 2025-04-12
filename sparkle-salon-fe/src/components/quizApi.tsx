@@ -5,7 +5,7 @@ const API_URL = "http://localhost:8080/swp";
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
-  timeout: 600, // Thêm timeout để tránh treo request
+  timeout: 1000, // Thêm timeout để tránh treo request
 });
 // const axiosInstance = instance;
 
