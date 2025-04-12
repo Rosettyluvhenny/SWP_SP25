@@ -410,12 +410,10 @@ export default function BlogManagement() {
                       <td className="p-3 font-medium">{blog.title}</td>
                       <td className="p-3">
                         <img
-                          src={blog.img || "/placeholder.jpg"}
+                          src={blog.img }
                           alt={blog.title}
                           className="w-auto h-16 object-cover"
-                          onError={(e) =>
-                            (e.currentTarget.src = "/placeholder.jpg")
-                          }
+                          
                         />
                       </td>
                       <td className="p-3">
@@ -627,9 +625,7 @@ export default function BlogManagement() {
                         src={viewingBlog.img}
                         alt={viewingBlog.title}
                         className="mt-2 w-full max-h-64 object-contain"
-                        onError={(e) =>
-                          (e.currentTarget.src = "/placeholder.jpg")
-                        }
+                       
                       />
                     </div>
                   )}

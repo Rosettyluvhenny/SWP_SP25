@@ -6,15 +6,21 @@ import {
     FiMenu,
     FiLogOut,
 } from "react-icons/fi";
-import { MdMeetingRoom, MdOutlineMedicalServices, MdOutlinePayments, MdOutlineSchedule, MdStar } from "react-icons/md";
+import {
+    MdMeetingRoom,
+    MdOutlineMedicalServices,
+    MdOutlinePayments,
+    MdOutlineSchedule,
+    MdStar,
+} from "react-icons/md";
 import { TbPhysotherapist } from "react-icons/tb";
-import { MdNewspaper,MdQuiz  } from "react-icons/md";
+import { MdNewspaper, MdQuiz } from "react-icons/md";
 import { UserContext } from "../context/UserContext";
 import { Link } from "react-router-dom";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
-    const {logout} = useContext(UserContext);
+    const { logout } = useContext(UserContext);
     return (
         <aside
             className={`bg-gray-900 text-white p-5 flex flex-col space-y-4 shadow-lg transition-all duration-300 h-100% ${
@@ -59,7 +65,6 @@ const Sidebar = () => {
                             Quản Lý Dịch Vụ
                         </li>
                     </Link>
-                    
 
                     {/* Room Management */}
                     <Link
@@ -104,7 +109,7 @@ const Sidebar = () => {
                             Báo Cáo
                         </li>
                     </Link>
-                    
+
                     {/* Quiz*/}
                     <Link
                         to="/manager/quiz"
@@ -112,7 +117,6 @@ const Sidebar = () => {
                     >
                         <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
                             <MdQuiz />
-
                             Quản lí bài trắc nghiệm
                         </li>
                     </Link>
@@ -122,8 +126,7 @@ const Sidebar = () => {
                         className={`${isOpen ? "block" : "hidden"}`}
                     >
                         <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
-                        <MdNewspaper />
-
+                            <MdNewspaper />
                             Quản lí bài đăng
                         </li>
                     </Link>
@@ -132,8 +135,7 @@ const Sidebar = () => {
                         className={`${isOpen ? "block" : "hidden"}`}
                     >
                         <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
-                        <MdOutlineMedicalServices />
-
+                            <MdOutlineMedicalServices />
                             Quản lí Booking
                         </li>
                     </Link>
@@ -142,38 +144,36 @@ const Sidebar = () => {
                         className={`${isOpen ? "block" : "hidden"}`}
                     >
                         <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
-                        <MdOutlineSchedule/>
-
+                            <MdOutlineSchedule />
                             Quản lí Session
                         </li>
-                    </Link>     
+                    </Link>
                     <Link
                         to="/manager/feedback"
                         className={`${isOpen ? "block" : "hidden"}`}
                     >
                         <li className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg">
-                        <MdStar />
-
+                            <MdStar />
                             Quản lí Feedback
                         </li>
-                    </Link>            
+                    </Link>
                 </ul>
+                
+                {/* Logout */}
+                <button
+                    onClick={() => {
+                        console.log("logout");
+                        logout();
+                    }}
+                    className={`w-full flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg text-left ${
+                        isOpen ? "block" : "flex justify-center"
+                    }`}
+                >
+                    <FiLogOut />
+                    {isOpen && "Đăng xuất"}
+                </button>
+                <div className="flex-grow"></div>
             </nav>
-            <div className="flex-grow"></div>
-            
-            {/* Logout */}
-            <button
-                onClick={() => {
-                    console.log("logout");
-                    logout();
-                }}
-                className={`w-full flex items-center gap-2 p-2 hover:bg-gray-700 rounded-lg text-left ${
-                    isOpen ? "block" : "flex justify-center"
-                }`}
-            >
-                <FiLogOut />
-                {isOpen && "Đăng xuất"}
-            </button>
         </aside>
     );
 };
