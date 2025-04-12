@@ -82,8 +82,6 @@ export default function QuizManagement() {
         quiz.questions.flatMap((question) => question.answers || [])
       );
       setAnswer(allAnswers);
-    } catch (error) {
-      setError(handleApiError(error));
     } finally {
       setLoading(false);
     }
@@ -106,9 +104,7 @@ export default function QuizManagement() {
       setError(null);
       const resultsData = await fetchQuizResults();
       setQuizResults(resultsData);
-    } catch (error) {
-      setError(handleApiError(error));
-    } finally {
+    }finally {
       setLoading(false);
     }
   };
@@ -321,8 +317,8 @@ export default function QuizManagement() {
       setMutationLoading(true);
       await deleteQuizResult(resultId);
       setQuizResults((prev) => prev.filter((result) => result.id !== resultId));
-    } catch (error) {
-      setError(handleApiError(error));
+     
+    
     } finally {
       setMutationLoading(false);
     }
@@ -782,12 +778,12 @@ export default function QuizManagement() {
                               >
                                 Sửa
                               </button>
-                              {/* <button
+                              <button
                                 onClick={() => handleDeleteQuiz(quiz.id)}
                                 className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
                               >
                                 Xóa
-                              </button> */}
+                              </button>
                             </>
                           )}
                         </div>
@@ -1296,7 +1292,7 @@ export default function QuizManagement() {
                                               >
                                                 Sửa
                                               </button>
-                                              {/* <button
+                                              <button
                                                 onClick={() =>
                                                   handleDeleteQuizResult(
                                                     result.id
@@ -1305,7 +1301,7 @@ export default function QuizManagement() {
                                                 className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
                                               >
                                                 Xóa
-                                              </button> */}
+                                              </button>
                                             </>
                                           )}
                                         </div>
