@@ -372,6 +372,7 @@ export default function QuizManagement() {
       maxPoint: 0,
       quizName: quizzes.find((q) => q.id === quizId)?.name || "",
       services: [],
+      name:"",
     });
   };
 
@@ -387,6 +388,7 @@ export default function QuizManagement() {
         quizId: newResultData.quizId,
         quizName: newResultData.quizName,
         services: newResultData.services,
+        name: newResultData.name,
       });
       if (createdResult) {
         toast.success("Tạo kết quả thành công");
@@ -926,6 +928,18 @@ export default function QuizManagement() {
                               >
                                 <input
                                   type="text"
+                                  value={newResultData.name}
+                                  onChange={(e) =>
+                                    setNewResultData({
+                                      ...newResultData,
+                                      name: e.target.value,
+                                    })
+                                  }
+                                  className="w-full p-2 mb-2 border rounded"
+                                  placeholder="Kết quả"
+                                />
+                                 <input
+                                  type="text"
                                   value={newResultData.resultText}
                                   onChange={(e) =>
                                     setNewResultData({
@@ -934,7 +948,7 @@ export default function QuizManagement() {
                                     })
                                   }
                                   className="w-full p-2 mb-2 border rounded"
-                                  placeholder="Kết quả"
+                                  placeholder="Chi tiết"
                                 />
                                 <p>Điểm Min:</p>
                                 <input
@@ -1081,6 +1095,20 @@ export default function QuizManagement() {
                                         <input
                                           type="text"
                                           value={
+                                            editResultData.name || ""
+                                          }
+                                          onChange={(e) =>
+                                            setEditResultData({
+                                              ...editResultData,
+                                              name: e.target.value,
+                                            })
+                                          }
+                                          className="w-full p-2 mb-2 border rounded"
+                                          placeholder="Kết quả"
+                                        />
+                                        <input
+                                          type="text"
+                                          value={
                                             editResultData.resultText || ""
                                           }
                                           onChange={(e) =>
@@ -1090,7 +1118,7 @@ export default function QuizManagement() {
                                             })
                                           }
                                           className="w-full p-2 mb-2 border rounded"
-                                          placeholder="Kết quả"
+                                          placeholder="chi tiết"
                                         />
                                         <p>Điểm Min:</p>
                                         <input
@@ -1234,8 +1262,13 @@ export default function QuizManagement() {
                                         transition={{ duration: 0.3 }}
                                       >
                                         <div>
+
                                           <p>
                                             <strong>Kết quả:</strong>{" "}
+                                            {result.name}
+                                          </p>
+                                          <p>
+                                            <strong>Chi tiết:</strong>{" "}
                                             {result.resultText}
                                           </p>
                                           <p>

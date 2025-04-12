@@ -61,6 +61,7 @@ export interface Service {
 
 export interface QuizResult {
   id: number;
+  name: string;
   resultText: string;
   minPoint: number;
   maxPoint: number;
@@ -286,6 +287,7 @@ export const updateQuizResult = async (
     const response = await axiosInstance.put<ApiResponse<QuizResult>>(
       `/quizResult/${updatedResult.id}`,
       {
+        name: updatedResult.name,
         quizId: updatedResult.quizId,
         resultText: updatedResult.resultText,
         minPoint: updatedResult.minPoint,
@@ -314,6 +316,7 @@ export const createQuizResult = async (
     const response = await axiosInstance.post<ApiResponse<QuizResult>>(
       `/quizResult`,
       {
+        name: resultData.name,
         quizId: quizId,
         resultText: resultData.resultText,
         minPoint: resultData.minPoint,
