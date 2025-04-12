@@ -57,6 +57,9 @@ public class QuestionService {
     public QuestionResponse update(int id, QuestionRequest request){
         Question question = getQuestion(id);
 
+        if (question.getQuiz().isStatus()) {
+            throw new AppException(ErrorCode.QUIZ_IS_ACTIVE);
+        }
         questionMapper.updateQuestion(question,request);
 
         return questionMapper.toResponse(questionRepository.save(question));
@@ -64,6 +67,9 @@ public class QuestionService {
 
     public void delete(int id) {
         Question question = getQuestion(id);
+        if (question.getQuiz().isStatus()) {
+            throw new AppException(ErrorCode.QUIZ_IS_ACTIVE);
+        }
         questionRepository.delete(question);
     }
 
