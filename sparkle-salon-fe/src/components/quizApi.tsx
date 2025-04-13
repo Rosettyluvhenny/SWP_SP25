@@ -264,15 +264,16 @@ export const deleteQuestion = async (questionId: number) => {
 };
 
 export const deleteQuizResult = async (resultId: number) => {
-  try {
+  const isConfirmed = window.confirm(
+    "Bạn có chắc chắn muốn xóa kết quả bài kiểm tra không?"
+  );
+  if (!isConfirmed) return Promise.reject("Hủy xóa kết quả bài kiểm tra");
+  
     const response = await axiosInstance.delete(`/quizResult/${resultId}`);
     if (response.data.code !== 0)
       throw new Error(response.data.message || "Failed to delete quiz result");
     return response.data;
-  } catch (error) {
-    console.error("Lỗi khi xóa kết quả:", error);
-    throw handleApiError(error);
-  }
+  
 };
 
 export const updateQuizResult = async (
